@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: compilot-ai-config
+  namespace: compilot-ai
+data:
+  # Application Configuration
+  SERVER_PORT: "8000"
+  SPRING_CACHE_TYPE: "redis"
+
+  # Database Configuration
+  POSTGRES_HOST: "postgresql"
+  POSTGRES_PORT: "5432"
+  POSTGRES_URL: "jdbc:postgresql://postgresql:5432/compilot_master?currentSchema=master"
+
+  # Redis Configuration
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_DATABASE: "0"
+
+  # Ollama Configuration
+  OLLAMA_BASE_URL: "http://ollama:11434"
+  OLLAMA_MODEL: "gemma2:9b-instruct-q4_0"
+  OLLAMA_EMBEDDING_MODEL: "jeffh/intfloat-multilingual-e5-large:q8_0"
+  OLLAMA_GUARDRAIL_MODEL: "llama3.2:1b"
+
+  # RAG Configuration
+  MIN_CONFIDENCE: "0.5"
+  LOW_CONFIDENCE_THRESHOLD: "0.5"
+  USE_RERANKING: "true"
+  ENABLE_RAG: "true"
+  ENABLE_GENERAL_KNOWLEDGE: "true"
+
+  # CORS Configuration
+  CORS_ALLOWED_ORIGINS: "*"
+
+  # Admin Configuration
+  ADMIN_ENABLED: "true"
+
+  # Tenant Security
+  TENANT_SECURITY_ENABLED: "true"
+
+  # JWT Configuration
+  JWT_EXPIRATION: "3600000"
+
+  # Development Tenant (disable in production)
+  DEV_TENANT_ENABLED: "false"
+
+  # Guardrails Configuration
+  GUARDRAILS_ENABLED: "true"
+  GUARDRAILS_LOG_VIOLATIONS: "true"
+  GUARDRAILS_PROMPT_INJECTION: "true"
+  GUARDRAILS_JAILBREAK: "true"
+  GUARDRAILS_PII_DETECTION: "true"
+  GUARDRAILS_SOCIAL_ENGINEERING: "true"
+  GUARDRAILS_WARN_ON_EMAIL: "false"
+  GUARDRAILS_LLM_SEMANTIC: "true"
+  GUARDRAILS_LLM_MODE: "patterns-only"
+  GUARDRAILS_PII_REDACTION: "true"
+  GUARDRAILS_REDACT_EMAILS: "false"
+  GUARDRAILS_CONFIDENCE_VALIDATION: "false"
+  GUARDRAILS_MIN_CONFIDENCE: "0.5"
+  GUARDRAILS_SOURCE_CITATION: "false"
+  GUARDRAILS_PROFANITY_FILTER: "false"
+  GUARDRAILS_PROFANITY_STRICT: "false"
+
+  # SendGrid Configuration
+  SENDGRID_ENABLED: "false"
+  SENDGRID_FROM_EMAIL: "noreply@compilot.ai"
+  SENDGRID_FROM_NAME: "Compilot AI Support"
+  SENDGRID_SUPPORT_EMAIL: "support@compilot.ai"
+  SENDGRID_RESPONSE_TIME: "as soon as possible"
+  DASHBOARD_URL: "https://compilot.ai"
+
+  # SMTP Configuration
+  SMTP_HOST: "smtp.gmail.com"
+  SMTP_PORT: "587"
+  SMTP_AUTH: "true"
+  SMTP_STARTTLS: "true"
+  SMTP_FROM_EMAIL: "noreply@compilot.ai"
+  SMTP_FROM_NAME: "Compilot AI Support"

@@ -1,0 +1,224 @@
+spring:
+  application:
+    name: compilot-ai
+
+  # PostgreSQL configuration for multi-tenant architecture
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/compilot_master?currentSchema=master}
+    username: ${POSTGRES_USER:compilot}
+    password: ${POSTGRES_PASSWORD:RespectTheHangover}
+    host: ${POSTGRES_HOST:localhost}
+    port: ${POSTGRES_PORT:5432}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: master-pool
+      connection-init-sql: SET search_path TO master, public
+      # PostgreSQL optimizations
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        stringtype: unspecified
+
+  # JPA/Hibernate configuration
+  jpa:
+    hibernate:
+      ddl-auto: none  # Don't auto-create or validate tables, use Flyway
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        # Note: No default_schema here - tenant routing handles schema selection
+    show-sql: false
+
+  # Flyway database migrations
+  flyway:
+    enabled: true
+    locations: classpath:db/master-schema
+    baseline-on-migrate: true
+    baseline-version: 0
+    placeholder-replacement: false  # Disable to preserve ${} in templates
+
+  # Redis configuration for chat session storage
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      timeout: 2000ms
+
+  # Cache configuration (redis or simple for in-memory)
+  cache:
+    type: ${SPRING_CACHE_TYPE:redis}
+    redis:
+      time-to-live: 1800000  # 30 minutes in milliseconds
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:8000}
+
+compilot:
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    # Performance tip: Use smaller/faster models for better response times:
+    # - qwen2.5:1.5b (very fast, good quality, 1-2s response)
+    # - qwen2.5:3b (best balanced, 2-3s response)
+    # - llama3.2:3b (good alternative, 2-3s response)
+    # - llama3.1 (slower but higher quality, 5-6s response)
+    model: ${OLLAMA_MODEL:gpt-oss:20b-cloud}
+    # Embedding models for semantic search:
+    # - nomic-embed-text (768-dim, fast, but spelling-sensitive)
+    # - snowflake-arctic-embed2 (1024-dim, multilingual, TESTED: poor typo tolerance)
+    # - mxbai-embed-large (1024-dim, English-only, state-of-the-art quality)
+    # - jeffh/intfloat-multilingual-e5-large:q8_0 (1024-dim, BEST multilingual, 100+ languages)
+    # - granite-embedding:278m (768-dim, IBM multilingual)
+    embedding-model: ${OLLAMA_EMBEDDING_MODEL:jeffh/intfloat-multilingual-e5-large:q8_0}
+    # Guardrail model for fast threat classification (runs on every user message)
+    # Use lightweight model for 3x faster security checks
+    guardrail-model: ${OLLAMA_GUARDRAIL_MODEL:gpt-oss:20b-cloud}
+    timeout: 120s
+
+  knowledge-graph:
+    min-confidence: ${MIN_CONFIDENCE:0.5}
+    low-confidence-threshold: ${LOW_CONFIDENCE_THRESHOLD:0.5}
+    default-num-results: 10
+    max-results: 50
+    # Re-ranking adds 300-500ms overhead but reduces LLM context by 3x (net faster overall)
+    # Trade-off: Smaller overhead for much faster LLM generation
+    use-reranking: ${USE_RERANKING:true}
+
+  chat:
+    enable-rag: ${ENABLE_RAG:true}
+    enable-general-knowledge: ${ENABLE_GENERAL_KNOWLEDGE:true}
+    default-persona: customer_service
+    session-timeout-minutes: 30
+
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+
+  admin:
+    enabled: ${ADMIN_ENABLED:true}
+    # Add authentication config later if needed
+    # jwt-secret: ${ADMIN_JWT_SECRET:}
+
+  # Tenant security configuration
+  tenant:
+    security:
+      enabled: ${TENANT_SECURITY_ENABLED:true}  # Enabled by default
+
+  # JWT authentication configuration
+  jwt:
+    # IMPORTANT: Change this in production! Minimum 256 bits (32 characters)
+    # Generate with: openssl rand -base64 32
+    secret: ${JWT_SECRET:please-change-this-secret-key-in-production-min-256-bits-required-for-security}
+    expiration: ${JWT_EXPIRATION:3600000}  # Token lifetime in milliseconds (default: 1 hour)
+
+  # Development tenant auto-creation
+  dev-tenant:
+    enabled: ${DEV_TENANT_ENABLED:true}  # Auto-create dev tenant on startup
+    id: ${DEV_TENANT_ID:dev}
+    name: ${DEV_TENANT_NAME:Development Tenant}
+    api-key: ${DEV_TENANT_API_KEY:dev-api-key-12345}
+
+  # LangChain4j Guardrails configuration
+  guardrails:
+    # Global enable/disable
+    enabled: ${GUARDRAILS_ENABLED:true}
+    log-violations: ${GUARDRAILS_LOG_VIOLATIONS:true}
+
+    # Input Guardrails
+    prompt-injection-detection: ${GUARDRAILS_PROMPT_INJECTION:true}
+    jailbreak-detection: ${GUARDRAILS_JAILBREAK:true}
+    pii-detection: ${GUARDRAILS_PII_DETECTION:true}
+    social-engineering-detection: ${GUARDRAILS_SOCIAL_ENGINEERING:true}
+    warn-on-email: ${GUARDRAILS_WARN_ON_EMAIL:false}  # Don't warn on emails in input (often legitimate)
+
+    # LLM-Based Semantic Detection (Language-Agnostic)
+    # REDUCED SENSITIVITY: Use patterns-only to avoid false positives on innocent questions
+    llm-semantic-detection: ${GUARDRAILS_LLM_SEMANTIC:true}  # Enable LLM-based multilingual threat detection
+    llm-detection-mode: ${GUARDRAILS_LLM_MODE:patterns-only}  # "llm-only", "hybrid", "patterns-only"
+
+    # Output Guardrails
+    pii-redaction: ${GUARDRAILS_PII_REDACTION:true}
+    redact-emails: ${GUARDRAILS_REDACT_EMAILS:false}  # Don't redact emails in output (customer service context)
+    confidence-validation: ${GUARDRAILS_CONFIDENCE_VALIDATION:false}  # Optional - not required for now
+    min-confidence: ${GUARDRAILS_MIN_CONFIDENCE:0.5}
+    source-citation-required: ${GUARDRAILS_SOURCE_CITATION:false}  # Optional - not required for now
+    profanity-filter-enabled: ${GUARDRAILS_PROFANITY_FILTER:false}
+    profanity-strict-mode: ${GUARDRAILS_PROFANITY_STRICT:false}
+
+    # Custom Patterns (can be extended via environment variables)
+    custom-injection-patterns: ${GUARDRAILS_CUSTOM_INJECTION_PATTERNS:}
+    custom-jailbreak-patterns: ${GUARDRAILS_CUSTOM_JAILBREAK_PATTERNS:}
+
+  # SendGrid configuration for escalation emails (legacy EmailTool)
+  sendgrid:
+    enabled: ${SENDGRID_ENABLED:false}
+    api-key: ${SENDGRID_API_KEY:}
+    from-email: ${SENDGRID_FROM_EMAIL:noreply@compilot.ai}
+    from-name: ${SENDGRID_FROM_NAME:Compilot AI Support}
+    support-email: ${SENDGRID_SUPPORT_EMAIL:support@compilot.ai}
+    response-time: ${SENDGRID_RESPONSE_TIME:as soon as possible}
+    dashboard-url: ${DASHBOARD_URL:http://localhost}
+
+# Messaging adapter configuration
+messaging:
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY:}
+    from-address: ${SENDGRID_FROM_EMAIL:noreply@compilot.ai}
+    from-name: ${SENDGRID_FROM_NAME:Compilot AI Support}
+    reply-to-address: ${SENDGRID_REPLY_TO:}
+
+  javamail:
+    smtp:
+      host: ${SMTP_HOST:localhost}
+      port: ${SMTP_PORT:587}
+      username: ${SMTP_USERNAME:}
+      password: ${SMTP_PASSWORD:}
+      auth: ${SMTP_AUTH:true}
+      starttls:
+        enable: ${SMTP_STARTTLS:true}
+    from-address: ${SMTP_FROM_EMAIL:noreply@compilot.ai}
+    from-name: ${SMTP_FROM_NAME:Compilot AI Support}
+
+# Support adapter configuration
+support:
+  freshdesk:
+    api-url: ${FRESHDESK_API_URL:}
+    api-key: ${FRESHDESK_API_KEY:}
+
+  zoho:
+    api-url: ${ZOHO_API_URL:}
+    auth-url: ${ZOHO_AUTH_URL:}
+    client-id: ${ZOHO_CLIENT_ID:}
+    client-secret: ${ZOHO_CLIENT_SECRET:}
+    refresh-token: ${ZOHO_REFRESH_TOKEN:}
+    org-id: ${ZOHO_ORG_ID:}
+
+# Spring Boot Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    defaults:
+      enabled: true

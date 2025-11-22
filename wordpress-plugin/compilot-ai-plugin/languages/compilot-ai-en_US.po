@@ -1,0 +1,32 @@
+# English (United States) translation for Compilot AI Assistant
+# Copyright (C) 2025 Compilot
+# This file is distributed under the same license as the Compilot AI Assistant plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Compilot AI Assistant 2.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/compilot/compilot-ai/issues\n"
+"POT-Creation-Date: 2025-10-27 12:00+0100\n"
+"PO-Revision-Date: 2025-10-27 13:00+0100\n"
+"Last-Translator: Compilot <noreply@compilot.ai>\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Manual\n"
+
+#: compilot-ai-plugin.php:109
+#: compilot-ai-plugin.php:110
+msgid "Compilot AI Assistant"
+msgstr "Compilot AI Assistant"
+
+#: compilot-ai-plugin.php:120
+#: compilot-ai-plugin.php:121
+msgid "Settings"
+msgstr "Settings"
+
+#: compilot-ai-plugin.php:129
+#: compilot-ai-plugin.php:130
+msgid "Review & Add Content"
+msgstr "Review & Add Content"

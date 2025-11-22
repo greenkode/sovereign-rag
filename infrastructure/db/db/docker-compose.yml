@@ -1,0 +1,33 @@
+services:
+  postgres:
+    build: .  # Change this line from "image: postgres:17.5"
+    container_name: compilot-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-compilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-RespectTheHangover}
+      POSTGRES_DB: ${POSTGRES_DB:-bml_local}
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - compilot_data:/var/lib/postgresql/data
+    command: |
+      postgres
+      -c shared_preload_libraries=pg_cron
+      -c cron.database_name=${POSTGRES_DB:-bml_local}
+      -c max_worker_processes=20
+      -c max_parallel_workers=10
+      -c log_statement=all
+      -c log_directory='pg_log'
+      -c log_filename='postgresql-%Y-%m-%d_%H%M%S.log'
+      -c logging_collector=on
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bml} -d ${POSTGRES_DB:-bml_local}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  compilot_data:
+    driver: local

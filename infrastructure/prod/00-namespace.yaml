@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: compilot-ai
+  labels:
+    name: compilot-ai
+    environment: production

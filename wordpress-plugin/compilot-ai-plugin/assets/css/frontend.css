@@ -1,0 +1,223 @@
+/* Frontend Styles for Graphiti Knowledge Graph Plugin */
+
+.graphiti-kg-search-widget,
+.graphiti-kg-submit-widget {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.search-input-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.graphiti-search-input,
+.graphiti-submit-content,
+.graphiti-submit-description {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.graphiti-search-button,
+.graphiti-submit-button {
+    padding: 12px 24px;
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+    white-space: nowrap;
+}
+
+.graphiti-search-button:hover,
+.graphiti-submit-button:hover {
+    background: #005177;
+}
+
+.graphiti-search-spinner,
+.graphiti-submit-spinner {
+    text-align: center;
+    padding: 10px;
+    color: #666;
+}
+
+.graphiti-search-results {
+    margin-top: 30px;
+}
+
+.results-title {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0073aa;
+}
+
+.result-item {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.result-fact {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.result-meta {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.result-confidence {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.confidence-high {
+    background: #46b450;
+    color: #fff;
+}
+
+.confidence-medium {
+    background: #ffb900;
+    color: #333;
+}
+
+.confidence-low {
+    background: #dc3232;
+    color: #fff;
+}
+
+.result-actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.feedback-question {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.feedback-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.feedback-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.feedback-btn:hover {
+    border-color: #0073aa;
+}
+
+.feedback-btn.accurate {
+    background: #46b450;
+    color: #fff;
+    border-color: #46b450;
+}
+
+.feedback-btn.inaccurate {
+    background: #dc3232;
+    color: #fff;
+    border-color: #dc3232;
+}
+
+.feedback-form {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.feedback-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.feedback-email {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.submit-feedback-btn {
+    padding: 8px 16px;
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-feedback-btn:hover {
+    background: #005177;
+}
+
+.graphiti-submit-message {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 4px;
+}
+
+.graphiti-submit-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.graphiti-submit-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0,0,0,0.1);
+    border-radius: 50%;
+    border-top-color: #0073aa;
+    animation: spinner-rotate 1s linear infinite;
+}
+
+@keyframes spinner-rotate {
+    to { transform: rotate(360deg); }
+}

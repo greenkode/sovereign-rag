@@ -1,0 +1,101 @@
+# Compilot AI Plugin - Translatable Strings List
+# This file contains all English strings that need translation
+
+## Settings Page
+
+### Success Messages
+Settings saved successfully!
+
+### Section Headers
+AI Answer Generation (RAG)
+Chat Widget Settings
+Content Synchronization
+Chat Widget Look & Feel
+API Connection Test
+
+### Field Labels
+API Server URL (Backend)
+API Server URL (Frontend)
+Minimum Confidence Threshold
+Enable AI Answers
+Allow General Knowledge
+AI Personality
+Default Response Language
+Enable Chat Widget
+Chat Widget Name
+Session Inactivity Timeout
+Initial Greeting Message
+Auto-Sync Content
+Manual Sync
+Primary Color
+Secondary Color (Gradient)
+Message Font Size (px)
+Header Font Size (px)
+Preview
+
+### Field Descriptions
+URL for WordPress PHP backend to reach API server
+URL for browser JavaScript/chat widget to reach API server
+Results with lower confidence will be filtered out (0-1, default: 0.5)
+Generate natural language answers using AI
+When enabled, uses LLM to generate conversational answers from knowledge graph facts.
+Requires the selected model to be available on the system.
+Answer questions outside the knowledge graph using AI's general knowledge
+When enabled, the AI can answer general questions even if not in your knowledge base.
+Answers are marked as "general knowledge" (not verified)
+Choose the AI's communication style and personality.
+This affects how the AI responds to questions - tone, detail level, and interaction style.
+Choose the default language for AI responses.
+AI will respond in the same language as the user's message
+AI will always respond in the selected language unless user explicitly writes in another language
+Show floating chat widget on frontend pages
+The chat widget appears as a floating button in the bottom-right corner with autocomplete and search functionality.
+The title shown in the chat widget header (e.g., "Compilot AI Assistant", "Ask AI", "Help Center")
+How long to wait before prompting the user about ending an inactive chat session (default: 5 minutes)
+The greeting message shown when users first open the chat widget (default: "👋 Hello! How can I help you today?")
+Automatically sync posts/pages to knowledge graph when published or updated
+When enabled, WordPress posts and pages will automatically be sent to the knowledge graph whenever they are published or updated.
+Click to manually sync all published posts and pages to the knowledge graph. This is useful for initial setup or if auto-sync was disabled.
+Use this if a sync gets stuck and won't restart.
+Main color for header, buttons, and user message bubbles (default: #667eea)
+Secondary color for gradient effects (default: #764ba2)
+Font size for chat messages in pixels (default: 14px)
+Font size for widget header title in pixels (default: 18px)
+Live preview of your color choices
+
+### Buttons
+Sync All Published Content Now
+Clear Sync Status
+Save Settings
+Test API Connection
+Widget Preview
+
+### Docker/Local Labels
+Docker:
+Local:
+Always use:
+Auto-detect:
+Fixed language:
+Note:
+Clear Sync Status:
+
+### Persona Options
+Customer Service (Friendly & Helpful)
+Professional Expert (Polished & Knowledgeable)
+Casual Friend (Warm & Relatable)
+Technical Specialist (Detailed & Thorough)
+Concise Assistant (Brief & Direct)
+Educational Tutor (Clear & Encouraging)
+
+### Language Options
+Auto-detect from user input
+English
+Dutch (Nederlands)
+German (Deutsch)
+French (Français)
+Spanish (Español)
+Italian (Italiano)
+Portuguese (Português)
+
+### Time Units
+minutes
