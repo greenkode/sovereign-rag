@@ -37,7 +37,7 @@ private val logger = KotlinLogging.logger {}
 @EnableTransactionManagement
 @EnableJpaRepositories(
     basePackages = [
-        "nl.compilot.ai.client.repository"
+        "ai.sovereignrag.client.repository"
     ],
     entityManagerFactoryRef = "tenantEntityManagerFactory",
     transactionManagerRef = "tenantTransactionManager"
