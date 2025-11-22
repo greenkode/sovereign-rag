@@ -37,7 +37,7 @@ open class RedisCacheConfiguration {
             .serializeValuesWith(SerializationPair.fromSerializer(JdkSerializationRedisSerializer()))
 
         // Configure cache-specific TTLs
-        val cacheConfigurations = _root_ide_package_.kotlin.collections.mapOf(
+        val cacheConfigurations = kotlin.collections.mapOf(
             SovereignRagCache.CHAT_SESSION to defaultConfig.entryTtl(Duration.ofMinutes(30)),
             SovereignRagCache.CHAT_MESSAGES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
             SovereignRagCache.CHAT_RESPONSES to defaultConfig.entryTtl(Duration.ofMinutes(30)),

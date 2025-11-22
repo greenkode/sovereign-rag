@@ -1,17 +1,20 @@
 package ai.sovereignrag.support.zoho
 
-import ai.sovereignrag.commons.support.dto.*
+
+import ai.sovereignrag.commons.support.dto.AddCommentRequest
+import ai.sovereignrag.commons.support.dto.CommentResult
+import ai.sovereignrag.commons.support.dto.CreateSupportTicketRequest
+import ai.sovereignrag.commons.support.dto.SupportTicketDto
+import ai.sovereignrag.commons.support.dto.UpdateSupportTicketRequest
 import ai.sovereignrag.commons.support.enumeration.TicketCategory
 import ai.sovereignrag.commons.support.enumeration.TicketPriority
 import ai.sovereignrag.commons.support.enumeration.TicketStatus
-import ai.sovereignrag.support.SupportIntegration
 import ai.sovereignrag.support.zoho.dto.ZohoCommentRequest
 import ai.sovereignrag.support.zoho.dto.ZohoCommentResponse
 import ai.sovereignrag.support.zoho.dto.ZohoContactRequest
 import ai.sovereignrag.support.zoho.dto.ZohoContactResponse
 import ai.sovereignrag.support.zoho.dto.ZohoTicketRequest
 import ai.sovereignrag.support.zoho.dto.ZohoTicketResponse
-import ai.sovereignrag.support.zoho.dto.*
 import ai.sovereignrag.support.zoho.interceptor.ZohoAuthInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -30,7 +33,7 @@ class ZohoSupportIntegration(
     @Value("\${support.zoho.client-secret}") private val clientSecret: String,
     @Value("\${support.zoho.refresh-token}") private val refreshToken: String,
     @Value("\${support.zoho.org-id}") private val orgId: String
-) : SupportIntegration {
+) {
 
     private val restClient: RestClient
 
@@ -48,9 +51,9 @@ class ZohoSupportIntegration(
             .build()
     }
 
-    override fun getId(): String = ZOHO_SUPPORT
+    fun getId(): String = ZOHO_SUPPORT
 
-    override fun createTicket(request: CreateSupportTicketRequest): SupportTicketDto {
+    fun createTicket(request: CreateSupportTicketRequest): SupportTicketDto {
         // First, find or create contact
         val contactId = findOrCreateContact(request.contactEmail, request.contactName)
 
@@ -76,7 +79,7 @@ class ZohoSupportIntegration(
         return mapToSupportTicketDto(response)
     }
 
-    override fun getTicket(ticketId: String): SupportTicketDto {
+    fun getTicket(ticketId: String): SupportTicketDto {
         val response = restClient.get()
             .uri("/api/v1/tickets/$ticketId?orgId=$orgId")
             .retrieve()
@@ -86,7 +89,7 @@ class ZohoSupportIntegration(
         return mapToSupportTicketDto(response)
     }
 
-    override fun updateTicket(ticketId: String, request: UpdateSupportTicketRequest): SupportTicketDto {
+    fun updateTicket(ticketId: String, request: UpdateSupportTicketRequest): SupportTicketDto {
         val updateMap = mutableMapOf<String, Any?>()
 
         request.subject?.let { updateMap["subject"] = it }
@@ -110,7 +113,7 @@ class ZohoSupportIntegration(
         return mapToSupportTicketDto(response)
     }
 
-    override fun addComment(ticketId: String, request: AddCommentRequest): CommentResult {
+    fun addComment(ticketId: String, request: AddCommentRequest): CommentResult {
         val zohoRequest = ZohoCommentRequest(
             content = request.content,
             isPublic = request.isPublic
@@ -133,7 +136,7 @@ class ZohoSupportIntegration(
         )
     }
 
-    override fun closeTicket(ticketId: String): SupportTicketDto {
+    fun closeTicket(ticketId: String): SupportTicketDto {
         return updateTicket(
             ticketId,
             UpdateSupportTicketRequest(status = TicketStatus.CLOSED)

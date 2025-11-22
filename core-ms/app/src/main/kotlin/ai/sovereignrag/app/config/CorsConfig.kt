@@ -24,7 +24,7 @@ class CorsConfig(
 
             // When allowCredentials is true, use allowedOriginPatterns instead of allowedOrigins
             if (properties.cors.allowCredentials) {
-                CorsConfiguration.setAllowedOriginPatterns = origins
+                allowedOriginPatterns = origins
             } else {
                 allowedOrigins = origins
             }

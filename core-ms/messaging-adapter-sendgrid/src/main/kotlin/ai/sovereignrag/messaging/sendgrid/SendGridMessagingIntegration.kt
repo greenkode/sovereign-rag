@@ -1,5 +1,9 @@
 package ai.sovereignrag.messaging.sendgrid
 
+import ai.sovereignrag.commons.messaging.dto.MessagePayload
+import ai.sovereignrag.commons.messaging.dto.MessageSentResult
+import ai.sovereignrag.commons.messaging.dto.MessageTemplateDto
+import ai.sovereignrag.commons.messaging.enumeration.DeliveryStatus
 import com.sendgrid.Method
 import com.sendgrid.Request
 import com.sendgrid.SendGrid
@@ -7,11 +11,6 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import mu.KotlinLogging
-import ai.sovereignrag.commons.messaging.dto.MessagePayload
-import ai.sovereignrag.commons.messaging.dto.MessageSentResult
-import ai.sovereignrag.commons.messaging.dto.MessageTemplateDto
-import ai.sovereignrag.commons.messaging.enumeration.DeliveryStatus
-import ai.sovereignrag.messaging.MessagingIntegration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -25,11 +24,11 @@ class SendGridMessagingIntegration(
     @Value("\${messaging.sendgrid.from-address}") private val fromAddress: String,
     @Value("\${messaging.sendgrid.from-name}") private val fromName: String,
     @Value("\${messaging.sendgrid.reply-to-address:}") private val replyToAddress: String?
-) : MessagingIntegration {
+) {
 
-    override fun getId(): String = SENDGRID_EMAIL_INTEGRATION
+    fun getId(): String = SENDGRID_EMAIL_INTEGRATION
 
-    override fun sendMessage(
+    fun sendMessage(
         payload: MessagePayload,
         template: MessageTemplateDto
     ): MessageSentResult {
