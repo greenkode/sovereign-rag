@@ -1,13 +1,13 @@
-# Dutch (Netherlands) translation for Compilot AI Assistant
-# Copyright (C) 2025 Compilot
-# This file is distributed under the same license as the Compilot AI Assistant plugin.
+# Dutch (Netherlands) translation for Sovereign RAG Assistant
+# Copyright (C) 2025 SovereignRag
+# This file is distributed under the same license as the Sovereign RAG Assistant plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Compilot AI Assistant 2.0.0\n"
-"Report-Msgid-Bugs-To: https://github.com/compilot/compilot-ai/issues\n"
+"Project-Id-Version: Sovereign RAG Assistant 2.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/sovereignrag/sovereign-rag/issues\n"
 "POT-Creation-Date: 2025-10-27 13:00+0100\n"
 "PO-Revision-Date: 2025-10-27 13:00+0100\n"
-"Last-Translator: Compilot <noreply@compilot.ai>\n"
+"Last-Translator: SovereignRag <noreply@sovereignrag.ai>\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
 "MIME-Version: 1.0\n"
@@ -17,8 +17,8 @@ msgstr ""
 "X-Generator: Manual\n"
 
 ## Menu Items
-msgid "Compilot AI Assistant"
-msgstr "Compilot AI Assistent"
+msgid "Sovereign RAG Assistant"
+msgstr "SovereignRag AI Assistent"
 
 msgid "Settings"
 msgstr "Instellingen"
@@ -207,8 +207,8 @@ msgid "No unanswered queries found. Great job!"
 msgstr "Geen onbeantwoorde vragen gevonden. Goed gedaan!"
 
 ## AI Assistant Management Page
-msgid "Compilot AI Assistant Management"
-msgstr "Compilot AI Assistent Beheer"
+msgid "Sovereign RAG Assistant Management"
+msgstr "SovereignRag AI Assistent Beheer"
 
 msgid "Content is automatically synchronized to the knowledge graph when you publish or update posts and pages."
 msgstr "Inhoud wordt automatisch gesynchroniseerd met de kennisgraaf wanneer u berichten en pagina's publiceert of bijwerkt."
@@ -219,8 +219,8 @@ msgstr "U kunt ook handmatig alle inhoud synchroniseren vanaf de Instellingenpag
 msgid "Go to Settings"
 msgstr "Ga naar Instellingen"
 
-msgid "Search Compilot AI Assistant"
-msgstr "Zoek in Compilot AI Assistent"
+msgid "Search Sovereign RAG Assistant"
+msgstr "Zoek in SovereignRag AI Assistent"
 
 msgid "Number of Results"
 msgstr "Aantal Resultaten"
@@ -235,8 +235,8 @@ msgstr "Zoeken"
 msgid "API Server URL"
 msgstr "API Server URL"
 
-msgid "The URL where the Compilot AI backend API is running"
-msgstr "De URL waar de Compilot AI backend API draait"
+msgid "The URL where the SovereignRag AI backend API is running"
+msgstr "De URL waar de SovereignRag AI backend API draait"
 
 ## Connection Tab
 msgid "Connection"
@@ -257,14 +257,14 @@ msgstr "De standaard inloggegevens verbinden met de automatisch aangemaakte ontw
 msgid "Production:"
 msgstr "Productie:"
 
-msgid "Replace these with your production tenant credentials from the Compilot AI backend startup logs."
-msgstr "Vervang deze met uw productie tenant inloggegevens uit de Compilot AI backend opstartlogs."
+msgid "Replace these with your production tenant credentials from the SovereignRag AI backend startup logs."
+msgstr "Vervang deze met uw productie tenant inloggegevens uit de SovereignRag AI backend opstartlogs."
 
 msgid "Tenant ID"
 msgstr "Tenant ID"
 
-msgid "Your unique tenant identifier provided by Compilot AI"
-msgstr "Uw unieke tenant identificatie verstrekt door Compilot AI"
+msgid "Your unique tenant identifier provided by SovereignRag AI"
+msgstr "Uw unieke tenant identificatie verstrekt door SovereignRag AI"
 
 msgid "API Key"
 msgstr "API Sleutel"
@@ -493,8 +493,8 @@ msgstr "Nee, niet behulpzaam"
 msgid "Ask a question..."
 msgstr "Stel een vraag..."
 
-msgid "Open Compilot AI Chat"
-msgstr "Open Compilot AI Chat"
+msgid "Open SovereignRag AI Chat"
+msgstr "Open SovereignRag AI Chat"
 
 msgid "Close chat"
 msgstr "Sluit chat"

@@ -1,4 +1,4 @@
-# Compilot AI Plugin - Translatable Strings List
+# SovereignRag AI Plugin - Translatable Strings List
 # This file contains all English strings that need translation
 
 ## Settings Page
@@ -50,7 +50,7 @@ AI will respond in the same language as the user's message
 AI will always respond in the selected language unless user explicitly writes in another language
 Show floating chat widget on frontend pages
 The chat widget appears as a floating button in the bottom-right corner with autocomplete and search functionality.
-The title shown in the chat widget header (e.g., "Compilot AI Assistant", "Ask AI", "Help Center")
+The title shown in the chat widget header (e.g., "Sovereign RAG Assistant", "Ask AI", "Help Center")
 How long to wait before prompting the user about ending an inactive chat session (default: 5 minutes)
 The greeting message shown when users first open the chat widget (default: "👋 Hello! How can I help you today?")
 Automatically sync posts/pages to knowledge graph when published or updated

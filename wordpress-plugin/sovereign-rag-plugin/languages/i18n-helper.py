@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Helper script to generate internationalized strings for Compilot AI plugin
+Helper script to generate internationalized strings for SovereignRag AI plugin
 Outputs translation entries for .po files
 """
 

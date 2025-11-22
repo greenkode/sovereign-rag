@@ -1,5 +1,5 @@
 -- Master database schema for tenant management
--- This should be run on the compilot_master database
+-- This should be run on the sovereignrag_master database
 
 -- Create master schema for logical organization
 CREATE SCHEMA IF NOT EXISTS master;
@@ -134,7 +134,7 @@ CREATE TRIGGER update_tenants_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Comments for documentation
-COMMENT ON TABLE tenants IS 'Registry of all tenants (WordPress sites) using Compilot AI';
+COMMENT ON TABLE tenants IS 'Registry of all tenants (WordPress sites) using Sovereign RAG';
 COMMENT ON TABLE tenant_usage IS 'Daily usage metrics per tenant for billing and monitoring';
 COMMENT ON TABLE api_keys IS 'API keys for tenant authentication (supports multiple keys per tenant)';
 COMMENT ON TABLE audit_log IS 'Audit trail of all tenant actions for security and compliance';

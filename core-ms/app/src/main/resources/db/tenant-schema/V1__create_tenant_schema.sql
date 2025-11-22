@@ -1,6 +1,6 @@
 -- Tenant database schema
 -- This schema is applied to each tenant's isolated database
--- Database naming: compilot_tenant_<tenant_id>
+-- Database naming: sovereignrag_tenant_<tenant_id>
 
 -- NOTE: Document storage and embeddings are managed by LangChain4j's PgVectorEmbeddingStore
 -- which automatically creates the 'langchain4j_embeddings' table

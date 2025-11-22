@@ -1,13 +1,13 @@
-# English (United States) translation for Compilot AI Assistant
-# Copyright (C) 2025 Compilot
-# This file is distributed under the same license as the Compilot AI Assistant plugin.
+# English (United States) translation for Sovereign RAG Assistant
+# Copyright (C) 2025 SovereignRag
+# This file is distributed under the same license as the Sovereign RAG Assistant plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Compilot AI Assistant 2.0.0\n"
-"Report-Msgid-Bugs-To: https://github.com/compilot/compilot-ai/issues\n"
+"Project-Id-Version: Sovereign RAG Assistant 2.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/sovereignrag/sovereign-rag/issues\n"
 "POT-Creation-Date: 2025-10-27 12:00+0100\n"
 "PO-Revision-Date: 2025-10-27 13:00+0100\n"
-"Last-Translator: Compilot <noreply@compilot.ai>\n"
+"Last-Translator: SovereignRag <noreply@sovereignrag.ai>\n"
 "Language-Team: English\n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
@@ -16,17 +16,17 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Manual\n"
 
-#: compilot-ai-plugin.php:109
-#: compilot-ai-plugin.php:110
-msgid "Compilot AI Assistant"
-msgstr "Compilot AI Assistant"
+#: sovereign-rag-plugin.php:109
+#: sovereign-rag-plugin.php:110
+msgid "Sovereign RAG Assistant"
+msgstr "Sovereign RAG Assistant"
 
-#: compilot-ai-plugin.php:120
-#: compilot-ai-plugin.php:121
+#: sovereign-rag-plugin.php:120
+#: sovereign-rag-plugin.php:121
 msgid "Settings"
 msgstr "Settings"
 
-#: compilot-ai-plugin.php:129
-#: compilot-ai-plugin.php:130
+#: sovereign-rag-plugin.php:129
+#: sovereign-rag-plugin.php:130
 msgid "Review & Add Content"
 msgstr "Review & Add Content"
