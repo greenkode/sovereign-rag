@@ -4,8 +4,8 @@ import dev.langchain4j.data.segment.TextSegment
 import dev.langchain4j.store.embedding.EmbeddingStore
 import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore
 import mu.KotlinLogging
-import nl.compilot.ai.commons.tenant.TenantContext
-import nl.compilot.ai.commons.tenant.TenantRegistry
+import ai.sovereignrag.commons.tenant.TenantContext
+import ai.sovereignrag.commons.tenant.TenantRegistry
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
@@ -22,8 +22,8 @@ class TenantAwarePgVectorStoreFactory(
     @Value("\${spring.datasource.port:5432}") private val dbPort: Int,
     @Value("\${spring.datasource.username}") private val dbUsername: String,
     @Value("\${spring.datasource.password}") private val dbPassword: String,
-    @Value("\${compilot.embedding.dimension:1024}") private val embeddingDimension: Int,
-    @Value("\${compilot.embedding.table:langchain4j_embeddings}") private val tableName: String
+    @Value("\${sovereignrag.embedding.dimension:1024}") private val embeddingDimension: Int,
+    @Value("\${sovereignrag.embedding.table:langchain4j_embeddings}") private val tableName: String
 ) {
 
     // Cache of tenant embedding stores to avoid recreating connections

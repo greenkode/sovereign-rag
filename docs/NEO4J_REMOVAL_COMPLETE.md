@@ -1,6 +1,6 @@
 # Neo4j Removal - COMPLETED ✅
 
-Neo4j has been completely removed from the Compilot AI system and replaced with PostgreSQL + pgvector for multi-tenant document storage.
+Neo4j has been completely removed from the Sovereign RAG system and replaced with PostgreSQL + pgvector for multi-tenant document storage.
 
 ## What Was Removed
 
@@ -66,9 +66,9 @@ Neo4j has been completely removed from the Compilot AI system and replaced with 
 │  TenantDataSourceRouter                                  │
 │       ↓                                                   │
 │  Separate database per tenant                            │
-│  - compilot_tenant_tenant_a                              │
-│  - compilot_tenant_tenant_b                              │
-│  - compilot_tenant_tenant_c                              │
+│  - sovereignrag_tenant_tenant_a                              │
+│  - sovereignrag_tenant_tenant_b                              │
+│  - sovereignrag_tenant_tenant_c                              │
 │                                                           │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -160,7 +160,7 @@ curl -X POST http://localhost:8080/api/admin/tenants \
     "wordpressUrl": "https://mysite.com"
   }'
 
-# 2. In WordPress admin: Compilot AI → Sync All Content
+# 2. In WordPress admin: Sovereign RAG → Sync All Content
 # Content will automatically go to PostgreSQL + pgvector
 ```
 
@@ -185,7 +185,7 @@ curl -X POST http://localhost:8080/api/ingest \
 If your content is in WordPress, just re-sync:
 
 1. Go to WordPress admin
-2. Compilot AI plugin settings
+2. Sovereign RAG plugin settings
 3. Click "Sync All Content"
 4. All posts/pages re-ingested into PostgreSQL
 
@@ -219,11 +219,11 @@ grep -i postgresql core-ms/app/pom.xml
 
 ```bash
 # Verify ContentServiceNeo4j deleted
-ls core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/
+ls core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/
 # Should NOT list ContentServiceNeo4j.kt
 
 # Verify ContentService exists (pgvector implementation)
-ls core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContentService.kt
+ls core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContentService.kt
 # Should exist
 ```
 
@@ -248,7 +248,7 @@ curl -X POST http://localhost:8080/api/ingest \
   }'
 
 # 4. Verify in PostgreSQL
-psql -h localhost -U compilot -d compilot_tenant_test_tenant \
+psql -h localhost -U sovereignrag -d sovereignrag_tenant_test_tenant \
   -c "SELECT title FROM documents;"
 # Should show "Test Document"
 ```
@@ -340,18 +340,18 @@ neo4j:
 ## Files Changed
 
 ### Modified
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/config/LangChain4jConfig.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/config/LangChain4jConfig.kt`
 - `core-ms/core-ai/pom.xml`
 - `core-ms/app/src/main/resources/application.yml`
 - `docker-compose.yml`
 
 ### Deleted
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContentServiceNeo4j.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContentServiceNeo4j.kt`
 
 ### Created (in previous phases)
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContentService.kt` (pgvector)
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/repository/DocumentRepository.kt`
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/tenant/domain/Document.kt` (JPA entity)
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContentService.kt` (pgvector)
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/repository/DocumentRepository.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/tenant/domain/Document.kt` (JPA entity)
 
 ## Next Steps
 

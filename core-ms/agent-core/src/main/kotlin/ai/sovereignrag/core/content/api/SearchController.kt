@@ -2,11 +2,11 @@ package ai.sovereignrag.core.content.api
 
 import an.awesome.pipelinr.Pipeline
 import mu.KotlinLogging
-import nl.compilot.ai.content.dto.AutocompleteResponse
-import nl.compilot.ai.content.dto.SearchRequest
-import nl.compilot.ai.content.dto.SearchResponse
-import nl.compilot.ai.content.query.AutocompleteQuery
-import nl.compilot.ai.content.query.SearchDocumentsQuery
+import ai.sovereignrag.content.dto.AutocompleteResponse
+import ai.sovereignrag.content.dto.SearchRequest
+import ai.sovereignrag.content.dto.SearchResponse
+import ai.sovereignrag.content.query.AutocompleteQuery
+import ai.sovereignrag.content.query.SearchDocumentsQuery
 import org.springframework.web.bind.annotation.*
 
 private val logger = KotlinLogging.logger {}

@@ -4,7 +4,7 @@
 
 ### PromptTemplate.kt
 ```kotlin
-package nl.compilot.ai.prompt.domain
+package ai.sovereignrag.prompt.domain
 
 import jakarta.persistence.*
 import java.time.Instant
@@ -63,7 +63,7 @@ data class PromptTemplate(
 
 ### PersonaConfiguration.kt
 ```kotlin
-package nl.compilot.ai.prompt.domain
+package ai.sovereignrag.prompt.domain
 
 import jakarta.persistence.*
 import java.time.Instant
@@ -125,9 +125,9 @@ data class PersonaConfiguration(
 
 ### PromptTemplateRepository.kt
 ```kotlin
-package nl.compilot.ai.prompt.repository
+package ai.sovereignrag.prompt.repository
 
-import nl.compilot.ai.prompt.domain.PromptTemplate
+import ai.sovereignrag.prompt.domain.PromptTemplate
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -168,9 +168,9 @@ interface PromptTemplateRepository : JpaRepository<PromptTemplate, Long> {
 
 ### PersonaConfigurationRepository.kt
 ```kotlin
-package nl.compilot.ai.prompt.repository
+package ai.sovereignrag.prompt.repository
 
-import nl.compilot.ai.prompt.domain.PersonaConfiguration
+import ai.sovereignrag.prompt.domain.PersonaConfiguration
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -212,7 +212,7 @@ interface PersonaConfigurationRepository : JpaRepository<PersonaConfiguration, L
 
 ### PromptTemplateRenderer.kt (Interface in commons)
 ```kotlin
-package nl.compilot.ai.commons.prompt
+package ai.sovereignrag.commons.prompt
 
 /**
  * Interface for rendering prompt templates with parameter substitution
@@ -239,10 +239,10 @@ interface PromptTemplateRenderer {
 
 ### StringSubstitutorRenderer.kt (Implementation)
 ```kotlin
-package nl.compilot.ai.prompt.service
+package ai.sovereignrag.prompt.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.commons.prompt.PromptTemplateRenderer
+import ai.sovereignrag.commons.prompt.PromptTemplateRenderer
 import org.apache.commons.text.StringSubstitutor
 import org.springframework.stereotype.Component
 
@@ -359,13 +359,13 @@ class TemplateRenderException(message: String, cause: Throwable? = null) : Runti
 
 ### PromptTemplateService.kt
 ```kotlin
-package nl.compilot.ai.prompt.service
+package ai.sovereignrag.prompt.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.commons.prompt.PromptTemplateRenderer
-import nl.compilot.ai.commons.tenant.TenantContext
-import nl.compilot.ai.prompt.domain.PromptTemplate
-import nl.compilot.ai.prompt.repository.PromptTemplateRepository
+import ai.sovereignrag.commons.prompt.PromptTemplateRenderer
+import ai.sovereignrag.commons.tenant.TenantContext
+import ai.sovereignrag.prompt.domain.PromptTemplate
+import ai.sovereignrag.prompt.repository.PromptTemplateRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -447,12 +447,12 @@ class TemplateValidationException(message: String) : RuntimeException(message)
 
 ### PersonaService.kt
 ```kotlin
-package nl.compilot.ai.prompt.service
+package ai.sovereignrag.prompt.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.commons.tenant.TenantContext
-import nl.compilot.ai.prompt.domain.PersonaConfiguration
-import nl.compilot.ai.prompt.repository.PersonaConfigurationRepository
+import ai.sovereignrag.commons.tenant.TenantContext
+import ai.sovereignrag.prompt.domain.PersonaConfiguration
+import ai.sovereignrag.prompt.repository.PersonaConfigurationRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

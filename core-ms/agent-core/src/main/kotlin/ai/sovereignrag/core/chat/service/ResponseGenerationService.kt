@@ -5,7 +5,7 @@ import dev.langchain4j.data.message.ChatMessage
 import dev.langchain4j.data.message.UserMessage
 import dev.langchain4j.model.chat.ChatLanguageModel
 import mu.KotlinLogging
-import nl.compilot.ai.commons.guardrail.GuardrailGateway
+import ai.sovereignrag.commons.guardrail.GuardrailGateway
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger {}

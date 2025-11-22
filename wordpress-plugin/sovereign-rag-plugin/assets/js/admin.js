@@ -1,12 +1,12 @@
 /**
- * Admin JavaScript for Compilot AI Assistant Plugin
+ * Admin JavaScript for Sovereign RAG Assistant Plugin
  */
 
 (function($) {
     'use strict';
 
-    console.log('Compilot AI Admin script loaded');
-    console.log('compilotAI object:', typeof compilotAI !== 'undefined' ? compilotAI : 'NOT DEFINED');
+    console.log('Sovereign RAG Admin script loaded');
+    console.log('sovereignRAG object:', typeof sovereignRAG !== 'undefined' ? sovereignRAG : 'NOT DEFINED');
 
     // JWT Token Manager
     var jwtToken = {
@@ -35,11 +35,11 @@
         fetch: function() {
             return new Promise(function(resolve, reject) {
                 $.ajax({
-                    url: compilotAI.ajax_url,
+                    url: sovereignRAG.ajax_url,
                     method: 'POST',
                     data: {
-                        action: 'compilot_get_jwt_token',
-                        nonce: compilotAI.nonce
+                        action: 'sovereignrag_get_jwt_token',
+                        nonce: sovereignRAG.nonce
                     },
                     success: function(response) {
                         if (response.success && response.data.token) {
@@ -94,11 +94,11 @@
         $results.html('<p>Searching...</p>');
 
         $.ajax({
-            url: compilotAI.ajax_url,
+            url: sovereignRAG.ajax_url,
             method: 'POST',
             data: {
-                action: 'compilot_search',
-                nonce: compilotAI.nonce,
+                action: 'sovereignrag_search',
+                nonce: sovereignRAG.nonce,
                 query: $('#search-query').val(),
                 num_results: $('#num-results').val(),
                 min_confidence: $('#min-confidence').val()
@@ -165,11 +165,11 @@
         $result.html('<p>Testing connection...</p>');
 
         $.ajax({
-            url: compilotAI.ajax_url,
+            url: sovereignRAG.ajax_url,
             method: 'POST',
             data: {
-                action: 'compilot_test_connection',
-                nonce: compilotAI.nonce
+                action: 'sovereignrag_test_connection',
+                nonce: sovereignRAG.nonce
             },
             success: function(response) {
                 if (response.success) {
@@ -196,7 +196,7 @@
     $('#regenerate-api-key').on('click', function() {
         var $button = $(this);
         var $result = $('#api-key-result');
-        var tenantId = compilotAI.tenantId || $('#tenant_id').val();
+        var tenantId = sovereignRAG.tenantId || $('#tenant_id').val();
 
         if (!tenantId) {
             $result.html('<div class="notice notice-error"><p>Please enter a Tenant ID first.</p></div>');
@@ -217,7 +217,7 @@
     // Helper function to show confirmation modal
     function showConfirmModal(title, message, onConfirm) {
         // Create modal HTML
-        var modalHtml = '<div id="compilot-confirm-modal" style="display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">' +
+        var modalHtml = '<div id="sovereignrag-confirm-modal" style="display: none; position: fixed; z-index: 100000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">' +
             '<div style="background-color: #fff; margin: 10% auto; padding: 0; border: 1px solid #ccc; border-radius: 4px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">' +
             '<div style="padding: 15px 20px; border-bottom: 1px solid #ddd; background-color: #f7f7f7;">' +
             '<h2 style="margin: 0; font-size: 18px; font-weight: 600;">' + title + '</h2>' +
@@ -226,39 +226,39 @@
             '<p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6;">' + message + '</p>' +
             '</div>' +
             '<div style="padding: 15px 20px; border-top: 1px solid #ddd; text-align: right; background-color: #f7f7f7;">' +
-            '<button type="button" id="compilot-modal-cancel" class="button" style="margin-right: 10px;">Cancel</button>' +
-            '<button type="button" id="compilot-modal-confirm" class="button button-primary">Proceed</button>' +
+            '<button type="button" id="sovereignrag-modal-cancel" class="button" style="margin-right: 10px;">Cancel</button>' +
+            '<button type="button" id="sovereignrag-modal-confirm" class="button button-primary">Proceed</button>' +
             '</div>' +
             '</div>' +
             '</div>';
 
         // Remove existing modal if any
-        $('#compilot-confirm-modal').remove();
+        $('#sovereignrag-confirm-modal').remove();
 
         // Add modal to body
         $('body').append(modalHtml);
 
         // Show modal
-        $('#compilot-confirm-modal').fadeIn(200);
+        $('#sovereignrag-confirm-modal').fadeIn(200);
 
         // Handle confirm button
-        $('#compilot-modal-confirm').on('click', function() {
-            $('#compilot-confirm-modal').fadeOut(200, function() {
+        $('#sovereignrag-modal-confirm').on('click', function() {
+            $('#sovereignrag-confirm-modal').fadeOut(200, function() {
                 $(this).remove();
             });
             if (onConfirm) onConfirm();
         });
 
         // Handle cancel button
-        $('#compilot-modal-cancel').on('click', function() {
-            $('#compilot-confirm-modal').fadeOut(200, function() {
+        $('#sovereignrag-modal-cancel').on('click', function() {
+            $('#sovereignrag-confirm-modal').fadeOut(200, function() {
                 $(this).remove();
             });
         });
 
         // Handle click outside modal
-        $('#compilot-confirm-modal').on('click', function(e) {
-            if (e.target.id === 'compilot-confirm-modal') {
+        $('#sovereignrag-confirm-modal').on('click', function(e) {
+            if (e.target.id === 'sovereignrag-confirm-modal') {
                 $(this).fadeOut(200, function() {
                     $(this).remove();
                 });
@@ -266,12 +266,12 @@
         });
 
         // Handle ESC key
-        $(document).on('keydown.compilotModal', function(e) {
+        $(document).on('keydown.sovereignragModal', function(e) {
             if (e.keyCode === 27) { // ESC key
-                $('#compilot-confirm-modal').fadeOut(200, function() {
+                $('#sovereignrag-confirm-modal').fadeOut(200, function() {
                     $(this).remove();
                 });
-                $(document).off('keydown.compilotModal');
+                $(document).off('keydown.sovereignragModal');
             }
         });
     }
@@ -283,7 +283,7 @@
 
         // Step 1: Request reset - No authentication required (public endpoint secured by email)
         $.ajax({
-            url: compilotAI.api_url + '/api/admin/tenants/' + encodeURIComponent(tenantId) + '/request-reset',
+            url: sovereignRAG.api_url + '/api/admin/tenants/' + encodeURIComponent(tenantId) + '/request-reset',
             method: 'POST',
             contentType: 'application/json',
             dataType: 'json'
@@ -318,7 +318,7 @@
 
                     // Step 2: Confirm reset with token - No authentication required
                     $.ajax({
-                        url: compilotAI.api_url + '/api/admin/tenants/' + encodeURIComponent(tenantId) + '/confirm-reset',
+                        url: sovereignRAG.api_url + '/api/admin/tenants/' + encodeURIComponent(tenantId) + '/confirm-reset',
                         method: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ token: token }),
@@ -337,7 +337,7 @@
                             $.post(ajaxurl, {
                                 action: 'update_api_key',
                                 api_key: confirmResponse.newApiKey,
-                                _wpnonce: compilotAI.nonce
+                                _wpnonce: sovereignRAG.nonce
                             });
                         } else {
                             $result.html('<div class="notice notice-error"><p>Failed to confirm reset: ' + (confirmResponse.message || 'Unknown error') + '</p></div>');
@@ -405,18 +405,18 @@
         var $progress = $('#sync-progress');
         var $progressBar = $('#sync-progress-bar');
         var $status = $('#sync-status');
-        var $button = $('#compilot-sync-all');
+        var $button = $('#sovereignrag-sync-all');
         var $result = $('#sync-result');
 
         console.log('Processing next post for job:', syncJobId);
 
         $.ajax({
-            url: compilotAI.ajax_url,
+            url: sovereignRAG.ajax_url,
             method: 'POST',
             data: {
-                action: 'compilot_process_next',
+                action: 'sovereignrag_process_next',
                 job_id: syncJobId,
-                nonce: compilotAI.nonce
+                nonce: sovereignRAG.nonce
             },
             success: function(response) {
                 console.log('Process next response:', response);
@@ -496,7 +496,7 @@
     }
 
     // Content Synchronization: Sync All Button
-    var $syncButton = $('#compilot-sync-all');
+    var $syncButton = $('#sovereignrag-sync-all');
     console.log('Sync All button element found:', $syncButton.length > 0 ? 'YES' : 'NO');
 
     $syncButton.on('click', function() {
@@ -514,15 +514,15 @@
         $progress.show();
         $button.prop('disabled', true);
 
-        console.log('Sending AJAX request to:', compilotAI.ajax_url);
+        console.log('Sending AJAX request to:', sovereignRAG.ajax_url);
 
         // Create sync queue
         $.ajax({
-            url: compilotAI.ajax_url,
+            url: sovereignRAG.ajax_url,
             method: 'POST',
             data: {
-                action: 'compilot_bulk_sync',
-                nonce: compilotAI.nonce
+                action: 'sovereignrag_bulk_sync',
+                nonce: sovereignRAG.nonce
             },
             success: function(response) {
                 console.log('AJAX response received:', response);
@@ -558,7 +558,7 @@
     });
 
     // Clear Sync Status Button
-    $('#compilot-clear-sync').on('click', function() {
+    $('#sovereignrag-clear-sync').on('click', function() {
         var $button = $(this);
         var $result = $('#sync-result');
 
@@ -576,16 +576,16 @@
 
         // Clear sync status on server
         $.ajax({
-            url: compilotAI.ajax_url,
+            url: sovereignRAG.ajax_url,
             method: 'POST',
             data: {
-                action: 'compilot_clear_sync',
-                nonce: compilotAI.nonce
+                action: 'sovereignrag_clear_sync',
+                nonce: sovereignRAG.nonce
             },
             success: function(response) {
                 if (response.success) {
                     $result.html('<div class="notice notice-success"><p>Sync status cleared. You can now start a new sync.</p></div>');
-                    $('#compilot-sync-all').prop('disabled', false);
+                    $('#sovereignrag-sync-all').prop('disabled', false);
                 } else {
                     $result.html('<div class="notice notice-error"><p>Failed to clear sync status: ' + escapeHtml(response.data.message || 'Unknown error') + '</p></div>');
                 }

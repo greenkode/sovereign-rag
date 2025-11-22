@@ -1,7 +1,7 @@
 package ai.sovereignrag.core.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import nl.compilot.ai.domain.SearchResult
+import ai.sovereignrag.domain.SearchResult
 
 data class SearchRequest(
     val query: String,

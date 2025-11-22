@@ -4,14 +4,14 @@ import dev.langchain4j.data.message.AiMessage
 import dev.langchain4j.data.message.SystemMessage
 import dev.langchain4j.data.message.UserMessage
 import mu.KotlinLogging
-import nl.compilot.ai.chat.service.MessageTranslationService
-import nl.compilot.ai.chat.service.ResponseGenerationService
-import nl.compilot.ai.chat.service.instruction.PromptInstructionService
-import nl.compilot.ai.chat.strategy.ChatContext
-import nl.compilot.ai.chat.strategy.ChatResponse
-import nl.compilot.ai.chat.strategy.ChatResponseStrategy
-import nl.compilot.ai.commons.UnansweredQueryLogger
-import nl.compilot.ai.prompt.service.PersonaService
+import ai.sovereignrag.chat.service.MessageTranslationService
+import ai.sovereignrag.chat.service.ResponseGenerationService
+import ai.sovereignrag.chat.service.instruction.PromptInstructionService
+import ai.sovereignrag.chat.strategy.ChatContext
+import ai.sovereignrag.chat.strategy.ChatResponse
+import ai.sovereignrag.chat.strategy.ChatResponseStrategy
+import ai.sovereignrag.commons.UnansweredQueryLogger
+import ai.sovereignrag.prompt.service.PersonaService
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 

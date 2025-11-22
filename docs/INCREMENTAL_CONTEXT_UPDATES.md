@@ -143,12 +143,12 @@ When a query like "What is this site about?" is asked:
 
 ## Files Modified
 
-1. `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContextAggregationService.kt`
+1. `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContextAggregationService.kt`
    - Added `incrementallyUpdateSiteProfile()` method (lines 107-189)
    - Added `getSiteProfile()` helper method (lines 194-234)
    - Added import for `ContentIngestionEvent` (line 9)
 
-2. `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContextEnrichmentListener.kt`
+2. `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContextEnrichmentListener.kt`
    - Modified to call incremental updates on every ingestion (lines 46-48)
 
 ## Testing Recommendations

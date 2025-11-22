@@ -2,8 +2,8 @@ package ai.sovereignrag.core.content.event
 
 import mu.KotlinLogging
 import dev.langchain4j.model.embedding.EmbeddingModel
-import nl.compilot.ai.content.service.ContextAggregationService
-import nl.compilot.ai.content.store.TenantAwarePgVectorStoreFactory
+import ai.sovereignrag.content.service.ContextAggregationService
+import ai.sovereignrag.content.store.TenantAwarePgVectorStoreFactory
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component

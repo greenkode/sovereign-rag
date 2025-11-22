@@ -2,7 +2,7 @@ package ai.sovereignrag.app.config
 
 import jakarta.annotation.PostConstruct
 import mu.KotlinLogging
-import nl.compilot.ai.tenant.service.TenantRegistryService
+import ai.sovereignrag.tenant.service.TenantRegistryService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 
@@ -15,10 +15,10 @@ private val logger = KotlinLogging.logger {}
 @Configuration
 class DevelopmentTenantConfiguration(
     private val tenantRegistryService: TenantRegistryService,
-    @Value("\${compilot.dev-tenant.enabled:true}") private val devTenantEnabled: Boolean,
-    @Value("\${compilot.dev-tenant.id:dev}") private val devTenantId: String,
-    @Value("\${compilot.dev-tenant.name:Development Tenant}") private val devTenantName: String,
-    @Value("\${compilot.dev-tenant.api-key:dev-api-key-12345}") private val devApiKey: String
+    @Value("\${sovereignrag.dev-tenant.enabled:true}") private val devTenantEnabled: Boolean,
+    @Value("\${sovereignrag.dev-tenant.id:dev}") private val devTenantId: String,
+    @Value("\${sovereignrag.dev-tenant.name:Development Tenant}") private val devTenantName: String,
+    @Value("\${sovereignrag.dev-tenant.api-key:dev-api-key-12345}") private val devApiKey: String
 ) {
 
     @PostConstruct
@@ -50,7 +50,7 @@ class DevelopmentTenantConfiguration(
             val result = tenantRegistryService.createTenant(
                 tenantId = devTenantId,
                 name = devTenantName,
-                contactEmail = "dev@compilot.local",
+                contactEmail = "dev@sovereignrag.local",
                 contactName = "Development",
                 wordpressUrl = "http://localhost:8080"
             )

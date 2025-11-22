@@ -1,7 +1,7 @@
 package ai.sovereignrag.core.content.command
 
 import an.awesome.pipelinr.Command
-import nl.compilot.ai.content.dto.IngestResponse
+import ai.sovereignrag.content.dto.IngestResponse
 import java.time.OffsetDateTime
 
 data class IngestDocumentCommand(

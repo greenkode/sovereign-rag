@@ -2,15 +2,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: compilot-ai
-  namespace: compilot-ai
+  name: sovereign-rag
+  namespace: sovereign-rag
   labels:
-    app: compilot-ai
+    app: sovereign-rag
 spec:
   replicas: 2  # Start with 2 replicas for high availability
   selector:
     matchLabels:
-      app: compilot-ai
+      app: sovereign-rag
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -19,20 +19,20 @@ spec:
   template:
     metadata:
       labels:
-        app: compilot-ai
+        app: sovereign-rag
     spec:
       containers:
-      - name: compilot-ai
-        image: compilot-ai:latest  # Replace with your actual image registry
+      - name: sovereign-rag
+        image: sovereign-rag:latest  # Replace with your actual image registry
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
           name: http
         envFrom:
         - configMapRef:
-            name: compilot-ai-config
+            name: sovereign-rag-config
         - secretRef:
-            name: compilot-ai-secrets
+            name: sovereign-rag-secrets
         resources:
           requests:
             memory: "2Gi"

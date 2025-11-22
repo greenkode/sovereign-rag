@@ -17,8 +17,8 @@ import javax.sql.DataSource
  * EntityManager configuration for MASTER database entities
  *
  * This EntityManager is ALWAYS connected to the master database and handles:
- * - Tenant metadata (nl.compilot.ai.tenant.domain)
- * - Prompt templates and personas (nl.compilot.ai.prompt.domain)
+ * - Tenant metadata (ai.sovereignrag.tenant.domain)
+ * - Prompt templates and personas (ai.sovereignrag.prompt.domain)
  *
  * These entities are shared across all tenants and stored in the master database.
  */
@@ -26,8 +26,8 @@ import javax.sql.DataSource
 @EnableTransactionManagement
 @EnableJpaRepositories(
     basePackages = [
-        "nl.compilot.ai.tenant.repository",
-        "nl.compilot.ai.prompt.repository"
+        "ai.sovereignrag.tenant.repository",
+        "ai.sovereignrag.prompt.repository"
     ],
     entityManagerFactoryRef = "masterEntityManagerFactory",
     transactionManagerRef = "masterTransactionManager"
@@ -36,7 +36,7 @@ class MasterEntityManagerConfiguration {
 
     /**
      * EntityManagerFactory for master database
-     * Scans: nl.compilot.ai.tenant.domain, nl.compilot.ai.prompt.domain
+     * Scans: ai.sovereignrag.tenant.domain, ai.sovereignrag.prompt.domain
      */
     @Bean
     fun masterEntityManagerFactory(
@@ -47,8 +47,8 @@ class MasterEntityManagerConfiguration {
         return builder
             .dataSource(masterDataSource)
             .packages(
-                "nl.compilot.ai.tenant.domain",
-                "nl.compilot.ai.prompt.domain"
+                "ai.sovereignrag.tenant.domain",
+                "ai.sovereignrag.prompt.domain"
             )
             .persistenceUnit("master")
             .properties(jpaProperties.properties)

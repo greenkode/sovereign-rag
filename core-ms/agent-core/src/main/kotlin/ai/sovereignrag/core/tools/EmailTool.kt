@@ -8,9 +8,9 @@ import com.sendgrid.helpers.mail.objects.Content
 import com.sendgrid.helpers.mail.objects.Email
 import dev.langchain4j.agent.tool.Tool
 import mu.KotlinLogging
-import nl.compilot.ai.commons.EscalationLogger
-import nl.compilot.ai.config.CompilotProperties
-import nl.compilot.ai.domain.Escalation
+import ai.sovereignrag.commons.EscalationLogger
+import ai.sovereignrag.config.SovereignRagProperties
+import ai.sovereignrag.domain.Escalation
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -23,7 +23,7 @@ private val logger = KotlinLogging.logger {}
  */
 @Component
 class EmailTool(
-    private val properties: CompilotProperties,
+    private val properties: SovereignRagProperties,
     private val escalationLogger: EscalationLogger
 ) {
 
@@ -225,7 +225,7 @@ ${escalation.userMessage}
 
                 <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;"/>
                 <p>
-                    <a href="${properties.sendgrid.dashboardUrl}/wp-admin/admin.php?page=compilot-ai-review"
+                    <a href="${properties.sendgrid.dashboardUrl}/wp-admin/admin.php?page=sovereign-rag-review"
                        style="background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
                         View in Dashboard
                     </a>

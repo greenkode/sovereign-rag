@@ -1,14 +1,14 @@
 package ai.sovereignrag.core.chat.orchestrator
 
 import mu.KotlinLogging
-import nl.compilot.ai.chat.dto.ChatInteractionResult
-import nl.compilot.ai.chat.service.MessageTranslationService
-import nl.compilot.ai.chat.service.extraction.ConfidenceExtractor
-import nl.compilot.ai.chat.service.extraction.EscalationDetector
-import nl.compilot.ai.chat.strategy.ChatContext
-import nl.compilot.ai.chat.strategy.ChatResponse
-import nl.compilot.ai.chat.strategy.ChatResponseStrategy
-import nl.compilot.ai.commons.UnansweredQueryLogger
+import ai.sovereignrag.chat.dto.ChatInteractionResult
+import ai.sovereignrag.chat.service.MessageTranslationService
+import ai.sovereignrag.chat.service.extraction.ConfidenceExtractor
+import ai.sovereignrag.chat.service.extraction.EscalationDetector
+import ai.sovereignrag.chat.strategy.ChatContext
+import ai.sovereignrag.chat.strategy.ChatResponse
+import ai.sovereignrag.chat.strategy.ChatResponseStrategy
+import ai.sovereignrag.commons.UnansweredQueryLogger
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}

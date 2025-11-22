@@ -18,8 +18,8 @@ private val logger = KotlinLogging.logger {}
  */
 @Component
 class JwtTokenProvider(
-    @Value("\${compilot.jwt.secret}") private val secretKey: String,
-    @Value("\${compilot.jwt.expiration:3600000}") private val validityInMs: Long // 1 hour default
+    @Value("\${sovereignrag.jwt.secret}") private val secretKey: String,
+    @Value("\${sovereignrag.jwt.expiration:3600000}") private val validityInMs: Long // 1 hour default
 ) {
 
     private val key: SecretKey by lazy {

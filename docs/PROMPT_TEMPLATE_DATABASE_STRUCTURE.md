@@ -422,7 +422,7 @@ UPDATE prompt_templates SET active = true WHERE id = 2;   -- Enable v2
   "language": "en",
   "tags": ["customer-service", "support", "default"],
   "version": "1.0",
-  "author": "admin@compilot.ai",
+  "author": "admin@sovereignrag.ai",
   "createdDate": "2025-01-01",
   "usageCount": 1234,
   "abTestGroup": "A"

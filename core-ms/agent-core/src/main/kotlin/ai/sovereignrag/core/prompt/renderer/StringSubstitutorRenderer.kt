@@ -1,8 +1,8 @@
 package ai.sovereignrag.core.prompt.renderer
 
 import mu.KotlinLogging
-import nl.compilot.ai.commons.prompt.PromptTemplateRenderer
-import nl.compilot.ai.commons.prompt.TemplateRenderException
+import ai.sovereignrag.commons.prompt.PromptTemplateRenderer
+import ai.sovereignrag.commons.prompt.TemplateRenderException
 import org.apache.commons.text.StringSubstitutor
 import org.springframework.stereotype.Component
 

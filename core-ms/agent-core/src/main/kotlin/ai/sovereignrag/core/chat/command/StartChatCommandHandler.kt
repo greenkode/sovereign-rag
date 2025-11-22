@@ -2,9 +2,9 @@ package ai.sovereignrag.core.chat.command
 
 import an.awesome.pipelinr.Command
 import mu.KotlinLogging
-import nl.compilot.ai.chat.dto.ChatStartResponse
-import nl.compilot.ai.chat.service.ChatSessionManager
-import nl.compilot.ai.chat.service.ConversationalAgentService
+import ai.sovereignrag.chat.dto.ChatStartResponse
+import ai.sovereignrag.chat.service.ChatSessionManager
+import ai.sovereignrag.chat.service.ConversationalAgentService
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}

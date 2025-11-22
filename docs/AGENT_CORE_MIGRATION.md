@@ -15,7 +15,7 @@ This document outlines the plan to extract the core AI agent functionality into 
 ## Target Module Structure
 
 ```
-compilot-ai/
+sovereign-rag/
 ├── core-ms/
 │   ├── agent-core/          # NEW: Reusable agent framework
 │   │   ├── agent/           # Core agent interfaces and implementations
@@ -62,7 +62,7 @@ compilot-ai/
 | `guardrail/PIIDetectionInputGuardrail.kt` | `agent-core/guardrail/impl/PIIDetectionGuardrail.kt` | Rename, pattern-based |
 | `guardrail/PIIRedactionOutputGuardrail.kt` | `agent-core/guardrail/impl/PIIRedactionGuardrail.kt` | Pattern-based |
 | `tools/EmailTool.kt` | Extract pattern → `agent-core/tool/Tool.kt` | Create generic interface |
-| `config/CompilotProperties.kt` (persona config) | `agent-core/persona/Persona.kt` | Extract persona model |
+| `config/SovereignRagProperties.kt` (persona config) | `agent-core/persona/Persona.kt` | Extract persona model |
 
 ### agent-extensions Module
 
@@ -82,8 +82,8 @@ compilot-ai/
 |-----------------|--------------|-------|
 | `chat/ChatController.kt` | `core-ai/api/ChatController.kt` | Use agent-core interfaces |
 | `content/api/IngestController.kt` | `core-ai/api/IngestController.kt` | Keep ingestion endpoints |
-| NEW | `core-ai/application/CompilotAgent.kt` | Compose core + extensions |
-| NEW | `core-ai/application/CompilotAgentFactory.kt` | Factory for configured agents |
+| NEW | `core-ai/application/SovereignRagAgent.kt` | Compose core + extensions |
+| NEW | `core-ai/application/SovereignRagAgentFactory.kt` | Factory for configured agents |
 | `content/service/ContentService.kt` | `core-ai/content/service/ContentManagementService.kt` | Ingestion orchestration only |
 | `tenant/service/TenantService.kt` | `core-ai/tenant/service/TenantService.kt` | Keep tenant CRUD |
 | `config/LangChain4jConfig.kt` | `core-ai/config/AgentConfiguration.kt` | Wire up modules |
@@ -101,13 +101,13 @@ compilot-ai/
 - [ ] Create `pom.xml` with minimal dependencies (Kotlin, Coroutines, LangChain4j-core)
 - [ ] Add module to root `pom.xml`
 - [ ] Create package structure:
-  - [ ] `nl.compilot.agent.core.agent`
-  - [ ] `nl.compilot.agent.core.memory`
-  - [ ] `nl.compilot.agent.core.guardrail`
-  - [ ] `nl.compilot.agent.core.tool`
-  - [ ] `nl.compilot.agent.core.persona`
-  - [ ] `nl.compilot.agent.core.model`
-  - [ ] `nl.compilot.agent.core.util`
+  - [ ] `nl.sovereignrag.agent.core.agent`
+  - [ ] `nl.sovereignrag.agent.core.memory`
+  - [ ] `nl.sovereignrag.agent.core.guardrail`
+  - [ ] `nl.sovereignrag.agent.core.tool`
+  - [ ] `nl.sovereignrag.agent.core.persona`
+  - [ ] `nl.sovereignrag.agent.core.model`
+  - [ ] `nl.sovereignrag.agent.core.util`
 
 #### Step 1.2: Define Core Interfaces
 - [ ] Create `Agent.kt` interface
@@ -160,7 +160,7 @@ compilot-ai/
 - [ ] Create `Persona.kt` data class
 - [ ] Create `PersonaBehavior.kt` for behavior configuration
 - [ ] Create `PersonaBuilder.kt` fluent builder
-- [ ] Extract persona definitions from `CompilotProperties.kt`
+- [ ] Extract persona definitions from `SovereignRagProperties.kt`
 
 #### Step 1.7: Create LLM Provider Abstraction
 - [ ] Create `LLMProvider.kt` interface
@@ -210,10 +210,10 @@ compilot-ai/
 - [ ] Add module to root `pom.xml`
 - [ ] Add dependency on `agent-core`
 - [ ] Create package structure:
-  - [ ] `nl.compilot.agent.extensions.rag`
-  - [ ] `nl.compilot.agent.extensions.multilingual`
-  - [ ] `nl.compilot.agent.extensions.guardrail`
-  - [ ] `nl.compilot.agent.extensions.multitenant`
+  - [ ] `nl.sovereignrag.agent.extensions.rag`
+  - [ ] `nl.sovereignrag.agent.extensions.multilingual`
+  - [ ] `nl.sovereignrag.agent.extensions.guardrail`
+  - [ ] `nl.sovereignrag.agent.extensions.multitenant`
 
 #### Step 2.2: RAG Extension
 - [ ] Create `RAGAgent.kt` (delegates to base agent)
@@ -270,7 +270,7 @@ compilot-ai/
 - [ ] Update `pom.xml`
 
 #### Step 3.2: Create Agent Factory
-- [ ] Create `core-ai/application/CompilotAgentFactory.kt`
+- [ ] Create `core-ai/application/SovereignRagAgentFactory.kt`
 - [ ] Wire up agent-core + extensions
 - [ ] Configure guardrails (pattern + LLM-based)
 - [ ] Configure tools (EmailTool, SearchTool)
@@ -280,12 +280,12 @@ compilot-ai/
 - [ ] Configure multi-tenant extension
 
 #### Step 3.3: Create Composed Agent
-- [ ] Create `core-ai/application/CompilotAgent.kt`
+- [ ] Create `core-ai/application/SovereignRagAgent.kt`
 - [ ] Compose: `ConversationalAgent` → `RAGAgent` → `MultilingualAgent` → `TenantAwareAgent`
 - [ ] Delegate pattern for clean composition
 
 #### Step 3.4: Update Controllers
-- [ ] Update `ChatController.kt` to use `CompilotAgentFactory`
+- [ ] Update `ChatController.kt` to use `SovereignRagAgentFactory`
 - [ ] Update `AskQueryHandler.kt` to use agent-core interfaces
 - [ ] Update `SendMessageCommandHandler.kt` to use agent-core
 - [ ] Remove direct dependencies on `ConversationalAgentService`
@@ -454,7 +454,7 @@ compilot-ai/
 ```xml
 <dependencies>
     <dependency>
-        <groupId>nl.compilot</groupId>
+        <groupId>ai.sovereignrag</groupId>
         <artifactId>agent-core</artifactId>
     </dependency>
 
@@ -488,15 +488,15 @@ compilot-ai/
 <dependencies>
     <!-- Core Modules -->
     <dependency>
-        <groupId>nl.compilot</groupId>
+        <groupId>ai.sovereignrag</groupId>
         <artifactId>agent-core</artifactId>
     </dependency>
     <dependency>
-        <groupId>nl.compilot</groupId>
+        <groupId>ai.sovereignrag</groupId>
         <artifactId>agent-extensions</artifactId>
     </dependency>
     <dependency>
-        <groupId>nl.compilot</groupId>
+        <groupId>ai.sovereignrag</groupId>
         <artifactId>commons</artifactId>
     </dependency>
 

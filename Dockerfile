@@ -1,4 +1,4 @@
-# Multi-stage build for Compilot AI
+# Multi-stage build for Sovereign RAG
 # Stage 1: Build the application
 FROM maven:3.9-eclipse-temurin-21 AS builder
 

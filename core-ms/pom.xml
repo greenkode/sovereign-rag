@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>nl.compilot.ai</groupId>
+    <groupId>ai.sovereignrag</groupId>
     <artifactId>core-ms</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>core-ms</name>
-    <description>Compilot AI Core</description>
+    <description>Sovereign RAG Core</description>
     <packaging>pom</packaging>
 
     <properties>

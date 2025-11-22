@@ -3,7 +3,7 @@ package ai.sovereignrag.guardrail.output
 import dev.langchain4j.data.message.AiMessage
 import ai.sovereignrag.guardrail.GuardrailResult
 import ai.sovereignrag.guardrail.OutputGuardrail
-import nl.compilot.ai.commons.agent.guardrail.Guardrail
+import ai.sovereignrag.commons.agent.guardrail.Guardrail
 import mu.KotlinLogging
 import ai.sovereignrag.guardrail.config.GuardrailConfig
 import org.springframework.stereotype.Component

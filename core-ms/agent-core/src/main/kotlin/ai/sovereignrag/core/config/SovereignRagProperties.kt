@@ -4,8 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.bind.ConstructorBinding
 import java.time.Duration
 
-@ConfigurationProperties(prefix = "compilot")
-data class CompilotProperties @ConstructorBinding constructor(
+@ConfigurationProperties(prefix = "sovereignrag")
+data class SovereignRagProperties @ConstructorBinding constructor(
     val ollama: OllamaProperties,
     val knowledgeGraph: KnowledgeGraphProperties,
     val chat: ChatProperties,
@@ -51,9 +51,9 @@ data class AdminProperties(
 data class SendgridProperties(
     val enabled: Boolean = false,
     val apiKey: String = "",
-    val fromEmail: String = "noreply@compilot.ai",
-    val fromName: String = "Compilot AI Support",
-    val supportEmail: String = "support@compilot.ai",
+    val fromEmail: String = "noreply@sovereignrag.ai",
+    val fromName: String = "Sovereign RAG Support",
+    val supportEmail: String = "support@sovereignrag.ai",
     val responseTime: String = "within 24 hours",
     val dashboardUrl: String = "http://localhost"
 )

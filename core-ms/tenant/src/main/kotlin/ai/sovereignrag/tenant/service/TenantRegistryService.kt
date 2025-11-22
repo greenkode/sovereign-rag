@@ -1,10 +1,10 @@
 package ai.sovereignrag.tenant.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.tenant.domain.Tenant
-import nl.compilot.ai.commons.tenant.TenantStatus
-import nl.compilot.ai.commons.tenant.TenantNotFoundException
-import nl.compilot.ai.tenant.repository.TenantRepository
+import ai.sovereignrag.tenant.domain.Tenant
+import ai.sovereignrag.commons.tenant.TenantStatus
+import ai.sovereignrag.commons.tenant.TenantNotFoundException
+import ai.sovereignrag.tenant.repository.TenantRepository
 import org.flywaydb.core.Flyway
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CacheEvict
@@ -80,7 +80,7 @@ class TenantRegistryService(
     ): CreateTenantResult {
         logger.info { "Creating new tenant: $tenantId ($name)" }
 
-        val databaseName = "compilot_tenant_${tenantId.lowercase().replace("-", "_")}"
+        val databaseName = "sovereignrag_tenant_${tenantId.lowercase().replace("-", "_")}"
         val apiKey = generateApiKey()
         val apiKeyHash = hashApiKey(apiKey)
 

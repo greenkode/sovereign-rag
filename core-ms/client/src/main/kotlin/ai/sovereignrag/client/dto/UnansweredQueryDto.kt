@@ -1,6 +1,6 @@
 package ai.sovereignrag.client.dto
 
-import nl.compilot.ai.client.domain.UnansweredQuery
+import ai.sovereignrag.client.domain.UnansweredQuery
 import java.time.Instant
 import java.util.UUID
 

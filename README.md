@@ -1,10 +1,10 @@
-# Compilot AI - Multi-Tenant RAG System
+# Sovereign RAG - Multi-Tenant RAG System
 
 A multi-tenant Retrieval Augmented Generation (RAG) system built with Spring Boot, LangChain4j, PostgreSQL with pgvector, and Kotlin.
 
 ## Overview
 
-Compilot AI provides:
+Sovereign RAG provides:
 - **Vector Search**: PostgreSQL with pgvector extension for semantic search and document storage
 - **Multi-Tenancy**: Isolated databases per tenant with dynamic routing
 - **Semantic Search**: Ollama embeddings for vector similarity search
@@ -39,8 +39,8 @@ Create `application.yml` or set environment variables:
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/compilot_master?currentSchema=master
-    username: compilot
+    url: jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=master
+    username: sovereignrag
     password: your-password
 
   data:
@@ -48,7 +48,7 @@ spring:
       host: localhost
       port: 6379
 
-compilot:
+sovereignrag:
   ollama:
     base-url: http://localhost:11434
     model: llama3.2:3b
@@ -67,7 +67,7 @@ compilot:
 
 ```bash
 ./mvnw clean package
-java -jar target/compilot-ai-0.0.1-SNAPSHOT.jar
+java -jar target/sovereign-rag-0.0.1-SNAPSHOT.jar
 ```
 
 The API will be available at `http://localhost:8000`
@@ -143,7 +143,7 @@ admin-dashboard/
 ### Project Structure
 
 ```
-src/main/kotlin/nl/compilot/ai/
+src/main/kotlin/ai/sovereignrag/
 ├── config/          # Spring Boot configuration
 ├── controller/      # REST controllers
 ├── service/         # Business logic

@@ -1,6 +1,6 @@
 package ai.sovereignrag.client.repository
 
-import nl.compilot.ai.client.domain.Escalation
+import ai.sovereignrag.client.domain.Escalation
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

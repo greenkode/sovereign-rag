@@ -1,10 +1,10 @@
 package ai.sovereignrag.tenant.api
 
 import mu.KotlinLogging
-import nl.compilot.ai.tenant.domain.Tenant
-import nl.compilot.ai.commons.tenant.TenantStatus
-import nl.compilot.ai.tenant.service.TenantRegistryService
-import nl.compilot.ai.tenant.service.ApiKeyResetService
+import ai.sovereignrag.tenant.domain.Tenant
+import ai.sovereignrag.commons.tenant.TenantStatus
+import ai.sovereignrag.tenant.service.TenantRegistryService
+import ai.sovereignrag.tenant.service.ApiKeyResetService
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

@@ -104,7 +104,7 @@ abstract class TenantDataSourceRouter(
 #### app Module
 Created concrete implementation with HikariCP:
 
-**File:** `app/src/main/kotlin/nl/compilot/ai/config/TenantDataSourceConfiguration.kt`
+**File:** `app/src/main/kotlin/ai/sovereignrag/config/TenantDataSourceConfiguration.kt`
 
 ```kotlin
 @Configuration
@@ -150,10 +150,10 @@ class TenantDataSourceConfiguration {
 ## Files Structure
 
 ```
-compilot-ai/
+sovereign-rag/
 ├── core-ms/
 │   ├── core-ai/              # Library module
-│   │   └── src/main/kotlin/nl/compilot/ai/
+│   │   └── src/main/kotlin/ai/sovereignrag/
 │   │       └── tenant/
 │   │           ├── domain/
 │   │           │   ├── Tenant.kt
@@ -170,7 +170,7 @@ compilot-ai/
 │   │
 │   └── app/                   # Distribution module
 │       └── src/main/
-│           ├── kotlin/nl/compilot/ai/config/
+│           ├── kotlin/ai/sovereignrag/config/
 │           │   └── TenantDataSourceConfiguration.kt (concrete)
 │           └── resources/db/
 │               ├── master-schema/

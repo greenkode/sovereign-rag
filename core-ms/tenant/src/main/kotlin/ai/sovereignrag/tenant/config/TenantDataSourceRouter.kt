@@ -1,8 +1,8 @@
 package ai.sovereignrag.tenant.config
 
 import mu.KotlinLogging
-import nl.compilot.ai.commons.tenant.TenantContext
-import nl.compilot.ai.tenant.service.TenantRegistry
+import ai.sovereignrag.commons.tenant.TenantContext
+import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource
 import java.util.concurrent.ConcurrentHashMap
 import javax.sql.DataSource

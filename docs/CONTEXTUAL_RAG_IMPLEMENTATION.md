@@ -15,7 +15,7 @@ Event-driven context enrichment triggered on document ingestion, with multi-leve
 **Goal**: Enhance existing document ingestion with richer context
 
 #### 1.1 Enhanced Metadata Structure
-**File**: `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/dto/ContentDto.kt`
+**File**: `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/dto/ContentDto.kt`
 
 Add new fields to capture WordPress context:
 ```kotlin
@@ -44,7 +44,7 @@ data class IngestRequest(
 **Estimated effort**: 30 minutes
 
 #### 1.2 Multi-Level Chunking Service
-**File**: `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/MultiLevelChunkingService.kt` (NEW)
+**File**: `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/MultiLevelChunkingService.kt` (NEW)
 
 Create service to generate three levels of chunks:
 - **Micro chunks** (200-300 chars): Key facts, entities
@@ -78,7 +78,7 @@ class MultiLevelChunkingService(
 **Goal**: Generate contextual documents on ingestion events
 
 #### 2.1 Context Aggregation Service
-**File**: `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContextAggregationService.kt` (NEW)
+**File**: `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContextAggregationService.kt` (NEW)
 
 Service to aggregate and generate contextual documents:
 ```kotlin
@@ -244,7 +244,7 @@ suspend fun generateCommonQuestions() {
 **Goal**: Automatically trigger context generation on ingestion events
 
 #### 3.1 Content Ingestion Event Publisher
-**File**: `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContentIngestionEvent.kt` (NEW)
+**File**: `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContentIngestionEvent.kt` (NEW)
 
 ```kotlin
 data class ContentIngestionEvent(
@@ -270,7 +270,7 @@ class ContentEventPublisher(
 **Estimated effort**: 1 hour
 
 #### 3.2 Context Enrichment Event Listener
-**File**: `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContextEnrichmentListener.kt` (NEW)
+**File**: `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContextEnrichmentListener.kt` (NEW)
 
 ```kotlin
 @Component
@@ -321,7 +321,7 @@ class ContextEnrichmentListener(
 **Estimated effort**: 2 hours
 
 #### 3.3 Update IngestDocumentCommandHandler
-**File**: `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/command/IngestDocumentCommandHandler.kt`
+**File**: `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/command/IngestDocumentCommandHandler.kt`
 
 Add event publishing:
 ```kotlin
@@ -357,7 +357,7 @@ class IngestDocumentCommandHandler(
 **Goal**: Detect and handle high-level queries differently
 
 #### 4.1 Query Classifier
-**File**: `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/QueryClassifier.kt` (NEW)
+**File**: `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/QueryClassifier.kt` (NEW)
 
 ```kotlin
 @Service
@@ -398,7 +398,7 @@ enum class QueryType {
 **Estimated effort**: 1 hour
 
 #### 4.2 Contextual Retrieval Strategy
-**File**: `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/retriever/ContextualContentRetriever.kt` (NEW)
+**File**: `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/retriever/ContextualContentRetriever.kt` (NEW)
 
 ```kotlin
 @Component
@@ -452,10 +452,10 @@ class ContextualContentRetriever(
 **Goal**: Send enriched metadata from WordPress
 
 #### 5.1 Update WordPress Content Sync
-**File**: `wordpress-plugin/compilot-ai-plugin/includes/content-sync.php`
+**File**: `wordpress-plugin/sovereign-rag-plugin/includes/content-sync.php`
 
 ```php
-function compilot_prepare_post_data($post) {
+function sovereignrag_prepare_post_data($post) {
     // Existing fields
     $data = [
         'title' => $post->post_title,

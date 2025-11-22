@@ -1,6 +1,6 @@
 package ai.sovereignrag.commons.messaging.dto
 
-import nl.compilot.ai.commons.messaging.enumeration.MessageChannel
+import ai.sovereignrag.commons.messaging.enumeration.MessageChannel
 
 data class MessageTemplateDto(
     val channel: MessageChannel,

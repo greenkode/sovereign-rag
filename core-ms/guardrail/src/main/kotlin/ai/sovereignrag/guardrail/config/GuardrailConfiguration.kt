@@ -13,10 +13,10 @@ class GuardrailConfiguration {
 
     /**
      * Creates GuardrailConfig bean from application properties
-     * Properties are bound from compilot.guardrails.* in application.yml/properties
+     * Properties are bound from sovereignrag.guardrails.* in application.yml/properties
      */
     @Bean
-    @ConfigurationProperties(prefix = "compilot.guardrails")
+    @ConfigurationProperties(prefix = "sovereignrag.guardrails")
     fun guardrailConfig(): GuardrailConfig {
         return GuardrailConfig()
     }

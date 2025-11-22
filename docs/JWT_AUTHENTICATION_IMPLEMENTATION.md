@@ -9,7 +9,7 @@
 - JJWT (api, impl, jackson) - version 0.12.3
 
 ### 2. JWT Token Provider Created
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/security/JwtTokenProvider.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/security/JwtTokenProvider.kt`
 - Creates JWT tokens with tenant ID as subject
 - Validates tokens
 - Extracts tenant ID from tokens
@@ -19,14 +19,14 @@
 
 ### 3. Create Authentication Controller
 
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/security/api/AuthController.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/security/api/AuthController.kt`
 
 ```kotlin
-package nl.compilot.ai.security.api
+package ai.sovereignrag.security.api
 
 import mu.KotlinLogging
-import nl.compilot.ai.security.JwtTokenProvider
-import nl.compilot.ai.tenant.service.TenantRegistry
+import ai.sovereignrag.security.JwtTokenProvider
+import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -76,16 +76,16 @@ data class AuthResponse(
 
 ### 4. Create JWT Authentication Filter
 
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/security/JwtAuthenticationFilter.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/security/JwtAuthenticationFilter.kt`
 
 ```kotlin
-package nl.compilot.ai.security
+package ai.sovereignrag.security
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
-import nl.compilot.ai.commons.tenant.TenantContext
+import ai.sovereignrag.commons.tenant.TenantContext
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
@@ -140,10 +140,10 @@ class JwtAuthenticationFilter(
 
 ### 5. Create Security Configuration
 
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/security/SecurityConfig.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/security/SecurityConfig.kt`
 
 ```kotlin
-package nl.compilot.ai.security
+package ai.sovereignrag.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -211,7 +211,7 @@ class SecurityConfig(
 Add these properties:
 
 ```yaml
-compilot:
+sovereignrag:
   jwt:
     # IMPORTANT: Change this in production! Minimum 256 bits (32 characters)
     secret: ${JWT_SECRET:please-change-this-secret-key-in-production-min-256-bits}
@@ -220,7 +220,7 @@ compilot:
 
 ### 7. Update WordPress Plugin - PHP
 
-**File:** `wordpress-plugin/compilot-ai-plugin/includes/chat-widget.php`
+**File:** `wordpress-plugin/sovereign-rag-plugin/includes/chat-widget.php`
 
 Update the `enqueue_scripts()` method:
 
@@ -231,30 +231,30 @@ public function enqueue_scripts() {
     // Get JWT token from backend (server-side authentication)
     $jwt_token = $this->get_jwt_token();
 
-    wp_localize_script('compilot-chat-widget', 'compilotChat', array(
-        'apiUrl' => get_option('compilot_ai_frontend_api_url', 'http://localhost:8000'),
+    wp_localize_script('sovereign-rag-chat-widget', 'sovereignragChat', array(
+        'apiUrl' => get_option('sovereignrag_ai_frontend_api_url', 'http://localhost:8000'),
         'jwtToken' => $jwt_token, // Pass JWT instead of sensitive credentials
         // REMOVED for security: 'tenantId', 'apiKey'
         'ajaxUrl' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('compilot_chat_nonce'),
+        'nonce' => wp_create_nonce('sovereignrag_chat_nonce'),
         // ... other settings ...
     ));
 }
 
 private function get_jwt_token() {
     // Check if we have a cached valid token (cache for 90% of lifetime)
-    $cached_token = get_transient('compilot_jwt_token');
+    $cached_token = get_transient('sovereignrag_jwt_token');
     if ($cached_token) {
         return $cached_token;
     }
 
     // Authenticate with backend to get new token
-    $api_url = get_option('compilot_ai_frontend_api_url', 'http://localhost:8000');
-    $tenant_id = get_option('compilot_ai_tenant_id', '');
-    $api_key = get_option('compilot_ai_api_key', '');
+    $api_url = get_option('sovereignrag_ai_frontend_api_url', 'http://localhost:8000');
+    $tenant_id = get_option('sovereignrag_ai_tenant_id', '');
+    $api_key = get_option('sovereignrag_ai_api_key', '');
 
     if (empty($tenant_id) || empty($api_key)) {
-        error_log('Compilot AI: Missing tenant credentials');
+        error_log('Sovereign RAG: Missing tenant credentials');
         return null;
     }
 
@@ -268,7 +268,7 @@ private function get_jwt_token() {
     ));
 
     if (is_wp_error($response)) {
-        error_log('Compilot AI: Authentication failed - ' . $response->get_error_message());
+        error_log('Sovereign RAG: Authentication failed - ' . $response->get_error_message());
         return null;
     }
 
@@ -278,7 +278,7 @@ private function get_jwt_token() {
 
     // Cache token for 90% of its lifetime
     if ($token) {
-        set_transient('compilot_jwt_token', $token, $expires_in * 0.9);
+        set_transient('sovereignrag_jwt_token', $token, $expires_in * 0.9);
     }
 
     return $token;
@@ -287,7 +287,7 @@ private function get_jwt_token() {
 
 ### 8. Update Chat Widget JavaScript
 
-**File:** `wordpress-plugin/compilot-ai-plugin/assets/js/chat-widget.js`
+**File:** `wordpress-plugin/sovereign-rag-plugin/assets/js/chat-widget.js`
 
 Update all AJAX calls to use JWT token in Authorization header:
 
@@ -298,7 +298,7 @@ function startChatSession() {
         url: apiUrl,
         method: 'POST',
         headers: {
-            'Authorization': 'Bearer ' + compilotChat.jwtToken,
+            'Authorization': 'Bearer ' + sovereignragChat.jwtToken,
             'Content-Type': 'application/json'
         },
         // ... rest of config
@@ -311,7 +311,7 @@ function sendChatMessage(message) {
         url: apiUrl,
         method: 'POST',
         headers: {
-            'Authorization': 'Bearer ' + compilotChat.jwtToken,
+            'Authorization': 'Bearer ' + sovereignragChat.jwtToken,
             'Content-Type': 'application/json'
         },
         // ... rest of config

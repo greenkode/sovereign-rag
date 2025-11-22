@@ -1,9 +1,9 @@
 package ai.sovereignrag.support.zoho
 
-import nl.compilot.ai.commons.support.dto.*
-import nl.compilot.ai.commons.support.enumeration.TicketCategory
-import nl.compilot.ai.commons.support.enumeration.TicketPriority
-import nl.compilot.ai.commons.support.enumeration.TicketStatus
+import ai.sovereignrag.commons.support.dto.*
+import ai.sovereignrag.commons.support.enumeration.TicketCategory
+import ai.sovereignrag.commons.support.enumeration.TicketPriority
+import ai.sovereignrag.commons.support.enumeration.TicketStatus
 import ai.sovereignrag.support.SupportIntegration
 import ai.sovereignrag.support.zoho.dto.ZohoCommentRequest
 import ai.sovereignrag.support.zoho.dto.ZohoCommentResponse
@@ -11,7 +11,7 @@ import ai.sovereignrag.support.zoho.dto.ZohoContactRequest
 import ai.sovereignrag.support.zoho.dto.ZohoContactResponse
 import ai.sovereignrag.support.zoho.dto.ZohoTicketRequest
 import ai.sovereignrag.support.zoho.dto.ZohoTicketResponse
-import nl.compilot.ai.support.zoho.dto.*
+import ai.sovereignrag.support.zoho.dto.*
 import ai.sovereignrag.support.zoho.interceptor.ZohoAuthInterceptor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

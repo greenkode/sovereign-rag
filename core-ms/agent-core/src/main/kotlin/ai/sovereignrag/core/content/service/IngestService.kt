@@ -1,11 +1,11 @@
 package ai.sovereignrag.core.content.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.commons.tenant.TenantContext
-import nl.compilot.ai.content.dto.IngestStatusResponse
-import nl.compilot.ai.content.event.ContentEventPublisher
-import nl.compilot.ai.content.event.ContentIngestionEvent
-import nl.compilot.ai.domain.ContentDocument
+import ai.sovereignrag.commons.tenant.TenantContext
+import ai.sovereignrag.content.dto.IngestStatusResponse
+import ai.sovereignrag.content.event.ContentEventPublisher
+import ai.sovereignrag.content.event.ContentIngestionEvent
+import ai.sovereignrag.domain.ContentDocument
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile

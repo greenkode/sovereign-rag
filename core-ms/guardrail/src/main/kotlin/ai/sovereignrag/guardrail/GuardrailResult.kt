@@ -1,7 +1,7 @@
 package ai.sovereignrag.guardrail
 
 import dev.langchain4j.data.message.AiMessage
-import nl.compilot.ai.commons.agent.guardrail.Guardrail
+import ai.sovereignrag.commons.agent.guardrail.Guardrail
 
 /**
  * Result of a guardrail validation

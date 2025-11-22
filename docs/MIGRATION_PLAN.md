@@ -52,9 +52,9 @@ max_parallel_workers_per_gather = 4
 
 ```sql
 -- Master database for tenant metadata
-CREATE DATABASE compilot_master;
+CREATE DATABASE sovereignrag_master;
 
-\c compilot_master;
+\c sovereignrag_master;
 
 -- Tenant registry
 CREATE TABLE tenants (
@@ -468,10 +468,10 @@ $$ LANGUAGE plpgsql;
 
 ### 2.1 Kotlin Domain Models
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/tenant/domain/Tenant.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/tenant/domain/Tenant.kt`**
 
 ```kotlin
-package nl.compilot.ai.tenant.domain
+package ai.sovereignrag.tenant.domain
 
 import java.time.LocalDateTime
 
@@ -497,10 +497,10 @@ enum class TenantStatus {
 }
 ```
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/domain/Document.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/domain/Document.kt`**
 
 ```kotlin
-package nl.compilot.ai.content.domain
+package ai.sovereignrag.content.domain
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -560,10 +560,10 @@ data class Document(
 
 ### 2.2 Tenant Context & Security
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/tenant/context/TenantContext.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/tenant/context/TenantContext.kt`**
 
 ```kotlin
-package nl.compilot.ai.tenant.context
+package ai.sovereignrag.tenant.context
 
 /**
  * Thread-local storage for current tenant context
@@ -592,16 +592,16 @@ object TenantContext {
 class TenantContextException(message: String) : RuntimeException(message)
 ```
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/tenant/security/TenantSecurityInterceptor.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/tenant/security/TenantSecurityInterceptor.kt`**
 
 ```kotlin
-package nl.compilot.ai.tenant.security
+package ai.sovereignrag.tenant.security
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import mu.KotlinLogging
-import nl.compilot.ai.tenant.context.TenantContext
-import nl.compilot.ai.tenant.service.TenantRegistry
+import ai.sovereignrag.tenant.context.TenantContext
+import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 
@@ -682,16 +682,16 @@ class TenantSecurityInterceptor(
 
 ### 2.3 Dynamic DataSource Routing
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/config/TenantDataSourceRouter.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/config/TenantDataSourceRouter.kt`**
 
 ```kotlin
-package nl.compilot.ai.config
+package ai.sovereignrag.config
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import nl.compilot.ai.tenant.context.TenantContext
-import nl.compilot.ai.tenant.service.TenantRegistry
+import ai.sovereignrag.tenant.context.TenantContext
+import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource
 import org.springframework.stereotype.Component
@@ -795,10 +795,10 @@ class TenantDataSourceRouter(
 }
 ```
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/config/DataSourceConfig.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/config/DataSourceConfig.kt`**
 
 ```kotlin
-package nl.compilot.ai.config
+package ai.sovereignrag.config
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -824,7 +824,7 @@ class DataSourceConfig(
     @Bean(name = ["masterDataSource"])
     fun masterDataSource(): DataSource {
         val config = HikariConfig().apply {
-            jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/compilot_master"
+            jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/sovereignrag_master"
             username = dbUsername
             password = dbPassword
             maximumPoolSize = 20
@@ -866,15 +866,15 @@ class DataSourceConfig(
 
 ### 3.1 Tenant Registry Service
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/tenant/service/TenantRegistry.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/tenant/service/TenantRegistry.kt`**
 
 ```kotlin
-package nl.compilot.ai.tenant.service
+package ai.sovereignrag.tenant.service
 
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import nl.compilot.ai.tenant.domain.Tenant
-import nl.compilot.ai.tenant.domain.TenantStatus
+import ai.sovereignrag.tenant.domain.Tenant
+import ai.sovereignrag.tenant.domain.TenantStatus
 import org.flywaydb.core.Flyway
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -967,7 +967,7 @@ class TenantRegistry(
     ): CreateTenantResult {
         logger.info { "Creating new tenant: $tenantId ($name)" }
 
-        val databaseName = "compilot_tenant_${tenantId.lowercase().replace("-", "_")}"
+        val databaseName = "sovereignrag_tenant_${tenantId.lowercase().replace("-", "_")}"
         val apiKey = generateApiKey()
         val apiKeyHash = passwordEncoder.encode(apiKey)
 
@@ -1188,12 +1188,12 @@ class TenantCreationException(message: String, cause: Throwable? = null) : Runti
 
 ### 3.2 Tenant Management API
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/tenant/api/TenantController.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/tenant/api/TenantController.kt`**
 
 ```kotlin
-package nl.compilot.ai.tenant.api
+package ai.sovereignrag.tenant.api
 
-import nl.compilot.ai.tenant.service.TenantRegistry
+import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -1328,12 +1328,12 @@ data class TenantDetails(
 
 ### 4.1 Spring Data JPA Repositories
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/repository/DocumentRepository.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/repository/DocumentRepository.kt`**
 
 ```kotlin
-package nl.compilot.ai.content.repository
+package ai.sovereignrag.content.repository
 
-import nl.compilot.ai.content.domain.Document
+import ai.sovereignrag.content.domain.Document
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -1455,21 +1455,21 @@ interface DocumentWithSimilarity {
 
 ### 4.2 New ContentService with pgvector
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContentServicePgVector.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContentServicePgVector.kt`**
 
 ```kotlin
-package nl.compilot.ai.content.service
+package ai.sovereignrag.content.service
 
 import dev.langchain4j.data.document.DocumentSplitter
 import dev.langchain4j.data.document.splitter.DocumentSplitters
 import dev.langchain4j.model.embedding.EmbeddingModel
 import mu.KotlinLogging
-import nl.compilot.ai.content.domain.Document
-import nl.compilot.ai.content.repository.DocumentRepository
-import nl.compilot.ai.domain.ContentDocument
-import nl.compilot.ai.domain.SearchResult
-import nl.compilot.ai.spell.service.SpellCorrectionService
-import nl.compilot.ai.tenant.context.TenantContext
+import ai.sovereignrag.content.domain.Document
+import ai.sovereignrag.content.repository.DocumentRepository
+import ai.sovereignrag.domain.ContentDocument
+import ai.sovereignrag.domain.SearchResult
+import ai.sovereignrag.spell.service.SpellCorrectionService
+import ai.sovereignrag.tenant.context.TenantContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -1653,13 +1653,13 @@ class ContentIngestionException(message: String, cause: Throwable? = null) : Run
 
 ### 5.1 Chat Session with Tenant Context
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/chat/service/ChatSessionManager.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/chat/service/ChatSessionManager.kt`**
 
 ```kotlin
 // Update existing ChatSessionManager to use tenant context
 
 @CachePut(
-    cacheNames = [CompilotCache.CHAT_SESSION],
+    cacheNames = [SovereignRagCache.CHAT_SESSION],
     key = "#result.sessionId"  // Remove tenant prefix from key
 )
 fun createNewChatSession(persona: String, language: String?): ChatSession {
@@ -1691,59 +1691,59 @@ fun createNewChatSession(persona: String, language: String?): ChatSession {
 
 ### 6.1 Add Tenant Configuration
 
-**File: `/wordpress-plugin/compilot-ai-plugin/includes/admin-settings.php`**
+**File: `/wordpress-plugin/sovereign-rag-plugin/includes/admin-settings.php`**
 
 ```php
 // Add new settings fields
 add_settings_field(
-    'compilot_tenant_id',
+    'sovereignrag_tenant_id',
     'Tenant ID',
-    'compilot_ai_tenant_id_callback',
-    'compilot-ai-settings',
-    'compilot_ai_section'
+    'sovereignrag_ai_tenant_id_callback',
+    'sovereign-rag-settings',
+    'sovereignrag_ai_section'
 );
 
 add_settings_field(
-    'compilot_api_key',
+    'sovereignrag_api_key',
     'API Key',
-    'compilot_ai_api_key_callback',
-    'compilot-ai-settings',
-    'compilot_ai_section'
+    'sovereignrag_ai_api_key_callback',
+    'sovereign-rag-settings',
+    'sovereignrag_ai_section'
 );
 
 // Register settings
-register_setting('compilot-ai-settings', 'compilot_tenant_id');
-register_setting('compilot-ai-settings', 'compilot_api_key');
+register_setting('sovereign-rag-settings', 'sovereignrag_tenant_id');
+register_setting('sovereign-rag-settings', 'sovereignrag_api_key');
 
 // Callback functions
-function compilot_ai_tenant_id_callback() {
-    $tenant_id = get_option('compilot_tenant_id', '');
-    echo '<input type="text" name="compilot_tenant_id" value="' . esc_attr($tenant_id) . '" class="regular-text" required />';
-    echo '<p class="description">Your unique tenant identifier provided by Compilot AI.</p>';
+function sovereignrag_ai_tenant_id_callback() {
+    $tenant_id = get_option('sovereignrag_tenant_id', '');
+    echo '<input type="text" name="sovereignrag_tenant_id" value="' . esc_attr($tenant_id) . '" class="regular-text" required />';
+    echo '<p class="description">Your unique tenant identifier provided by Sovereign RAG.</p>';
 }
 
-function compilot_ai_api_key_callback() {
-    $api_key = get_option('compilot_api_key', '');
+function sovereignrag_ai_api_key_callback() {
+    $api_key = get_option('sovereignrag_api_key', '');
     $display_key = $api_key ? substr($api_key, 0, 8) . '...' . substr($api_key, -4) : '';
-    echo '<input type="password" name="compilot_api_key" value="' . esc_attr($api_key) . '" class="regular-text" required />';
+    echo '<input type="password" name="sovereignrag_api_key" value="' . esc_attr($api_key) . '" class="regular-text" required />';
     echo '<p class="description">Your API key (will be stored securely). Currently: ' . esc_html($display_key) . '</p>';
 }
 ```
 
 ### 6.2 Update Content Sync
 
-**File: `/wordpress-plugin/compilot-ai-plugin/includes/content-sync.php`**
+**File: `/wordpress-plugin/sovereign-rag-plugin/includes/content-sync.php`**
 
 ```php
 public function sync_post_to_graph($post_id, $post, $update) {
     // ... existing code ...
 
     // Get tenant credentials
-    $tenant_id = get_option('compilot_tenant_id');
-    $api_key = get_option('compilot_api_key');
+    $tenant_id = get_option('sovereignrag_tenant_id');
+    $api_key = get_option('sovereignrag_api_key');
 
     if (empty($tenant_id) || empty($api_key)) {
-        error_log('Compilot AI: Missing tenant credentials. Please configure in settings.');
+        error_log('Sovereign RAG: Missing tenant credentials. Please configure in settings.');
         return;
     }
 
@@ -1765,35 +1765,35 @@ public function sync_post_to_graph($post_id, $post, $update) {
 
 ### 6.3 Update Chat Widget
 
-**File: `/wordpress-plugin/compilot-ai-plugin/includes/chat-widget.php`**
+**File: `/wordpress-plugin/sovereign-rag-plugin/includes/chat-widget.php`**
 
 ```php
 // Pass tenant credentials to JavaScript
-wp_localize_script('compilot-chat-widget', 'compilotChat', array(
+wp_localize_script('sovereign-rag-chat-widget', 'sovereignragChat', array(
     'apiUrl' => esc_url($frontend_api_url),
-    'tenantId' => get_option('compilot_tenant_id'),
-    'apiKey' => get_option('compilot_api_key'),
+    'tenantId' => get_option('sovereignrag_tenant_id'),
+    'apiKey' => get_option('sovereignrag_api_key'),
     // ... other settings ...
 ));
 ```
 
-**File: `/wordpress-plugin/compilot-ai-plugin/assets/js/chat-widget.js`**
+**File: `/wordpress-plugin/sovereign-rag-plugin/assets/js/chat-widget.js`**
 
 ```javascript
 // Add tenant headers to all API requests
 function initializeAgentSession(firstMessage) {
-    const apiUrl = compilotChat.apiUrl + '/api/agent/chat/start';
+    const apiUrl = sovereignragChat.apiUrl + '/api/agent/chat/start';
 
     $.ajax({
         url: apiUrl,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-Tenant-ID': compilotChat.tenantId,
-            'X-API-Key': compilotChat.apiKey
+            'X-Tenant-ID': sovereignragChat.tenantId,
+            'X-API-Key': sovereignragChat.apiKey
         },
         data: JSON.stringify({
-            persona: compilotChat.ragPersona || 'customer_service',
+            persona: sovereignragChat.ragPersona || 'customer_service',
             language: responseLanguage
         }),
         // ... rest of the code ...
@@ -1818,16 +1818,16 @@ function initializeAgentSession(firstMessage) {
 
 ### 7.1 Migration Script
 
-**File: `/core-ms/core-ai/src/main/kotlin/nl/compilot/ai/migration/Neo4jToPgVectorMigration.kt`**
+**File: `/core-ms/core-ai/src/main/kotlin/ai/sovereignrag/migration/Neo4jToPgVectorMigration.kt`**
 
 ```kotlin
-package nl.compilot.ai.migration
+package ai.sovereignrag.migration
 
 import mu.KotlinLogging
-import nl.compilot.ai.content.domain.Document
-import nl.compilot.ai.content.repository.DocumentRepository
-import nl.compilot.ai.tenant.context.TenantContext
-import nl.compilot.ai.tenant.service.TenantRegistry
+import ai.sovereignrag.content.domain.Document
+import ai.sovereignrag.content.repository.DocumentRepository
+import ai.sovereignrag.tenant.context.TenantContext
+import ai.sovereignrag.tenant.service.TenantRegistry
 import org.neo4j.driver.Driver
 import org.springframework.boot.CommandLineRunner
 import org.springframework.stereotype.Component
@@ -2074,7 +2074,7 @@ LIMIT 10;
 ### 9.2 Feature Flag Configuration
 
 ```kotlin
-@ConfigurationProperties(prefix = "compilot.storage")
+@ConfigurationProperties(prefix = "sovereignrag.storage")
 data class StorageConfig(
     val backend: StorageBackend = StorageBackend.PGVECTOR
 )
@@ -2116,7 +2116,7 @@ management:
         include: health,metrics,prometheus
   metrics:
     tags:
-      application: compilot-ai
+      application: sovereign-rag
     enable:
       jvm: true
       process: true
@@ -2165,13 +2165,13 @@ class TenantMetrics(
 ### 10.2 WordPress Plugin Setup Guide
 
 ```markdown
-# Compilot AI Plugin Setup Guide
+# Sovereign RAG Plugin Setup Guide
 
 ## Installation
 
 1. Install plugin from WordPress admin
-2. Go to Settings → Compilot AI
-3. Contact Compilot to get your tenant credentials:
+2. Go to Settings → Sovereign RAG
+3. Contact SovereignRag to get your tenant credentials:
    - Tenant ID
    - API Key
 4. Enter credentials in plugin settings
@@ -2193,7 +2193,7 @@ Response:
 {
   "tenantId": "example-com",
   "apiKey": "xyzabc123...",  // Save this!
-  "databaseName": "compilot_tenant_example_com",
+  "databaseName": "sovereignrag_tenant_example_com",
   "message": "Tenant created successfully..."
 }
 ```
@@ -2211,7 +2211,7 @@ Response:
 If issues arise during migration:
 
 ### Quick Rollback (< 1 hour)
-1. Change feature flag: `compilot.storage.backend=NEO4J`
+1. Change feature flag: `sovereignrag.storage.backend=NEO4J`
 2. Restart backend
 3. Neo4j is still running with old data
 4. WordPress plugin works with both backends
@@ -2283,4 +2283,4 @@ After completing this migration plan:
 
 **Document Version**: 1.0
 **Date**: 2025-10-28
-**Author**: Compilot AI Migration Team
+**Author**: Sovereign RAG Migration Team

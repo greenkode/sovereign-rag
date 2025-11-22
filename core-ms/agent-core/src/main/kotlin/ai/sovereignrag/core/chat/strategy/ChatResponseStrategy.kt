@@ -1,8 +1,8 @@
 package ai.sovereignrag.core.chat.strategy
 
-import nl.compilot.ai.chat.domain.ChatSession
-import nl.compilot.ai.config.CompilotProperties
-import nl.compilot.ai.domain.SearchResult
+import ai.sovereignrag.chat.domain.ChatSession
+import ai.sovereignrag.config.SovereignRagProperties
+import ai.sovereignrag.domain.SearchResult
 
 /**
  * Strategy interface for handling different types of chat interactions
@@ -54,7 +54,7 @@ data class ChatContext(
     val showGkDisclaimer: Boolean,
     val gkDisclaimerText: String?,
     val showSources: Boolean,
-    val properties: CompilotProperties
+    val properties: SovereignRagProperties
 )
 
 /**

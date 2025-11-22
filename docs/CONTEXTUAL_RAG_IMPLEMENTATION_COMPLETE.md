@@ -14,11 +14,11 @@ Successfully implemented event-driven contextual understanding for the RAG syste
 
 ### 1. Enhanced Metadata Structure ✅
 **Files Modified:**
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/dto/ContentDto.kt`
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/command/IngestDocumentCommand.kt`
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/api/IngestController.kt`
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/command/IngestDocumentCommandHandler.kt`
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContentService.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/dto/ContentDto.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/command/IngestDocumentCommand.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/api/IngestController.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/command/IngestDocumentCommandHandler.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContentService.kt`
 
 **New Metadata Fields:**
 ```kotlin
@@ -38,9 +38,9 @@ All metadata is now stored in `langchain4j_embeddings` table's JSONB `metadata` 
 
 ### 2. Event-Driven Architecture ✅
 **Files Created:**
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContentIngestionEvent.kt`
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContentEventPublisher.kt`
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContextEnrichmentListener.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContentIngestionEvent.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContentEventPublisher.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContextEnrichmentListener.kt`
 
 **How It Works:**
 1. **Document Ingested** → Event published
@@ -54,7 +54,7 @@ All metadata is now stored in `langchain4j_embeddings` table's JSONB `metadata` 
 
 ### 3. Context Aggregation Service ✅
 **File Created:**
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContextAggregationService.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContextAggregationService.kt`
 
 **Features:**
 
@@ -100,7 +100,7 @@ A: [Answer based on content analysis]
 
 ### 4. Query Classification ✅
 **File Created:**
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/QueryClassifier.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/QueryClassifier.kt`
 
 **Patterns Detected:**
 ```kotlin
@@ -120,7 +120,7 @@ SPECIFIC queries (needs standard retrieval):
 
 ### 5. Contextual Retrieval Strategy ✅
 **File Modified:**
-- `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/retriever/TenantContentRetriever.kt`
+- `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/retriever/TenantContentRetriever.kt`
 
 **Two-Track Retrieval:**
 
@@ -137,7 +137,7 @@ SPECIFIC queries (needs standard retrieval):
 
 ### 6. WordPress Plugin Enhancement ✅
 **File Modified:**
-- `wordpress-plugin/compilot-ai-plugin/includes/content-sync.php`
+- `wordpress-plugin/sovereign-rag-plugin/includes/content-sync.php`
 
 **New Data Sent:**
 ```php
@@ -366,22 +366,22 @@ GROUP BY category, site;
 
 ### Created (9 files):
 1. `docs/CONTEXTUAL_RAG_IMPLEMENTATION.md` - Implementation plan
-2. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContentIngestionEvent.kt`
-3. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContentEventPublisher.kt`
-4. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/event/ContextEnrichmentListener.kt`
-5. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContextAggregationService.kt`
-6. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/service/QueryClassifier.kt`
-7. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/domain/ContentDocument.kt` (already existed)
-8. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/domain/SearchResult.kt` (already existed)
+2. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContentIngestionEvent.kt`
+3. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContentEventPublisher.kt`
+4. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/event/ContextEnrichmentListener.kt`
+5. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContextAggregationService.kt`
+6. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/service/QueryClassifier.kt`
+7. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/domain/ContentDocument.kt` (already existed)
+8. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/domain/SearchResult.kt` (already existed)
 9. `docs/CONTEXTUAL_RAG_IMPLEMENTATION_COMPLETE.md` - This file
 
 ### Modified (6 files):
-1. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/dto/ContentDto.kt`
-2. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/command/IngestDocumentCommand.kt`
-3. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/api/IngestController.kt`
-4. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/command/IngestDocumentCommandHandler.kt`
-5. `core-ms/core-ai/src/main/kotlin/nl/compilot/ai/content/retriever/TenantContentRetriever.kt`
-6. `wordpress-plugin/compilot-ai-plugin/includes/content-sync.php`
+1. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/dto/ContentDto.kt`
+2. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/command/IngestDocumentCommand.kt`
+3. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/api/IngestController.kt`
+4. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/command/IngestDocumentCommandHandler.kt`
+5. `core-ms/core-ai/src/main/kotlin/ai/sovereignrag/content/retriever/TenantContentRetriever.kt`
+6. `wordpress-plugin/sovereign-rag-plugin/includes/content-sync.php`
 
 ---
 

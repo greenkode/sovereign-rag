@@ -5,11 +5,11 @@ import dev.langchain4j.data.document.parser.apache.tika.ApacheTikaDocumentParser
 import dev.langchain4j.model.embedding.EmbeddingModel
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest
 import mu.KotlinLogging
-import nl.compilot.ai.content.store.TenantAwarePgVectorStoreFactory
-import nl.compilot.ai.domain.ContentDocument
-import nl.compilot.ai.domain.SearchResult
-import nl.compilot.ai.service.RerankerService
-import nl.compilot.ai.commons.tenant.TenantContext
+import ai.sovereignrag.content.store.TenantAwarePgVectorStoreFactory
+import ai.sovereignrag.domain.ContentDocument
+import ai.sovereignrag.domain.SearchResult
+import ai.sovereignrag.service.RerankerService
+import ai.sovereignrag.commons.tenant.TenantContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -29,7 +29,7 @@ class ContentService(
     private val rerankerService: RerankerService,
     private val documentChunkingService: DocumentChunkingService,
     private val pgVectorStoreFactory: TenantAwarePgVectorStoreFactory,
-    private val compilotProperties: nl.compilot.ai.config.CompilotProperties
+    private val sovereignragProperties: ai.sovereignrag.config.SovereignRagProperties
 ) {
 
     /**
@@ -105,7 +105,7 @@ class ContentService(
             // Stage 1: Retrieve segment candidates
             // Strategy: Retrieve 3x candidates for reranking to improve quality
             // Cross-encoder reranking (300-500ms) is faster than LLM processing large context
-            val useReranking = compilotProperties.knowledgeGraph.useReranking
+            val useReranking = sovereignragProperties.knowledgeGraph.useReranking
             val candidateCount = numResults * 3  // Get 3x candidates for reranking
 
             logger.debug { "[$tenantId] Retrieving $candidateCount candidates (reranking: $useReranking)" }

@@ -8,8 +8,8 @@ Add to `core-ms/app/src/main/resources/application.yml`:
 spring:
   # Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/compilot_master
-    username: compilot
+    url: jdbc:postgresql://localhost:5432/sovereignrag_master
+    username: sovereignrag
     password: RespectTheHangover
     host: localhost
     port: 5432
@@ -37,7 +37,7 @@ spring:
     baseline-version: 0
 
 # Tenant Security (can be disabled for development)
-compilot:
+sovereignrag:
   tenant:
     security:
       enabled: true  # Set to false to disable authentication during development
@@ -48,7 +48,7 @@ compilot:
 To run without tenant authentication during development:
 
 ```yaml
-compilot:
+sovereignrag:
   tenant:
     security:
       enabled: false
@@ -66,7 +66,7 @@ Currently using `StubTenantRegistry` which:
 - Returns a hardcoded tenant
 - Logs warnings about being a stub
 
-**Location:** `app/src/main/kotlin/nl/compilot/ai/config/StubTenantRegistry.kt`
+**Location:** `app/src/main/kotlin/ai/sovereignrag/config/StubTenantRegistry.kt`
 
 **TODO:** Replace with real implementation in Phase 3
 
@@ -77,13 +77,13 @@ Before running the application, you must:
 ### 1. Create Master Database
 
 ```bash
-psql -h localhost -U compilot -d postgres -c "CREATE DATABASE compilot_master"
+psql -h localhost -U sovereignrag -d postgres -c "CREATE DATABASE sovereignrag_master"
 ```
 
 ### 2. Run Master Schema Setup
 
 ```bash
-psql -h localhost -U compilot -d compilot_master -f setup-master-database.sql
+psql -h localhost -U sovereignrag -d sovereignrag_master -f setup-master-database.sql
 ```
 
 This creates the `master` schema with tables:
@@ -95,7 +95,7 @@ This creates the `master` schema with tables:
 ### 3. Verify Setup
 
 ```bash
-psql -h localhost -U compilot -d compilot_master -c "\dt master.*"
+psql -h localhost -U sovereignrag -d sovereignrag_master -c "\dt master.*"
 ```
 
 Should show:
@@ -103,10 +103,10 @@ Should show:
            List of relations
  Schema |     Name      | Type  |  Owner
 --------+---------------+-------+----------
- master | api_keys      | table | compilot
- master | audit_log     | table | compilot
- master | tenant_usage  | table | compilot
- master | tenants       | table | compilot
+ master | api_keys      | table | sovereignrag
+ master | audit_log     | table | sovereignrag
+ master | tenant_usage  | table | sovereignrag
+ master | tenants       | table | sovereignrag
 ```
 
 ## Starting the Application
@@ -118,7 +118,7 @@ mvn spring-boot:run
 
 Expected output:
 ```
-Started CompilotAiApplication in X.XXX seconds
+Started SovereignRagAiApplication in X.XXX seconds
 ```
 
 ## Testing Without Tenant Database
@@ -158,7 +158,7 @@ These will be addressed in **Phase 3: Tenant Registry & Management**
 
 **Fix:**
 1. Ensure PostgreSQL is running: `brew services start postgresql@16`
-2. Verify database exists: `psql -l | grep compilot_master`
+2. Verify database exists: `psql -l | grep sovereignrag_master`
 3. Check credentials in application.yml
 
 ### Error: "Failed to determine a suitable driver class"
@@ -183,7 +183,7 @@ These will be addressed in **Phase 3: Tenant Registry & Management**
 **Cause:** Trying to access tenant data without authentication
 
 **Fix:** Either:
-1. Disable security: `compilot.tenant.security.enabled=false`
+1. Disable security: `sovereignrag.tenant.security.enabled=false`
 2. Add headers: `X-Tenant-ID` and `X-API-Key`
 
 ---

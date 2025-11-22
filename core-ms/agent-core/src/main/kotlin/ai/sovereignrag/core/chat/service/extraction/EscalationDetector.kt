@@ -4,7 +4,7 @@ import dev.langchain4j.data.message.AiMessage
 import dev.langchain4j.data.message.UserMessage
 import dev.langchain4j.model.chat.ChatLanguageModel
 import mu.KotlinLogging
-import nl.compilot.ai.chat.domain.ChatSession
+import ai.sovereignrag.chat.domain.ChatSession
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger {}
@@ -18,7 +18,7 @@ private val logger = KotlinLogging.logger {}
 @Service
 class EscalationDetector(
     private val chatModel: ChatLanguageModel,
-    private val emailTool: nl.compilot.ai.tools.EmailTool
+    private val emailTool: ai.sovereignrag.tools.EmailTool
 ) {
 
     companion object {

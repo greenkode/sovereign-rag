@@ -4,8 +4,8 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import jakarta.persistence.EntityManagerFactory
 import mu.KotlinLogging
-import nl.compilot.ai.tenant.config.TenantDataSourceRouter
-import nl.compilot.ai.tenant.service.TenantRegistry
+import ai.sovereignrag.tenant.config.TenantDataSourceRouter
+import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties
@@ -29,9 +29,9 @@ private val logger = KotlinLogging.logger {}
  *
  * This EntityManager uses TenantDataSourceRouter for dynamic routing to tenant databases.
  * Handles:
- * - Chat sessions, messages (nl.compilot.ai.chat.domain)
- * - Content documents (nl.compilot.ai.domain)
- * - Client data (nl.compilot.ai.client.domain)
+ * - Chat sessions, messages (ai.sovereignrag.chat.domain)
+ * - Content documents (ai.sovereignrag.domain)
+ * - Client data (ai.sovereignrag.client.domain)
  */
 @Configuration
 @EnableTransactionManagement
@@ -177,9 +177,9 @@ class TenantDataSourceConfiguration {
         return builder
             .dataSource(tenantDataSourceRouter)
             .packages(
-                "nl.compilot.ai.chat.domain",      // ChatSession, ConversationMessage, Escalation
-                "nl.compilot.ai.domain",           // ContentDocument, UnansweredQuery, SearchResult
-                "nl.compilot.ai.client.domain"     // Client entities
+                "ai.sovereignrag.chat.domain",      // ChatSession, ConversationMessage, Escalation
+                "ai.sovereignrag.domain",           // ContentDocument, UnansweredQuery, SearchResult
+                "ai.sovereignrag.client.domain"     // Client entities
             )
             .persistenceUnit("tenant")
             .properties(jpaProperties.properties)

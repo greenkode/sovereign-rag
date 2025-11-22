@@ -1,7 +1,7 @@
 package ai.sovereignrag.commons.agent
 
-import nl.compilot.ai.commons.agent.memory.ChatMemory
-import nl.compilot.ai.commons.agent.persona.Persona
+import ai.sovereignrag.commons.agent.memory.ChatMemory
+import ai.sovereignrag.commons.agent.persona.Persona
 import java.time.Instant
 
 /**

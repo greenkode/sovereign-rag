@@ -2,9 +2,9 @@ package ai.sovereignrag.core.content.query
 
 import an.awesome.pipelinr.Command
 import mu.KotlinLogging
-import nl.compilot.ai.config.CompilotProperties
-import nl.compilot.ai.content.dto.SearchResponse
-import nl.compilot.ai.content.service.ContentService
+import ai.sovereignrag.config.SovereignRagProperties
+import ai.sovereignrag.content.dto.SearchResponse
+import ai.sovereignrag.content.service.ContentService
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
@@ -12,7 +12,7 @@ private val logger = KotlinLogging.logger {}
 @Component
 class SearchDocumentsQueryHandler(
     private val contentService: ContentService,
-    private val properties: CompilotProperties
+    private val properties: SovereignRagProperties
 ) : Command.Handler<SearchDocumentsQuery, SearchResponse> {
 
     override fun handle(query: SearchDocumentsQuery): SearchResponse {

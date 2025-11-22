@@ -2,7 +2,7 @@ package ai.sovereignrag.guardrail.input
 
 import ai.sovereignrag.guardrail.GuardrailResult
 import ai.sovereignrag.guardrail.InputGuardrail
-import nl.compilot.ai.commons.agent.guardrail.Guardrail
+import ai.sovereignrag.commons.agent.guardrail.Guardrail
 import dev.langchain4j.data.message.UserMessage
 import mu.KotlinLogging
 import ai.sovereignrag.guardrail.config.GuardrailConfig

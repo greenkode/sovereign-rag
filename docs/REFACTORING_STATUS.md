@@ -117,8 +117,8 @@ Seven strategies implemented to handle different response scenarios:
    - Need to remove ConversationalAgentService dependency
 
 4. **Import cleanup needed**
-   - SearchResult: nl.compilot.ai.domain.SearchResult
-   - GuardrailGateway: nl.compilot.ai.guardrail.gateway.GuardrailGateway
+   - SearchResult: ai.sovereignrag.domain.SearchResult
+   - GuardrailGateway: ai.sovereignrag.guardrail.gateway.GuardrailGateway
    - Already fixed in some files, need to propagate
 
 ## Remaining Work (Phase 5)

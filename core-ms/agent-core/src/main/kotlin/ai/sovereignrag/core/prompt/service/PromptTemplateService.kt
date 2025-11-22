@@ -1,9 +1,9 @@
 package ai.sovereignrag.core.prompt.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.commons.prompt.PromptTemplateRenderer
-import nl.compilot.ai.prompt.domain.PromptTemplate
-import nl.compilot.ai.prompt.repository.PromptTemplateRepository
+import ai.sovereignrag.commons.prompt.PromptTemplateRenderer
+import ai.sovereignrag.prompt.domain.PromptTemplate
+import ai.sovereignrag.prompt.repository.PromptTemplateRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

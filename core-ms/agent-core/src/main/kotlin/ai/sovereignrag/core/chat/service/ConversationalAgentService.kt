@@ -5,12 +5,12 @@ import dev.langchain4j.model.chat.ChatLanguageModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import nl.compilot.ai.chat.domain.ChatSession
-import nl.compilot.ai.chat.dto.ChatInteractionResult
-import nl.compilot.ai.chat.orchestrator.ChatResponseOrchestrator
-import nl.compilot.ai.chat.strategy.ChatContext
-import nl.compilot.ai.config.CompilotProperties
-import nl.compilot.ai.content.service.ContentService
+import ai.sovereignrag.chat.domain.ChatSession
+import ai.sovereignrag.chat.dto.ChatInteractionResult
+import ai.sovereignrag.chat.orchestrator.ChatResponseOrchestrator
+import ai.sovereignrag.chat.strategy.ChatContext
+import ai.sovereignrag.config.SovereignRagProperties
+import ai.sovereignrag.content.service.ContentService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
@@ -20,8 +20,8 @@ private val logger = KotlinLogging.logger {}
 class ConversationalAgentService(
     @Qualifier("guardrailChatModel") private val guardrailChatModel: ChatLanguageModel,
     private val contentService: ContentService,
-    private val properties: CompilotProperties,
-    private val promptTemplateService: nl.compilot.ai.prompt.service.PromptTemplateService,
+    private val properties: SovereignRagProperties,
+    private val promptTemplateService: ai.sovereignrag.prompt.service.PromptTemplateService,
     private val messageTranslationService: MessageTranslationService,
     private val orchestrator: ChatResponseOrchestrator
 ) {

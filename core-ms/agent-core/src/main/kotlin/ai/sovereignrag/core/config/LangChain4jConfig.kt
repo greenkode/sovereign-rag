@@ -15,7 +15,7 @@ import java.time.Duration
  */
 @Configuration
 class LangChain4jConfig(
-    private val properties: CompilotProperties
+    private val properties: SovereignRagProperties
 ) {
 
     /**

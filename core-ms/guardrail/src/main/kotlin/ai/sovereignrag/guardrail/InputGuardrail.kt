@@ -1,7 +1,7 @@
 package ai.sovereignrag.guardrail
 
 import dev.langchain4j.data.message.UserMessage
-import nl.compilot.ai.commons.agent.guardrail.Guardrail
+import ai.sovereignrag.commons.agent.guardrail.Guardrail
 
 /**
  * Interface for input guardrails that validate user messages before they reach the LLM
@@ -21,9 +21,9 @@ interface InputGuardrail : Guardrail {
      * Default implementation of commons Guardrail validate method
      * Delegates to the LangChain4j-compatible method
      */
-    override suspend fun validate(text: String, context: Map<String, Any>): nl.compilot.ai.commons.agent.guardrail.GuardrailResult {
+    override suspend fun validate(text: String, context: Map<String, Any>): ai.sovereignrag.commons.agent.guardrail.GuardrailResult {
         // This can be overridden by implementations if needed
-        return nl.compilot.ai.commons.agent.guardrail.GuardrailResult.Pass("Validation delegated to UserMessage method")
+        return ai.sovereignrag.commons.agent.guardrail.GuardrailResult.Pass("Validation delegated to UserMessage method")
     }
 
     override fun getType(): Guardrail.Type = Guardrail.Type.INPUT

@@ -1,11 +1,11 @@
 package ai.sovereignrag.client.api
 
 import mu.KotlinLogging
-import nl.compilot.ai.client.domain.Escalation
-import nl.compilot.ai.client.dto.PageResponse
-import nl.compilot.ai.client.dto.UnansweredQueryDto
-import nl.compilot.ai.client.service.EscalationService
-import nl.compilot.ai.client.service.UnansweredQueryService
+import ai.sovereignrag.client.domain.Escalation
+import ai.sovereignrag.client.dto.PageResponse
+import ai.sovereignrag.client.dto.UnansweredQueryDto
+import ai.sovereignrag.client.service.EscalationService
+import ai.sovereignrag.client.service.UnansweredQueryService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.ResponseEntity

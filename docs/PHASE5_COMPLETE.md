@@ -6,12 +6,12 @@ Phase 5 has been completed successfully. The chat services now use the new pgvec
 
 ### 1. Service Integration Verified
 
-**ChatSessionManager** (`core-ai/src/main/kotlin/nl/compilot/ai/chat/service/ChatSessionManager.kt`)
+**ChatSessionManager** (`core-ai/src/main/kotlin/ai/sovereignrag/chat/service/ChatSessionManager.kt`)
 - ✅ Already uses Redis for session storage (tenant-agnostic)
 - ✅ No changes needed - sessions keyed by session ID
 - ✅ Works seamlessly with tenant context from interceptor
 
-**ConversationalAgentService** (`core-ai/src/main/kotlin/nl/compilot/ai/chat/service/ConversationalAgentService.kt`)
+**ConversationalAgentService** (`core-ai/src/main/kotlin/ai/sovereignrag/chat/service/ConversationalAgentService.kt`)
 - ✅ Already injects `ContentService` (now using pgvector)
 - ✅ All search operations automatically use tenant context
 - ✅ No code changes needed - dependency injection handles the switch
@@ -171,11 +171,11 @@ Each tenant will only see their own content - complete isolation!
 
 ```bash
 # Check PostgreSQL logs to see tenant routing
-docker logs compilot-postgres | grep "tenant-a"
-# Should show queries against compilot_tenant_tenant_a database
+docker logs sovereignrag-postgres | grep "tenant-a"
+# Should show queries against sovereignrag_tenant_tenant_a database
 
-docker logs compilot-postgres | grep "tenant-b"
-# Should show queries against compilot_tenant_tenant_b database
+docker logs sovereignrag-postgres | grep "tenant-b"
+# Should show queries against sovereignrag_tenant_tenant_b database
 ```
 
 ### 4. Test Hybrid Search
@@ -298,8 +298,8 @@ All existing chat features work unchanged:
 # PostgreSQL - ACTIVE (multi-tenant)
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/compilot_master?currentSchema=master
-    username: compilot
+    url: jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=master
+    username: sovereignrag
     password: RespectTheHangover
 ```
 

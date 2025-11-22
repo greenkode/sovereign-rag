@@ -1,6 +1,6 @@
 <?php
 /**
- * Compilot AI Content Synchronization
+ * Sovereign RAG Content Synchronization
  *
  * Syncs WordPress posts and pages to the knowledge graph automatically
  * via hooks and provides REST API endpoint for manual synchronization.
@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Compilot_Content_Sync {
+class SovereignRag_Content_Sync {
 
     private $jwt_token = null;
     private $jwt_expires_at = null;
@@ -24,14 +24,14 @@ class Compilot_Content_Sync {
         add_action('rest_api_init', array($this, 'register_rest_routes'));
 
         // Register AJAX endpoints for admin bulk sync
-        add_action('wp_ajax_compilot_bulk_sync', array($this, 'ajax_bulk_sync'));
-        add_action('wp_ajax_compilot_process_next', array($this, 'ajax_process_next'));
-        add_action('wp_ajax_compilot_sync_status', array($this, 'ajax_sync_status'));
-        add_action('wp_ajax_compilot_background_sync', array($this, 'ajax_background_sync'));
-        add_action('wp_ajax_compilot_clear_sync', array($this, 'ajax_clear_sync'));
+        add_action('wp_ajax_sovereignrag_bulk_sync', array($this, 'ajax_bulk_sync'));
+        add_action('wp_ajax_sovereignrag_process_next', array($this, 'ajax_process_next'));
+        add_action('wp_ajax_sovereignrag_sync_status', array($this, 'ajax_sync_status'));
+        add_action('wp_ajax_sovereignrag_background_sync', array($this, 'ajax_background_sync'));
+        add_action('wp_ajax_sovereignrag_clear_sync', array($this, 'ajax_clear_sync'));
 
         // Register WP-Cron action for background sync
-        add_action('compilot_run_background_sync', array($this, 'cron_background_sync'));
+        add_action('sovereignrag_run_background_sync', array($this, 'cron_background_sync'));
     }
 
     /**
@@ -39,11 +39,11 @@ class Compilot_Content_Sync {
      * Caches the token until it expires, then automatically refreshes
      */
     private function get_auth_token() {
-        $tenant_id = get_option('compilot_ai_tenant_id', '');
-        $api_key = get_option('compilot_ai_api_key', '');
+        $tenant_id = get_option('sovereignrag_ai_tenant_id', '');
+        $api_key = get_option('sovereignrag_ai_api_key', '');
 
         if (empty($tenant_id) || empty($api_key)) {
-            error_log('Compilot: Missing tenant ID or API key configuration');
+            error_log('SovereignRag: Missing tenant ID or API key configuration');
             return null;
         }
 
@@ -53,8 +53,8 @@ class Compilot_Content_Sync {
         }
 
         // Try to get cached token from transient (survives across requests)
-        $cached_token = get_transient('compilot_jwt_token');
-        $cached_expires = get_transient('compilot_jwt_expires');
+        $cached_token = get_transient('sovereignrag_jwt_token');
+        $cached_expires = get_transient('sovereignrag_jwt_expires');
 
         if ($cached_token && $cached_expires && time() < $cached_expires - 60) {
             $this->jwt_token = $cached_token;
@@ -63,7 +63,7 @@ class Compilot_Content_Sync {
         }
 
         // Need to authenticate and get a new token
-        $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
+        $api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
 
         $response = wp_remote_post($api_url . '/api/auth/authenticate', array(
             'headers' => array('Content-Type' => 'application/json'),
@@ -75,20 +75,20 @@ class Compilot_Content_Sync {
         ));
 
         if (is_wp_error($response)) {
-            error_log('Compilot: Authentication error: ' . $response->get_error_message());
+            error_log('SovereignRag: Authentication error: ' . $response->get_error_message());
             return null;
         }
 
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code !== 200) {
             $body = wp_remote_retrieve_body($response);
-            error_log('Compilot: Authentication failed (Status: ' . $status_code . '): ' . $body);
+            error_log('SovereignRag: Authentication failed (Status: ' . $status_code . '): ' . $body);
             return null;
         }
 
         $body = json_decode(wp_remote_retrieve_body($response), true);
         if (!isset($body['token'])) {
-            error_log('Compilot: Authentication response missing token');
+            error_log('SovereignRag: Authentication response missing token');
             return null;
         }
 
@@ -97,10 +97,10 @@ class Compilot_Content_Sync {
         $this->jwt_expires_at = time() + $body['expiresIn'];
 
         // Store in transient for 24 hours (it will be refreshed before expiration)
-        set_transient('compilot_jwt_token', $this->jwt_token, 24 * HOUR_IN_SECONDS);
-        set_transient('compilot_jwt_expires', $this->jwt_expires_at, 24 * HOUR_IN_SECONDS);
+        set_transient('sovereignrag_jwt_token', $this->jwt_token, 24 * HOUR_IN_SECONDS);
+        set_transient('sovereignrag_jwt_expires', $this->jwt_expires_at, 24 * HOUR_IN_SECONDS);
 
-        error_log('Compilot: Successfully authenticated, token expires in ' . $body['expiresIn'] . ' seconds');
+        error_log('SovereignRag: Successfully authenticated, token expires in ' . $body['expiresIn'] . ' seconds');
 
         return $this->jwt_token;
     }
@@ -124,7 +124,7 @@ class Compilot_Content_Sync {
      * Register REST API routes for content synchronization
      */
     public function register_rest_routes() {
-        register_rest_route('compilot/v1', '/sync', array(
+        register_rest_route('sovereignrag/v1', '/sync', array(
             'methods' => 'POST',
             'callback' => array($this, 'rest_sync_content'),
             'permission_callback' => function() {
@@ -132,7 +132,7 @@ class Compilot_Content_Sync {
             }
         ));
 
-        register_rest_route('compilot/v1', '/sync/all', array(
+        register_rest_route('sovereignrag/v1', '/sync/all', array(
             'methods' => 'POST',
             'callback' => array($this, 'rest_bulk_sync'),
             'permission_callback' => function() {
@@ -147,7 +147,7 @@ class Compilot_Content_Sync {
      */
     public function sync_post_to_graph($post_id, $post, $update) {
         // Check if auto-sync is enabled
-        if (!get_option('compilot_auto_sync', 1)) {
+        if (!get_option('sovereignrag_auto_sync', 1)) {
             return;
         }
 
@@ -164,15 +164,15 @@ class Compilot_Content_Sync {
         }
 
         // Use non-blocking sync for real-time publishing
-        return $this->send_post_to_compilot_async($post);
+        return $this->send_post_to_sovereignrag_async($post);
     }
 
     /**
-     * Send post to Compilot asynchronously (non-blocking)
+     * Send post to SovereignRag asynchronously (non-blocking)
      * Returns immediately without waiting for API response
      */
-    private function send_post_to_compilot_async($post) {
-        $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
+    private function send_post_to_sovereignrag_async($post) {
+        $api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
         $data = $this->prepare_post_data($post);
 
         // Prepare headers with JWT Bearer authentication
@@ -186,7 +186,7 @@ class Compilot_Content_Sync {
             'blocking' => false  // Don't wait for response
         ));
 
-        error_log('Compilot async sync initiated for: ' . $post->post_title);
+        error_log('SovereignRag async sync initiated for: ' . $post->post_title);
         return true;  // Return immediately
     }
 
@@ -203,11 +203,11 @@ class Compilot_Content_Sync {
 
         $url = get_permalink($post_id);
         if (!$url) {
-            error_log("Compilot: Could not get permalink for post {$post_id}");
+            error_log("SovereignRag: Could not get permalink for post {$post_id}");
             return;
         }
 
-        $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
+        $api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
 
         // Prepare headers with JWT Bearer authentication
         $headers = $this->get_auth_headers();
@@ -220,11 +220,11 @@ class Compilot_Content_Sync {
             'blocking' => false
         ));
 
-        error_log("Compilot: Delete request sent for post {$post_id} ({$post->post_title})");
+        error_log("SovereignRag: Delete request sent for post {$post_id} ({$post->post_title})");
     }
 
     /**
-     * Prepare post data for sending to Compilot
+     * Prepare post data for sending to SovereignRag
      */
     private function prepare_post_data($post) {
         // Get clean content (strip shortcodes, HTML, etc.)
@@ -372,13 +372,13 @@ class Compilot_Content_Sync {
     }
 
     /**
-     * Send post data to Compilot API and wait for completion (sequential processing)
+     * Send post data to SovereignRag API and wait for completion (sequential processing)
      */
     private function send_post_to_graphiti($post) {
-        $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
+        $api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
         $data = $this->prepare_post_data($post);
 
-        error_log('Compilot: Sending POST to ' . $api_url . '/api/ingest for post: ' . $post->post_title);
+        error_log('SovereignRag: Sending POST to ' . $api_url . '/api/ingest for post: ' . $post->post_title);
 
         // Prepare headers with JWT Bearer authentication
         $headers = $this->get_auth_headers();
@@ -391,7 +391,7 @@ class Compilot_Content_Sync {
         ));
 
         if (is_wp_error($response)) {
-            $error_msg = 'Compilot sync error for "' . $post->post_title . '": ' . $response->get_error_message();
+            $error_msg = 'SovereignRag sync error for "' . $post->post_title . '": ' . $response->get_error_message();
             error_log($error_msg);
             return false;
         }
@@ -402,12 +402,12 @@ class Compilot_Content_Sync {
 
         // Check if job was accepted
         if ($status_code !== 200) {
-            error_log('Compilot sync failed for "' . $post->post_title . '" (Status: ' . $status_code . '): ' . $body_raw);
+            error_log('SovereignRag sync failed for "' . $post->post_title . '" (Status: ' . $status_code . '): ' . $body_raw);
             return false;
         }
 
         $task_id = $body['task_id'] ?? $body['job_id'] ?? 'unknown';
-        error_log('Compilot sync started for "' . $post->post_title . '" (Task: ' . $task_id . ')');
+        error_log('SovereignRag sync started for "' . $post->post_title . '" (Task: ' . $task_id . ')');
 
         // Poll for completion with short intervals
         $max_attempts = 30;  // 30 attempts * 2 seconds = 60 seconds max
@@ -423,7 +423,7 @@ class Compilot_Content_Sync {
             ));
 
             if (is_wp_error($status_response)) {
-                error_log('Compilot: Status check error for ' . $post->post_title . ': ' . $status_response->get_error_message());
+                error_log('SovereignRag: Status check error for ' . $post->post_title . ': ' . $status_response->get_error_message());
                 continue;  // Try again
             }
 
@@ -431,11 +431,11 @@ class Compilot_Content_Sync {
 
             if (isset($status_body['status'])) {
                 if ($status_body['status'] === 'completed') {
-                    error_log('Compilot: Successfully completed sync for: ' . $post->post_title);
+                    error_log('SovereignRag: Successfully completed sync for: ' . $post->post_title);
                     return true;
                 } elseif ($status_body['status'] === 'failed') {
                     $error = $status_body['error'] ?? 'Unknown error';
-                    error_log('Compilot: Sync failed for "' . $post->post_title . '": ' . $error);
+                    error_log('SovereignRag: Sync failed for "' . $post->post_title . '": ' . $error);
                     return false;
                 }
                 // Still processing, continue polling
@@ -443,7 +443,7 @@ class Compilot_Content_Sync {
         }
 
         // Timeout
-        error_log('Compilot: Sync timeout for "' . $post->post_title . '" after ' . ($max_attempts * 2) . ' seconds');
+        error_log('SovereignRag: Sync timeout for "' . $post->post_title . '" after ' . ($max_attempts * 2) . ' seconds');
         return false;
     }
 
@@ -520,7 +520,7 @@ class Compilot_Content_Sync {
      * Get or create sync job ID
      */
     private function get_sync_job_id() {
-        return 'compilot_sync_' . time();
+        return 'sovereignrag_sync_' . time();
     }
 
     /**
@@ -528,7 +528,7 @@ class Compilot_Content_Sync {
      */
     private function get_sync_status($job_id = null) {
         if (!$job_id) {
-            $job_id = get_transient('compilot_current_sync_job');
+            $job_id = get_transient('sovereignrag_current_sync_job');
         }
         if (!$job_id) {
             return null;
@@ -541,7 +541,7 @@ class Compilot_Content_Sync {
      */
     private function update_sync_status($job_id, $data) {
         set_transient($job_id, $data, HOUR_IN_SECONDS);
-        set_transient('compilot_current_sync_job', $job_id, HOUR_IN_SECONDS);
+        set_transient('sovereignrag_current_sync_job', $job_id, HOUR_IN_SECONDS);
     }
 
     /**
@@ -549,7 +549,7 @@ class Compilot_Content_Sync {
      */
     private function clear_sync_status($job_id) {
         delete_transient($job_id);
-        delete_transient('compilot_current_sync_job');
+        delete_transient('sovereignrag_current_sync_job');
     }
 
     /**
@@ -557,20 +557,20 @@ class Compilot_Content_Sync {
      * This just creates the queue and returns immediately - no long processing
      */
     public function ajax_bulk_sync() {
-        error_log('Compilot: ajax_bulk_sync called');
-        check_ajax_referer('compilot-ai-nonce', 'nonce');
+        error_log('SovereignRag: ajax_bulk_sync called');
+        check_ajax_referer('sovereign-rag-nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
-            error_log('Compilot: ajax_bulk_sync - Insufficient permissions');
+            error_log('SovereignRag: ajax_bulk_sync - Insufficient permissions');
             wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
 
         // Check if sync is already running
-        $current_job = get_transient('compilot_current_sync_job');
+        $current_job = get_transient('sovereignrag_current_sync_job');
         if ($current_job) {
             $status = $this->get_sync_status($current_job);
             if ($status && $status['status'] === 'running') {
-                error_log('Compilot: ajax_bulk_sync - Sync already running: ' . $current_job);
+                error_log('SovereignRag: ajax_bulk_sync - Sync already running: ' . $current_job);
                 wp_send_json_error(array(
                     'message' => 'Sync is already running',
                     'job_id' => $current_job
@@ -580,7 +580,7 @@ class Compilot_Content_Sync {
 
         // Create new sync job
         $job_id = $this->get_sync_job_id();
-        error_log('Compilot: ajax_bulk_sync - Created job ID: ' . $job_id);
+        error_log('SovereignRag: ajax_bulk_sync - Created job ID: ' . $job_id);
 
         // Get all posts to sync
         $args = array(
@@ -592,7 +592,7 @@ class Compilot_Content_Sync {
         $post_ids = get_posts($args);
         $total = count($post_ids);
 
-        error_log('Compilot: Created sync queue with ' . $total . ' posts');
+        error_log('SovereignRag: Created sync queue with ' . $total . ' posts');
 
         // Initialize sync job with queue
         $this->update_sync_status($job_id, array(
@@ -620,7 +620,7 @@ class Compilot_Content_Sync {
      * Processes ONE post and returns immediately
      */
     public function ajax_process_next() {
-        check_ajax_referer('compilot-ai-nonce', 'nonce');
+        check_ajax_referer('sovereign-rag-nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
             wp_send_json_error(array('message' => 'Insufficient permissions'));
@@ -656,7 +656,7 @@ class Compilot_Content_Sync {
             $status['message'] = $message;
             $this->update_sync_status($job_id, $status);
 
-            error_log('Compilot: Sync job completed - ' . $message);
+            error_log('SovereignRag: Sync job completed - ' . $message);
 
             // Return status data directly (not nested in 'data')
             $status['status'] = 'completed';
@@ -669,7 +669,7 @@ class Compilot_Content_Sync {
         $post = get_post($post_id);
 
         if (!$post) {
-            error_log('Compilot: Post not found: ' . $post_id);
+            error_log('SovereignRag: Post not found: ' . $post_id);
             // Skip this post and continue
             $status['failed']++;
             $status['processed']++;
@@ -686,7 +686,7 @@ class Compilot_Content_Sync {
             wp_send_json_success($status);
         }
 
-        error_log('Compilot: Processing post ' . ($status['processed'] + 1) . '/' . $status['total'] . ': ' . $post->post_title);
+        error_log('SovereignRag: Processing post ' . ($status['processed'] + 1) . '/' . $status['total'] . ': ' . $post->post_title);
 
         // Update current post info
         $status['current_post'] = $post->post_title;
@@ -699,7 +699,7 @@ class Compilot_Content_Sync {
         $status['processed']++;
         if ($success) {
             $status['success']++;
-            error_log('Compilot: Successfully synced post: ' . $post->post_title);
+            error_log('SovereignRag: Successfully synced post: ' . $post->post_title);
         } else {
             $status['failed']++;
             $status['failed_posts'][] = array(
@@ -708,7 +708,7 @@ class Compilot_Content_Sync {
                 'url' => get_permalink($post->ID),
                 'error' => 'Sync failed'
             );
-            error_log('Compilot: Failed to sync post: ' . $post->post_title);
+            error_log('SovereignRag: Failed to sync post: ' . $post->post_title);
         }
 
         $this->update_sync_status($job_id, $status);
@@ -723,7 +723,7 @@ class Compilot_Content_Sync {
      * WP-Cron handler for background sync
      */
     public function cron_background_sync($job_id) {
-        error_log("Compilot: Cron background sync worker started for job: {$job_id}");
+        error_log("SovereignRag: Cron background sync worker started for job: {$job_id}");
 
         // Increase time limit for background processing
         set_time_limit(0);
@@ -736,16 +736,16 @@ class Compilot_Content_Sync {
      * AJAX handler for background sync worker (legacy - kept for compatibility)
      */
     public function ajax_background_sync() {
-        error_log("Compilot: AJAX background sync worker started");
+        error_log("SovereignRag: AJAX background sync worker started");
 
         $job_id = isset($_POST['job_id']) ? sanitize_text_field($_POST['job_id']) : '';
 
         if (!$job_id || !check_ajax_referer('graphiti-bg-sync-' . $job_id, 'nonce', false)) {
-            error_log("Compilot: Background sync - Invalid request or nonce check failed");
+            error_log("SovereignRag: Background sync - Invalid request or nonce check failed");
             wp_die('Invalid request');
         }
 
-        error_log("Compilot: Background sync - Job ID: {$job_id}");
+        error_log("SovereignRag: Background sync - Job ID: {$job_id}");
 
         // Increase time limit for background processing
         set_time_limit(0);
@@ -760,7 +760,7 @@ class Compilot_Content_Sync {
      * Run the actual background sync process
      */
     private function run_background_sync($job_id) {
-        error_log("Compilot: run_background_sync executing for job: {$job_id}");
+        error_log("SovereignRag: run_background_sync executing for job: {$job_id}");
 
         // Increase time limit for large sites
         set_time_limit(0);
@@ -778,7 +778,7 @@ class Compilot_Content_Sync {
         $failed = 0;
         $failed_posts = array();  // Track which posts failed
 
-        error_log("Compilot: Background sync - Found {$total} posts to sync");
+        error_log("SovereignRag: Background sync - Found {$total} posts to sync");
 
         foreach ($posts as $index => $post) {
             // Update current status BEFORE processing
@@ -793,11 +793,11 @@ class Compilot_Content_Sync {
             ));
 
             $current_number = $index + 1;
-            error_log("Compilot: Processing post {$current_number}/{$total}: {$post->post_title}");
+            error_log("SovereignRag: Processing post {$current_number}/{$total}: {$post->post_title}");
 
             if ($this->send_post_to_graphiti($post)) {
                 $success++;
-                error_log("Compilot: Successfully synced: {$post->post_title}");
+                error_log("SovereignRag: Successfully synced: {$post->post_title}");
             } else {
                 $failed++;
                 $failed_posts[] = array(
@@ -805,7 +805,7 @@ class Compilot_Content_Sync {
                     'id' => $post->ID,
                     'url' => get_permalink($post->ID)
                 );
-                error_log("Compilot: Failed to sync: {$post->post_title}");
+                error_log("SovereignRag: Failed to sync: {$post->post_title}");
             }
 
             // Update status AFTER processing so progress bar reflects completion
@@ -849,7 +849,7 @@ class Compilot_Content_Sync {
             'message' => $message
         ));
 
-        error_log("Compilot: Background sync completed for job: {$job_id}");
+        error_log("SovereignRag: Background sync completed for job: {$job_id}");
     }
 
     /**
@@ -861,7 +861,7 @@ class Compilot_Content_Sync {
             session_write_close();
         }
 
-        check_ajax_referer('compilot-ai-nonce', 'nonce');
+        check_ajax_referer('sovereign-rag-nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
             wp_send_json_error(array('message' => 'Insufficient permissions'));
@@ -881,10 +881,10 @@ class Compilot_Content_Sync {
             $elapsed = $now - $started_time;
 
             if ($elapsed > 300) { // 5 minutes
-                error_log("Compilot: Clearing stuck sync job (running for {$elapsed} seconds)");
+                error_log("SovereignRag: Clearing stuck sync job (running for {$elapsed} seconds)");
                 $status['status'] = 'failed';
                 $status['error'] = 'Sync job timed out after 5 minutes';
-                $this->update_sync_status($job_id ?: get_transient('compilot_current_sync_job'), $status);
+                $this->update_sync_status($job_id ?: get_transient('sovereignrag_current_sync_job'), $status);
             }
         }
 
@@ -895,20 +895,20 @@ class Compilot_Content_Sync {
      * AJAX handler to clear sync status
      */
     public function ajax_clear_sync() {
-        check_ajax_referer('compilot-ai-nonce', 'nonce');
+        check_ajax_referer('sovereign-rag-nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
             wp_send_json_error(array('message' => 'Insufficient permissions'));
         }
 
         // Get current job ID
-        $job_id = get_transient('compilot_current_sync_job');
+        $job_id = get_transient('sovereignrag_current_sync_job');
 
         if ($job_id) {
             // Delete the job status
             delete_transient($job_id);
-            delete_transient('compilot_current_sync_job');
-            error_log("Compilot: Manually cleared sync job: {$job_id}");
+            delete_transient('sovereignrag_current_sync_job');
+            error_log("SovereignRag: Manually cleared sync job: {$job_id}");
         }
 
         wp_send_json_success(array('message' => 'Sync status cleared'));
@@ -916,4 +916,4 @@ class Compilot_Content_Sync {
 }
 
 // Initialize content sync
-new Compilot_Content_Sync();
+new SovereignRag_Content_Sync();

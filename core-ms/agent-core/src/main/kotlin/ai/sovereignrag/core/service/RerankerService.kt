@@ -11,7 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import mu.KotlinLogging
-import nl.compilot.ai.domain.SearchResult
+import ai.sovereignrag.domain.SearchResult
 import org.springframework.stereotype.Service
 import java.net.URL
 import java.nio.LongBuffer
@@ -53,7 +53,7 @@ class RerankerService {
             logger.info { "Model: $MODEL_NAME (ONNX format)" }
 
             // Create cache directory
-            val cacheDir = Path.of(System.getProperty("user.home"), ".cache", "compilot-ai", "models")
+            val cacheDir = Path.of(System.getProperty("user.home"), ".cache", "sovereign-rag", "models")
             Files.createDirectories(cacheDir)
 
             // Download model file if not exists

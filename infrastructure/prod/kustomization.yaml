@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: compilot-ai
+namespace: sovereignrag-ai
 
 resources:
 - 00-namespace.yaml
@@ -11,18 +11,18 @@ resources:
 - 10-postgresql.yaml
 - 11-redis.yaml
 - 12-ollama.yaml
-- 20-compilot-ai-deployment.yaml
-- 21-compilot-ai-service.yaml
+- 20-sovereignrag-ai-deployment.yaml
+- 21-sovereignrag-ai-service.yaml
 - 22-hpa.yaml
 
 images:
-- name: compilot-ai
-  newName: your-registry/compilot-ai  # Replace with your Docker registry
+- name: sovereignrag-ai
+  newName: your-registry/sovereignrag-ai  # Replace with your Docker registry
   newTag: latest  # Use semantic versioning in production (e.g., v1.0.0)
 
 # Common labels applied to all resources
 commonLabels:
-  app.kubernetes.io/name: compilot-ai
+  app.kubernetes.io/name: sovereignrag-ai
   app.kubernetes.io/instance: prod
   app.kubernetes.io/version: "1.0.0"
   app.kubernetes.io/component: ai-platform
@@ -32,19 +32,19 @@ commonLabels:
 # Annotations applied to all resources
 commonAnnotations:
   deployment.date: "2025-01-04"
-  team: compilot-ai
+  team: sovereignrag-ai
 
 # ConfigMap generator (alternative to manual ConfigMap)
 # Uncomment if you want to generate ConfigMap from files
 # configMapGenerator:
-# - name: compilot-ai-config
+# - name: sovereignrag-ai-config
 #   files:
 #   - configs/application.yml
 
 # Secret generator (alternative to manual Secrets)
 # Uncomment and use for better secret management
 # secretGenerator:
-# - name: compilot-ai-secrets
+# - name: sovereignrag-ai-secrets
 #   envs:
 #   - secrets/.env.prod
 

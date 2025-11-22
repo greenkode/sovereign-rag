@@ -1,31 +1,31 @@
-# Compilot AI Assistant Translations
+# Sovereign RAG Assistant Translations
 
-This directory contains translation files for the Compilot AI Assistant WordPress plugin.
+This directory contains translation files for the Sovereign RAG Assistant WordPress plugin.
 
 ## Translation Files
 
-The plugin uses the standard WordPress internationalization (i18n) system with the text domain `compilot-ai`.
+The plugin uses the standard WordPress internationalization (i18n) system with the text domain `sovereign-rag`.
 
 ### Available Translations
 
-- **English (en_US)**: `compilot-ai-en_US.po` / `compilot-ai-en_US.mo`
-- **Dutch (nl_NL)**: `compilot-ai-nl_NL.po` / `compilot-ai-nl_NL.mo`
-- **German (de_DE)**: `compilot-ai-de_DE.po` / `compilot-ai-de_DE.mo`
-- **French (fr_FR)**: `compilot-ai-fr_FR.po` / `compilot-ai-fr_FR.mo`
-- **Spanish (es_ES)**: `compilot-ai-es_ES.po` / `compilot-ai-es_ES.mo`
-- **Italian (it_IT)**: `compilot-ai-it_IT.po` / `compilot-ai-it_IT.mo`
-- **Portuguese (pt_PT)**: `compilot-ai-pt_PT.po` / `compilot-ai-pt_PT.mo`
+- **English (en_US)**: `sovereign-rag-en_US.po` / `sovereign-rag-en_US.mo`
+- **Dutch (nl_NL)**: `sovereign-rag-nl_NL.po` / `sovereign-rag-nl_NL.mo`
+- **German (de_DE)**: `sovereign-rag-de_DE.po` / `sovereign-rag-de_DE.mo`
+- **French (fr_FR)**: `sovereign-rag-fr_FR.po` / `sovereign-rag-fr_FR.mo`
+- **Spanish (es_ES)**: `sovereign-rag-es_ES.po` / `sovereign-rag-es_ES.mo`
+- **Italian (it_IT)**: `sovereign-rag-it_IT.po` / `sovereign-rag-it_IT.mo`
+- **Portuguese (pt_PT)**: `sovereign-rag-pt_PT.po` / `sovereign-rag-pt_PT.mo`
 
 ## How to Add a New Translation
 
 ### 1. Create a .po File
 
-Create a new `.po` file for your language using the format `compilot-ai-{locale}.po`. For example:
-- German: `compilot-ai-de_DE.po`
-- French: `compilot-ai-fr_FR.po`
-- Spanish: `compilot-ai-es_ES.po`
+Create a new `.po` file for your language using the format `sovereign-rag-{locale}.po`. For example:
+- German: `sovereign-rag-de_DE.po`
+- French: `sovereign-rag-fr_FR.po`
+- Spanish: `sovereign-rag-es_ES.po`
 
-You can use the `compilot-ai-nl_NL.po` file as a template.
+You can use the `sovereign-rag-nl_NL.po` file as a template.
 
 ### 2. Translate the Strings
 
@@ -41,12 +41,12 @@ msgstr "Instellingen"  # Your translation here
 WordPress requires compiled `.mo` files. Use `msgfmt` to compile:
 
 ```bash
-msgfmt -o compilot-ai-{locale}.mo compilot-ai-{locale}.po
+msgfmt -o sovereign-rag-{locale}.mo sovereign-rag-{locale}.po
 ```
 
 For example:
 ```bash
-msgfmt -o compilot-ai-de_DE.mo compilot-ai-de_DE.po
+msgfmt -o sovereign-rag-de_DE.mo sovereign-rag-de_DE.po
 ```
 
 ### 4. Test Your Translation
@@ -67,11 +67,11 @@ You can use these tools to create and edit translations:
 
 The main menu items that are currently translatable:
 
-- "Compilot AI Assistant" (main menu)
+- "Sovereign RAG Assistant" (main menu)
 - "Settings" (submenu)
 - "Review & Add Content" (submenu)
 
-More strings can be added by wrapping text in `__()` or `_e()` functions with the `'compilot-ai'` text domain.
+More strings can be added by wrapping text in `__()` or `_e()` functions with the `'sovereign-rag'` text domain.
 
 ## Contributing Translations
 

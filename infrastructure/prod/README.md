@@ -1,12 +1,12 @@
-# Compilot AI - Kubernetes Production Deployment
+# Sovereign RAG - Kubernetes Production Deployment
 
-This directory contains Kubernetes manifests for deploying Compilot AI in a production environment.
+This directory contains Kubernetes manifests for deploying Sovereign RAG in a production environment.
 
 ## Architecture
 
 The deployment consists of the following components:
 
-- **Compilot AI Application**: Spring Boot application (2+ replicas with HPA)
+- **Sovereign RAG Application**: Spring Boot application (2+ replicas with HPA)
 - **PostgreSQL**: Multi-tenant database with persistent storage
 - **Redis**: Session and cache storage
 - **Ollama**: Local LLM server for AI operations
@@ -44,10 +44,10 @@ The deployment consists of the following components:
 
 ```bash
 # Build the Docker image
-docker build -t your-registry/compilot-ai:v1.0.0 .
+docker build -t your-registry/sovereign-rag:v1.0.0 .
 
 # Push to your container registry
-docker push your-registry/compilot-ai:v1.0.0
+docker push your-registry/sovereign-rag:v1.0.0
 ```
 
 ### 2. Update Configuration
@@ -62,9 +62,9 @@ openssl rand -base64 32  # PostgreSQL password
 openssl rand -base64 32  # JWT secret
 
 # Apply secrets manually (recommended for production)
-kubectl create secret generic compilot-ai-secrets \
-  --namespace=compilot-ai \
-  --from-literal=POSTGRES_USER=compilot \
+kubectl create secret generic sovereign-rag-secrets \
+  --namespace=sovereign-rag \
+  --from-literal=POSTGRES_USER=sovereignrag \
   --from-literal=POSTGRES_PASSWORD=your-secure-password \
   --from-literal=JWT_SECRET=your-jwt-secret \
   --from-literal=SENDGRID_API_KEY=your-sendgrid-key \
@@ -75,14 +75,14 @@ kubectl create secret generic compilot-ai-secrets \
 
 ```yaml
 images:
-- name: compilot-ai
-  newName: your-registry/compilot-ai  # Replace with your actual registry
+- name: sovereign-rag
+  newName: your-registry/sovereign-rag  # Replace with your actual registry
   newTag: v1.0.0  # Use semantic versioning
 ```
 
-#### Update Domain (`21-compilot-ai-service.yaml`)
+#### Update Domain (`21-sovereign-rag-service.yaml`)
 
-Replace `compilot.yourdomain.com` with your actual domain in the Ingress resource.
+Replace `sovereignrag.yourdomain.com` with your actual domain in the Ingress resource.
 
 ### 3. Update Storage Class (`03-pvc.yaml`)
 
@@ -99,10 +99,10 @@ storageClassName: gp3  # Change to your cloud provider's storage class
 kubectl apply -k infrastructure/prod/
 
 # Verify deployment
-kubectl get all -n compilot-ai
+kubectl get all -n sovereign-rag
 
 # Watch pods coming up
-kubectl get pods -n compilot-ai -w
+kubectl get pods -n sovereign-rag -w
 ```
 
 ### Option 2: Using plain kubectl
@@ -118,13 +118,13 @@ kubectl apply -f infrastructure/prod/11-redis.yaml
 kubectl apply -f infrastructure/prod/12-ollama.yaml
 
 # Wait for dependencies to be ready
-kubectl wait --for=condition=ready pod -l app=postgresql -n compilot-ai --timeout=300s
-kubectl wait --for=condition=ready pod -l app=redis -n compilot-ai --timeout=300s
-kubectl wait --for=condition=ready pod -l app=ollama -n compilot-ai --timeout=600s
+kubectl wait --for=condition=ready pod -l app=postgresql -n sovereign-rag --timeout=300s
+kubectl wait --for=condition=ready pod -l app=redis -n sovereign-rag --timeout=300s
+kubectl wait --for=condition=ready pod -l app=ollama -n sovereign-rag --timeout=600s
 
 # Deploy application
-kubectl apply -f infrastructure/prod/20-compilot-ai-deployment.yaml
-kubectl apply -f infrastructure/prod/21-compilot-ai-service.yaml
+kubectl apply -f infrastructure/prod/20-sovereign-rag-deployment.yaml
+kubectl apply -f infrastructure/prod/21-sovereign-rag-service.yaml
 kubectl apply -f infrastructure/prod/22-hpa.yaml
 ```
 
@@ -134,16 +134,16 @@ kubectl apply -f infrastructure/prod/22-hpa.yaml
 
 ```bash
 # Check all pods are running
-kubectl get pods -n compilot-ai
+kubectl get pods -n sovereign-rag
 
 # Check services
-kubectl get svc -n compilot-ai
+kubectl get svc -n sovereign-rag
 
 # Check ingress
-kubectl get ingress -n compilot-ai
+kubectl get ingress -n sovereign-rag
 
 # View application logs
-kubectl logs -f deployment/compilot-ai -n compilot-ai
+kubectl logs -f deployment/sovereign-rag -n sovereign-rag
 ```
 
 ### 2. Initialize Database
@@ -152,14 +152,14 @@ The application uses Flyway for database migrations. Migrations will run automat
 
 To verify:
 ```bash
-kubectl logs -f deployment/compilot-ai -n compilot-ai | grep -i flyway
+kubectl logs -f deployment/sovereign-rag -n sovereign-rag | grep -i flyway
 ```
 
 ### 3. Test the Application
 
 ```bash
 # Get the external IP/domain
-kubectl get ingress -n compilot-ai
+kubectl get ingress -n sovereign-rag
 
 # Test health endpoint
 curl https://your-domain.com/actuator/health
@@ -174,7 +174,7 @@ The Ollama init container will pull models on first startup. This can take 10-30
 
 Check progress:
 ```bash
-kubectl logs -f deployment/ollama -n compilot-ai -c pull-models
+kubectl logs -f deployment/ollama -n sovereign-rag -c pull-models
 ```
 
 Required models:
@@ -188,10 +188,10 @@ Required models:
 
 ```bash
 # Scale application
-kubectl scale deployment compilot-ai --replicas=5 -n compilot-ai
+kubectl scale deployment sovereign-rag --replicas=5 -n sovereign-rag
 
 # View HPA status
-kubectl get hpa -n compilot-ai
+kubectl get hpa -n sovereign-rag
 ```
 
 ### Auto-Scaling
@@ -208,23 +208,23 @@ The HorizontalPodAutoscaler is configured to:
 
 ```bash
 # Application logs
-kubectl logs -f deployment/compilot-ai -n compilot-ai
+kubectl logs -f deployment/sovereign-rag -n sovereign-rag
 
 # PostgreSQL logs
-kubectl logs -f deployment/postgresql -n compilot-ai
+kubectl logs -f deployment/postgresql -n sovereign-rag
 
 # Ollama logs
-kubectl logs -f deployment/ollama -n compilot-ai
+kubectl logs -f deployment/ollama -n sovereign-rag
 
 # All logs with timestamps
-kubectl logs -f deployment/compilot-ai -n compilot-ai --timestamps=true
+kubectl logs -f deployment/sovereign-rag -n sovereign-rag --timestamps=true
 ```
 
 ### Resource Usage
 
 ```bash
 # Pod resource usage
-kubectl top pods -n compilot-ai
+kubectl top pods -n sovereign-rag
 
 # Node resource usage
 kubectl top nodes
@@ -236,12 +236,12 @@ kubectl top nodes
 
 ```bash
 # Create backup
-kubectl exec -it deployment/postgresql -n compilot-ai -- \
-  pg_dump -U compilot compilot_master > backup-$(date +%Y%m%d).sql
+kubectl exec -it deployment/postgresql -n sovereign-rag -- \
+  pg_dump -U sovereignrag sovereignrag_master > backup-$(date +%Y%m%d).sql
 
 # Restore from backup
-kubectl exec -i deployment/postgresql -n compilot-ai -- \
-  psql -U compilot compilot_master < backup-20250104.sql
+kubectl exec -i deployment/postgresql -n sovereign-rag -- \
+  psql -U sovereignrag sovereignrag_master < backup-20250104.sql
 ```
 
 ### Persistent Volume Snapshots
@@ -255,7 +255,7 @@ apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshot
 metadata:
   name: postgresql-snapshot-$(date +%Y%m%d)
-  namespace: compilot-ai
+  namespace: sovereign-rag
 spec:
   volumeSnapshotClassName: your-snapshot-class
   source:
@@ -269,35 +269,35 @@ EOF
 
 ```bash
 # Describe pod for events
-kubectl describe pod <pod-name> -n compilot-ai
+kubectl describe pod <pod-name> -n sovereign-rag
 
 # Check pod logs
-kubectl logs <pod-name> -n compilot-ai
+kubectl logs <pod-name> -n sovereign-rag
 
 # Check previous container logs if pod restarted
-kubectl logs <pod-name> -n compilot-ai --previous
+kubectl logs <pod-name> -n sovereign-rag --previous
 ```
 
 ### Database Connection Issues
 
 ```bash
 # Test PostgreSQL connection
-kubectl exec -it deployment/postgresql -n compilot-ai -- \
-  psql -U compilot -d compilot_master -c "SELECT 1;"
+kubectl exec -it deployment/postgresql -n sovereign-rag -- \
+  psql -U sovereignrag -d sovereignrag_master -c "SELECT 1;"
 
 # Check PostgreSQL logs
-kubectl logs deployment/postgresql -n compilot-ai
+kubectl logs deployment/postgresql -n sovereign-rag
 ```
 
 ### Ollama Model Issues
 
 ```bash
 # Check if models are loaded
-kubectl exec -it deployment/ollama -n compilot-ai -- \
+kubectl exec -it deployment/ollama -n sovereign-rag -- \
   ollama list
 
 # Manually pull a model
-kubectl exec -it deployment/ollama -n compilot-ai -- \
+kubectl exec -it deployment/ollama -n sovereign-rag -- \
   ollama pull gemma2:9b-instruct-q4_0
 ```
 
@@ -305,10 +305,10 @@ kubectl exec -it deployment/ollama -n compilot-ai -- \
 
 ```bash
 # Check application logs for errors
-kubectl logs -f deployment/compilot-ai -n compilot-ai | grep ERROR
+kubectl logs -f deployment/sovereign-rag -n sovereign-rag | grep ERROR
 
 # Check Spring Boot actuator health
-kubectl port-forward deployment/compilot-ai 8000:8000 -n compilot-ai
+kubectl port-forward deployment/sovereign-rag 8000:8000 -n sovereign-rag
 curl http://localhost:8000/actuator/health
 ```
 
@@ -342,15 +342,15 @@ curl http://localhost:8000/actuator/health
 
 ```bash
 # Update image
-kubectl set image deployment/compilot-ai \
-  compilot-ai=your-registry/compilot-ai:v1.1.0 \
-  -n compilot-ai
+kubectl set image deployment/sovereign-rag \
+  sovereign-rag=your-registry/sovereign-rag:v1.1.0 \
+  -n sovereign-rag
 
 # Watch rollout status
-kubectl rollout status deployment/compilot-ai -n compilot-ai
+kubectl rollout status deployment/sovereign-rag -n sovereign-rag
 
 # Rollback if needed
-kubectl rollout undo deployment/compilot-ai -n compilot-ai
+kubectl rollout undo deployment/sovereign-rag -n sovereign-rag
 ```
 
 ### Blue-Green Deployment
@@ -368,7 +368,7 @@ kubectl apply -k infrastructure/staging/
 kubectl delete -k infrastructure/prod/
 
 # Or delete namespace (removes everything)
-kubectl delete namespace compilot-ai
+kubectl delete namespace sovereign-rag
 ```
 
 ## Additional Resources
@@ -380,4 +380,4 @@ kubectl delete namespace compilot-ai
 
 ## Support
 
-For issues or questions, please open an issue on GitHub or contact the Compilot AI team.
+For issues or questions, please open an issue on GitHub or contact the Sovereign RAG team.

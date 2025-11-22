@@ -1,7 +1,7 @@
 package ai.sovereignrag.tenant.service
 
-import nl.compilot.ai.commons.tenant.TenantRegistry as TenantRegistryInterface
-import nl.compilot.ai.tenant.domain.Tenant
+import ai.sovereignrag.commons.tenant.TenantRegistry as TenantRegistryInterface
+import ai.sovereignrag.tenant.domain.Tenant
 
 /**
  * Tenant Registry Service - manages tenant lookups and validation

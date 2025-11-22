@@ -6,7 +6,7 @@ The application was experiencing `ObjectOptimisticLockingFailureException` error
 ```
 org.springframework.orm.ObjectOptimisticLockingFailureException:
 Row was updated or deleted by another transaction (or unsaved-value mapping was incorrect):
-[nl.compilot.ai.client.domain.UnansweredQuery#...]
+[ai.sovereignrag.client.domain.UnansweredQuery#...]
 
 Caused by: org.hibernate.StaleObjectStateException:
 Row was updated or deleted by another transaction
@@ -23,7 +23,7 @@ The issue occurred in `UnansweredQueryService.logUnansweredQuery()` at line 32-3
 Three changes were implemented to fix this issue:
 
 ### 1. Added @Version Field to UnansweredQuery Entity
-**File**: `core-ms/client/src/main/kotlin/nl/compilot/ai/client/domain/UnansweredQuery.kt`
+**File**: `core-ms/client/src/main/kotlin/ai/sovereignrag/client/domain/UnansweredQuery.kt`
 
 Added version field for optimistic locking:
 ```kotlin
@@ -43,7 +43,7 @@ COMMENT ON COLUMN unanswered_queries.version IS 'Version number for optimistic l
 ```
 
 ### 3. Added Atomic Update Method to Repository
-**File**: `core-ms/client/src/main/kotlin/nl/compilot/ai/client/repository/UnansweredQueryRepository.kt`
+**File**: `core-ms/client/src/main/kotlin/ai/sovereignrag/client/repository/UnansweredQueryRepository.kt`
 
 Added native update query method:
 ```kotlin
@@ -58,7 +58,7 @@ fun incrementOccurrenceCount(id: UUID): Int
 ```
 
 ### 4. Modified Service to Use Atomic Update
-**File**: `core-ms/client/src/main/kotlin/nl/compilot/ai/client/service/UnansweredQueryService.kt`
+**File**: `core-ms/client/src/main/kotlin/ai/sovereignrag/client/service/UnansweredQueryService.kt`
 
 Changed from:
 ```kotlin
@@ -89,7 +89,7 @@ Tested by running the application and monitoring for errors:
 - ✅ Contextual RAG features working correctly
 
 ## Files Modified
-1. `core-ms/client/src/main/kotlin/nl/compilot/ai/client/domain/UnansweredQuery.kt`
-2. `core-ms/client/src/main/kotlin/nl/compilot/ai/client/repository/UnansweredQueryRepository.kt`
-3. `core-ms/client/src/main/kotlin/nl/compilot/ai/client/service/UnansweredQueryService.kt`
+1. `core-ms/client/src/main/kotlin/ai/sovereignrag/client/domain/UnansweredQuery.kt`
+2. `core-ms/client/src/main/kotlin/ai/sovereignrag/client/repository/UnansweredQueryRepository.kt`
+3. `core-ms/client/src/main/kotlin/ai/sovereignrag/client/service/UnansweredQueryService.kt`
 4. `core-ms/app/src/main/resources/db/tenant-schema/V3__add_version_column_to_unanswered_queries.sql` (new file)

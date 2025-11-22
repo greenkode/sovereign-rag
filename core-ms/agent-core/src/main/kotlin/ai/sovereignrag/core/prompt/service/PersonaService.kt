@@ -3,9 +3,9 @@ package ai.sovereignrag.core.prompt.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import mu.KotlinLogging
-import nl.compilot.ai.commons.prompt.PromptTemplateRenderer
-import nl.compilot.ai.prompt.domain.PersonaConfiguration
-import nl.compilot.ai.prompt.repository.PersonaConfigurationRepository
+import ai.sovereignrag.commons.prompt.PromptTemplateRenderer
+import ai.sovereignrag.prompt.domain.PersonaConfiguration
+import ai.sovereignrag.prompt.repository.PersonaConfigurationRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

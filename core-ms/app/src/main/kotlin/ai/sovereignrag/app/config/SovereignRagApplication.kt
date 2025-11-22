@@ -7,11 +7,11 @@ import org.springframework.boot.runApplication
  * Main Spring Boot Application
  *
  * Component scanning includes:
- * - nl.compilot.ai.* (app, core-ai, etc.)
- * - nl.compilot.ai.guardrail.* (guardrail module)
- * - nl.compilot.ai.security.* (auth module)
+ * - ai.sovereignrag.* (app, core-ai, etc.)
+ * - ai.sovereignrag.guardrail.* (guardrail module)
+ * - ai.sovereignrag.security.* (auth module)
  */
-@SpringBootApplication(scanBasePackages = ["nl.compilot.ai"])
+@SpringBootApplication(scanBasePackages = ["ai.sovereignrag"])
 class SovereignRagApplication
 
 fun main(args: Array<String>) {

@@ -6,8 +6,8 @@ This guide walks you through setting up the PostgreSQL database schemas for the 
 
 - PostgreSQL 16+ installed and running
 - pgvector extension installed
-- Database credentials: `compilot:RespectTheHangover`
-- Existing database: `compilot_ai`
+- Database credentials: `sovereignrag:RespectTheHangover`
+- Existing database: `sovereignrag_ai`
 
 ## Step 1: Install pgvector Extension
 
@@ -28,11 +28,11 @@ The master database stores tenant registry and system-wide metadata.
 
 ```bash
 # Connect to PostgreSQL
-psql -h localhost -U compilot -d postgres
+psql -h localhost -U sovereignrag -d postgres
 
 # Create master database
-CREATE DATABASE compilot_master
-    WITH OWNER = compilot
+CREATE DATABASE sovereignrag_master
+    WITH OWNER = sovereignrag
          ENCODING = 'UTF8'
          LC_COLLATE = 'en_US.UTF-8'
          LC_CTYPE = 'en_US.UTF-8'
@@ -42,7 +42,7 @@ CREATE DATABASE compilot_master
 \q
 
 # Apply the schema
-psql -h localhost -U compilot -d compilot_master -f setup-master-database.sql
+psql -h localhost -U sovereignrag -d sovereignrag_master -f setup-master-database.sql
 ```
 
 ### Option B: Using IntelliJ Database Console
@@ -51,19 +51,19 @@ psql -h localhost -U compilot -d compilot_master -f setup-master-database.sql
 2. Open Database tool window (View → Tool Windows → Database)
 3. Connect to your PostgreSQL instance
 4. Right-click and select "New → Database"
-   - Name: `compilot_master`
-   - Owner: `compilot`
+   - Name: `sovereignrag_master`
+   - Owner: `sovereignrag`
 5. Open `setup-master-database.sql` in IntelliJ
-6. Select the `compilot_master` database in the dropdown
+6. Select the `sovereignrag_master` database in the dropdown
 7. Execute the script (Ctrl+Enter or click Run)
 
 ### Option C: Using pgAdmin
 
 1. Open pgAdmin
 2. Right-click on "Databases" → "Create" → "Database"
-   - Name: `compilot_master`
-   - Owner: `compilot`
-3. Open Query Tool for `compilot_master`
+   - Name: `sovereignrag_master`
+   - Owner: `sovereignrag`
+3. Open Query Tool for `sovereignrag_master`
 4. Copy and paste contents of `setup-master-database.sql`
 5. Execute the script
 
@@ -72,7 +72,7 @@ psql -h localhost -U compilot -d compilot_master -f setup-master-database.sql
 Connect to the master database and verify tables were created:
 
 ```sql
-\c compilot_master
+\c sovereignrag_master
 
 -- List all schemas
 \dn
@@ -95,23 +95,23 @@ You can test the tenant schema by creating a test tenant database:
 
 ```bash
 # Create test tenant database
-psql -h localhost -U compilot -d postgres -c "CREATE DATABASE compilot_tenant_test"
+psql -h localhost -U sovereignrag -d postgres -c "CREATE DATABASE sovereignrag_tenant_test"
 
 # Connect and enable extensions
-psql -h localhost -U compilot -d compilot_tenant_test <<EOF
+psql -h localhost -U sovereignrag -d sovereignrag_tenant_test <<EOF
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS btree_gin;
 EOF
 
 # Apply tenant schema
-psql -h localhost -U compilot -d compilot_tenant_test -f core-ms/core-ai/src/main/resources/db/tenant-schema/V1__create_tenant_schema.sql
+psql -h localhost -U sovereignrag -d sovereignrag_tenant_test -f core-ms/core-ai/src/main/resources/db/tenant-schema/V1__create_tenant_schema.sql
 ```
 
 Verify tenant database:
 
 ```sql
-\c compilot_tenant_test
+\c sovereignrag_tenant_test
 
 -- List all tables
 \dt
@@ -128,7 +128,7 @@ Verify tenant database:
 
 ## Schema Overview
 
-### Master Database (compilot_master)
+### Master Database (sovereignrag_master)
 
 **Purpose**: Store tenant registry and system-wide data
 
@@ -146,7 +146,7 @@ Verify tenant database:
 - Clearer architecture and namespace management
 - Professional best practice
 
-### Tenant Databases (compilot_tenant_*)
+### Tenant Databases (sovereignrag_tenant_*)
 
 **Purpose**: Store content and chat data for each tenant (physically isolated)
 
@@ -164,7 +164,7 @@ Verify tenant database:
 ## Directory Structure
 
 ```
-compilot-ai/
+sovereign-rag/
 ├── setup-master-database.sql              # Master DB setup script
 ├── MIGRATION_PLAN.md                      # Full migration plan
 ├── PHASE1_SETUP.md                        # This file
@@ -210,22 +210,22 @@ sudo systemctl restart postgresql
 
 ### Error: "database already exists"
 
-If `compilot_master` already exists:
+If `sovereignrag_master` already exists:
 ```sql
 -- Drop and recreate (WARNING: destroys all data)
-DROP DATABASE compilot_master;
-CREATE DATABASE compilot_master;
+DROP DATABASE sovereignrag_master;
+CREATE DATABASE sovereignrag_master;
 
 -- Or connect to existing and run schema
-\c compilot_master
+\c sovereignrag_master
 -- Then run the schema script
 ```
 
 ### Error: "permission denied"
 
-Make sure you're connected as the `compilot` user or a superuser:
+Make sure you're connected as the `sovereignrag` user or a superuser:
 ```bash
-psql -h localhost -U compilot -d postgres
+psql -h localhost -U sovereignrag -d postgres
 ```
 
 ## Validation Queries
@@ -234,7 +234,7 @@ Run these to ensure everything is set up correctly:
 
 ```sql
 -- Connect to master database
-\c compilot_master
+\c sovereignrag_master
 
 -- Check schemas
 \dn
@@ -249,7 +249,7 @@ ORDER BY table_name;
 SELECT COUNT(*) FROM master.tenants;
 
 -- Check tenant database tables (if test database created)
-\c compilot_tenant_test
+\c sovereignrag_tenant_test
 
 SELECT table_name FROM information_schema.tables
 WHERE table_schema = 'public'
@@ -262,8 +262,8 @@ SELECT * FROM pg_extension WHERE extname = 'vector';
 ## Success Criteria
 
 ✅ Phase 1 is complete when:
-- [ ] `compilot_master` database exists
-- [ ] `master` schema created within compilot_master database
+- [ ] `sovereignrag_master` database exists
+- [ ] `master` schema created within sovereignrag_master database
 - [ ] All master schema tables created (master.tenants, master.tenant_usage, master.api_keys, master.audit_log)
 - [ ] Tenant schema SQL files are ready in `db/tenant-schema/`
 - [ ] pgvector extension is working
@@ -277,8 +277,8 @@ When configuring your Spring Boot application to connect to the master database:
 # For master database connection
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/compilot_master
-    username: compilot
+    url: jdbc:postgresql://localhost:5432/sovereignrag_master
+    username: sovereignrag
     password: RespectTheHangover
     # Important: Set default schema to master
     hikari:

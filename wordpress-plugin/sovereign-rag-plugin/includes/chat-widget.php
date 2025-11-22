@@ -1,6 +1,6 @@
 <?php
 /**
- * Compilot AI Chat Widget
+ * Sovereign RAG Chat Widget
  *
  * Floating chat widget with autocomplete and search functionality
  */
@@ -9,15 +9,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Compilot_Chat_Widget {
+class SovereignRag_Chat_Widget {
 
     public function __construct() {
         add_action('wp_footer', array($this, 'render_widget'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
 
         // AJAX endpoint for refreshing JWT token
-        add_action('wp_ajax_compilot_refresh_token', array($this, 'ajax_refresh_token'));
-        add_action('wp_ajax_nopriv_compilot_refresh_token', array($this, 'ajax_refresh_token'));
+        add_action('wp_ajax_sovereignrag_refresh_token', array($this, 'ajax_refresh_token'));
+        add_action('wp_ajax_nopriv_sovereignrag_refresh_token', array($this, 'ajax_refresh_token'));
     }
 
     /**
@@ -31,18 +31,18 @@ class Compilot_Chat_Widget {
      */
     private function get_jwt_token() {
         // Check if we have a cached valid token (cache for 90% of lifetime)
-        $cached_token = get_transient('compilot_jwt_token');
+        $cached_token = get_transient('sovereignrag_jwt_token');
         if ($cached_token) {
             return $cached_token;
         }
 
         // Authenticate with backend to get new token
-        $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
-        $tenant_id = get_option('compilot_ai_tenant_id', '');
-        $api_key = get_option('compilot_ai_api_key', '');
+        $api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
+        $tenant_id = get_option('sovereignrag_ai_tenant_id', '');
+        $api_key = get_option('sovereignrag_ai_api_key', '');
 
         if (empty($tenant_id) || empty($api_key)) {
-            error_log('Compilot AI: Missing tenant credentials for JWT authentication');
+            error_log('Sovereign RAG: Missing tenant credentials for JWT authentication');
             return null;
         }
 
@@ -56,13 +56,13 @@ class Compilot_Chat_Widget {
         ));
 
         if (is_wp_error($response)) {
-            error_log('Compilot AI: JWT authentication failed - ' . $response->get_error_message());
+            error_log('Sovereign RAG: JWT authentication failed - ' . $response->get_error_message());
             return null;
         }
 
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code !== 200) {
-            error_log('Compilot AI: JWT authentication failed with status ' . $status_code);
+            error_log('Sovereign RAG: JWT authentication failed with status ' . $status_code);
             return null;
         }
 
@@ -73,8 +73,8 @@ class Compilot_Chat_Widget {
         // Cache token for 90% of its lifetime to ensure it doesn't expire during use
         if ($token) {
             $cache_duration = (int) ($expires_in * 0.9);
-            set_transient('compilot_jwt_token', $token, $cache_duration);
-            error_log('Compilot AI: JWT token cached for ' . $cache_duration . ' seconds');
+            set_transient('sovereignrag_jwt_token', $token, $cache_duration);
+            error_log('Sovereign RAG: JWT token cached for ' . $cache_duration . ' seconds');
         }
 
         return $token;
@@ -86,7 +86,7 @@ class Compilot_Chat_Widget {
      */
     public function ajax_refresh_token() {
         // Clear the cached token to force a refresh
-        delete_transient('compilot_jwt_token');
+        delete_transient('sovereignrag_jwt_token');
 
         // Get a new token
         $new_token = $this->get_jwt_token();
@@ -108,10 +108,10 @@ class Compilot_Chat_Widget {
         }
 
         wp_enqueue_style(
-            'compilot-chat-widget',
+            'sovereignrag-chat-widget',
             plugins_url('../assets/css/chat-widget.css', __FILE__),
             array(),
-            COMPILOT_AI_VERSION
+            SOVEREIGN_RAG_VERSION
         );
 
         // Enqueue Marked.js for Markdown rendering
@@ -124,10 +124,10 @@ class Compilot_Chat_Widget {
         );
 
         wp_enqueue_script(
-            'compilot-chat-widget',
+            'sovereignrag-chat-widget',
             plugins_url('../assets/js/chat-widget.js', __FILE__),
             array('jquery', 'marked-js'),
-            COMPILOT_AI_VERSION,
+            SOVEREIGN_RAG_VERSION,
             true
         );
 
@@ -137,41 +137,41 @@ class Compilot_Chat_Widget {
 
         // Debug: Log token fetch result
         if ($jwt_token) {
-            error_log('Compilot AI: JWT token successfully fetched');
+            error_log('Sovereign RAG: JWT token successfully fetched');
         } else {
-            error_log('Compilot AI: JWT token fetch FAILED - widget will not work');
+            error_log('Sovereign RAG: JWT token fetch FAILED - widget will not work');
         }
 
         // Pass API URL and settings to JavaScript
-        $show_sources_raw = get_option('compilot_ai_show_sources', true);
+        $show_sources_raw = get_option('sovereignrag_ai_show_sources', true);
         // wp_localize_script doesn't handle boolean false well (converts to empty string)
         // So we pass as integer (0 or 1) which JavaScript can reliably check
         $show_sources_setting = $show_sources_raw ? 1 : 0;
 
-        wp_localize_script('compilot-chat-widget', 'compilotChat', array(
-            'apiUrl' => get_option('compilot_ai_api_url', 'http://localhost:8000'),
+        wp_localize_script('sovereignrag-chat-widget', 'sovereignragChat', array(
+            'apiUrl' => get_option('sovereignrag_ai_api_url', 'http://localhost:8000'),
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('compilot_chat_nonce'),
+            'nonce' => wp_create_nonce('sovereignrag_chat_nonce'),
             // JWT authentication - SECURE: Only pass JWT token, not API key
             'jwtToken' => $jwt_token,
             // REMOVED: tenantId and apiKey - no longer exposed to browser
-            'lowConfidenceThreshold' => floatval(get_option('compilot_ai_low_confidence_threshold', 0.5)),
-            'minConfidence' => floatval(get_option('compilot_ai_min_confidence', 0.5)),
-            'returnMode' => get_option('compilot_ai_return_mode', 'multiple'),
+            'lowConfidenceThreshold' => floatval(get_option('sovereignrag_ai_low_confidence_threshold', 0.5)),
+            'minConfidence' => floatval(get_option('sovereignrag_ai_min_confidence', 0.5)),
+            'returnMode' => get_option('sovereignrag_ai_return_mode', 'multiple'),
             // RAG settings
-            'enableGeneralKnowledge' => (int) (bool) get_option('compilot_ai_enable_general_knowledge', true),
-            'showGeneralKnowledgeDisclaimer' => (int) (bool) get_option('compilot_ai_show_gk_disclaimer', false),
-            'generalKnowledgeDisclaimerText' => get_option('compilot_ai_gk_disclaimer_text', '*Let op: Dit antwoord is gebaseerd op algemene kennis, niet uit onze kennisbank.*'),
-            'ragModel' => get_option('compilot_ai_rag_model', 'llama3.1'),
-            'ragPersona' => get_option('compilot_ai_rag_persona', 'customer_service'),
+            'enableGeneralKnowledge' => (int) (bool) get_option('sovereignrag_ai_enable_general_knowledge', true),
+            'showGeneralKnowledgeDisclaimer' => (int) (bool) get_option('sovereignrag_ai_show_gk_disclaimer', false),
+            'generalKnowledgeDisclaimerText' => get_option('sovereignrag_ai_gk_disclaimer_text', '*Let op: Dit antwoord is gebaseerd op algemene kennis, niet uit onze kennisbank.*'),
+            'ragModel' => get_option('sovereignrag_ai_rag_model', 'llama3.1'),
+            'ragPersona' => get_option('sovereignrag_ai_rag_persona', 'customer_service'),
             'showSources' => $show_sources_setting,
             // Widget behavior settings
-            'sessionTimeoutMinutes' => intval(get_option('compilot_session_timeout_minutes', 5)),
-            'greetingMessage' => get_option('compilot_chat_greeting_message', '👋 Hallo! Hoe kan ik u vandaag helpen?'),
-            'greetingHint' => get_option('compilot_chat_greeting_hint', 'Begin met typen om suggesties te zien...'),
+            'sessionTimeoutMinutes' => intval(get_option('sovereignrag_session_timeout_minutes', 5)),
+            'greetingMessage' => get_option('sovereignrag_chat_greeting_message', '👋 Hallo! Hoe kan ik u vandaag helpen?'),
+            'greetingHint' => get_option('sovereignrag_chat_greeting_hint', 'Begin met typen om suggesties te zien...'),
             // Language settings
             'language' => get_locale(),  // e.g., 'en_US', 'nl_NL', 'de_DE', 'fr_FR'
-            'defaultLanguage' => get_option('compilot_ai_default_language', 'nl')  // Default response language
+            'defaultLanguage' => get_option('sovereignrag_ai_default_language', 'nl')  // Default response language
         ));
     }
 
@@ -185,26 +185,26 @@ class Compilot_Chat_Widget {
         }
 
         // Check if widget is enabled
-        if (!get_option('compilot_enable_chat_widget', true)) {
+        if (!get_option('sovereignrag_enable_chat_widget', true)) {
             return;
         }
 
         // Get chat widget name from settings
-        $chat_widget_name = get_option('compilot_chat_widget_name', 'Compilot AI Assistant');
+        $chat_widget_name = get_option('sovereignrag_chat_widget_name', 'Sovereign RAG Assistant');
 
         // Get greeting message from settings
-        $chat_greeting_message = get_option('compilot_chat_greeting_message', '👋 Hallo! Hoe kan ik u vandaag helpen?');
-        $chat_greeting_hint = get_option('compilot_chat_greeting_hint', 'Begin met typen om suggesties te zien...');
+        $chat_greeting_message = get_option('sovereignrag_chat_greeting_message', '👋 Hallo! Hoe kan ik u vandaag helpen?');
+        $chat_greeting_hint = get_option('sovereignrag_chat_greeting_hint', 'Begin met typen om suggesties te zien...');
 
         // Get widget styling settings
-        $widget_primary_color = get_option('compilot_widget_primary_color', '#667eea');
-        $widget_secondary_color = get_option('compilot_widget_secondary_color', '#764ba2');
-        $widget_message_font_size = get_option('compilot_widget_message_font_size', 14);
-        $widget_header_font_size = get_option('compilot_widget_header_font_size', 18);
+        $widget_primary_color = get_option('sovereignrag_widget_primary_color', '#667eea');
+        $widget_secondary_color = get_option('sovereignrag_widget_secondary_color', '#764ba2');
+        $widget_message_font_size = get_option('sovereignrag_widget_message_font_size', 14);
+        $widget_header_font_size = get_option('sovereignrag_widget_header_font_size', 18);
 
         include plugin_dir_path(__FILE__) . '../templates/chat-widget.php';
     }
 }
 
 // Initialize widget
-new Compilot_Chat_Widget();
+new SovereignRag_Chat_Widget();

@@ -1,7 +1,7 @@
 # LangChain4j Guardrails Implementation Plan
 
 ## Overview
-This document outlines the implementation plan for integrating **LangChain4j's Guardrails framework** into the Compilot AI platform to protect against misuse and ensure safe AI interactions.
+This document outlines the implementation plan for integrating **LangChain4j's Guardrails framework** into the Sovereign RAG platform to protect against misuse and ensure safe AI interactions.
 
 ## Architecture
 
@@ -395,7 +395,7 @@ class ConversationalAgentService(
 **File**: `application.yml`
 
 ```yaml
-compilot:
+sovereignrag:
   guardrails:
     # Input guardrails
     prompt-injection-detection: true
@@ -419,7 +419,7 @@ compilot:
 
 **Kotlin Configuration Class**:
 ```kotlin
-@ConfigurationProperties(prefix = "compilot.guardrails")
+@ConfigurationProperties(prefix = "sovereignrag.guardrails")
 data class GuardrailProperties(
     // Input
     val promptInjectionDetection: Boolean = true,

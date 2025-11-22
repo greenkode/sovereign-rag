@@ -7,10 +7,10 @@ import com.sendgrid.helpers.mail.Mail
 import com.sendgrid.helpers.mail.objects.Email
 import com.sendgrid.helpers.mail.objects.Personalization
 import mu.KotlinLogging
-import nl.compilot.ai.commons.messaging.dto.MessagePayload
-import nl.compilot.ai.commons.messaging.dto.MessageSentResult
-import nl.compilot.ai.commons.messaging.dto.MessageTemplateDto
-import nl.compilot.ai.commons.messaging.enumeration.DeliveryStatus
+import ai.sovereignrag.commons.messaging.dto.MessagePayload
+import ai.sovereignrag.commons.messaging.dto.MessageSentResult
+import ai.sovereignrag.commons.messaging.dto.MessageTemplateDto
+import ai.sovereignrag.commons.messaging.enumeration.DeliveryStatus
 import ai.sovereignrag.messaging.MessagingIntegration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Compilot AI Production Deployment Script
-# This script helps deploy Compilot AI to a Kubernetes cluster
+# Sovereign RAG Production Deployment Script
+# This script helps deploy Sovereign RAG to a Kubernetes cluster
 
 set -e  # Exit on error
 
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-NAMESPACE="compilot-ai"
+NAMESPACE="sovereign-rag"
 TIMEOUT="600s"
 
 # Functions
@@ -107,14 +107,14 @@ deploy_ollama() {
 }
 
 deploy_application() {
-    log_info "Deploying Compilot AI application..."
-    kubectl apply -f 20-compilot-ai-deployment.yaml
-    kubectl apply -f 21-compilot-ai-service.yaml
+    log_info "Deploying Sovereign RAG application..."
+    kubectl apply -f 20-sovereign-rag-deployment.yaml
+    kubectl apply -f 21-sovereign-rag-service.yaml
     kubectl apply -f 22-hpa.yaml
 
     log_info "Waiting for application to be ready..."
-    kubectl wait --for=condition=ready pod -l app=compilot-ai -n $NAMESPACE --timeout=$TIMEOUT || {
-        log_warn "Application pods not ready yet. Check logs with: kubectl logs -f deployment/compilot-ai -n $NAMESPACE"
+    kubectl wait --for=condition=ready pod -l app=sovereign-rag -n $NAMESPACE --timeout=$TIMEOUT || {
+        log_warn "Application pods not ready yet. Check logs with: kubectl logs -f deployment/sovereign-rag -n $NAMESPACE"
     }
 }
 
@@ -135,28 +135,28 @@ show_status() {
 
 show_logs() {
     log_info "Recent application logs:"
-    kubectl logs deployment/compilot-ai -n $NAMESPACE --tail=50 || log_warn "Application not ready yet"
+    kubectl logs deployment/sovereign-rag -n $NAMESPACE --tail=50 || log_warn "Application not ready yet"
 }
 
 show_access_info() {
     log_info "Access Information:"
 
     # Get ingress URL
-    INGRESS_HOST=$(kubectl get ingress compilot-ai -n $NAMESPACE -o jsonpath='{.spec.rules[0].host}' 2>/dev/null || echo "Not configured")
+    INGRESS_HOST=$(kubectl get ingress sovereign-rag -n $NAMESPACE -o jsonpath='{.spec.rules[0].host}' 2>/dev/null || echo "Not configured")
 
     if [ "$INGRESS_HOST" != "Not configured" ]; then
         log_info "External URL: https://$INGRESS_HOST"
         log_info "Health Check: https://$INGRESS_HOST/actuator/health"
     else
         log_warn "Ingress not configured. Using port-forward for access:"
-        log_info "Run: kubectl port-forward svc/compilot-ai 8000:80 -n $NAMESPACE"
+        log_info "Run: kubectl port-forward svc/sovereign-rag 8000:80 -n $NAMESPACE"
         log_info "Then access: http://localhost:8000/actuator/health"
     fi
 }
 
 # Main deployment flow
 main() {
-    log_info "Starting Compilot AI Production Deployment..."
+    log_info "Starting Sovereign RAG Production Deployment..."
     echo ""
 
     check_prerequisites
@@ -177,9 +177,9 @@ main() {
     echo ""
     log_info "Useful commands:"
     echo "  Watch pods:        kubectl get pods -n $NAMESPACE -w"
-    echo "  View logs:         kubectl logs -f deployment/compilot-ai -n $NAMESPACE"
+    echo "  View logs:         kubectl logs -f deployment/sovereign-rag -n $NAMESPACE"
     echo "  Check HPA:         kubectl get hpa -n $NAMESPACE"
-    echo "  Port forward:      kubectl port-forward svc/compilot-ai 8000:80 -n $NAMESPACE"
+    echo "  Port forward:      kubectl port-forward svc/sovereign-rag 8000:80 -n $NAMESPACE"
     echo ""
 
     log_info "Deployment script finished successfully!"

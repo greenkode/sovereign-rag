@@ -4,34 +4,34 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
+$api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
 ?>
 
-<div class="wrap compilot-review-page">
-    <h1><?php echo esc_html__('Review & Add Content', 'compilot-ai'); ?></h1>
+<div class="wrap sovereignrag-review-page">
+    <h1><?php echo esc_html__('Review & Add Content', 'sovereign-rag'); ?></h1>
 
     <h2 class="nav-tab-wrapper">
-        <a href="#unanswered-queries" class="nav-tab nav-tab-active"><?php echo esc_html__('Unanswered Queries', 'compilot-ai'); ?></a>
-        <a href="#ingest-content" class="nav-tab"><?php echo esc_html__('Add Content', 'compilot-ai'); ?></a>
+        <a href="#unanswered-queries" class="nav-tab nav-tab-active"><?php echo esc_html__('Unanswered Queries', 'sovereign-rag'); ?></a>
+        <a href="#ingest-content" class="nav-tab"><?php echo esc_html__('Add Content', 'sovereign-rag'); ?></a>
     </h2>
 
     <!-- Unanswered Queries Tab -->
     <div id="unanswered-queries-tab" class="tab-content" style="display:block;">
-        <h2><?php echo esc_html__('Queries Needing Review', 'compilot-ai'); ?></h2>
-        <p class="description"><?php echo esc_html__('These are queries that couldn\'t be answered with high confidence from the knowledge base.', 'compilot-ai'); ?></p>
+        <h2><?php echo esc_html__('Queries Needing Review', 'sovereign-rag'); ?></h2>
+        <p class="description"><?php echo esc_html__('These are queries that couldn\'t be answered with high confidence from the knowledge base.', 'sovereign-rag'); ?></p>
 
         <div id="queries-loading" style="margin: 20px 0;">
-            <p><?php echo esc_html__('Loading unanswered queries...', 'compilot-ai'); ?></p>
+            <p><?php echo esc_html__('Loading unanswered queries...', 'sovereign-rag'); ?></p>
         </div>
 
         <div id="queries-list" style="display:none;">
             <div class="tablenav top" style="margin-bottom: 10px;">
                 <div class="alignleft actions bulkactions">
                     <button type="button" id="bulk-accept" class="button action" disabled>
-                        <?php echo esc_html__('Bulk Accept', 'compilot-ai'); ?>
+                        <?php echo esc_html__('Bulk Accept', 'sovereign-rag'); ?>
                     </button>
                     <button type="button" id="bulk-ignore" class="button action" disabled>
-                        <?php echo esc_html__('Bulk Ignore', 'compilot-ai'); ?>
+                        <?php echo esc_html__('Bulk Ignore', 'sovereign-rag'); ?>
                     </button>
                 </div>
             </div>
@@ -41,12 +41,12 @@ $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
                         <td class="manage-column column-cb check-column" style="width: 3%;">
                             <input id="select-all-queries" type="checkbox">
                         </td>
-                        <th style="width: 22%;"><?php echo esc_html__('Query', 'compilot-ai'); ?></th>
-                        <th style="width: 28%;"><?php echo esc_html__('AI Response', 'compilot-ai'); ?></th>
-                        <th style="width: 10%;"><?php echo esc_html__('Timestamp', 'compilot-ai'); ?></th>
-                        <th style="width: 8%;"><?php echo esc_html__('Confidence', 'compilot-ai'); ?></th>
-                        <th style="width: 10%;"><?php echo esc_html__('Used General Knowledge', 'compilot-ai'); ?></th>
-                        <th style="width: 19%;"><?php echo esc_html__('Actions', 'compilot-ai'); ?></th>
+                        <th style="width: 22%;"><?php echo esc_html__('Query', 'sovereign-rag'); ?></th>
+                        <th style="width: 28%;"><?php echo esc_html__('AI Response', 'sovereign-rag'); ?></th>
+                        <th style="width: 10%;"><?php echo esc_html__('Timestamp', 'sovereign-rag'); ?></th>
+                        <th style="width: 8%;"><?php echo esc_html__('Confidence', 'sovereign-rag'); ?></th>
+                        <th style="width: 10%;"><?php echo esc_html__('Used General Knowledge', 'sovereign-rag'); ?></th>
+                        <th style="width: 19%;"><?php echo esc_html__('Actions', 'sovereign-rag'); ?></th>
                     </tr>
                 </thead>
                 <tbody id="queries-tbody">
@@ -74,90 +74,90 @@ $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
         </div>
 
         <div id="queries-empty" style="display:none; margin: 20px 0;">
-            <p><?php echo esc_html__('No unanswered queries found. Great job!', 'compilot-ai'); ?></p>
+            <p><?php echo esc_html__('No unanswered queries found. Great job!', 'sovereign-rag'); ?></p>
         </div>
     </div>
 
     <!-- Add Content Tab -->
     <div id="ingest-content-tab" class="tab-content" style="display:none;">
-        <h2><?php echo esc_html__('Add New Content', 'compilot-ai'); ?></h2>
-        <p class="description"><?php echo esc_html__('Add information to the knowledge base manually or by uploading files.', 'compilot-ai'); ?></p>
+        <h2><?php echo esc_html__('Add New Content', 'sovereign-rag'); ?></h2>
+        <p class="description"><?php echo esc_html__('Add information to the knowledge base manually or by uploading files.', 'sovereign-rag'); ?></p>
 
         <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; margin-bottom: 30px; background: #fff;">
-            <h3 style="margin-top: 0;"><?php echo esc_html__('Manual Text Entry', 'compilot-ai'); ?></h3>
+            <h3 style="margin-top: 0;"><?php echo esc_html__('Manual Text Entry', 'sovereign-rag'); ?></h3>
             <form id="ingest-manual-form" method="post">
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="manual-title"><?php echo esc_html__('Title', 'compilot-ai'); ?></label>
+                            <label for="manual-title"><?php echo esc_html__('Title', 'sovereign-rag'); ?></label>
                         </th>
                         <td>
                             <input type="text" id="manual-title" name="title" class="regular-text" required>
-                            <p class="description"><?php echo esc_html__('A descriptive title for this content', 'compilot-ai'); ?></p>
+                            <p class="description"><?php echo esc_html__('A descriptive title for this content', 'sovereign-rag'); ?></p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="manual-content"><?php echo esc_html__('Content', 'compilot-ai'); ?></label>
+                            <label for="manual-content"><?php echo esc_html__('Content', 'sovereign-rag'); ?></label>
                         </th>
                         <td>
                             <textarea id="manual-content" name="content" rows="10" class="large-text" style="width: 100%;" required></textarea>
-                            <p class="description"><?php echo esc_html__('Enter the content to add to the knowledge base', 'compilot-ai'); ?></p>
+                            <p class="description"><?php echo esc_html__('Enter the content to add to the knowledge base', 'sovereign-rag'); ?></p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="manual-url"><?php echo esc_html__('Source URL (optional)', 'compilot-ai'); ?></label>
+                            <label for="manual-url"><?php echo esc_html__('Source URL (optional)', 'sovereign-rag'); ?></label>
                         </th>
                         <td>
-                            <input type="url" id="manual-url" name="url" class="regular-text" placeholder="<?php echo esc_attr__('https://example.com/source', 'compilot-ai'); ?>">
-                            <p class="description"><?php echo esc_html__('URL where this information comes from', 'compilot-ai'); ?></p>
+                            <input type="url" id="manual-url" name="url" class="regular-text" placeholder="<?php echo esc_attr__('https://example.com/source', 'sovereign-rag'); ?>">
+                            <p class="description"><?php echo esc_html__('URL where this information comes from', 'sovereign-rag'); ?></p>
                         </td>
                     </tr>
                 </table>
 
                 <p class="submit">
-                    <button type="submit" class="button button-primary"><?php echo esc_html__('Add to Knowledge Base', 'compilot-ai'); ?></button>
+                    <button type="submit" class="button button-primary"><?php echo esc_html__('Add to Knowledge Base', 'sovereign-rag'); ?></button>
                 </p>
             </form>
             <div id="manual-result" style="margin-top: 20px;"></div>
         </div>
 
         <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background: #fff;">
-            <h3 style="margin-top: 0;"><?php echo esc_html__('File Upload', 'compilot-ai'); ?></h3>
+            <h3 style="margin-top: 0;"><?php echo esc_html__('File Upload', 'sovereign-rag'); ?></h3>
             <form id="ingest-file-form" method="post" enctype="multipart/form-data">
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="file-title"><?php echo esc_html__('Title (optional)', 'compilot-ai'); ?></label>
+                            <label for="file-title"><?php echo esc_html__('Title (optional)', 'sovereign-rag'); ?></label>
                         </th>
                         <td>
                             <input type="text" id="file-title" name="title" class="regular-text">
-                            <p class="description"><?php echo esc_html__('If not provided, filename will be used as title', 'compilot-ai'); ?></p>
+                            <p class="description"><?php echo esc_html__('If not provided, filename will be used as title', 'sovereign-rag'); ?></p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="ingest-file"><?php echo esc_html__('Select File', 'compilot-ai'); ?></label>
+                            <label for="ingest-file"><?php echo esc_html__('Select File', 'sovereign-rag'); ?></label>
                         </th>
                         <td>
                             <input type="file" id="ingest-file" name="file" accept=".txt,.pdf,.doc,.docx" required>
-                            <p class="description"><?php echo esc_html__('Supported formats: TXT, PDF, DOC, DOCX', 'compilot-ai'); ?></p>
+                            <p class="description"><?php echo esc_html__('Supported formats: TXT, PDF, DOC, DOCX', 'sovereign-rag'); ?></p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="file-url"><?php echo esc_html__('Source URL (optional)', 'compilot-ai'); ?></label>
+                            <label for="file-url"><?php echo esc_html__('Source URL (optional)', 'sovereign-rag'); ?></label>
                         </th>
                         <td>
-                            <input type="url" id="file-url" name="url" class="regular-text" placeholder="<?php echo esc_attr__('https://example.com/source', 'compilot-ai'); ?>">
-                            <p class="description"><?php echo esc_html__('URL where this file/information comes from', 'compilot-ai'); ?></p>
+                            <input type="url" id="file-url" name="url" class="regular-text" placeholder="<?php echo esc_attr__('https://example.com/source', 'sovereign-rag'); ?>">
+                            <p class="description"><?php echo esc_html__('URL where this file/information comes from', 'sovereign-rag'); ?></p>
                         </td>
                     </tr>
                 </table>
 
                 <p class="submit">
-                    <button type="submit" class="button button-primary"><?php echo esc_html__('Upload & Process', 'compilot-ai'); ?></button>
+                    <button type="submit" class="button button-primary"><?php echo esc_html__('Upload & Process', 'sovereign-rag'); ?></button>
                 </p>
             </form>
             <div id="file-result" style="margin-top: 20px;"></div>
@@ -166,26 +166,26 @@ $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
 </div>
 
 <!-- Confirmation Modal -->
-<div id="confirm-modal" class="compilot-modal" style="display:none;">
-    <div class="compilot-modal-overlay"></div>
-    <div class="compilot-modal-content">
-        <div class="compilot-modal-header">
-            <h2 id="modal-title"><?php echo esc_html__('Confirm Action', 'compilot-ai'); ?></h2>
-            <button type="button" class="compilot-modal-close">&times;</button>
+<div id="confirm-modal" class="sovereignrag-modal" style="display:none;">
+    <div class="sovereignrag-modal-overlay"></div>
+    <div class="sovereignrag-modal-content">
+        <div class="sovereignrag-modal-header">
+            <h2 id="modal-title"><?php echo esc_html__('Confirm Action', 'sovereign-rag'); ?></h2>
+            <button type="button" class="sovereignrag-modal-close">&times;</button>
         </div>
-        <div class="compilot-modal-body">
-            <p id="modal-message"><?php echo esc_html__('Are you sure you want to perform this action?', 'compilot-ai'); ?></p>
+        <div class="sovereignrag-modal-body">
+            <p id="modal-message"><?php echo esc_html__('Are you sure you want to perform this action?', 'sovereign-rag'); ?></p>
         </div>
-        <div class="compilot-modal-footer">
-            <button type="button" class="button" id="modal-cancel"><?php echo esc_html__('Cancel', 'compilot-ai'); ?></button>
-            <button type="button" class="button button-primary" id="modal-confirm"><?php echo esc_html__('Confirm', 'compilot-ai'); ?></button>
+        <div class="sovereignrag-modal-footer">
+            <button type="button" class="button" id="modal-cancel"><?php echo esc_html__('Cancel', 'sovereign-rag'); ?></button>
+            <button type="button" class="button button-primary" id="modal-confirm"><?php echo esc_html__('Confirm', 'sovereign-rag'); ?></button>
         </div>
     </div>
 </div>
 
 <style>
 /* Modal Styles */
-.compilot-modal {
+.sovereignrag-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -194,7 +194,7 @@ $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
     z-index: 100000;
 }
 
-.compilot-modal-overlay {
+.sovereignrag-modal-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -203,7 +203,7 @@ $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
     background: rgba(0, 0, 0, 0.5);
 }
 
-.compilot-modal-content {
+.sovereignrag-modal-content {
     position: relative;
     width: 500px;
     max-width: 90%;
@@ -214,7 +214,7 @@ $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
     z-index: 100001;
 }
 
-.compilot-modal-header {
+.sovereignrag-modal-header {
     padding: 15px 20px;
     border-bottom: 1px solid #ddd;
     display: flex;
@@ -222,12 +222,12 @@ $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
     align-items: center;
 }
 
-.compilot-modal-header h2 {
+.sovereignrag-modal-header h2 {
     margin: 0;
     font-size: 20px;
 }
 
-.compilot-modal-close {
+.sovereignrag-modal-close {
     background: none;
     border: none;
     font-size: 28px;
@@ -239,15 +239,15 @@ $api_url = get_option('compilot_ai_api_url', 'http://localhost:8000');
     height: 30px;
 }
 
-.compilot-modal-close:hover {
+.sovereignrag-modal-close:hover {
     color: #000;
 }
 
-.compilot-modal-body {
+.sovereignrag-modal-body {
     padding: 20px;
 }
 
-.compilot-modal-footer {
+.sovereignrag-modal-footer {
     padding: 15px 20px;
     border-top: 1px solid #ddd;
     text-align: right;
@@ -348,11 +348,11 @@ jQuery(document).ready(function($) {
         fetch: function() {
             return new Promise(function(resolve, reject) {
                 $.ajax({
-                    url: compilotAI.ajax_url,
+                    url: sovereignRAG.ajax_url,
                     method: 'POST',
                     data: {
-                        action: 'compilot_get_jwt_token',
-                        nonce: compilotAI.nonce
+                        action: 'sovereignrag_get_jwt_token',
+                        nonce: sovereignRAG.nonce
                     },
                     success: function(response) {
                         if (response.success && response.data.token) {
@@ -426,7 +426,7 @@ jQuery(document).ready(function($) {
         hideModal();
     });
 
-    $('#modal-cancel, .compilot-modal-close, .compilot-modal-overlay').on('click', function() {
+    $('#modal-cancel, .sovereignrag-modal-close, .sovereignrag-modal-overlay').on('click', function() {
         hideModal();
     });
 

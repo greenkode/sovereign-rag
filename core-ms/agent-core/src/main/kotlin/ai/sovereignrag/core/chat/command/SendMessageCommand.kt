@@ -1,7 +1,7 @@
 package ai.sovereignrag.core.chat.command
 
 import an.awesome.pipelinr.Command
-import nl.compilot.ai.chat.dto.ChatMessageResponse
+import ai.sovereignrag.chat.dto.ChatMessageResponse
 
 data class SendMessageCommand(
     val sessionId: String,

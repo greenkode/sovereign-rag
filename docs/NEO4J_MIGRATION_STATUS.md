@@ -27,7 +27,7 @@
 The following services still reference Neo4j Driver and need migration:
 
 ### 1. UnansweredQueryService
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/admin/service/UnansweredQueryService.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/admin/service/UnansweredQueryService.kt`
 **Status:** Uses Neo4j for logging unanswered queries
 **Migration Plan:**
 - Create JPA entity for UnansweredQuery
@@ -35,7 +35,7 @@ The following services still reference Neo4j Driver and need migration:
 - Replace Neo4j session code with JPA repository calls
 
 ### 2. CustomerEscalationService
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/chat/service/CustomerEscalationService.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/chat/service/CustomerEscalationService.kt`
 **Status:** Uses Neo4j for escalation management
 **Migration Plan:**
 - Create JPA entity for Escalation
@@ -43,7 +43,7 @@ The following services still reference Neo4j Driver and need migration:
 - Replace Neo4j session code with JPA repository calls
 
 ### 3. EmailTool
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/tools/EmailTool.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/tools/EmailTool.kt`
 **Status:** Escalation storage temporarily disabled
 **Migration Plan:**
 - Re-enable saveEscalation() with JPA
@@ -148,7 +148,7 @@ The main application flow (ingest → search → chat) is **fully migrated** and
 ## Files Requiring Attention
 
 ```
-core-ai/src/main/kotlin/nl/compilot/ai/
+core-ai/src/main/kotlin/ai/sovereignrag/
 ├── admin/
 │   └── service/
 │       └── UnansweredQueryService.kt ⚠️ Needs migration

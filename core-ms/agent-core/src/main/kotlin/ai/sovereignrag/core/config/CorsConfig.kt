@@ -8,9 +8,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
 
 @Configuration
-@EnableConfigurationProperties(CompilotProperties::class)
+@EnableConfigurationProperties(SovereignRagProperties::class)
 class CorsConfig(
-    private val properties: CompilotProperties
+    private val properties: SovereignRagProperties
 ) {
 
     @Bean

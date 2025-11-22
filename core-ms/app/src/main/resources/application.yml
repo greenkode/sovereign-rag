@@ -1,11 +1,11 @@
 spring:
   application:
-    name: compilot-ai
+    name: sovereignrag-ai
 
   # PostgreSQL configuration for multi-tenant architecture
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/compilot_master?currentSchema=master}
-    username: ${POSTGRES_USER:compilot}
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=master}
+    username: ${POSTGRES_USER:sovereignrag}
     password: ${POSTGRES_PASSWORD:RespectTheHangover}
     host: ${POSTGRES_HOST:localhost}
     port: ${POSTGRES_PORT:5432}
@@ -68,7 +68,7 @@ spring:
 server:
   port: ${SERVER_PORT:8000}
 
-compilot:
+sovereignrag:
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
     # Performance tip: Use smaller/faster models for better response times:
@@ -169,9 +169,9 @@ compilot:
   sendgrid:
     enabled: ${SENDGRID_ENABLED:false}
     api-key: ${SENDGRID_API_KEY:}
-    from-email: ${SENDGRID_FROM_EMAIL:noreply@compilot.ai}
-    from-name: ${SENDGRID_FROM_NAME:Compilot AI Support}
-    support-email: ${SENDGRID_SUPPORT_EMAIL:support@compilot.ai}
+    from-email: ${SENDGRID_FROM_EMAIL:noreply@sovereignrag.ai}
+    from-name: ${SENDGRID_FROM_NAME:SovereignRag AI Support}
+    support-email: ${SENDGRID_SUPPORT_EMAIL:support@sovereignrag.ai}
     response-time: ${SENDGRID_RESPONSE_TIME:as soon as possible}
     dashboard-url: ${DASHBOARD_URL:http://localhost}
 
@@ -179,8 +179,8 @@ compilot:
 messaging:
   sendgrid:
     api-key: ${SENDGRID_API_KEY:}
-    from-address: ${SENDGRID_FROM_EMAIL:noreply@compilot.ai}
-    from-name: ${SENDGRID_FROM_NAME:Compilot AI Support}
+    from-address: ${SENDGRID_FROM_EMAIL:noreply@sovereignrag.ai}
+    from-name: ${SENDGRID_FROM_NAME:SovereignRag AI Support}
     reply-to-address: ${SENDGRID_REPLY_TO:}
 
   javamail:
@@ -192,8 +192,8 @@ messaging:
       auth: ${SMTP_AUTH:true}
       starttls:
         enable: ${SMTP_STARTTLS:true}
-    from-address: ${SMTP_FROM_EMAIL:noreply@compilot.ai}
-    from-name: ${SMTP_FROM_NAME:Compilot AI Support}
+    from-address: ${SMTP_FROM_EMAIL:noreply@sovereignrag.ai}
+    from-name: ${SMTP_FROM_NAME:SovereignRag AI Support}
 
 # Support adapter configuration
 support:

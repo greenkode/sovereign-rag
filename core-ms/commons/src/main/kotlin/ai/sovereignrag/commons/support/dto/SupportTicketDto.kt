@@ -1,8 +1,8 @@
 package ai.sovereignrag.commons.support.dto
 
-import nl.compilot.ai.commons.support.enumeration.TicketCategory
-import nl.compilot.ai.commons.support.enumeration.TicketPriority
-import nl.compilot.ai.commons.support.enumeration.TicketStatus
+import ai.sovereignrag.commons.support.enumeration.TicketCategory
+import ai.sovereignrag.commons.support.enumeration.TicketPriority
+import ai.sovereignrag.commons.support.enumeration.TicketStatus
 import java.time.Instant
 
 data class SupportTicketDto(

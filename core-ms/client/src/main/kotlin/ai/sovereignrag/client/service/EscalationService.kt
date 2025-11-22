@@ -1,9 +1,9 @@
 package ai.sovereignrag.client.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.client.domain.Escalation
-import nl.compilot.ai.client.repository.EscalationRepository
-import nl.compilot.ai.commons.EscalationLogger
+import ai.sovereignrag.client.domain.Escalation
+import ai.sovereignrag.client.repository.EscalationRepository
+import ai.sovereignrag.commons.EscalationLogger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant

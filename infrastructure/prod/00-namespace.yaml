@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: compilot-ai
+  name: sovereignrag-ai
   labels:
-    name: compilot-ai
+    name: sovereignrag-ai
     environment: production

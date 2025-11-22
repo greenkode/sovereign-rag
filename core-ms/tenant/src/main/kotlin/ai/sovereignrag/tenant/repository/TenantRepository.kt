@@ -1,7 +1,7 @@
 package ai.sovereignrag.tenant.repository
 
-import nl.compilot.ai.tenant.domain.Tenant
-import nl.compilot.ai.commons.tenant.TenantStatus
+import ai.sovereignrag.tenant.domain.Tenant
+import ai.sovereignrag.commons.tenant.TenantStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

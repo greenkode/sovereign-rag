@@ -6,8 +6,8 @@ import dev.langchain4j.rag.content.retriever.ContentRetriever
 import dev.langchain4j.rag.query.Query
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest
 import mu.KotlinLogging
-import nl.compilot.ai.content.store.TenantAwarePgVectorStoreFactory
-import nl.compilot.ai.commons.tenant.TenantContext
+import ai.sovereignrag.content.store.TenantAwarePgVectorStoreFactory
+import ai.sovereignrag.commons.tenant.TenantContext
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
@@ -22,7 +22,7 @@ private val logger = KotlinLogging.logger {}
 class TenantContentRetriever(
     private val embeddingModel: EmbeddingModel,
     private val pgVectorStoreFactory: TenantAwarePgVectorStoreFactory,
-    private val queryClassifier: nl.compilot.ai.content.service.QueryClassifier
+    private val queryClassifier: ai.sovereignrag.content.service.QueryClassifier
 ) : ContentRetriever {
 
     /**
@@ -41,8 +41,8 @@ class TenantContentRetriever(
         logger.debug { "[$tenantId] Retrieving content for $queryType query: $queryText" }
 
         return when (queryType) {
-            nl.compilot.ai.content.service.QueryType.CONTEXTUAL -> retrieveContextualContent(queryText)
-            nl.compilot.ai.content.service.QueryType.SPECIFIC -> retrieveSpecificContent(queryText)
+            ai.sovereignrag.content.service.QueryType.CONTEXTUAL -> retrieveContextualContent(queryText)
+            ai.sovereignrag.content.service.QueryType.SPECIFIC -> retrieveSpecificContent(queryText)
         }
     }
 

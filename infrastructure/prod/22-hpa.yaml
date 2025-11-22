@@ -2,13 +2,13 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: compilot-ai-hpa
-  namespace: compilot-ai
+  name: sovereignrag-ai-hpa
+  namespace: sovereignrag-ai
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: compilot-ai
+    name: sovereignrag-ai
   minReplicas: 2
   maxReplicas: 10
   metrics:

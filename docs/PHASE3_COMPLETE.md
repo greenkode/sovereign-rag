@@ -5,7 +5,7 @@ Phase 3 has been completed successfully. The real tenant registry with full data
 ## What Was Built
 
 ### 1. TenantRegistryService
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/tenant/service/TenantRegistryService.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/tenant/service/TenantRegistryService.kt`
 
 Full implementation of tenant lifecycle management:
 
@@ -22,14 +22,14 @@ When creating a new tenant, the service:
 
 1. **Generates secure API key** (32-byte Base64 encoded)
 2. **Hashes API key** with SHA-256
-3. **Creates PostgreSQL database** (`compilot_tenant_<tenantId>`)
+3. **Creates PostgreSQL database** (`sovereignrag_tenant_<tenantId>`)
 4. **Enables extensions** (vector, pg_trgm, btree_gin)
 5. **Applies Flyway migrations** from `db/tenant-schema/`
 6. **Registers in master database** (`master.tenants` table)
 7. **Returns tenant + API key** (API key shown only once!)
 
 ### 3. Tenant Management API
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/tenant/api/TenantController.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/tenant/api/TenantController.kt`
 
 REST API endpoints for tenant management:
 
@@ -71,7 +71,7 @@ Response:
   "tenant": {
     "id": "example-site",
     "name": "Example WordPress Site",
-    "databaseName": "compilot_tenant_example_site",
+    "databaseName": "sovereignrag_tenant_example_site",
     "status": "ACTIVE",
     "maxDocuments": 10000,
     "maxRequestsPerDay": 10000,
@@ -112,7 +112,7 @@ curl -X DELETE "http://localhost:8080/api/admin/tenants/example-site?hardDelete=
 
 ## Database Structure
 
-### Master Database: `compilot_master`
+### Master Database: `sovereignrag_master`
 
 **Schema:** `master`
 
@@ -124,7 +124,7 @@ master.api_keys      -- API key management (future)
 master.audit_log     -- Audit trail
 ```
 
-### Tenant Databases: `compilot_tenant_<tenant_id>`
+### Tenant Databases: `sovereignrag_tenant_<tenant_id>`
 
 **Schema:** `public`
 
@@ -146,8 +146,8 @@ No additional configuration needed. Uses existing settings:
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/compilot_master?currentSchema=master
-    username: compilot
+    url: jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=master
+    username: sovereignrag
     password: RespectTheHangover
     host: localhost
     port: 5432
@@ -171,15 +171,15 @@ Save the returned `apiKey`.
 ### 2. Verify Database Created
 
 ```bash
-psql -l | grep compilot_tenant_test_site
+psql -l | grep sovereignrag_tenant_test_site
 ```
 
-Should show: `compilot_tenant_test_site`
+Should show: `sovereignrag_tenant_test_site`
 
 ### 3. Verify Tenant in Registry
 
 ```bash
-psql -h localhost -U compilot -d compilot_master \
+psql -h localhost -U sovereignrag -d sovereignrag_master \
   -c "SELECT id, name, database_name, status FROM master.tenants;"
 ```
 
@@ -191,7 +191,7 @@ curl -H "X-Tenant-ID: test-site" \
      http://localhost:8080/health
 ```
 
-Should succeed if `compilot.tenant.security.enabled=true`
+Should succeed if `sovereignrag.tenant.security.enabled=true`
 
 ## Changes from Stub
 

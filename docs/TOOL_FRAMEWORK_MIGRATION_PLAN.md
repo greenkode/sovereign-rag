@@ -1,7 +1,7 @@
 # Tool Framework & Guard System Migration Plan
 
 ## Overview
-This document outlines the migration plan for implementing a comprehensive tool framework with guard system for the Compilot AI platform.
+This document outlines the migration plan for implementing a comprehensive tool framework with guard system for the Sovereign RAG platform.
 
 ## Phase 1: Guard System Foundation (Week 1-2)
 
@@ -18,12 +18,12 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Create `GuardExecutor` service
 
 **Files to Create**:
-- `commons/src/main/kotlin/nl/compilot/ai/commons/guard/Guard.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/guard/GuardContext.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/guard/GuardResult.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/guard/GuardChain.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/guard/GuardRegistry.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/guard/GuardExecutor.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/guard/Guard.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/guard/GuardContext.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/guard/GuardResult.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/guard/GuardChain.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/guard/GuardRegistry.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/guard/GuardExecutor.kt`
 
 ### 1.2 Rate Limiting Guards
 **Priority**: CRITICAL
@@ -38,12 +38,12 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Configure rate limits in application.yml
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/ratelimit/RateLimitGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/ratelimit/SessionRateLimitGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/ratelimit/TenantRateLimitGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/ratelimit/GlobalRateLimitGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/ratelimit/RateLimitState.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/ratelimit/RateLimitConfig.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/ratelimit/RateLimitGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/ratelimit/SessionRateLimitGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/ratelimit/TenantRateLimitGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/ratelimit/GlobalRateLimitGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/ratelimit/RateLimitState.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/ratelimit/RateLimitConfig.kt`
 
 **Rate Limits to Configure**:
 - Email: 5 per session, 20 per user per day, 1 per 30 seconds
@@ -64,11 +64,11 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Integrate with existing TenantContext
 
 **Files to Create**:
-- `commons/src/main/kotlin/nl/compilot/ai/commons/guard/Permission.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/auth/AuthorizationGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/auth/PermissionGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/auth/TenantIsolationGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/auth/RoleBasedGuard.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/guard/Permission.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/auth/AuthorizationGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/auth/PermissionGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/auth/TenantIsolationGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/auth/RoleBasedGuard.kt`
 
 **Permissions to Define**:
 - READ (search, retrieve)
@@ -91,12 +91,12 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Create validation utilities
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/validation/ValidationGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/validation/EmailValidationGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/validation/PhoneValidationGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/validation/InjectionPreventionGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/validation/ProfanityFilterGuard.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/validation/ValidationUtils.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/validation/ValidationGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/validation/EmailValidationGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/validation/PhoneValidationGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/validation/InjectionPreventionGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/validation/ProfanityFilterGuard.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/validation/ValidationUtils.kt`
 
 ### 1.5 Apply Guards to EmailTool
 **Priority**: CRITICAL
@@ -111,7 +111,7 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Test EmailTool with guards
 
 **Files to Modify**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/tools/EmailTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tools/EmailTool.kt`
 
 ## Phase 2: Content & Behavioral Guards (Week 3)
 
@@ -128,9 +128,9 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Configure PII patterns
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/content/PIIDetectionGuard.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/security/PIIDetector.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/security/RedactionUtils.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/content/PIIDetectionGuard.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/security/PIIDetector.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/security/RedactionUtils.kt`
 
 ### 2.2 Semantic Validation
 **Priority**: HIGH
@@ -144,11 +144,11 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Create pattern library for detection
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/semantic/SemanticGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/semantic/PromptInjectionGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/semantic/JailbreakDetectionGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/semantic/SocialEngineeringGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/semantic/PatternLibrary.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/semantic/SemanticGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/semantic/PromptInjectionGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/semantic/JailbreakDetectionGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/semantic/SocialEngineeringGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/semantic/PatternLibrary.kt`
 
 ### 2.3 Behavioral Anomaly Detection
 **Priority**: MEDIUM
@@ -162,9 +162,9 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Create anomaly scoring system
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/behavioral/AnomalyDetectionGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/behavioral/UsagePatternTracker.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/behavioral/AnomalyScorer.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/behavioral/AnomalyDetectionGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/behavioral/UsagePatternTracker.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/behavioral/AnomalyScorer.kt`
 
 ### 2.4 Conversation Context Guards
 **Priority**: MEDIUM
@@ -178,9 +178,9 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Integrate with conversation history
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/context/ConversationContextGuard.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/context/ToolAppropriatenessChecker.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/context/IntentAlignmentValidator.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/context/ConversationContextGuard.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/context/ToolAppropriatenessChecker.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/context/IntentAlignmentValidator.kt`
 
 ## Phase 3: Monitoring & Audit (Week 4)
 
@@ -196,8 +196,8 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Create violation dashboard queries
 
 **Files to Create**:
-- `commons/src/main/kotlin/nl/compilot/ai/commons/guard/GuardViolationLogger.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/logging/DatabaseGuardViolationLogger.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/guard/GuardViolationLogger.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/logging/DatabaseGuardViolationLogger.kt`
 - `app/src/main/resources/db/tenant-schema/V14__create_guard_violations_table.sql`
 
 ### 3.2 Audit Trail
@@ -212,8 +212,8 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Add audit trail to admin dashboard
 
 **Files to Create**:
-- `commons/src/main/kotlin/nl/compilot/ai/commons/audit/ToolExecutionAuditLogger.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/audit/DatabaseAuditLogger.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/audit/ToolExecutionAuditLogger.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/audit/DatabaseAuditLogger.kt`
 - `app/src/main/resources/db/tenant-schema/V15__create_tool_executions_table.sql`
 
 ### 3.3 Real-Time Alerting
@@ -228,9 +228,9 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Create alert configuration
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/alert/GuardAlertService.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/alert/AlertConfiguration.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/guard/alert/AlertNotifier.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/alert/GuardAlertService.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/alert/AlertConfiguration.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/guard/alert/AlertNotifier.kt`
 
 ## Phase 4: Tool Framework (Week 5-6)
 
@@ -247,11 +247,11 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Refactor EmailTool to implement new interface
 
 **Files to Create**:
-- `commons/src/main/kotlin/nl/compilot/ai/commons/tool/Tool.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/tool/ToolContext.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/tool/ToolResult.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/tool/ToolParameter.kt`
-- `commons/src/main/kotlin/nl/compilot/ai/commons/tool/ToolMetadata.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/tool/Tool.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/tool/ToolContext.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/tool/ToolResult.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/tool/ToolParameter.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/tool/ToolMetadata.kt`
 
 ### 4.2 Composite Tool Pattern
 **Priority**: LOW
@@ -265,11 +265,11 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Create workflow DSL
 
 **Files to Create**:
-- `commons/src/main/kotlin/nl/compilot/ai/commons/tool/CompositeTool.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tool/workflow/WorkflowTool.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tool/workflow/ConditionalTool.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tool/workflow/ParallelTool.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tool/workflow/WorkflowDSL.kt`
+- `commons/src/main/kotlin/ai/sovereignrag/commons/tool/CompositeTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tool/workflow/WorkflowTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tool/workflow/ConditionalTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tool/workflow/ParallelTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tool/workflow/WorkflowDSL.kt`
 
 ### 4.3 Tool Registry & Discovery
 **Priority**: LOW
@@ -283,9 +283,9 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Create tool catalog API
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/tool/ToolRegistry.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tool/ToolDiscoveryService.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tool/ToolCatalogApi.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tool/ToolRegistry.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tool/ToolDiscoveryService.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tool/ToolCatalogApi.kt`
 
 ### 4.4 Additional Tool Implementations
 **Priority**: LOW
@@ -299,10 +299,10 @@ This document outlines the migration plan for implementing a comprehensive tool 
 - [ ] Apply guards to all new tools
 
 **Files to Create**:
-- `core-ai/src/main/kotlin/nl/compilot/ai/tools/CreateTicketTool.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tools/SendSMSTool.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tools/WebhookTool.kt`
-- `core-ai/src/main/kotlin/nl/compilot/ai/tools/workflow/EscalationWorkflowTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tools/CreateTicketTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tools/SendSMSTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tools/WebhookTool.kt`
+- `core-ai/src/main/kotlin/ai/sovereignrag/tools/workflow/EscalationWorkflowTool.kt`
 
 ## Phase 5: Advanced Features (Week 7+)
 

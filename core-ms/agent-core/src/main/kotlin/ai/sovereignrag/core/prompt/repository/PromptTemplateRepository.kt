@@ -1,6 +1,6 @@
 package ai.sovereignrag.core.prompt.repository
 
-import nl.compilot.ai.prompt.domain.PromptTemplate
+import ai.sovereignrag.prompt.domain.PromptTemplate
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

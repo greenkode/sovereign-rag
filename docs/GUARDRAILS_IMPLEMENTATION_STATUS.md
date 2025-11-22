@@ -1,7 +1,7 @@
 # Guardrails Implementation Status
 
 ## Overview
-This document tracks the implementation of LangChain4j Guardrails for the Compilot AI platform.
+This document tracks the implementation of LangChain4j Guardrails for the Sovereign RAG platform.
 
 ## Architecture Summary
 
@@ -12,7 +12,7 @@ This document tracks the implementation of LangChain4j Guardrails for the Compil
 ## Implemented Components ✅
 
 ### 1. Configuration
-**File**: `core-ai/src/main/kotlin/nl/compilot/ai/guardrail/config/GuardrailProperties.kt`
+**File**: `core-ai/src/main/kotlin/ai/sovereignrag/guardrail/config/GuardrailProperties.kt`
 
 **Status**: ✅ COMPLETE
 
@@ -25,7 +25,7 @@ Configuration class with properties for:
 ### 2. InputGuardrails
 
 #### PromptInjectionGuardrail ✅
-**File**: `core-ai/src/main/kotlin/nl/compilot/ai/guardrail/input/PromptInjectionGuardrail.kt`
+**File**: `core-ai/src/main/kotlin/ai/sovereignrag/guardrail/input/PromptInjectionGuardrail.kt`
 
 **Status**: ✅ COMPLETE
 
@@ -43,7 +43,7 @@ Configuration class with properties for:
 - User-friendly error messages
 
 #### JailbreakDetectionGuardrail ✅
-**File**: `core-ai/src/main/kotlin/nl/compilot/ai/guardrail/input/JailbreakDetectionGuardrail.kt`
+**File**: `core-ai/src/main/kotlin/ai/sovereignrag/guardrail/input/JailbreakDetectionGuardrail.kt`
 
 **Status**: ✅ COMPLETE
 
@@ -62,7 +62,7 @@ Configuration class with properties for:
 ### 3. OutputGuardrails
 
 #### PIIRedactionOutputGuardrail ✅
-**File**: `core-ai/src/main/kotlin/nl/compilot/ai/guardrail/output/PIIRedactionOutputGuardrail.kt`
+**File**: `core-ai/src/main/kotlin/ai/sovereignrag/guardrail/output/PIIRedactionOutputGuardrail.kt`
 
 **Status**: ✅ COMPLETE
 
@@ -84,7 +84,7 @@ Configuration class with properties for:
 ### 4. Additional InputGuardrails
 
 ####PIIDetectionInputGuardrail ⏳
-**File**: `core-ai/src/main/kotlin/nl/compilot/ai/guardrail/input/PIIDetectionInputGuardrail.kt`
+**File**: `core-ai/src/main/kotlin/ai/sovereignrag/guardrail/input/PIIDetectionInputGuardrail.kt`
 
 **Status**: ⏳ TODO
 
@@ -126,7 +126,7 @@ class PIIDetectionInputGuardrail(
 ```
 
 #### SocialEngineeringGuardrail ⏳
-**File**: `core-ai/src/main/kotlin/nl/compilot/ai/guardrail/input/SocialEngineeringGuardrail.kt`
+**File**: `core-ai/src/main/kotlin/ai/sovereignrag/guardrail/input/SocialEngineeringGuardrail.kt`
 
 **Status**: ⏳ TODO
 
@@ -164,7 +164,7 @@ class SocialEngineeringGuardrail : InputGuardrail {
 ### 5. Integration
 
 #### Apply Guardrails to ConversationalAgentService ⏳
-**File**: `core-ai/src/main/kotlin/nl/compilot/ai/chat/service/ConversationalAgentService.kt`
+**File**: `core-ai/src/main/kotlin/ai/sovereignrag/chat/service/ConversationalAgentService.kt`
 
 **Status**: ⏳ TODO
 
@@ -261,7 +261,7 @@ COMMENT ON TABLE guard_violations IS 'Logs all guardrail violations for security
 
 **YAML**:
 ```yaml
-compilot:
+sovereignrag:
   guardrails:
     # Global enable/disable
     enabled: true
@@ -292,9 +292,9 @@ compilot:
 
 #### Unit Tests ⏳
 **Files**:
-- `core-ai/src/test/kotlin/nl/compilot/ai/guardrail/input/PromptInjectionGuardrailTest.kt`
-- `core-ai/src/test/kotlin/nl/compilot/ai/guardrail/input/JailbreakDetectionGuardrailTest.kt`
-- `core-ai/src/test/kotlin/nl/compilot/ai/guardrail/output/PIIRedactionOutputGuardrailTest.kt`
+- `core-ai/src/test/kotlin/ai/sovereignrag/guardrail/input/PromptInjectionGuardrailTest.kt`
+- `core-ai/src/test/kotlin/ai/sovereignrag/guardrail/input/JailbreakDetectionGuardrailTest.kt`
+- `core-ai/src/test/kotlin/ai/sovereignrag/guardrail/output/PIIRedactionOutputGuardrailTest.kt`
 
 **Status**: ⏳ TODO
 

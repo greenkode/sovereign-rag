@@ -5,7 +5,7 @@ Phase 4 has been completed successfully. The ContentService now uses PostgreSQL 
 ## What Was Built
 
 ### 1. DocumentRepository
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/content/repository/DocumentRepository.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/content/repository/DocumentRepository.kt`
 
 Spring Data JPA repository with native pgvector queries:
 
@@ -18,7 +18,7 @@ Spring Data JPA repository with native pgvector queries:
 - ✅ **findAllByDeletedAtIsNull()** - Export all documents
 
 ### 2. ContentService (pgvector)
-**File:** `core-ai/src/main/kotlin/nl/compilot/ai/content/service/ContentService.kt`
+**File:** `core-ai/src/main/kotlin/ai/sovereignrag/content/service/ContentService.kt`
 
 Complete rewrite of ContentService using PostgreSQL + pgvector:
 
@@ -32,7 +32,7 @@ Complete rewrite of ContentService using PostgreSQL + pgvector:
 ### 3. Key Features
 
 #### Multi-Tenant Document Storage
-- Each tenant has isolated database (`compilot_tenant_<id>`)
+- Each tenant has isolated database (`sovereignrag_tenant_<id>`)
 - Documents stored in `documents` table with pgvector embeddings
 - Tenant context automatically routes to correct database
 
@@ -222,7 +222,7 @@ Response:
 ### 4. Verify Data in PostgreSQL
 
 ```bash
-psql -h localhost -U compilot -d compilot_tenant_test_tenant \
+psql -h localhost -U sovereignrag -d sovereignrag_tenant_test_tenant \
   -c "SELECT id, title, url, created_at FROM documents WHERE deleted_at IS NULL;"
 ```
 
@@ -370,7 +370,7 @@ curl -X POST http://localhost:8080/api/import \
 4. Verify document counts match
 
 ```bash
-# WordPress admin: Compilot AI → Sync All Content
+# WordPress admin: Sovereign RAG → Sync All Content
 ```
 
 ## Security Considerations

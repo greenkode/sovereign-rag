@@ -1,6 +1,6 @@
 package ai.sovereignrag.client.repository
 
-import nl.compilot.ai.client.domain.UnansweredQuery
+import ai.sovereignrag.client.domain.UnansweredQuery
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository

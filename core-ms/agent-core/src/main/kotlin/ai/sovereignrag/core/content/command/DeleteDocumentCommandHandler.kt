@@ -2,8 +2,8 @@ package ai.sovereignrag.core.content.command
 
 import an.awesome.pipelinr.Command
 import mu.KotlinLogging
-import nl.compilot.ai.content.dto.DeleteDocumentResponse
-import nl.compilot.ai.content.service.ContentService
+import ai.sovereignrag.content.dto.DeleteDocumentResponse
+import ai.sovereignrag.content.service.ContentService
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}

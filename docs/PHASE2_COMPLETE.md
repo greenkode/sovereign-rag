@@ -6,12 +6,12 @@ Phase 2 has been completed successfully. This phase established the foundational
 
 ### 1. Domain Models
 
-#### `Tenant.kt` (core-ai/src/main/kotlin/nl/compilot/ai/tenant/domain/Tenant.kt)
-- Represents a WordPress site using Compilot AI
+#### `Tenant.kt` (core-ai/src/main/kotlin/ai/sovereignrag/tenant/domain/Tenant.kt)
+- Represents a WordPress site using Sovereign RAG
 - Contains tenant metadata, limits, quotas, and settings
 - Includes `TenantStatus` enum (ACTIVE, SUSPENDED, DELETED)
 
-#### `Document.kt` (core-ai/src/main/kotlin/nl/compilot/ai/tenant/domain/Document.kt)
+#### `Document.kt` (core-ai/src/main/kotlin/ai/sovereignrag/tenant/domain/Document.kt)
 - JPA entity for document storage in tenant databases
 - **pgvector support**: `vector(1024)` column for embeddings
 - **JSONB support**: Flexible metadata storage
@@ -19,33 +19,33 @@ Phase 2 has been completed successfully. This phase established the foundational
 
 ### 2. Tenant Context Management
 
-#### `TenantContext.kt` (core-ai/src/main/kotlin/nl/compilot/ai/tenant/context/TenantContext.kt)
+#### `TenantContext.kt` (core-ai/src/main/kotlin/ai/sovereignrag/tenant/context/TenantContext.kt)
 - ThreadLocal storage for current tenant ID
 - Allows any part of application to access current tenant
 - **Critical**: Must be cleared after each request to prevent memory leaks
 
 ### 3. Security & Authentication
 
-#### `TenantSecurityInterceptor.kt` (core-ai/src/main/kotlin/nl/compilot/ai/tenant/security/TenantSecurityInterceptor.kt)
+#### `TenantSecurityInterceptor.kt` (core-ai/src/main/kotlin/ai/sovereignrag/tenant/security/TenantSecurityInterceptor.kt)
 - Validates tenant credentials on every API request
 - Checks `X-Tenant-ID` and `X-API-Key` headers
 - Sets tenant context for the request
 - Cleans up context after request completion
 - Skips health check and actuator endpoints
 
-#### `WebMvcConfiguration.kt` (core-ai/src/main/kotlin/nl/compilot/ai/tenant/config/WebMvcConfiguration.kt)
+#### `WebMvcConfiguration.kt` (core-ai/src/main/kotlin/ai/sovereignrag/tenant/config/WebMvcConfiguration.kt)
 - Registers the security interceptor
 - Configures path patterns for authentication
 
 ### 4. Dynamic DataSource Routing
 
-#### `TenantDataSourceRouter.kt` (core-ai/src/main/kotlin/nl/compilot/ai/tenant/config/TenantDataSourceRouter.kt)
+#### `TenantDataSourceRouter.kt` (core-ai/src/main/kotlin/ai/sovereignrag/tenant/config/TenantDataSourceRouter.kt)
 - **Abstract base class** for routing database connections
 - Routes based on TenantContext
 - Connection caching for performance
 - Library module (no Spring Boot dependencies)
 
-#### `TenantDataSourceConfiguration.kt` (app/src/main/kotlin/nl/compilot/ai/config/TenantDataSourceConfiguration.kt)
+#### `TenantDataSourceConfiguration.kt` (app/src/main/kotlin/ai/sovereignrag/config/TenantDataSourceConfiguration.kt)
 - **Concrete implementation** with HikariCP
 - Creates isolated connection pools per tenant
 - **10 connections max** per tenant pool
@@ -54,7 +54,7 @@ Phase 2 has been completed successfully. This phase established the foundational
 
 ### 5. Service Interfaces
 
-#### `TenantRegistry.kt` (core-ai/src/main/kotlin/nl/compilot/ai/tenant/service/TenantRegistry.kt)
+#### `TenantRegistry.kt` (core-ai/src/main/kotlin/ai/sovereignrag/tenant/service/TenantRegistry.kt)
 - Interface for tenant validation and lookup
 - Will be implemented in Phase 3
 
@@ -76,7 +76,7 @@ Phase 2 has been completed successfully. This phase established the foundational
        ├─ Reads TenantContext.getCurrentTenant()
        ├─ Gets tenant from registry
        ├─ Creates/reuses datasource for tenant database
-       └─ Executes query on compilot_tenant_tenant123
+       └─ Executes query on sovereignrag_tenant_tenant123
 
 4. TenantSecurityInterceptor (afterCompletion):
    └─ Calls TenantContext.clear() to clean up
@@ -84,12 +84,12 @@ Phase 2 has been completed successfully. This phase established the foundational
 
 ## Database Strategy
 
-### Master Database: `compilot_master`
+### Master Database: `sovereignrag_master`
 - Schema: `master`
 - Stores: tenants, api_keys, tenant_usage, audit_log
 - Connection: Default datasource when no tenant context
 
-### Tenant Databases: `compilot_tenant_<tenant_id>`
+### Tenant Databases: `sovereignrag_tenant_<tenant_id>`
 - Schema: `public`
 - Stores: documents, chat_sessions, chat_messages, etc.
 - Connection: Dynamic datasource based on TenantContext
@@ -102,8 +102,8 @@ Add to `application.yml`:
 spring:
   datasource:
     # Master database connection
-    url: jdbc:postgresql://localhost:5432/compilot_master
-    username: compilot
+    url: jdbc:postgresql://localhost:5432/sovereignrag_master
+    username: sovereignrag
     password: RespectTheHangover
 
     # PostgreSQL host and port for tenant databases

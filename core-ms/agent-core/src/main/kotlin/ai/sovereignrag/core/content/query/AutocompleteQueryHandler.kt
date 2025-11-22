@@ -2,7 +2,7 @@ package ai.sovereignrag.core.content.query
 
 import an.awesome.pipelinr.Command
 import mu.KotlinLogging
-import nl.compilot.ai.content.dto.AutocompleteResponse
+import ai.sovereignrag.content.dto.AutocompleteResponse
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}

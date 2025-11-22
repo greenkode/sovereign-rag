@@ -2,14 +2,14 @@ package ai.sovereignrag.core.content.api
 
 import an.awesome.pipelinr.Pipeline
 import mu.KotlinLogging
-import nl.compilot.ai.content.command.DeleteDocumentCommand
-import nl.compilot.ai.content.command.IngestDocumentCommand
-import nl.compilot.ai.content.command.IngestFileCommand
-import nl.compilot.ai.content.dto.DeleteDocumentResponse
-import nl.compilot.ai.content.dto.IngestRequest
-import nl.compilot.ai.content.dto.IngestResponse
-import nl.compilot.ai.content.dto.IngestStatusResponse
-import nl.compilot.ai.content.query.GetIngestStatusQuery
+import ai.sovereignrag.content.command.DeleteDocumentCommand
+import ai.sovereignrag.content.command.IngestDocumentCommand
+import ai.sovereignrag.content.command.IngestFileCommand
+import ai.sovereignrag.content.dto.DeleteDocumentResponse
+import ai.sovereignrag.content.dto.IngestRequest
+import ai.sovereignrag.content.dto.IngestResponse
+import ai.sovereignrag.content.dto.IngestStatusResponse
+import ai.sovereignrag.content.query.GetIngestStatusQuery
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 

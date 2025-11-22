@@ -1,7 +1,7 @@
 package ai.sovereignrag.commons.messaging.dto
 
-import nl.compilot.ai.commons.messaging.enumeration.MessageChannel
-import nl.compilot.ai.commons.messaging.enumeration.MessagePriority
+import ai.sovereignrag.commons.messaging.enumeration.MessageChannel
+import ai.sovereignrag.commons.messaging.enumeration.MessagePriority
 
 data class MessagePayload(
     val recipient: MessageRecipient,

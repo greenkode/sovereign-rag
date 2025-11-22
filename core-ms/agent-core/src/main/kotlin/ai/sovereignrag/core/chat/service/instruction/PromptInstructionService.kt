@@ -1,7 +1,7 @@
 package ai.sovereignrag.core.chat.service.instruction
 
 import mu.KotlinLogging
-import nl.compilot.ai.prompt.service.PromptTemplateService
+import ai.sovereignrag.prompt.service.PromptTemplateService
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger {}

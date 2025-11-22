@@ -4,7 +4,7 @@ import dev.langchain4j.data.message.AiMessage
 import dev.langchain4j.data.message.UserMessage
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import nl.compilot.ai.commons.guardrail.GuardrailGateway
+import ai.sovereignrag.commons.guardrail.GuardrailGateway
 import ai.sovereignrag.guardrail.InputGuardrail
 import ai.sovereignrag.guardrail.OutputGuardrail
 import org.springframework.stereotype.Service

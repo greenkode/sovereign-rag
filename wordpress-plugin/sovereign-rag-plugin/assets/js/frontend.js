@@ -1,5 +1,5 @@
 /**
- * Frontend JavaScript for Compilot AI Assistant Plugin
+ * Frontend JavaScript for Sovereign RAG Assistant Plugin
  */
 
 (function($) {
@@ -12,7 +12,7 @@
         var $form = $(this);
         var $button = $form.find('.graphiti-search-button');
         var $spinner = $form.find('.graphiti-search-spinner');
-        var $results = $form.closest('.compilot-ai-search-widget').find('.graphiti-search-results');
+        var $results = $form.closest('.sovereign-rag-search-widget').find('.graphiti-search-results');
         var query = $form.find('[name="query"]').val();
 
         $button.prop('disabled', true);
@@ -20,11 +20,11 @@
         $results.hide();
 
         $.ajax({
-            url: compilotAI.ajax_url,
+            url: sovereignRAG.ajax_url,
             method: 'POST',
             data: {
-                action: 'compilot_search',
-                nonce: compilotAI.nonce,
+                action: 'sovereignrag_search',
+                nonce: sovereignRAG.nonce,
                 query: query,
                 num_results: 10,
                 min_confidence: 0.5
@@ -166,11 +166,11 @@
     // Submit feedback to API
     function submitFeedback(uuid, query, isAccurate, feedback, email) {
         $.ajax({
-            url: compilotAI.ajax_url,
+            url: sovereignRAG.ajax_url,
             method: 'POST',
             data: {
-                action: 'compilot_submit_feedback',
-                nonce: compilotAI.nonce,
+                action: 'sovereignrag_submit_feedback',
+                nonce: sovereignRAG.nonce,
                 result_uuid: uuid,
                 query: query,
                 is_accurate: isAccurate,
@@ -202,11 +202,11 @@
         $message.hide();
 
         $.ajax({
-            url: compilotAI.ajax_url,
+            url: sovereignRAG.ajax_url,
             method: 'POST',
             data: {
-                action: 'compilot_add_episode',
-                nonce: compilotAI.nonce,
+                action: 'sovereignrag_add_episode',
+                nonce: sovereignRAG.nonce,
                 content: $form.find('[name="content"]').val(),
                 description: $form.find('[name="description"]').val(),
                 episode_type: 'text'

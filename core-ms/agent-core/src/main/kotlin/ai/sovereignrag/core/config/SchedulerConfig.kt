@@ -1,6 +1,6 @@
 package ai.sovereignrag.core.config
 
-import nl.compilot.ai.chat.service.ChatSessionManager
+import ai.sovereignrag.chat.service.ChatSessionManager
 import mu.KotlinLogging
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling

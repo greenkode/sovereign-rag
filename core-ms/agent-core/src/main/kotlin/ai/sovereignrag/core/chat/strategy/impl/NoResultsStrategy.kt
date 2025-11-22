@@ -1,11 +1,11 @@
 package ai.sovereignrag.core.chat.strategy.impl
 
 import mu.KotlinLogging
-import nl.compilot.ai.chat.service.MessageTranslationService
-import nl.compilot.ai.chat.strategy.ChatContext
-import nl.compilot.ai.chat.strategy.ChatResponse
-import nl.compilot.ai.chat.strategy.ChatResponseStrategy
-import nl.compilot.ai.commons.UnansweredQueryLogger
+import ai.sovereignrag.chat.service.MessageTranslationService
+import ai.sovereignrag.chat.strategy.ChatContext
+import ai.sovereignrag.chat.strategy.ChatResponse
+import ai.sovereignrag.chat.strategy.ChatResponseStrategy
+import ai.sovereignrag.commons.UnansweredQueryLogger
 import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 

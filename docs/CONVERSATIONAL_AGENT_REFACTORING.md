@@ -92,7 +92,7 @@ data class ChatContext(
     val showGkDisclaimer: Boolean,
     val gkDisclaimerText: String?,
     val showSources: Boolean,
-    val properties: CompilotProperties
+    val properties: SovereignRagProperties
 )
 ```
 

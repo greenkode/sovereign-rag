@@ -1,7 +1,7 @@
 package ai.sovereignrag.auth.authentication
 
 import mu.KotlinLogging
-import nl.compilot.ai.commons.tenant.TenantRegistry
+import ai.sovereignrag.commons.tenant.TenantRegistry
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication

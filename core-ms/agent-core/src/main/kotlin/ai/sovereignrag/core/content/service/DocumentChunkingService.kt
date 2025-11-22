@@ -7,8 +7,8 @@ import dev.langchain4j.data.document.splitter.DocumentSplitters
 import dev.langchain4j.data.segment.TextSegment
 import dev.langchain4j.model.embedding.EmbeddingModel
 import mu.KotlinLogging
-import nl.compilot.ai.content.store.TenantAwarePgVectorStoreFactory
-import nl.compilot.ai.commons.tenant.TenantContext
+import ai.sovereignrag.content.store.TenantAwarePgVectorStoreFactory
+import ai.sovereignrag.commons.tenant.TenantContext
 import org.springframework.stereotype.Service
 import java.util.UUID
 

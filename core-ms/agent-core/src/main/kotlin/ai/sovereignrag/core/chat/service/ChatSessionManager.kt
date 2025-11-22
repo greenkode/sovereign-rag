@@ -1,7 +1,7 @@
 package ai.sovereignrag.core.chat.service
 
-import nl.compilot.ai.chat.domain.ChatSession
-import nl.compilot.ai.config.CompilotCache
+import ai.sovereignrag.chat.domain.ChatSession
+import ai.sovereignrag.config.SovereignRagCache
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
@@ -22,7 +22,7 @@ class ChatSessionManager {
     /**
      * Create new chat session and cache it
      */
-    @CachePut(cacheNames = [CompilotCache.CHAT_SESSION], key = "#result.sessionId")
+    @CachePut(cacheNames = [SovereignRagCache.CHAT_SESSION], key = "#result.sessionId")
     fun createNewChatSession(persona: String = "customer_service", language: String? = null): ChatSession {
         val sessionId = UUID.randomUUID().toString()
         val session = ChatSession(
@@ -38,7 +38,7 @@ class ChatSessionManager {
      * Find active chat session from cache
      * Returns null if not found or expired
      */
-    @Cacheable(cacheNames = [CompilotCache.CHAT_SESSION], key = "#sessionId", unless = "#result == null")
+    @Cacheable(cacheNames = [SovereignRagCache.CHAT_SESSION], key = "#sessionId", unless = "#result == null")
     fun findActiveChatSession(sessionId: String): ChatSession? {
         // Cache miss - session doesn't exist or expired
         logger.debug { "Cache miss for session: $sessionId" }
@@ -48,7 +48,7 @@ class ChatSessionManager {
     /**
      * Update session in cache (e.g., after updating lastAccessedAt)
      */
-    @CachePut(cacheNames = [CompilotCache.CHAT_SESSION], key = "#session.sessionId")
+    @CachePut(cacheNames = [SovereignRagCache.CHAT_SESSION], key = "#session.sessionId")
     fun updateChatSession(session: ChatSession): ChatSession {
         logger.debug { "Updated chat session: ${session.sessionId}" }
         return session
@@ -66,7 +66,7 @@ class ChatSessionManager {
     /**
      * Terminate chat session and remove from cache
      */
-    @CacheEvict(cacheNames = [CompilotCache.CHAT_SESSION], key = "#sessionId")
+    @CacheEvict(cacheNames = [SovereignRagCache.CHAT_SESSION], key = "#sessionId")
     fun terminateChatSession(sessionId: String) {
         logger.info { "Terminated chat session: $sessionId" }
     }
@@ -74,7 +74,7 @@ class ChatSessionManager {
     /**
      * Clear all sessions from cache
      */
-    @CacheEvict(cacheNames = [CompilotCache.CHAT_SESSION], allEntries = true)
+    @CacheEvict(cacheNames = [SovereignRagCache.CHAT_SESSION], allEntries = true)
     fun clearAllSessions() {
         logger.info { "Cleared all chat sessions from cache" }
     }

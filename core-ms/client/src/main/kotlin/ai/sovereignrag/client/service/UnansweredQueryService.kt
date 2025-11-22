@@ -1,10 +1,10 @@
 package ai.sovereignrag.client.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.client.domain.UnansweredQuery
-import nl.compilot.ai.client.dto.UnansweredQueryDto
-import nl.compilot.ai.client.repository.UnansweredQueryRepository
-import nl.compilot.ai.commons.UnansweredQueryLogger
+import ai.sovereignrag.client.domain.UnansweredQuery
+import ai.sovereignrag.client.dto.UnansweredQueryDto
+import ai.sovereignrag.client.repository.UnansweredQueryRepository
+import ai.sovereignrag.commons.UnansweredQueryLogger
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service

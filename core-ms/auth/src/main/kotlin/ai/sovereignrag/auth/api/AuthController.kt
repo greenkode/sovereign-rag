@@ -3,10 +3,10 @@ package ai.sovereignrag.auth.api
 import mu.KotlinLogging
 import ai.sovereignrag.auth.JwtTokenProvider
 import ai.sovereignrag.auth.authentication.TenantApiKeyAuthenticationToken
-import nl.compilot.ai.commons.tenant.TenantStatus
-import nl.compilot.ai.commons.tenant.TenantRegistry
-import nl.compilot.ai.commons.dto.AuthRequest
-import nl.compilot.ai.commons.dto.AuthResponse
+import ai.sovereignrag.commons.tenant.TenantStatus
+import ai.sovereignrag.commons.tenant.TenantRegistry
+import ai.sovereignrag.commons.dto.AuthRequest
+import ai.sovereignrag.commons.dto.AuthResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException

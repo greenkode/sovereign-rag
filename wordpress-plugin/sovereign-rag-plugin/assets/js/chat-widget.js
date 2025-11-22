@@ -1,5 +1,5 @@
 /**
- * Compilot AI Assistant Chat Widget with AG2 Conversational Agent
+ * Sovereign RAG Assistant Chat Widget with AG2 Conversational Agent
  */
 
 (function($) {
@@ -19,7 +19,7 @@
     let inactivityTimeout = null;
     let inactivityWarningShown = false;
     // Convert minutes from settings to milliseconds
-    const INACTIVITY_DELAY = (typeof compilotChat !== 'undefined' ? compilotChat.sessionTimeoutMinutes : 5) * 60 * 1000; // Default: 5 minutes
+    const INACTIVITY_DELAY = (typeof sovereignragChat !== 'undefined' ? sovereignragChat.sessionTimeoutMinutes : 5) * 60 * 1000; // Default: 5 minutes
 
     // Close prompt timeout (60 seconds)
     let closePromptTimeout = null;
@@ -30,10 +30,10 @@
     const INACTIVITY_PROMPT_DELAY = 60 * 1000; // 60 seconds
 
     // Session persistence keys
-    const SESSION_STORAGE_KEY = 'compilot_chat_session';
-    const MESSAGES_STORAGE_KEY = 'compilot_chat_messages';
-    const SESSION_TIMESTAMP_KEY = 'compilot_chat_timestamp';
-    const LANGUAGE_STORAGE_KEY = 'compilot_language_preference';
+    const SESSION_STORAGE_KEY = 'sovereignrag_chat_session';
+    const MESSAGES_STORAGE_KEY = 'sovereignrag_chat_messages';
+    const SESSION_TIMESTAMP_KEY = 'sovereignrag_chat_timestamp';
+    const LANGUAGE_STORAGE_KEY = 'sovereignrag_language_preference';
 
     // Language preference state (loaded from localStorage)
     let selectedLanguage = null;
@@ -46,12 +46,12 @@
     function getTenantHeaders() {
         const headers = {};
 
-        if (typeof compilotChat !== 'undefined' && compilotChat.jwtToken) {
+        if (typeof sovereignragChat !== 'undefined' && sovereignragChat.jwtToken) {
             // Use Bearer token authentication (JWT)
-            headers['Authorization'] = 'Bearer ' + compilotChat.jwtToken;
+            headers['Authorization'] = 'Bearer ' + sovereignragChat.jwtToken;
         } else {
-            console.error('Compilot AI: JWT token not available - authentication will fail');
-            console.error('Compilot AI: compilotChat object:', typeof compilotChat !== 'undefined' ? compilotChat : 'undefined');
+            console.error('Sovereign RAG: JWT token not available - authentication will fail');
+            console.error('Sovereign RAG: sovereignragChat object:', typeof sovereignragChat !== 'undefined' ? sovereignragChat : 'undefined');
         }
 
         return headers;
@@ -62,27 +62,27 @@
      * Returns a Promise that resolves with the new token or rejects on error
      */
     function refreshJwtToken() {
-        console.log('Compilot AI: Refreshing expired JWT token...');
+        console.log('Sovereign RAG: Refreshing expired JWT token...');
 
         return $.ajax({
-            url: compilotChat.ajaxUrl,
+            url: sovereignragChat.ajaxUrl,
             method: 'POST',
             data: {
-                action: 'compilot_refresh_token',
-                nonce: compilotChat.nonce
+                action: 'sovereignrag_refresh_token',
+                nonce: sovereignragChat.nonce
             }
         }).then(function(response) {
             if (response.success && response.data.token) {
                 // Update the global token
-                compilotChat.jwtToken = response.data.token;
-                console.log('Compilot AI: JWT token successfully refreshed');
+                sovereignragChat.jwtToken = response.data.token;
+                console.log('Sovereign RAG: JWT token successfully refreshed');
                 return response.data.token;
             } else {
-                console.error('Compilot AI: Token refresh failed', response);
+                console.error('Sovereign RAG: Token refresh failed', response);
                 throw new Error('Token refresh failed');
             }
         }).catch(function(error) {
-            console.error('Compilot AI: Error refreshing token:', error);
+            console.error('Sovereign RAG: Error refreshing token:', error);
             throw error;
         });
     }
@@ -101,7 +101,7 @@
         return $.ajax(ajaxOptions).catch(function(jqXHR, textStatus, errorThrown) {
             // If we get a 403 (Forbidden) and haven't retried yet, refresh token and retry
             if (jqXHR.status === 403 && retryCount === 0) {
-                console.log('Compilot AI: Got 403 error, refreshing token and retrying...');
+                console.log('Sovereign RAG: Got 403 error, refreshing token and retrying...');
 
                 return refreshJwtToken().then(function() {
                     // Update headers with new token
@@ -120,8 +120,8 @@
         console.log('Session timeout set to: ' + (INACTIVITY_DELAY / 60000) + ' minutes');
 
         // Load language preference from WordPress setting (defaults to 'nl' or whatever admin configured)
-        console.log('WordPress defaultLanguage setting:', compilotChat.defaultLanguage);
-        selectedLanguage = compilotChat.defaultLanguage || 'auto';
+        console.log('WordPress defaultLanguage setting:', sovereignragChat.defaultLanguage);
+        selectedLanguage = sovereignragChat.defaultLanguage || 'auto';
         updateLanguageDisplay(selectedLanguage);
         console.log('Language initialized to:', selectedLanguage);
 
@@ -133,7 +133,7 @@
         // Automatically open chat window if session was restored
         if (sessionRestored) {
             console.log('Session restored - automatically opening chat window');
-            $('#compilot-chat-window').show();
+            $('#sovereignrag-chat-window').show();
             // Start inactivity timer for restored session
             resetInactivityTimer();
         }
@@ -170,7 +170,7 @@
             // Restore messages
             if (savedMessages) {
                 const messages = JSON.parse(savedMessages);
-                const $messages = $('#compilot-chat-messages');
+                const $messages = $('#sovereignrag-chat-messages');
 
                 // Remove welcome message if present
                 $('.graphiti-chat-welcome').remove();
@@ -239,7 +239,7 @@
     function saveMessages() {
         try {
             const messages = [];
-            $('#compilot-chat-messages .graphiti-message').each(function() {
+            $('#sovereignrag-chat-messages .graphiti-message').each(function() {
                 const $msg = $(this);
                 const type = $msg.hasClass('graphiti-message-user') ? 'user' : 'bot';
                 const $bubble = $msg.find('.graphiti-message-bubble');
@@ -279,12 +279,12 @@
 
     function initChatWidget() {
         // Toggle chat window
-        $('#compilot-chat-toggle').on('click', function() {
-            const wasHidden = !$('#compilot-chat-window').is(':visible');
-            $('#compilot-chat-window').toggle();
+        $('#sovereignrag-chat-toggle').on('click', function() {
+            const wasHidden = !$('#sovereignrag-chat-window').is(':visible');
+            $('#sovereignrag-chat-window').toggle();
 
-            if (wasHidden && $('#compilot-chat-window').is(':visible')) {
-                $('#compilot-chat-input').focus();
+            if (wasHidden && $('#sovereignrag-chat-window').is(':visible')) {
+                $('#sovereignrag-chat-input').focus();
 
                 // Initialize agent session when chat opens for the first time
                 if (isAgentMode && !agentInitialized && !chatSessionId) {
@@ -299,21 +299,21 @@
         });
 
         // Close chat window - show confirmation prompt if session is active
-        $('#compilot-chat-close').on('click', function() {
+        $('#sovereignrag-chat-close').on('click', function() {
             if (chatSessionId && agentInitialized) {
                 showClosePrompt();
             } else {
                 // No active session - just clear history and hide
                 clearSessionStorage();
                 resetChatWidget();
-                $('#compilot-chat-window').hide();
+                $('#sovereignrag-chat-window').hide();
             }
         });
 
         // Handle language toggle button click
-        $('#compilot-language-toggle').on('click', function(e) {
+        $('#sovereignrag-language-toggle').on('click', function(e) {
             e.stopPropagation();
-            const dropdown = $('#compilot-language-dropdown');
+            const dropdown = $('#sovereignrag-language-dropdown');
             dropdown.toggle();
         });
 
@@ -334,18 +334,18 @@
             updateLanguageDisplay(lang);
 
             // Close dropdown
-            $('#compilot-language-dropdown').hide();
+            $('#sovereignrag-language-dropdown').hide();
         });
 
         // Close dropdown when clicking outside
         $(document).on('click', function(e) {
             if (!$(e.target).closest('.graphiti-language-selector').length) {
-                $('#compilot-language-dropdown').hide();
+                $('#sovereignrag-language-dropdown').hide();
             }
         });
 
         // Handle input changes for autocomplete and auto-resize
-        $('#compilot-chat-input').on('input', function() {
+        $('#sovereignrag-chat-input').on('input', function() {
             // Auto-resize textarea
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
@@ -366,18 +366,18 @@
         // Handle autocomplete selection
         $(document).on('click', '.graphiti-autocomplete-item', function() {
             const text = $(this).find('.graphiti-autocomplete-text').text();
-            $('#compilot-chat-input').val(text);
+            $('#sovereignrag-chat-input').val(text);
             hideAutocomplete();
             sendMessage();
         });
 
         // Handle send button click
-        $('#compilot-chat-send').on('click', function() {
+        $('#sovereignrag-chat-send').on('click', function() {
             sendMessage();
         });
 
         // Handle Enter key for textarea (Shift+Enter = new line, Enter = send)
-        $('#compilot-chat-input').on('keydown', function(e) {
+        $('#sovereignrag-chat-input').on('keydown', function(e) {
             if (e.which === 13 && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
@@ -424,7 +424,7 @@
     }
 
     function fetchAutocomplete(query) {
-        const apiUrl = compilotChat.apiUrl + '/api/autocomplete?q=' + encodeURIComponent(query) + '&limit=5';
+        const apiUrl = sovereignragChat.apiUrl + '/api/autocomplete?q=' + encodeURIComponent(query) + '&limit=5';
 
         apiRequest({
             url: apiUrl,
@@ -442,7 +442,7 @@
     }
 
     function showAutocomplete(suggestions) {
-        const $autocomplete = $('#compilot-autocomplete');
+        const $autocomplete = $('#sovereignrag-autocomplete');
         $autocomplete.empty();
 
         suggestions.forEach(function(suggestion) {
@@ -462,11 +462,11 @@
     }
 
     function hideAutocomplete() {
-        $('#compilot-autocomplete').hide().empty();
+        $('#sovereignrag-autocomplete').hide().empty();
     }
 
     function sendMessage() {
-        const query = $('#compilot-chat-input').val().trim();
+        const query = $('#sovereignrag-chat-input').val().trim();
 
         if (!query) {
             return;
@@ -478,7 +478,7 @@
         addMessage(query, 'user');
 
         // Clear input and reset height
-        const $input = $('#compilot-chat-input');
+        const $input = $('#sovereignrag-chat-input');
         $input.val('');
         $input.css('height', 'auto');
 
@@ -486,10 +486,10 @@
         hideAutocomplete();
 
         // Hide any existing satisfaction prompt
-        $('#compilot-satisfaction-prompt').hide();
+        $('#sovereignrag-satisfaction-prompt').hide();
 
         // Show typing indicator
-        $('#compilot-typing').show();
+        $('#sovereignrag-typing').show();
 
         // Reset inactivity timer
         resetInactivityTimer();
@@ -601,8 +601,8 @@
         const langData = languages[lang] || languages['auto'];
 
         // Update toggle button display
-        $('#compilot-language-current-flag').text(langData.flag);
-        $('#compilot-language-current-badge').text(langData.code);
+        $('#sovereignrag-language-current-flag').text(langData.flag);
+        $('#sovereignrag-language-current-badge').text(langData.code);
         $('.graphiti-language-tooltip').text(langData.name);
 
         // Update active state in dropdown
@@ -634,7 +634,7 @@
         }
 
         // PRIORITY 2: Fall back to configured default language
-        const defaultLang = compilotChat.defaultLanguage || 'auto';
+        const defaultLang = sovereignragChat.defaultLanguage || 'auto';
 
         // If auto-detect is enabled, return null to let AI detect language
         if (defaultLang === 'auto') {
@@ -659,9 +659,9 @@
      */
     function getBrowserLanguage() {
         // Use WordPress language if set, otherwise detect from browser
-        if (compilotChat.language) {
+        if (sovereignragChat.language) {
             // Extract first 2 characters (e.g., "en_US" -> "en")
-            return compilotChat.language.substring(0, 2).toLowerCase();
+            return sovereignragChat.language.substring(0, 2).toLowerCase();
         }
 
         // Get browser language (e.g., "en-US" -> "en", "nl-NL" -> "nl")
@@ -674,7 +674,7 @@
      * @param {string} firstMessage - Optional first user message for language detection
      */
     function initializeAgentSession(firstMessage) {
-        const apiUrl = compilotChat.apiUrl + '/api/agent/chat/start';
+        const apiUrl = sovereignragChat.apiUrl + '/api/agent/chat/start';
         const responseLanguage = getResponseLanguage();
 
         console.log('Initializing session with language:', responseLanguage);
@@ -685,7 +685,7 @@
             contentType: 'application/json',
             headers: getTenantHeaders(),
             data: JSON.stringify({
-                persona: compilotChat.ragPersona || 'customer_service',
+                persona: sovereignragChat.ragPersona || 'customer_service',
                 language: responseLanguage
             })
         }).done(function(response) {
@@ -711,7 +711,7 @@
                 // Fall back to traditional search mode
                 isAgentMode = false;
                 // Hide typing indicator
-                $('#compilot-typing').hide();
+                $('#sovereignrag-typing').hide();
             }
         }).fail(function(xhr, status, error) {
             console.error('Error initializing agent:', error);
@@ -724,10 +724,10 @@
      * Send message to AG2 conversational agent
      */
     function sendAgentMessage(message) {
-        const apiUrl = compilotChat.apiUrl + '/api/agent/chat/' + chatSessionId + '/message';
+        const apiUrl = sovereignragChat.apiUrl + '/api/agent/chat/' + chatSessionId + '/message';
 
         // Properly handle falsy values: only true if explicitly true or 1
-        const showSourcesValue = compilotChat.showSources === true || compilotChat.showSources === 1 || compilotChat.showSources === '1';
+        const showSourcesValue = sovereignragChat.showSources === true || sovereignragChat.showSources === 1 || sovereignragChat.showSources === '1';
 
         apiRequest({
             url: apiUrl,
@@ -736,13 +736,13 @@
             headers: getTenantHeaders(),
             data: JSON.stringify({
                 message: message,
-                use_general_knowledge: compilotChat.enableGeneralKnowledge === true || compilotChat.enableGeneralKnowledge === 1 || compilotChat.enableGeneralKnowledge === '1',
-                show_gk_disclaimer: compilotChat.showGeneralKnowledgeDisclaimer === true || compilotChat.showGeneralKnowledgeDisclaimer === 1 || compilotChat.showGeneralKnowledgeDisclaimer === '1',
-                gk_disclaimer_text: compilotChat.generalKnowledgeDisclaimerText || null,
+                use_general_knowledge: sovereignragChat.enableGeneralKnowledge === true || sovereignragChat.enableGeneralKnowledge === 1 || sovereignragChat.enableGeneralKnowledge === '1',
+                show_gk_disclaimer: sovereignragChat.showGeneralKnowledgeDisclaimer === true || sovereignragChat.showGeneralKnowledgeDisclaimer === 1 || sovereignragChat.showGeneralKnowledgeDisclaimer === '1',
+                gk_disclaimer_text: sovereignragChat.generalKnowledgeDisclaimerText || null,
                 show_sources: showSourcesValue
             })
         }).done(function(response) {
-            $('#compilot-typing').hide();
+            $('#sovereignrag-typing').hide();
 
             if (response.response) {
                 // Add agent response (with Markdown rendering and confidence score)
@@ -766,7 +766,7 @@
                 addMessage('I apologize, but I encountered an error. Please try again.', 'bot');
             }
         }).fail(function(xhr, status, error) {
-            $('#compilot-typing').hide();
+            $('#sovereignrag-typing').hide();
 
             // Check if session was not found (404 or error message contains "Session not found")
             const isSessionNotFound = xhr.status === 404 ||
@@ -881,7 +881,7 @@
      * Request escalation to human support
      */
     function requestEscalation(userEmail) {
-        const apiUrl = compilotChat.apiUrl + '/api/agent/chat/' + chatSessionId + '/escalate';
+        const apiUrl = sovereignragChat.apiUrl + '/api/agent/chat/' + chatSessionId + '/escalate';
 
         apiRequest({
             url: apiUrl,
@@ -905,7 +905,7 @@
      * Submit escalation with email address
      */
     function submitEscalationWithEmail(email) {
-        const apiUrl = compilotChat.apiUrl + '/api/agent/chat/' + chatSessionId + '/escalate';
+        const apiUrl = sovereignragChat.apiUrl + '/api/agent/chat/' + chatSessionId + '/escalate';
 
         apiRequest({
             url: apiUrl,
@@ -1006,7 +1006,7 @@
             return;
         }
 
-        const apiUrl = compilotChat.apiUrl + '/api/agent/chat/' + chatSessionId + '/close';
+        const apiUrl = sovereignragChat.apiUrl + '/api/agent/chat/' + chatSessionId + '/close';
 
         apiRequest({
             url: apiUrl,
@@ -1024,7 +1024,7 @@
             resetChatWidget();
 
             // Close the chat window
-            $('#compilot-chat-window').hide();
+            $('#sovereignrag-chat-window').hide();
         }).fail(function() {
             console.error('Failed to close session');
             // Reset anyway
@@ -1034,7 +1034,7 @@
             resetChatWidget();
 
             // Close the chat window
-            $('#compilot-chat-window').hide();
+            $('#sovereignrag-chat-window').hide();
         });
     }
 
@@ -1043,54 +1043,54 @@
      */
     function resetChatWidget() {
         // Clear all messages
-        $('#compilot-chat-messages').empty();
+        $('#sovereignrag-chat-messages').empty();
 
         // Add initial greeting
         const greetingHtml = `
             <div class="graphiti-chat-welcome">
-                <p>${compilotChat.greetingMessage}</p>
-                <p class="graphiti-chat-hint">${compilotChat.greetingHint}</p>
+                <p>${sovereignragChat.greetingMessage}</p>
+                <p class="graphiti-chat-hint">${sovereignragChat.greetingHint}</p>
             </div>
         `;
-        $('#compilot-chat-messages').html(greetingHtml);
+        $('#sovereignrag-chat-messages').html(greetingHtml);
 
         // Re-enable and clear input
-        $('#compilot-chat-input').prop('disabled', false).val('');
-        $('#compilot-chat-send').prop('disabled', false);
+        $('#sovereignrag-chat-input').prop('disabled', false).val('');
+        $('#sovereignrag-chat-send').prop('disabled', false);
 
         // Hide any prompts
-        $('#compilot-satisfaction-prompt').hide();
-        $('#compilot-autocomplete').hide();
-        $('#compilot-typing').hide();
+        $('#sovereignrag-satisfaction-prompt').hide();
+        $('#sovereignrag-autocomplete').hide();
+        $('#sovereignrag-typing').hide();
 
         console.log('Chat widget reset to initial state');
     }
 
     function performSearch(query) {
         // Choose endpoint based on RAG settings
-        const useRag = compilotChat.enableRag || false;
+        const useRag = sovereignragChat.enableRag || false;
         const endpoint = useRag ? '/api/ask' : '/api/search';
-        const apiUrl = compilotChat.apiUrl + endpoint;
+        const apiUrl = sovereignragChat.apiUrl + endpoint;
 
         // Properly handle falsy values: only true if explicitly true or 1
-        const showSourcesValue = compilotChat.showSources === true || compilotChat.showSources === 1 || compilotChat.showSources === '1';
+        const showSourcesValue = sovereignragChat.showSources === true || sovereignragChat.showSources === 1 || sovereignragChat.showSources === '1';
 
         // Prepare request data based on endpoint
         const requestData = useRag ? {
             query: query,
             num_results: 5,
-            use_general_knowledge: compilotChat.enableGeneralKnowledge,
-            persona: compilotChat.ragPersona,  // AI personality setting
-            language: compilotChat.language || null,  // Site language
-            return_mode: compilotChat.returnMode,  // Single vs multiple results
-            min_confidence: compilotChat.minConfidence || 0.5,  // Use configured minimum confidence
+            use_general_knowledge: sovereignragChat.enableGeneralKnowledge,
+            persona: sovereignragChat.ragPersona,  // AI personality setting
+            language: sovereignragChat.language || null,  // Site language
+            return_mode: sovereignragChat.returnMode,  // Single vs multiple results
+            min_confidence: sovereignragChat.minConfidence || 0.5,  // Use configured minimum confidence
             show_sources: showSourcesValue
         } : {
             query: query,
             num_results: 5,
-            min_confidence: compilotChat.minConfidence || 0.5,  // Use configured minimum confidence
-            low_confidence_threshold: compilotChat.lowConfidenceThreshold,  // For auto-flagging
-            return_mode: compilotChat.returnMode  // Single vs multiple results
+            min_confidence: sovereignragChat.minConfidence || 0.5,  // Use configured minimum confidence
+            low_confidence_threshold: sovereignragChat.lowConfidenceThreshold,  // For auto-flagging
+            return_mode: sovereignragChat.returnMode  // Single vs multiple results
         };
 
         apiRequest({
@@ -1100,7 +1100,7 @@
             headers: getTenantHeaders(),
             data: JSON.stringify(requestData)
         }).done(function(response) {
-            $('#compilot-typing').hide();
+            $('#sovereignrag-typing').hide();
 
             // Backend returns data directly (no 'success' wrapper)
             if (response.response || response.results) {
@@ -1115,7 +1115,7 @@
                 addMessage('Sorry, I encountered an error processing your request.', 'bot');
             }
         }).fail(function() {
-            $('#compilot-typing').hide();
+            $('#sovereignrag-typing').hide();
             addMessage('Sorry, I couldn\'t connect to the knowledge graph. Please try again later.', 'bot');
         });
     }
@@ -1174,8 +1174,8 @@
             flag_reason: response.flag_reason
         };
 
-        $('#compilot-satisfaction-message').text(message);
-        $('#compilot-satisfaction-prompt').slideDown();
+        $('#sovereignrag-satisfaction-message').text(message);
+        $('#sovereignrag-satisfaction-prompt').slideDown();
     }
 
     function submitSatisfactionFeedback(isHelpful) {
@@ -1183,7 +1183,7 @@
             return;
         }
 
-        const apiUrl = compilotChat.apiUrl + '/api/feedback';
+        const apiUrl = sovereignragChat.apiUrl + '/api/feedback';
 
         apiRequest({
             url: apiUrl,
@@ -1198,7 +1198,7 @@
             })
         }).done(function() {
             // Show thank you message
-            $('#compilot-satisfaction-prompt').slideUp(function() {
+            $('#sovereignrag-satisfaction-prompt').slideUp(function() {
                 addMessage('Thank you for your feedback! It helps us improve.', 'bot');
             });
             currentSatisfactionPrompt = null;
@@ -1208,7 +1208,7 @@
     }
 
     function addMessage(content, type, isHtml, isMarkdown, confidenceScore, showConfidence) {
-        const $messages = $('#compilot-chat-messages');
+        const $messages = $('#sovereignrag-chat-messages');
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         // Remove welcome message if present

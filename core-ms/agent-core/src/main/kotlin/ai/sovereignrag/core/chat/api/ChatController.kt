@@ -2,11 +2,11 @@ package ai.sovereignrag.core.chat.api
 
 import an.awesome.pipelinr.Pipeline
 import mu.KotlinLogging
-import nl.compilot.ai.chat.command.CloseChatCommand
-import nl.compilot.ai.chat.command.CreateEscalationCommand
-import nl.compilot.ai.chat.command.SendMessageCommand
-import nl.compilot.ai.chat.command.StartChatCommand
-import nl.compilot.ai.chat.dto.*
+import ai.sovereignrag.chat.command.CloseChatCommand
+import ai.sovereignrag.chat.command.CreateEscalationCommand
+import ai.sovereignrag.chat.command.SendMessageCommand
+import ai.sovereignrag.chat.command.StartChatCommand
+import ai.sovereignrag.chat.dto.*
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException

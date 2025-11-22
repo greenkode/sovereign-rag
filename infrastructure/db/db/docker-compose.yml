@@ -1,16 +1,16 @@
 services:
   postgres:
     build: .  # Change this line from "image: postgres:17.5"
-    container_name: compilot-db
+    container_name: sovereignrag-db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-compilot}
+      POSTGRES_USER: ${POSTGRES_USER:-sovereignrag}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-RespectTheHangover}
       POSTGRES_DB: ${POSTGRES_DB:-bml_local}
       POSTGRES_INITDB_ARGS: "-E UTF8"
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - compilot_data:/var/lib/postgresql/data
+      - sovereignrag_data:/var/lib/postgresql/data
     command: |
       postgres
       -c shared_preload_libraries=pg_cron
@@ -29,5 +29,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  compilot_data:
+  sovereignrag_data:
     driver: local

@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: compilot-ai-config
-  namespace: compilot-ai
+  name: sovereignrag-ai-config
+  namespace: sovereignrag-ai
 data:
   # Application Configuration
   SERVER_PORT: "8000"
@@ -11,7 +11,7 @@ data:
   # Database Configuration
   POSTGRES_HOST: "postgresql"
   POSTGRES_PORT: "5432"
-  POSTGRES_URL: "jdbc:postgresql://postgresql:5432/compilot_master?currentSchema=master"
+  POSTGRES_URL: "jdbc:postgresql://postgresql:5432/sovereignrag_master?currentSchema=master"
 
   # Redis Configuration
   REDIS_HOST: "redis"
@@ -66,16 +66,16 @@ data:
 
   # SendGrid Configuration
   SENDGRID_ENABLED: "false"
-  SENDGRID_FROM_EMAIL: "noreply@compilot.ai"
-  SENDGRID_FROM_NAME: "Compilot AI Support"
-  SENDGRID_SUPPORT_EMAIL: "support@compilot.ai"
+  SENDGRID_FROM_EMAIL: "noreply@sovereignrag.ai"
+  SENDGRID_FROM_NAME: "SovereignRag AI Support"
+  SENDGRID_SUPPORT_EMAIL: "support@sovereignrag.ai"
   SENDGRID_RESPONSE_TIME: "as soon as possible"
-  DASHBOARD_URL: "https://compilot.ai"
+  DASHBOARD_URL: "https://sovereignrag.ai"
 
   # SMTP Configuration
   SMTP_HOST: "smtp.gmail.com"
   SMTP_PORT: "587"
   SMTP_AUTH: "true"
   SMTP_STARTTLS: "true"
-  SMTP_FROM_EMAIL: "noreply@compilot.ai"
-  SMTP_FROM_NAME: "Compilot AI Support"
+  SMTP_FROM_EMAIL: "noreply@sovereignrag.ai"
+  SMTP_FROM_NAME: "SovereignRag AI Support"

@@ -1,7 +1,7 @@
 package ai.sovereignrag.commons.support.dto
 
-import nl.compilot.ai.commons.support.enumeration.TicketCategory
-import nl.compilot.ai.commons.support.enumeration.TicketPriority
+import ai.sovereignrag.commons.support.enumeration.TicketCategory
+import ai.sovereignrag.commons.support.enumeration.TicketPriority
 
 data class CreateSupportTicketRequest(
     val subject: String,

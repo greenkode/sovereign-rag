@@ -1,7 +1,7 @@
 package ai.sovereignrag.core.content.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import nl.compilot.ai.domain.SearchResult
+import ai.sovereignrag.domain.SearchResult
 import java.time.OffsetDateTime
 
 // Ingest DTOs

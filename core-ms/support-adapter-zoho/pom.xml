@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>nl.compilot.ai</groupId>
+        <groupId>ai.sovereignrag</groupId>
         <artifactId>core-ms</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -22,7 +22,7 @@
     <dependencies>
         <!-- Support Core Module -->
         <dependency>
-            <groupId>nl.compilot.ai</groupId>
+            <groupId>ai.sovereignrag</groupId>
             <artifactId>support</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

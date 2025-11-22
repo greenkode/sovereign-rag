@@ -1,6 +1,6 @@
 package ai.sovereignrag.tenant.repository
 
-import nl.compilot.ai.tenant.domain.ResetToken
+import ai.sovereignrag.tenant.domain.ResetToken
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

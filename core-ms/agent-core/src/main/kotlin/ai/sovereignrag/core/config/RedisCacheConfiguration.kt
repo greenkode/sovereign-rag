@@ -36,10 +36,10 @@ open class RedisCacheConfiguration {
 
         // Configure cache-specific TTLs
         val cacheConfigurations = mapOf(
-            CompilotCache.CHAT_SESSION to defaultConfig.entryTtl(Duration.ofMinutes(30)),
-            CompilotCache.CHAT_MESSAGES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
-            CompilotCache.CHAT_RESPONSES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
-            CompilotCache.AGENT_CONFIG to defaultConfig.entryTtl(Duration.ofHours(24))
+            SovereignRagCache.CHAT_SESSION to defaultConfig.entryTtl(Duration.ofMinutes(30)),
+            SovereignRagCache.CHAT_MESSAGES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
+            SovereignRagCache.CHAT_RESPONSES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
+            SovereignRagCache.AGENT_CONFIG to defaultConfig.entryTtl(Duration.ofHours(24))
         )
 
         return RedisCacheManager.builder(connectionFactory)
@@ -62,18 +62,18 @@ open class SimpleCacheConfiguration {
     open fun cacheManager(): CacheManager {
         logger.info { "Initializing simple in-memory cache manager for chat sessions" }
         return org.springframework.cache.concurrent.ConcurrentMapCacheManager(
-            CompilotCache.CHAT_SESSION,
-            CompilotCache.CHAT_MESSAGES,
-            CompilotCache.CHAT_RESPONSES,
-            CompilotCache.AGENT_CONFIG
+            SovereignRagCache.CHAT_SESSION,
+            SovereignRagCache.CHAT_MESSAGES,
+            SovereignRagCache.CHAT_RESPONSES,
+            SovereignRagCache.AGENT_CONFIG
         )
     }
 }
 
 /**
- * Cache names for Compilot AI
+ * Cache names for Sovereign RAG
  */
-object CompilotCache {
+object SovereignRagCache {
     const val CHAT_SESSION = "chat_session"
     const val CHAT_MESSAGES = "chat_messages"
     const val CHAT_RESPONSES = "chat_responses"

@@ -2,9 +2,9 @@ package ai.sovereignrag.core.content.command
 
 import an.awesome.pipelinr.Command
 import mu.KotlinLogging
-import nl.compilot.ai.content.dto.IngestResponse
-import nl.compilot.ai.content.dto.IngestStatusResponse
-import nl.compilot.ai.content.service.IngestService
+import ai.sovereignrag.content.dto.IngestResponse
+import ai.sovereignrag.content.dto.IngestStatusResponse
+import ai.sovereignrag.content.service.IngestService
 import org.springframework.stereotype.Component
 import java.util.UUID
 

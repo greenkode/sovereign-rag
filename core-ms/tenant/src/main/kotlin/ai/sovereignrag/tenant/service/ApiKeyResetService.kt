@@ -1,8 +1,8 @@
 package ai.sovereignrag.tenant.service
 
 import mu.KotlinLogging
-import nl.compilot.ai.tenant.domain.ResetToken
-import nl.compilot.ai.tenant.repository.ResetTokenRepository
+import ai.sovereignrag.tenant.domain.ResetToken
+import ai.sovereignrag.tenant.repository.ResetTokenRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -194,11 +194,11 @@ class ApiKeyResetService(
         // Example email sending (uncomment when email service is available):
         emailService.send(
             to = email,
-            subject = "Compilot AI - API Key Reset Request",
+            subject = "Sovereign RAG - API Key Reset Request",
             body = """
                 Hello,
 
-                A request has been made to reset the API key for your Compilot AI account ($tenantName).
+                A request has been made to reset the API key for your Sovereign RAG account ($tenantName).
 
                 Your reset code is: $token
 
@@ -207,7 +207,7 @@ class ApiKeyResetService(
                 If you did not request this reset, please ignore this email.
 
                 Best regards,
-                Compilot AI Team
+                Sovereign RAG Team
             """.trimIndent()
         )
         */
