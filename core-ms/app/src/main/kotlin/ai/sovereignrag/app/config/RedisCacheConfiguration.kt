@@ -1,9 +1,10 @@
-package ai.sovereignrag.core.config
+package ai.sovereignrag.app.config
 
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.cache.RedisCacheConfiguration
@@ -13,6 +14,7 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import java.time.Duration
+import kotlin.to
 
 private val logger = KotlinLogging.logger {}
 
@@ -35,7 +37,7 @@ open class RedisCacheConfiguration {
             .serializeValuesWith(SerializationPair.fromSerializer(JdkSerializationRedisSerializer()))
 
         // Configure cache-specific TTLs
-        val cacheConfigurations = mapOf(
+        val cacheConfigurations = _root_ide_package_.kotlin.collections.mapOf(
             SovereignRagCache.CHAT_SESSION to defaultConfig.entryTtl(Duration.ofMinutes(30)),
             SovereignRagCache.CHAT_MESSAGES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
             SovereignRagCache.CHAT_RESPONSES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
@@ -61,7 +63,7 @@ open class SimpleCacheConfiguration {
     @Bean
     open fun cacheManager(): CacheManager {
         logger.info { "Initializing simple in-memory cache manager for chat sessions" }
-        return org.springframework.cache.concurrent.ConcurrentMapCacheManager(
+        return ConcurrentMapCacheManager(
             SovereignRagCache.CHAT_SESSION,
             SovereignRagCache.CHAT_MESSAGES,
             SovereignRagCache.CHAT_RESPONSES,

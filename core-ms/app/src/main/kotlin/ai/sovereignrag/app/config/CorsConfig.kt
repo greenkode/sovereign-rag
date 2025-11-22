@@ -1,4 +1,4 @@
-package ai.sovereignrag.core.config
+package ai.sovereignrag.app.config
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -6,6 +6,10 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.CorsFilter
+import kotlin.apply
+import kotlin.collections.map
+import kotlin.text.split
+import kotlin.text.trim
 
 @Configuration
 @EnableConfigurationProperties(SovereignRagProperties::class)
@@ -20,7 +24,7 @@ class CorsConfig(
 
             // When allowCredentials is true, use allowedOriginPatterns instead of allowedOrigins
             if (properties.cors.allowCredentials) {
-                allowedOriginPatterns = origins
+                CorsConfiguration.setAllowedOriginPatterns = origins
             } else {
                 allowedOrigins = origins
             }

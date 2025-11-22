@@ -1,4 +1,4 @@
-package ai.sovereignrag.core.config.cqrs
+package ai.sovereignrag.app.config
 
 import an.awesome.pipelinr.Command
 import an.awesome.pipelinr.CommandHandlers

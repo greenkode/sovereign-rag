@@ -1,7 +1,7 @@
 package ai.sovereignrag.core.chat.command
 
+import ai.sovereignrag.core.chat.dto.ChatStartResponse
 import an.awesome.pipelinr.Command
-import ai.sovereignrag.chat.dto.ChatStartResponse
 
 data class StartChatCommand(
     val persona: String = "customer_service",

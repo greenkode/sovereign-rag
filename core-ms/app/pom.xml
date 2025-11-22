@@ -64,24 +64,10 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <!-- Messaging Base Module -->
-        <dependency>
-            <groupId>ai.sovereignrag</groupId>
-            <artifactId>messaging</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
         <!-- Messaging Adapters -->
         <dependency>
             <groupId>ai.sovereignrag</groupId>
             <artifactId>messaging-adapter-sendgrid</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <!-- Support Base Module -->
-        <dependency>
-            <groupId>ai.sovereignrag</groupId>
-            <artifactId>support</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 

@@ -2,8 +2,8 @@ package ai.sovereignrag.core.chat.command
 
 import an.awesome.pipelinr.Command
 import mu.KotlinLogging
-import ai.sovereignrag.chat.dto.EscalationResponse
 import ai.sovereignrag.commons.EscalationLogger
+import ai.sovereignrag.core.chat.dto.EscalationResponse
 import org.springframework.stereotype.Component
 import java.util.UUID
 

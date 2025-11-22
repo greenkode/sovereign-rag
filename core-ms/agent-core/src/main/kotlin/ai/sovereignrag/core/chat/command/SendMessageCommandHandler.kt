@@ -1,10 +1,10 @@
 package ai.sovereignrag.core.chat.command
 
+import ai.sovereignrag.core.chat.dto.ChatMessageResponse
+import ai.sovereignrag.core.chat.service.ChatSessionManager
+import ai.sovereignrag.core.chat.service.ConversationalAgentService
 import an.awesome.pipelinr.Command
 import mu.KotlinLogging
-import ai.sovereignrag.chat.dto.ChatMessageResponse
-import ai.sovereignrag.chat.service.ChatSessionManager
-import ai.sovereignrag.chat.service.ConversationalAgentService
 import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}

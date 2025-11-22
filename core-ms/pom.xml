@@ -46,9 +46,7 @@
         <module>guardrail</module>
         <module>tenant</module>
         <module>agent-core</module>
-        <module>messaging</module>
         <module>messaging-adapter-sendgrid</module>
-        <module>support</module>
         <module>support-adapter-zoho</module>
         <module>client</module>
         <module>app</module>

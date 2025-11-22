@@ -20,13 +20,6 @@
     </properties>
 
     <dependencies>
-        <!-- Support Core Module -->
-        <dependency>
-            <groupId>ai.sovereignrag</groupId>
-            <artifactId>support</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
         <!-- Spring Framework -->
         <dependency>
             <groupId>org.springframework</groupId>

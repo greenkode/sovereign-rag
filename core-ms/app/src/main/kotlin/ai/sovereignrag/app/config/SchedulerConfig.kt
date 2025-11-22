@@ -1,4 +1,4 @@
-package ai.sovereignrag.core.config
+package ai.sovereignrag.app.config
 
 import ai.sovereignrag.chat.service.ChatSessionManager
 import mu.KotlinLogging

@@ -1,4 +1,4 @@
-package ai.sovereignrag.core.config
+package ai.sovereignrag.app.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.bind.ConstructorBinding

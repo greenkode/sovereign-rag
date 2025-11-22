@@ -1,7 +1,7 @@
 package ai.sovereignrag.core.chat.command
 
+import ai.sovereignrag.core.chat.dto.EscalationResponse
 import an.awesome.pipelinr.Command
-import ai.sovereignrag.chat.dto.EscalationResponse
 
 data class CreateEscalationCommand(
     val sessionId: String,
