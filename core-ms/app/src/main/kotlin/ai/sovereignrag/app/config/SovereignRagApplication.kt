@@ -12,8 +12,8 @@ import org.springframework.boot.runApplication
  * - nl.compilot.ai.security.* (auth module)
  */
 @SpringBootApplication(scanBasePackages = ["nl.compilot.ai"])
-class CompilotAiApplication
+class SovereignRagApplication
 
 fun main(args: Array<String>) {
-    runApplication<CompilotAiApplication>(*args)
+    runApplication<SovereignRagApplication>(*args)
 }
