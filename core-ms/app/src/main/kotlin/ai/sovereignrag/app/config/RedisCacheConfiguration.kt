@@ -19,7 +19,7 @@ import kotlin.to
 private val logger = KotlinLogging.logger {}
 
 /**
- * Redis cache configuration for chat sessions
+ * Redis cache configuration
  * Activated when spring.cache.type=redis
  */
 @Configuration
@@ -29,24 +29,15 @@ open class RedisCacheConfiguration {
 
     @Bean
     open fun cacheManager(connectionFactory: RedisConnectionFactory): CacheManager {
-        logger.info { "Initializing Redis cache manager for chat sessions" }
+        logger.info { "Initializing Redis cache manager" }
 
         val defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
             .disableCachingNullValues()
             .serializeKeysWith(SerializationPair.fromSerializer(StringRedisSerializer()))
             .serializeValuesWith(SerializationPair.fromSerializer(JdkSerializationRedisSerializer()))
 
-        // Configure cache-specific TTLs
-        val cacheConfigurations = kotlin.collections.mapOf(
-            SovereignRagCache.CHAT_SESSION to defaultConfig.entryTtl(Duration.ofMinutes(30)),
-            SovereignRagCache.CHAT_MESSAGES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
-            SovereignRagCache.CHAT_RESPONSES to defaultConfig.entryTtl(Duration.ofMinutes(30)),
-            SovereignRagCache.AGENT_CONFIG to defaultConfig.entryTtl(Duration.ofHours(24))
-        )
-
         return RedisCacheManager.builder(connectionFactory)
             .cacheDefaults(defaultConfig)
-            .withInitialCacheConfigurations(cacheConfigurations)
             .build()
     }
 }
@@ -62,22 +53,7 @@ open class SimpleCacheConfiguration {
 
     @Bean
     open fun cacheManager(): CacheManager {
-        logger.info { "Initializing simple in-memory cache manager for chat sessions" }
-        return ConcurrentMapCacheManager(
-            SovereignRagCache.CHAT_SESSION,
-            SovereignRagCache.CHAT_MESSAGES,
-            SovereignRagCache.CHAT_RESPONSES,
-            SovereignRagCache.AGENT_CONFIG
-        )
+        logger.info { "Initializing simple in-memory cache manager" }
+        return ConcurrentMapCacheManager()
     }
-}
-
-/**
- * Cache names for Sovereign RAG
- */
-object SovereignRagCache {
-    const val CHAT_SESSION = "chat_session"
-    const val CHAT_MESSAGES = "chat_messages"
-    const val CHAT_RESPONSES = "chat_responses"
-    const val AGENT_CONFIG = "agentConfig"
 }
