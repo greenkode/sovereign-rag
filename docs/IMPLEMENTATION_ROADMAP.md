@@ -478,7 +478,124 @@ Implement advanced premium features for monetization.
 
 ### Features (Tier Gating)
 
-#### 7.1 Agents System
+#### 7.1 Billing & Subscription Management
+**Priority**: P0 (Critical for SaaS)
+**Effort**: 3 weeks
+
+**Description**: Complete billing system with multiple payment providers.
+
+**Tasks**:
+- [ ] Database schema for billing
+  - Subscription plans table
+  - Tenant subscriptions
+  - Token usage tracking
+  - Invoices and payment methods
+  - Billing events log
+
+- [ ] Stripe integration
+  - Customer management
+  - Subscription lifecycle (create, update, cancel)
+  - Metered billing for token overage
+  - Webhook handler (subscription events, payment events)
+  - Checkout session creation
+  - Payment method management
+
+- [ ] Adyen integration (alternative)
+  - Payment processing
+  - Subscription management
+  - Webhook handling
+
+- [ ] PayPal integration (alternative)
+  - PayPal Checkout
+  - Subscription billing
+  - IPN webhook handling
+
+- [ ] Subscription plans
+  - Free tier (100K tokens/month, 1 KB)
+  - Starter ($29/mo, 1M tokens, 3 KBs)
+  - Professional ($99/mo, 5M tokens, 10 KBs)
+  - Enterprise ($499/mo, 50M tokens, unlimited KBs)
+
+- [ ] Usage-based billing
+  - Real-time token tracking
+  - Overage calculation
+  - Scheduled usage reporting to payment provider
+  - Cost estimation per operation
+
+- [ ] Billing API endpoints
+  - Create checkout session
+  - Get current subscription
+  - View usage and costs
+  - Upgrade/downgrade plan
+  - Cancel subscription
+  - Invoice preview
+
+- [ ] Quota enforcement
+  - Check limits before AI operations
+  - Soft limits (warnings)
+  - Hard limits (blocking)
+  - Grace periods for payment failures
+
+- [ ] Invoice generation
+  - Auto-generate monthly invoices
+  - PDF invoice generation
+  - Email delivery
+  - Invoice history
+
+**Acceptance Criteria**:
+- Users can subscribe via Stripe Checkout
+- Token usage tracked for all AI operations
+- Overage charges calculated correctly
+- Webhooks update subscription status
+- Quota limits enforced
+- Invoices generated and emailed
+
+#### 7.2 OAuth & SSO (Business Domains Only)
+**Priority**: P1 (High for enterprise)
+**Effort**: 2 weeks
+
+**Description**: OAuth authentication with Google/Microsoft restricted to business domains.
+
+**Tasks**:
+- [ ] OAuth 2.0 server setup
+  - Spring Authorization Server or Keycloak
+  - Token endpoint
+  - Authorization endpoint
+  - Refresh token flow
+
+- [ ] Google Workspace integration
+  - OAuth client configuration
+  - Domain verification
+  - Restrict to business domains (no @gmail.com)
+
+- [ ] Microsoft Entra ID (Azure AD) integration
+  - OAuth client setup
+  - Tenant verification
+  - Restrict to organizational accounts
+
+- [ ] Business domain validation
+  - Email domain whitelist per tenant
+  - Block generic email providers (gmail, outlook, yahoo)
+  - Admin-configurable allowed domains
+
+- [ ] User provisioning
+  - Auto-create users from OAuth
+  - Map OAuth claims to user roles
+  - Sync profile information
+
+- [ ] Session management
+  - JWT token issuance
+  - Refresh token rotation
+  - Single sign-out
+
+**Acceptance Criteria**:
+- Users can login with Google Workspace
+- Users can login with Microsoft 365
+- Generic email domains blocked
+- Admin can configure allowed domains
+- OAuth tokens properly validated
+
+#### 7.3 Agents System
 **Priority**: P3 (Nice to have)
 **Effort**: 3 weeks
 
@@ -490,7 +607,7 @@ Implement advanced premium features for monetization.
 - [ ] Agent memory and state
 - [ ] Agent templates
 
-#### 7.2 NER (Named Entity Recognition)
+#### 7.4 NER (Named Entity Recognition)
 **Priority**: P3 (Nice to have)
 **Effort**: 1 week
 
@@ -499,7 +616,7 @@ Implement advanced premium features for monetization.
 - [ ] Entity type classification
 - [ ] Entity-based search enhancement
 
-#### 7.3 On-Demand Summarization
+#### 7.5 On-Demand Summarization
 **Priority**: P2 (Medium)
 **Effort**: 1 week
 
@@ -508,7 +625,7 @@ Implement advanced premium features for monetization.
 - [ ] Configurable summary length
 - [ ] Multi-document summarization
 
-#### 7.4 Task Automation
+#### 7.6 Task Automation
 **Priority**: P3 (Nice to have)
 **Effort**: 2 weeks
 
@@ -562,7 +679,40 @@ Prepare system for production deployment and scale.
 - Database query performance
 - Queue depths
 
-#### 8.3 Security Hardening
+#### 8.3 Database Encryption (TDE)
+**Priority**: P1 (High for compliance)
+**Effort**: 1 week
+
+**Description**: Transparent Data Encryption for data at rest.
+
+**Tasks**:
+- [ ] Percona Server for PostgreSQL setup
+  - Enable data-at-rest encryption
+  - Key management integration
+  - Performance testing
+
+- [ ] Alternative: Native PostgreSQL encryption
+  - pgcrypto extension
+  - Column-level encryption for sensitive fields
+  - Encryption key rotation
+
+- [ ] Alternative: Cloud provider encryption
+  - AWS RDS encryption
+  - Azure Database encryption
+  - Google Cloud SQL encryption
+
+- [ ] Backup encryption
+  - Encrypted backups
+  - Secure key storage
+  - Restore testing
+
+**Acceptance Criteria**:
+- Database files encrypted at rest
+- No performance degradation >10%
+- GDPR/HIPAA compliant
+- Key rotation procedures documented
+
+#### 8.4 Security Hardening
 **Priority**: P0 (Critical)
 **Effort**: 1 week
 
@@ -576,7 +726,7 @@ Prepare system for production deployment and scale.
 - [ ] Secret management (HashiCorp Vault or AWS Secrets Manager)
 - [ ] Audit logging
 
-#### 8.4 Documentation
+#### 8.5 Documentation
 **Priority**: P1 (High)
 **Effort**: 1 week
 
@@ -587,6 +737,8 @@ Prepare system for production deployment and scale.
 - [ ] Developer documentation
 - [ ] Deployment guide
 - [ ] Troubleshooting guide
+- [ ] Billing setup guide (Stripe/Adyen/PayPal)
+- [ ] OAuth configuration guide
 
 ---
 
@@ -616,13 +768,119 @@ Prepare system for production deployment and scale.
 - **Week 19-24**: Phase 6 (Full UI)
 - **Deliverable**: Complete admin dashboard
 
-### Month 7: Premium Features
-- **Week 25-28**: Phase 7 (Agents, NER, etc.)
-- **Deliverable**: Premium tier features
+### Month 7: Premium Features & Monetization
+- **Week 25-28**: Phase 7 (Billing, OAuth/SSO, Agents, NER)
+- **Deliverable**: Complete SaaS billing with Stripe/Adyen/PayPal, OAuth for business domains, premium tier features
 
 ### Month 8: Production Launch
-- **Week 29-32**: Phase 8 (Optimization, monitoring, docs)
-- **Deliverable**: Production-ready system
+- **Week 29-32**: Phase 8 (Performance, monitoring, database encryption, security, docs)
+- **Deliverable**: Production-ready system with TDE, full observability, hardened security
+
+---
+
+## KEY ARCHITECTURAL DECISIONS
+
+### Knowledge Base Isolation Strategy
+
+**Decision**: Use **hybrid schema-per-tenant + table-per-KB** approach.
+
+**Rationale**:
+- Each tenant gets their own database schema (current implementation)
+- Within each tenant schema, each Knowledge Base gets separate tables
+- Balances isolation, performance, and management complexity
+
+**Implementation**:
+
+```sql
+-- Tenant database: sovereignrag_tenant_<tenant_id>
+
+-- Knowledge Base catalog
+CREATE TABLE knowledge_bases (
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(500),
+    created_at TIMESTAMP
+);
+
+-- Per-KB tables (dynamically created)
+CREATE TABLE kb_<kb_id>_embeddings (
+    id UUID PRIMARY KEY,
+    content TEXT,
+    embedding vector(1536),
+    metadata JSONB
+);
+
+CREATE TABLE kb_<kb_id>_documents (
+    id UUID PRIMARY KEY,
+    title VARCHAR(500),
+    source_url TEXT,
+    status VARCHAR(50)
+);
+```
+
+**Alternatives considered**:
+
+1. **Schema-per-KB** (`sovereignrag_kb_<tenant_id>_<kb_id>`)
+   - ✅ Maximum isolation
+   - ❌ Connection pool complexity
+   - ❌ Migration management overhead
+   - ❌ Database proliferation
+
+2. **Single table with KB discriminator**
+   - ✅ Simple management
+   - ✅ Easy migrations
+   - ❌ Complex queries with large datasets
+   - ❌ Harder to scale individual KBs
+
+**Chosen approach benefits**:
+- Tenant-level isolation (existing)
+- Multiple KBs per tenant without new schemas
+- Easy to backup/restore individual KBs (pg_dump table)
+- Better query performance than single-table
+- Simpler than schema-per-KB
+
+### OAuth Business Domain Restriction
+
+**Requirement**: Only allow OAuth login from business email domains.
+
+**Implementation approach**:
+- Validate email domain during OAuth callback
+- Maintain blocked domain list: `gmail.com`, `outlook.com`, `yahoo.com`, `hotmail.com`, etc.
+- Allow tenant admins to configure allowed domains
+- Reject authentication for generic email providers
+
+**Example validation**:
+```kotlin
+fun isBusinessDomain(email: String): Boolean {
+    val domain = email.substringAfter("@")
+    val blockedDomains = setOf("gmail.com", "outlook.com", "yahoo.com", "hotmail.com")
+    return domain !in blockedDomains
+}
+```
+
+### Database Encryption (TDE)
+
+**Options**:
+1. **Percona Server for PostgreSQL** - Preferred for open-source
+2. **Native PostgreSQL pgcrypto** - Column-level encryption
+3. **Cloud provider encryption** - AWS RDS, Azure Database, GCP Cloud SQL
+
+**Recommendation**: Start with cloud provider encryption (easiest), migrate to Percona if compliance requires it.
+
+### Token Usage Tracking
+
+**Requirement**: Track all AI operations for billing.
+
+**Implementation**:
+- Intercept all LLM/embedding calls
+- Record token counts to `token_usage` table
+- Aggregate hourly for Stripe metering
+- Calculate costs based on model pricing
+
+**Models supported**:
+- GPT-4 Turbo: $10/$30 per 1M tokens
+- Claude 3 Opus: $15/$75 per 1M tokens
+- Claude 3 Sonnet: $3/$15 per 1M tokens
+- Text embeddings: $0.02-$0.13 per 1M tokens
 
 ---
 
@@ -673,6 +931,8 @@ Prepare system for production deployment and scale.
 - Anthropic API credits
 - Google Cloud AI credits
 - Email service (SendGrid/AWS SES)
+- Payment processing (Stripe/Adyen/PayPal)
+- OAuth providers (Google Workspace, Microsoft Entra ID)
 
 ---
 

@@ -45,6 +45,7 @@
         <module>auth</module>
         <module>guardrail</module>
         <module>tenant</module>
+        <module>billing</module>
         <module>agent-core</module>
         <module>messaging-adapter-sendgrid</module>
         <module>support-adapter-zoho</module>
