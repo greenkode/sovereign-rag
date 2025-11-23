@@ -50,6 +50,9 @@
         <module>support-adapter-zoho</module>
         <module>client</module>
         <module>app</module>
+        <module>pricing</module>
+        <module>process</module>
+        <module>scheduler</module>
     </modules>
 
     <dependencies>
