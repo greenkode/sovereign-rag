@@ -1,7 +1,7 @@
 package ai.sovereignrag.app.config
 
 import jakarta.annotation.PostConstruct
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.tenant.service.TenantRegistryService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration

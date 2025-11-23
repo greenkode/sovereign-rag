@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.commons
 
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
-import io.github.oshai.kotlinlogging.KotlinLogging.logger
+import mu.KotlinLogging.logger
 import java.io.Serializable
 import java.util.Locale
 

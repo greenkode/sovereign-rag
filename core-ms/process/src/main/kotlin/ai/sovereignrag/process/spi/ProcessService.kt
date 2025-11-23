@@ -15,9 +15,9 @@ import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.commons.process.enumeration.ProcessState
 import ai.sovereignrag.commons.process.enumeration.ProcessType
-import ai.sovereignrag.process.domain.ProcessEntity
-import ai.sovereignrag.process.domain.ProcessRepository
-import ai.sovereignrag.process.domain.ProcessRequestEntity
+import ai.sovereignrag.process.dao.ProcessEntity
+import ai.sovereignrag.process.dao.ProcessRepository
+import ai.sovereignrag.process.dao.ProcessRequestEntity
 import ai.sovereignrag.process.domain.model.ProcessCreatedEvent
 import ai.sovereignrag.process.domain.model.ProcessBasicInfo
 import ai.sovereignrag.process.orchestrator.ProcessOrchestrator

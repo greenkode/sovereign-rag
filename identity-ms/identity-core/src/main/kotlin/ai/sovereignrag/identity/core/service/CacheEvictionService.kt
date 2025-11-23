@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.service
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.cache.CacheManager
 import org.springframework.stereotype.Service
 

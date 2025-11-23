@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.integration
 
 import ai.sovereignrag.identity.commons.notification.MessagePayload
 import ai.sovereignrag.identity.commons.notification.toNotificationRequest
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType

@@ -6,7 +6,7 @@ import ai.sovereignrag.identity.core.trusteddevice.dto.TrustDeviceCommand
 import ai.sovereignrag.identity.core.trusteddevice.dto.TrustDeviceResult
 import ai.sovereignrag.identity.core.trusteddevice.service.DeviceFingerprintService
 import an.awesome.pipelinr.Command
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional

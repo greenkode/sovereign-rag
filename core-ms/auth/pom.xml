@@ -44,12 +44,6 @@
             <artifactId>spring-security-config</artifactId>
         </dependency>
 
-        <!-- Spring Context (for @Component, @Service) -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-
         <!-- Spring Web (for controllers) -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -84,13 +78,6 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.12.5</version>
             <scope>runtime</scope>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>io.github.microutils</groupId>
-            <artifactId>kotlin-logging-jvm</artifactId>
-            <version>3.0.5</version>
         </dependency>
 
         <!-- Testing Dependencies -->

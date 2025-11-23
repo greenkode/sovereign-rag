@@ -19,7 +19,7 @@ import ai.sovereignrag.identity.core.invitation.query.GetUsersQuery
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import an.awesome.pipelinr.Pipeline
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content

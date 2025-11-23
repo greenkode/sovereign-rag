@@ -7,7 +7,7 @@ import ai.sovereignrag.identity.core.service.ClientLockedException
 import ai.sovereignrag.identity.core.service.ClientLockoutService
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.password.PasswordEncoder

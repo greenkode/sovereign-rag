@@ -1,19 +1,23 @@
 package ai.sovereignrag.pricing.spi
 
 import ai.sovereignrag.commons.cache.CacheNames
-import ai.sovereignrag.commons.currency.DefaultCurrency.currency
 import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.commons.performance.LogExecutionTime
 import ai.sovereignrag.commons.pricing.PricingGateway
-import ai.sovereignrag.commons.pricing.dto.*
+import ai.sovereignrag.commons.pricing.dto.CreatePricingRequest
+import ai.sovereignrag.commons.pricing.dto.PricingCalculationDto
+import ai.sovereignrag.commons.pricing.dto.PricingDataRequest
+import ai.sovereignrag.commons.pricing.dto.PricingDto
+import ai.sovereignrag.commons.pricing.dto.PricingParameterDto
+import ai.sovereignrag.commons.pricing.dto.PricingSearchRequest
 import ai.sovereignrag.commons.pricing.dto.PricingType
-import ai.sovereignrag.integration.billpay.dao.BillPayProductRepository
+import ai.sovereignrag.commons.pricing.dto.UpdatePricingRequest
 import ai.sovereignrag.pricing.domain.model.PricingDataEntity
 import ai.sovereignrag.pricing.domain.model.PricingDataRepository
 import ai.sovereignrag.pricing.domain.model.PricingEntity
 import ai.sovereignrag.pricing.domain.model.PricingRepository
-import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import jakarta.persistence.EntityManager
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -28,7 +32,6 @@ class PricingService(
     private val entityManager: EntityManager,
     private val pricingRepository: PricingRepository,
     private val pricingDataRepository: PricingDataRepository,
-    private val billPayProductRepository: BillPayProductRepository
 ) : PricingGateway {
 
     private val log = logger {}
@@ -103,8 +106,7 @@ class PricingService(
         pricingDataRepository.saveAll(pricingDataEntities)
 
         val savedEntity = pricingRepository.findByPublicId(savedPricing.publicId)!!
-        val productProjection = savedEntity.productId?.let { billPayProductRepository.findProjectionByPublicId(it) }
-        return savedEntity.toDto(productProjection?.publicId, productProjection?.name)
+        return savedEntity.toDto()
     }
 
     @Transactional
@@ -171,8 +173,7 @@ class PricingService(
         log.info { "Expired pricing $publicId and created new pricing ${savedNewPricing.publicId}" }
 
         val updatedEntity = pricingRepository.findByPublicId(savedNewPricing.publicId)!!
-        val productProjection = updatedEntity.productId?.let { billPayProductRepository.findProjectionByPublicId(it) }
-        return updatedEntity.toDto(productProjection?.publicId, productProjection?.name)
+        return updatedEntity.toDto()
     }
 
     override fun getPricing(publicId: UUID): PricingDto {
@@ -181,8 +182,7 @@ class PricingService(
         val pricing = pricingRepository.findByPublicId(publicId)
             ?: throw RecordNotFoundException("Pricing not found: $publicId")
 
-        val productProjection = pricing.productId?.let { billPayProductRepository.findProjectionByPublicId(it) }
-        return pricing.toDto(productProjection?.publicId, productProjection?.name)
+        return pricing.toDto()
     }
 
     @Transactional
@@ -235,10 +235,8 @@ class PricingService(
                 date = Instant.now(),
                 page = request.pageable
             )
-            val productProjectionsMap = getProductProjectionsMapForEntities(validPricing)
             validPricing.map { entity ->
-                val projection = productProjectionsMap[entity.productId]
-                entity.toDto(projection?.publicId, projection?.name)
+                entity.toDto()
             }
         } else {
             pricingRepository.findUnexpiredPricingByFilters(
@@ -248,13 +246,7 @@ class PricingService(
                 productId = request.productId,
                 integratorId = request.integratorId,
                 pageable = request.pageable
-            ).let { page ->
-                val productProjectionsMap = getProductProjectionsMapForEntities(page)
-                page.map { entity ->
-                    val projection = productProjectionsMap[entity.productId]
-                    entity.toDto(projection?.publicId, projection?.name)
-                }
-            }
+            ).map { it.toDto() }
         }
 
         return pricingPage
@@ -264,24 +256,9 @@ class PricingService(
         log.info { "Fetching all active pricing rules as of $activeOn with pagination" }
 
         val pricingPage = pricingRepository.findActivePricing(activeOn, pageable)
-        val productProjectionsMap = getProductProjectionsMapForEntities(pricingPage)
 
         return pricingPage.map { entity ->
-            val projection = productProjectionsMap[entity.productId]
-            entity.toDto(projection?.publicId, projection?.name)
-        }
-    }
-
-    private fun getProductProjectionsMapForEntities(pricingEntities: Page<PricingEntity>) =
-        getProductProjectionsMapForEntities(pricingEntities.content)
-
-    private fun getProductProjectionsMapForEntities(pricingEntities: List<PricingEntity>): Map<UUID, ai.sovereignrag.integration.billpay.dao.BillPayProductProjection> {
-        val productIds = pricingEntities.mapNotNull { it.productId }.distinct()
-        return if (productIds.isNotEmpty()) {
-            billPayProductRepository.findProjectionsByPublicIds(productIds)
-                .associateBy { it.publicId }
-        } else {
-            emptyMap()
+            entity.toDto()
         }
     }
 

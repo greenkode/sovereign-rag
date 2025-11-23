@@ -11,7 +11,7 @@ import ai.sovereignrag.identity.process.domain.ProcessRepository
 import ai.sovereignrag.identity.process.domain.model.ProcessStateChangedEvent
 import ai.sovereignrag.identity.process.event.AsyncEventPublisher
 import ai.sovereignrag.identity.process.strategy.ProcessStrategy
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

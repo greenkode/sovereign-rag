@@ -7,7 +7,7 @@ import ai.sovereignrag.identity.core.invitation.dto.UserStatus
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.UserService
 import an.awesome.pipelinr.Command
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}

@@ -6,8 +6,8 @@ import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.commons.process.enumeration.ProcessEvent
 import ai.sovereignrag.commons.process.enumeration.ProcessState
 import ai.sovereignrag.commons.process.enumeration.ProcessType
-import ai.sovereignrag.process.domain.ProcessEntity
-import ai.sovereignrag.process.domain.ProcessRepository
+import ai.sovereignrag.process.dao.ProcessEntity
+import ai.sovereignrag.process.dao.ProcessRepository
 import ai.sovereignrag.process.domain.model.ProcessStateChangedEvent
 import ai.sovereignrag.process.event.AsyncEventPublisher
 import ai.sovereignrag.process.strategy.ProcessStrategy

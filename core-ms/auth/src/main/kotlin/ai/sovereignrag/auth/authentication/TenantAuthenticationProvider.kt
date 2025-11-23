@@ -1,6 +1,6 @@
 package ai.sovereignrag.auth.authentication
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.commons.tenant.TenantRegistry
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException

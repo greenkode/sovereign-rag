@@ -4,7 +4,7 @@ import ai.sovereignrag.identity.commons.notification.MessagePayload
 import ai.sovereignrag.identity.commons.notification.MessageRecipient
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.integration.CoreMerchantClient
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

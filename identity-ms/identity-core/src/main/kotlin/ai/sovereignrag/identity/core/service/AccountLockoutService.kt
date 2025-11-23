@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.service
 
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.security.authentication.LockedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

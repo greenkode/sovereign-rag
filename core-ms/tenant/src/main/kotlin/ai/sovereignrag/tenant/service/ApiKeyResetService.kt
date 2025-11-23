@@ -1,6 +1,6 @@
 package ai.sovereignrag.tenant.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.tenant.domain.ResetToken
 import ai.sovereignrag.tenant.repository.ResetTokenRepository
 import org.springframework.http.HttpStatus

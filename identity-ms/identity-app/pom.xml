@@ -20,7 +20,7 @@
         <version.jvm.target>21</version.jvm.target>
         <version.kotlin>2.1.0</version.kotlin>
         <version.spring-boot>3.5.3</version.spring-boot>
-        <version.kotlin-logging-jvm>7.0.0</version.kotlin-logging-jvm>
+        <version.kotlin-logging-jvm>7.0.13</version.kotlin-logging-jvm>
     </properties>
     
     <dependencies>

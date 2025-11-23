@@ -1,6 +1,6 @@
 package ai.sovereignrag.tenant.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.tenant.domain.Tenant
 import ai.sovereignrag.commons.tenant.TenantStatus
 import ai.sovereignrag.commons.tenant.TenantNotFoundException

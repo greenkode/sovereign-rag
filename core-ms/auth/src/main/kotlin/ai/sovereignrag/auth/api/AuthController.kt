@@ -1,6 +1,6 @@
 package ai.sovereignrag.auth.api
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.auth.JwtTokenProvider
 import ai.sovereignrag.auth.authentication.TenantApiKeyAuthenticationToken
 import ai.sovereignrag.commons.tenant.TenantStatus

@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.trusteddevice.scheduler
 
 import ai.sovereignrag.identity.core.trusteddevice.domain.TrustedDeviceRepository
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component

@@ -1,5 +1,6 @@
 package ai.sovereignrag.commons.accounting
 
+import ai.sovereignrag.commons.process.ProcessChannel
 import java.util.UUID
 import javax.money.CurrencyUnit
 import javax.money.MonetaryAmount
@@ -40,7 +41,7 @@ data class AccountCreatedEvent(
     val alias: String,
     val currency: CurrencyUnit,
     val currencyIssuer: String? = null,
-    val channel: Channel,
+    val channel: ProcessChannel,
     val merchantDetails: MerchantDetailsDto? = null,
 )
 

@@ -1,5 +1,6 @@
 package ai.sovereignrag.pricing.domain.calculation
 
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.commons.json.ObjectMapperFacade
 import com.fasterxml.jackson.core.type.TypeReference
@@ -13,7 +14,7 @@ class FixedRangeCalculation : Calculation {
         val typeRef = object : TypeReference<List<RangePricingFormula>>() {
         }
 
-        val values = ObjectMapperFacade.fromJson(context.data.expression, typeRef)
+        val values = ObjectMapperFacade.fromJson(context.data.expression ?: throw InvalidRequestException("{pricing.data.not.found}"), typeRef)
 
         val pricingFormula: RangePricingFormula = values.firstOrNull { v -> isBetween(context.amount, v.min, v.max) }
             ?: throw RecordNotFoundException("Unable to find pricing for Transaction. Contact support.")

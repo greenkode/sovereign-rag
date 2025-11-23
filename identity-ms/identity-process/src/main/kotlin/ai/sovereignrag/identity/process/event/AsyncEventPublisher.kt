@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.process.event
 
 import ai.sovereignrag.identity.process.domain.model.ProcessStateChangedEvent
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component

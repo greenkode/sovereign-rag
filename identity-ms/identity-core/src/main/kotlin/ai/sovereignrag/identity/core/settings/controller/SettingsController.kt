@@ -19,7 +19,7 @@ import ai.sovereignrag.identity.core.settings.dto.UpdateUserNameResponse
 import ai.sovereignrag.identity.core.settings.dto.UserSettingsResponse
 import ai.sovereignrag.identity.core.settings.query.GetUserSettingsQuery
 import an.awesome.pipelinr.Pipeline
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema

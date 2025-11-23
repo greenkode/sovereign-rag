@@ -1,6 +1,6 @@
 package ai.sovereignrag.client.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.client.domain.Escalation
 import ai.sovereignrag.client.repository.EscalationRepository
 import ai.sovereignrag.commons.EscalationLogger

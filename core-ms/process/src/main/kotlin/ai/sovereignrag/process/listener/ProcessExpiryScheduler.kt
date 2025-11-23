@@ -2,16 +2,16 @@ package ai.sovereignrag.process.listener
 
 import ai.sovereignrag.commons.process.enumeration.ProcessHeader.PROCESS_ID
 import ai.sovereignrag.commons.scheduler.ScheduleJobPayload
+import ai.sovereignrag.commons.scheduler.SchedulerGateway
 import ai.sovereignrag.process.domain.model.ProcessCreatedEvent
 import ai.sovereignrag.process.job.ExpireProcessJob
-import ai.sovereignrag.scheduler.SchedulerService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-class ProcessExpiryScheduler(val schedulerService: SchedulerService) {
+class ProcessExpiryScheduler(val schedulerGateway: SchedulerGateway) {
 
     val log = KotlinLogging.logger {}
 
@@ -21,7 +21,7 @@ class ProcessExpiryScheduler(val schedulerService: SchedulerService) {
         log.info { "Schedule Expiry Task for process: ${event.id}" }
 
         if (event.processType.timeInSeconds > -1L) {
-            schedulerService.scheduleJob(
+            schedulerGateway.scheduleJob(
                 ScheduleJobPayload(
                     event.id.toString(),
                     "process-expiry",

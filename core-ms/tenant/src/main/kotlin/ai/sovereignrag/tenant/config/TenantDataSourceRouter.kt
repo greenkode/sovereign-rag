@@ -1,6 +1,6 @@
 package ai.sovereignrag.tenant.config
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.commons.tenant.TenantContext
 import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource

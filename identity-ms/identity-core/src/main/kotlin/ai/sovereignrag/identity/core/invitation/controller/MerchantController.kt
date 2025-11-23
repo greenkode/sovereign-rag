@@ -4,7 +4,7 @@ import ai.sovereignrag.identity.core.invitation.dto.CreateMerchantCommand
 import ai.sovereignrag.identity.core.invitation.dto.CreateMerchantRequest
 import ai.sovereignrag.identity.core.invitation.dto.CreateMerchantResponse
 import an.awesome.pipelinr.Pipeline
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema

@@ -1,15 +1,15 @@
 package ai.sovereignrag.process.service
 
-import ai.sovereignrag.commons.billpay.SystemPropertyName
-import ai.sovereignrag.commons.billpay.SystemPropertyScope
-import ai.sovereignrag.commons.billpay.TransactionStatusRetryEvent
+import ai.sovereignrag.commons.property.SystemPropertyScope
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
 import ai.sovereignrag.commons.process.ProcessDto
-import ai.sovereignrag.commons.process.SystemPropertyGateway
+import ai.sovereignrag.commons.property.SystemPropertyGateway
 import ai.sovereignrag.commons.process.enumeration.ProcessEvent
 import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.property.SystemPropertyName
 import ai.sovereignrag.commons.scheduler.SchedulerGateway
+import ai.sovereignrag.commons.transaction.TransactionStatusRetryEvent
 import ai.sovereignrag.commons.util.CurrentRequestUtils
 import ai.sovereignrag.process.action.CompleteTransactionAction
 import ai.sovereignrag.process.action.InitiatePendingTransactionAction

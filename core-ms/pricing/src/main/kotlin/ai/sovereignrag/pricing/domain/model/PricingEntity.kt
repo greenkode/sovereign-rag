@@ -77,12 +77,9 @@ class PricingEntity(
         data.map { it.toDomain() }.toSet()
     )
 
-    fun toDto(billPayProductId: UUID?, productName: String?) = PricingDto(
+    fun toDto() = PricingDto(
         id = id!!,
         publicId = publicId,
-        vendorId = productId,
-        productId = billPayProductId,
-        productName = productName,
         accountType = accountType,
         accountPublicId = accountPublicId,
         transactionType = transactionType,

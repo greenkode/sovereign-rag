@@ -54,7 +54,6 @@ data class PricingResponse(
     val currency: CurrencyUnit,
     val validFrom: Instant,
     val validUntil: Instant?,
-    val productId: UUID?,
     val integratorId: String?,
     val pricingData: Set<PricingDataResponse>
 ) {
@@ -68,7 +67,6 @@ data class PricingResponse(
                 currency = dto.currency ?: throw IllegalStateException("Currency cannot be null"),
                 validFrom = dto.validFrom,
                 validUntil = dto.validUntil,
-                productId = dto.vendorId, // Using vendorId as productId
                 integratorId = dto.integratorId,
                 pricingData = dto.data.map { PricingDataResponse.fromDto(it) }.toSet()
             )
@@ -107,9 +105,6 @@ data class PricingSearchRequest(
 data class PricingDto(
     val id: Long,
     val publicId: UUID,
-    val vendorId: UUID?,
-    val productId: UUID?,
-    val productName: String?,
     val accountType: AccountType?,
     val accountPublicId: UUID?,
     val transactionType: TransactionType,
@@ -194,22 +189,6 @@ data class PricingDataApiRequest(
     val expression: String?
 )
 
-data class PricingRuleApiResponse(
-    val publicId: UUID,
-    val transactionType: String?,
-    val currency: String?,
-    val accountType: String?,
-    val accountPublicId: UUID?,
-    val accountName: String?,
-    val integratorId: String?,
-    val integratorName: String?,
-    val productId: UUID?,
-    val productName: String?,
-    val validFrom: Instant,
-    val validUntil: Instant?,
-    val pricingData: List<PricingDataApiResponse>
-)
-
 data class PricingDataApiResponse(
     val pricingType: String,
     val calculation: String,
@@ -228,37 +207,8 @@ data class PricingDataApiResponse(
     }
 }
 
-data class PricingRuleCreateResponse(
-    val publicId: UUID,
-    val message: String
-)
-
-data class PricingRuleUpdateResponse(
-    val publicId: UUID,
-    val message: String
-)
-
-data class PricingTestRequest(
-    val transactionType: String,
-    val currency: String,
-    val transactionDate: Instant,
-    val accountType: String?,
-    val accountPublicId: UUID?,
-    val integratorId: String?,
-    val productId: UUID?
-)
-
-data class PricingTestResponse(
-    val selectedPricing: SelectedPricingInfo?,
-    val applicableRules: List<ApplicableRuleInfo>
-)
-
 data class PricingDtoResult(
     val publicId: UUID,
-    val vendorId: UUID?,
-    val vendorName: String?,
-    val productId: UUID?,
-    val productName: String?,
     val accountType: AccountType?,
     val accountPublicId: UUID?,
     val accountName: String?,
@@ -276,10 +226,6 @@ data class PricingDtoResult(
 
             PricingDtoResult(
                 dto.publicId,
-                dto.vendorId,
-                null,
-                dto.productId,
-                dto.productName,
                 dto.accountType,
                 dto.accountPublicId,
                 account?.name,
@@ -294,82 +240,3 @@ data class PricingDtoResult(
 
     }
 }
-
-data class SelectedPricingInfo(
-    val publicId: UUID,
-    val specificityScore: Int,
-    val specificityLabel: String,
-    val pricingData: List<PricingDataApiResponse>,
-    val totalCalculation: TotalCalculationInfo?
-) {
-    companion object {
-        fun calculateSpecificityScore(pricing: PricingDtoResult): Int {
-            var score = 0
-            if (pricing.accountPublicId != null) score += 8
-            if (pricing.accountType != null) score += 4
-            if (pricing.vendorId != null) score += 2
-            if (pricing.integratorId != null) score += 1
-            return score
-        }
-
-        fun generateSpecificityLabel(pricing: PricingDtoResult): String {
-            val parts = mutableListOf<String>()
-            if (pricing.vendorId != null) parts.add("Product")
-            if (pricing.accountPublicId != null) parts.add("Specific Account")
-            if (pricing.accountType != null) parts.add("Account Type")
-            if (pricing.currency != null) parts.add("Currency")
-            if (pricing.integratorId != null) parts.add("Integrator")
-
-            return if (parts.isNotEmpty()) parts.joinToString(" + ") else "Default"
-        }
-    }
-}
-
-data class TotalCalculationInfo(
-    val baseAmount: BigDecimal,
-    val breakdown: List<PricingBreakdownItem>,
-    val total: BigDecimal
-)
-
-data class PricingBreakdownItem(
-    val type: String,
-    val amount: BigDecimal,
-    val percentage: BigDecimal?
-)
-
-data class ApplicableRuleInfo(
-    val publicId: UUID,
-    val specificityScore: Int,
-    val priority: Int
-)
-
-data class PricingCalculateRequest(
-    val transactionType: String,
-    val currency: String,
-    val transactionDate: Instant,
-    val accountType: String?,
-    val accountPublicId: UUID?,
-    val integratorId: String?,
-    val productId: UUID?,
-    val baseAmount: BigDecimal
-)
-
-data class PricingCalculateResponse(
-    val pricingRuleId: UUID,
-    val baseAmount: BigDecimal,
-    val breakdown: List<PricingBreakdownItem>,
-    val subtotal: BigDecimal,
-    val tax: BigDecimal,
-    val total: BigDecimal
-)
-
-data class ClientApiResponse(
-    val id: Long,
-    val publicId: UUID,
-    val name: String,
-    val type: String,
-    val accountType: String,
-    val integratorId: String?,
-    val active: Boolean,
-    val createdDate: Instant
-)

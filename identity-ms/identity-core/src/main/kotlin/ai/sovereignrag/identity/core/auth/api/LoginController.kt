@@ -9,7 +9,7 @@ import ai.sovereignrag.identity.core.service.AccountLockoutService
 import ai.sovereignrag.identity.core.service.ClientIpExtractionService
 import ai.sovereignrag.identity.core.service.CustomUserDetails
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema

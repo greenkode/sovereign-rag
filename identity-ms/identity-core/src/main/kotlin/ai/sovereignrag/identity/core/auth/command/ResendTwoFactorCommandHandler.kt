@@ -17,7 +17,7 @@ import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.TokenGenerationUtility
 import ai.sovereignrag.identity.core.auth.service.TwoFactorEmailService
 import an.awesome.pipelinr.Command
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component

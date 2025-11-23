@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.refreshtoken.scheduler
 
 import ai.sovereignrag.identity.core.refreshtoken.service.RefreshTokenService
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 

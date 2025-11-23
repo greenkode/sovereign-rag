@@ -4,7 +4,7 @@ import ai.sovereignrag.guardrail.GuardrailResult
 import ai.sovereignrag.guardrail.InputGuardrail
 import ai.sovereignrag.commons.agent.guardrail.Guardrail
 import dev.langchain4j.data.message.UserMessage
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.guardrail.config.GuardrailConfig
 import ai.sovereignrag.guardrail.config.GuardrailMode
 import org.springframework.stereotype.Component

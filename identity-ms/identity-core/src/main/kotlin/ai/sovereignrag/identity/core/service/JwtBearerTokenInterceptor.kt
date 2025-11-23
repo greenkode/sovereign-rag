@@ -1,5 +1,5 @@
 package ai.sovereignrag.identity.core.service
-import io.github.oshai.kotlinlogging.KotlinLogging.logger
+import mu.KotlinLogging.logger
 import org.springframework.http.HttpRequest
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.http.client.ClientHttpRequestExecution

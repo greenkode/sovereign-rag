@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.event
 
 import ai.sovereignrag.identity.commons.audit.AuditEvent
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.event.EventListener
 import org.springframework.http.HttpHeaders

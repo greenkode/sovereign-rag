@@ -3,7 +3,7 @@ package ai.sovereignrag.guardrail.service
 import dev.langchain4j.data.message.AiMessage
 import dev.langchain4j.data.message.UserMessage
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.commons.guardrail.GuardrailGateway
 import ai.sovereignrag.guardrail.InputGuardrail
 import ai.sovereignrag.guardrail.OutputGuardrail

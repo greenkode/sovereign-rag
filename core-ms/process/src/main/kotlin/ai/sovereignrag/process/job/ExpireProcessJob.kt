@@ -1,7 +1,7 @@
 package ai.sovereignrag.process.job
 
-import ai.sovereignrag.commons.enumeration.Channel
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.commons.process.enumeration.ProcessEvent
 import ai.sovereignrag.commons.process.enumeration.ProcessHeader.PROCESS_ID
 import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
@@ -32,7 +32,7 @@ class ExpireProcessJob(
                     processId,
                     ProcessEvent.PROCESS_EXPIRED,
                     ProcessRequestType.EXPIRE_PROCESS,
-                    Channel.SYSTEM,
+                    ProcessChannel.SYSTEM,
                     ProcessState.COMPLETE
                 )
             )

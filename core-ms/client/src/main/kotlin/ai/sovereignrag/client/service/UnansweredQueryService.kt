@@ -1,6 +1,6 @@
 package ai.sovereignrag.client.service
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.client.domain.UnansweredQuery
 import ai.sovereignrag.client.dto.UnansweredQueryDto
 import ai.sovereignrag.client.repository.UnansweredQueryRepository

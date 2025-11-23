@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.trusteddevice.service
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import java.security.MessageDigest
 import jakarta.servlet.http.HttpServletRequest

@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.config
 
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.boot.web.servlet.error.ErrorController
 import org.springframework.web.bind.annotation.RequestMapping

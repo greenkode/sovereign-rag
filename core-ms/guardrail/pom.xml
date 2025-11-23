@@ -43,23 +43,10 @@
             <version>${langchain4j.version}</version>
         </dependency>
 
-        <!-- Spring Context (for @Component, @Service annotations) -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-
         <!-- Spring Boot (for @ConfigurationProperties) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>io.github.microutils</groupId>
-            <artifactId>kotlin-logging-jvm</artifactId>
-            <version>3.0.5</version>
         </dependency>
 
         <!-- Testing Dependencies -->

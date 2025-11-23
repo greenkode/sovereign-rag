@@ -1,19 +1,19 @@
 package ai.sovereignrag.process.spi
 
-import ai.sovereignrag.commons.billpay.SystemPropertyName
-import ai.sovereignrag.commons.billpay.SystemPropertyScope
 import ai.sovereignrag.commons.cache.CacheNames
-import ai.sovereignrag.commons.process.SystemPropertyDto
-import ai.sovereignrag.commons.process.SystemPropertyGateway
-import ai.sovereignrag.process.domain.SystemPropertyEntity
-import ai.sovereignrag.process.domain.SystemPropertyRepository
+import ai.sovereignrag.commons.property.SystemPropertyScope
+import ai.sovereignrag.commons.property.SystemPropertyDto
+import ai.sovereignrag.commons.property.SystemPropertyGateway
+import ai.sovereignrag.commons.property.SystemPropertyName
+import ai.sovereignrag.process.dao.SystemPropertyEntity
+import ai.sovereignrag.process.dao.SystemPropertyRepository
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
 class SystemPropertyService(private val systemPropertyRepository: SystemPropertyRepository) : SystemPropertyGateway {
 
-//    @Cacheable(cacheNames = [CacheNames.SYSTEM_PROPERTIES], key = "#name.name + '_' + #scope.name", unless = "#result == null")
+    @Cacheable(cacheNames = [CacheNames.SYSTEM_PROPERTIES], key = "#name.name + '_' + #scope.name", unless = "#result == null")
     override fun findByNameAndScope(name: SystemPropertyName, scope: SystemPropertyScope): SystemPropertyDto? {
         return systemPropertyRepository.findByNameAndScope(name, scope)?.toDomain()?.toDto()
     }

@@ -1,5 +1,6 @@
 package ai.sovereignrag.pricing.domain.calculation
 
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.commons.json.ObjectMapperFacade
 import com.fasterxml.jackson.core.type.TypeReference
 import org.springframework.stereotype.Component
@@ -12,7 +13,9 @@ class MinValueFixedCalculation : Calculation {
             object : TypeReference<Map<PricingFormulaKeys, BigDecimal>>() {
             }
 
-        val values = ObjectMapperFacade.fromJson(context.data.expression, typeRef)
+        val values = ObjectMapperFacade.fromJson(
+            context.data.expression ?: throw InvalidRequestException("{pricing.data.not.found}"), typeRef
+        )
 
         val min = values.getOrDefault(PricingFormulaKeys.MIN, BigDecimal.ZERO)
 

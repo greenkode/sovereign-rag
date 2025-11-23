@@ -45,6 +45,14 @@ spring:
     baseline-version: 0
     placeholder-replacement: false  # Disable to preserve ${} in templates
 
+  # OAuth2 Resource Server (validates JWTs from identity-ms)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:9093}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:9093/.well-known/jwks.json}
+
   # Redis configuration for chat session storage
   data:
     redis:
@@ -222,3 +230,9 @@ management:
   health:
     defaults:
       enabled: true
+
+# JWT Configuration (Resource Server)
+jwt:
+  public-key-path: "${jwt_public_key:-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGdh3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJni3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpfgvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEmxwIDAQAB-----END PUBLIC KEY-----}"
+  issuer: ${JWT_ISSUER:http://localhost:9093}
+  audience: core-ms-client

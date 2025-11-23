@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.commons.exception
 
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitException
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler

@@ -21,7 +21,7 @@ import ai.sovereignrag.identity.core.trusteddevice.dto.TrustDeviceCommand
 import ai.sovereignrag.identity.core.trusteddevice.service.DeviceFingerprintService
 import an.awesome.pipelinr.Command
 import an.awesome.pipelinr.Pipeline
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component

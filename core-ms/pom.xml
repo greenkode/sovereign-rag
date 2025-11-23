@@ -16,6 +16,7 @@
         <djl.version>0.29.0</djl.version>
         <spring-boot.version>3.5.7</spring-boot.version>
         <spring-security.version>6.4.2</spring-security.version>
+        <spring-modulith.version>1.4.5</spring-modulith.version>
     </properties>
 
     <dependencyManagement>
@@ -41,18 +42,18 @@
     </dependencyManagement>
 
     <modules>
-        <module>commons</module>
-        <module>auth</module>
-        <module>guardrail</module>
-        <module>tenant</module>
         <module>agent-core</module>
-        <module>messaging-adapter-sendgrid</module>
-        <module>support-adapter-zoho</module>
+        <module>app</module>
+        <module>auth</module>
         <module>client</module>
+        <module>commons</module>
+        <module>guardrail</module>
+        <module>notification</module>
+        <module>notification-adapter-email</module>
         <module>pricing</module>
         <module>process</module>
         <module>scheduler</module>
-        <module>app</module>
+        <module>tenant</module>
     </modules>
 
     <dependencies>
@@ -70,9 +71,9 @@
 
         <!-- Logging -->
         <dependency>
-            <groupId>io.github.microutils</groupId>
+            <groupId>io.github.oshai</groupId>
             <artifactId>kotlin-logging-jvm</artifactId>
-            <version>3.0.5</version>
+            <version>7.0.13</version>
         </dependency>
 
         <!-- Spring Data JPA -->
@@ -100,6 +101,12 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>9.0.13</version>
+        </dependency>
+
         <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -110,11 +117,34 @@
             <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-events-core</artifactId>
+            <version>${spring-modulith.version}</version>
+        </dependency>
+
         <!-- Spring Cache -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

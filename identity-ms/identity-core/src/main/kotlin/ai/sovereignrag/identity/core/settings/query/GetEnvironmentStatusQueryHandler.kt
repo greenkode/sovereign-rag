@@ -5,7 +5,7 @@ import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.service.UserService
 import ai.sovereignrag.identity.core.settings.dto.EnvironmentStatusResponse
 import an.awesome.pipelinr.Command
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}

@@ -1,6 +1,6 @@
 package ai.sovereignrag.client.api
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.client.domain.Escalation
 import ai.sovereignrag.client.dto.PageResponse
 import ai.sovereignrag.client.dto.UnansweredQueryDto

@@ -3,7 +3,7 @@ package ai.sovereignrag.app.config
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import jakarta.persistence.EntityManagerFactory
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import ai.sovereignrag.tenant.config.TenantDataSourceRouter
 import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.beans.factory.annotation.Qualifier

@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.config
 
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.oshai.kotlinlogging.KotlinLogging
+import mu.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

@@ -1,6 +1,6 @@
 package ai.sovereignrag.commons.guard
 
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
