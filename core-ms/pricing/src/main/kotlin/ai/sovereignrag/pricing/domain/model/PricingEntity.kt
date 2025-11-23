@@ -3,7 +3,7 @@ package ai.sovereignrag.pricing.domain.model
 import ai.sovereignrag.commons.accounting.AccountType
 import ai.sovereignrag.commons.accounting.TransactionType
 import ai.sovereignrag.commons.model.AuditableEntity
-import ai.sovereignrag.commons.model.CurrencyUnitConverter
+import ai.sovereignrag.commons.currency.CurrencyUnitConverter
 import ai.sovereignrag.commons.pricing.dto.PricingCalculation
 import ai.sovereignrag.commons.pricing.dto.PricingDataDto
 import ai.sovereignrag.commons.pricing.dto.PricingDto
@@ -29,7 +29,7 @@ import java.util.UUID
 import javax.money.CurrencyUnit
 
 @Entity
-@Table(name = "pricing")
+@Table(name = "pricing", schema = "core")
 class PricingEntity(
 
     val publicId: UUID,
@@ -95,7 +95,7 @@ class PricingEntity(
 }
 
 @Entity
-@Table(name = "pricing_data")
+@Table(name = "pricing_data", schema = "core")
 class PricingDataEntity(
 
     @Enumerated(EnumType.STRING)

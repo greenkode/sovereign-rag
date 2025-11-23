@@ -4,7 +4,7 @@ spring:
 
   # PostgreSQL configuration for multi-tenant architecture
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=master}
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=core}
     username: ${POSTGRES_USER:sovereignrag}
     password: ${POSTGRES_PASSWORD:RespectTheHangover}
     host: ${POSTGRES_HOST:localhost}
@@ -17,8 +17,8 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-      pool-name: master-pool
-      connection-init-sql: SET search_path TO master, public
+      pool-name: core-pool
+      connection-init-sql: SET search_path TO core, public
       # PostgreSQL optimizations
       data-source-properties:
         cachePrepStmts: true
@@ -40,7 +40,7 @@ spring:
   # Flyway database migrations
   flyway:
     enabled: true
-    locations: classpath:db/master-schema
+    locations: classpath:db/migration
     baseline-on-migrate: true
     baseline-version: 0
     placeholder-replacement: false  # Disable to preserve ${} in templates

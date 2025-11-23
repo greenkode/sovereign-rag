@@ -64,6 +64,27 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!-- Pricing Module -->
+        <dependency>
+            <groupId>ai.sovereignrag</groupId>
+            <artifactId>pricing</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Process Module -->
+        <dependency>
+            <groupId>ai.sovereignrag</groupId>
+            <artifactId>process</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Scheduler Module -->
+        <dependency>
+            <groupId>ai.sovereignrag</groupId>
+            <artifactId>scheduler</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- Messaging Adapters -->
         <dependency>
             <groupId>ai.sovereignrag</groupId>

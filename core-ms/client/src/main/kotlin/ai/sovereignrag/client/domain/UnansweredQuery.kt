@@ -8,7 +8,7 @@ import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(name = "unanswered_queries")
+@Table(name = "unanswered_queries", schema = "core")
 @EntityListeners(AuditingEntityListener::class)
 data class UnansweredQuery(
     @Id

@@ -13,7 +13,7 @@ import java.time.Instant
  * Represents a WordPress site using Sovereign RAG
  */
 @Entity
-@Table(name = "tenants", schema = "master")
+@Table(name = "tenants", schema = "identity")
 data class Tenant(
     @Id
     @Column(name = "id", nullable = false, length = 255)
