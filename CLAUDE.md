@@ -24,3 +24,9 @@ always use the cqrs pattern request -> command -> result -> response commandhand
 don't commit automatically
 store md files in the docs folder
 dont use jdbctemplate unless explicitly told to
+Follow existing patterns and conventions in the codebase
+Use explicit type declarations where it improves readability
+Prefer composition over inheritance
+Use descriptive variable and method names
+prefer idiomatic and functional kotiln instead of if/else try/catch type structures
+prefer things like ?.let {} or takeIf{} instead of if else
