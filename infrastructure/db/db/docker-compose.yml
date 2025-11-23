@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sovereignrag}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-RespectTheHangover}
-      POSTGRES_DB: ${POSTGRES_DB:-bml_local}
+      POSTGRES_DB: ${POSTGRES_DB:-sovereignrag}
       POSTGRES_INITDB_ARGS: "-E UTF8"
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
@@ -14,7 +14,7 @@ services:
     command: |
       postgres
       -c shared_preload_libraries=pg_cron
-      -c cron.database_name=${POSTGRES_DB:-bml_local}
+      -c cron.database_name=${POSTGRES_DB:-sovereignrag}
       -c max_worker_processes=20
       -c max_parallel_workers=10
       -c log_statement=all
@@ -22,7 +22,7 @@ services:
       -c log_filename='postgresql-%Y-%m-%d_%H%M%S.log'
       -c logging_collector=on
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bml} -d ${POSTGRES_DB:-bml_local}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sovereignrag} -d ${POSTGRES_DB:-sovereignrag}" ]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -2,5 +2,5 @@ SERVER_PORT: 80
 
 DB_HOST: postgres
 READ_REPLICA_DB_HOST: postgres
-DATABASE_NAME: bml_sandbox
-READ_REPLICA_DATABASE_NAME: bml_sandbox
+DATABASE_NAME: sovereignrag
+READ_REPLICA_DATABASE_NAME: sovereignrag

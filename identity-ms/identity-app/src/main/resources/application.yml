@@ -5,7 +5,7 @@ spring:
     name: identity-ms
   datasource:
     url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME}?ApplicationName=${spring.application.name}"
-    username: ${identity_db_user:bml}
+    username: ${identity_db_user:sovereignrag}
     password: ${identity_db_password:RespectTheHangover}
     driver-class-name: org.postgresql.Driver
     hikari:

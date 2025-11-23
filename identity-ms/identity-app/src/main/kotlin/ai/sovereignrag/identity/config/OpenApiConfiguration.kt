@@ -25,14 +25,14 @@ class OpenApiConfiguration {
         return OpenAPI()
             .info(
                 Info()
-                    .title("BML Identity Service API - Development")
+                    .title("Sovereign RAG Identity Service API - Development")
                     .version("1.0.0")
                     .description(
                         """
-                        # BML Identity Service API - Development Environment
+                        # Sovereign RAG Identity Service API - Development Environment
 
-                        Welcome to the BML Identity Service API documentation. This service provides comprehensive
-                        identity and access management functionality for the BML financial platform, including
+                        Welcome to the Sovereign RAG Identity Service API documentation. This service provides comprehensive
+                        identity and access management functionality for the Sovereign RAG financial platform, including
                         user authentication, authorization, merchant management, and security services.
 
                         ## Key Features
@@ -63,20 +63,15 @@ class OpenApiConfiguration {
                     )
                     .contact(
                         Contact()
-                            .name("BML Development Team")
-                            .email("dev@bml.africa")
-                            .url("https://bml.africa")
+                            .name("Sovereign RAG Development Team")
+                            .email("dev@sovereignrag.ai")
+                            .url("https://sovereignrag.ai")
                     )
                     .license(
                         License()
                             .name("Proprietary")
-                            .url("https://bml.africa/license")
+                            .url("https://sovereignrag.ai/license")
                     )
-            )
-            .addServersItem(
-                Server()
-                    .url("https://identity-sandbox.bml.africa")
-                    .description("Sandbox Environment")
             )
             .addServersItem(
                 Server()
@@ -96,19 +91,19 @@ class OpenApiConfiguration {
         return OpenAPI()
             .info(
                 Info()
-                    .title("BML Authentication API")
+                    .title("Sovereign RAG Authentication API")
                     .version("1.0.0")
                     .description(
                         """
-                        # BML Authentication API - Official Documentation
+                        # Sovereign RAG Authentication API - Official Documentation
 
-                        Welcome to the official BML Authentication API. This API provides secure authentication
-                        and authorization services for merchants and partners integrating with the BML platform.
+                        Welcome to the official Sovereign RAG Authentication API. This API provides secure authentication
+                        and authorization services for merchants and partners integrating with the Sovereign RAG platform.
 
                         ## Overview
-                        The BML Authentication API implements industry-standard OAuth2 and OpenID Connect protocols
+                        The Sovereign RAG Authentication API implements industry-standard OAuth2 and OpenID Connect protocols
                         to provide secure, scalable authentication and authorization services. This API is designed
-                        for partners who need to authenticate users and obtain access tokens for BML services.
+                        for partners who need to authenticate users and obtain access tokens for Sovereign RAG services.
 
                         ## Supported Flows
                         - **Client Credentials Grant**: For service-to-service authentication
@@ -122,9 +117,9 @@ class OpenApiConfiguration {
                         - Comprehensive audit logging
 
                         ## Authentication Process
-                        1. **Client Registration**: Obtain client credentials from BML
+                        1. **Client Registration**: Obtain client credentials from Sovereign RAG
                         2. **Token Request**: Use client credentials to obtain access tokens
-                        3. **API Access**: Use access tokens to access BML services
+                        3. **API Access**: Use access tokens to access Sovereign RAG services
                         4. **Token Refresh**: Refresh tokens before expiration
 
                         ## Security Requirements
@@ -139,24 +134,24 @@ class OpenApiConfiguration {
 
                         ## Support
                         For integration support and client credential provisioning, contact our partnership team
-                        at partnerships@bml.africa or visit our developer portal.
+                        at partnerships@sovereignrag.ai or visit our developer portal.
                         """.trimIndent()
                     )
                     .contact(
                         Contact()
-                            .name("BML Partnership Team")
-                            .email("partnerships@bml.africa")
-                            .url("https://developers.bml.africa")
+                            .name("Sovereign RAG Partnership Team")
+                            .email("partnerships@sovereignrag.ai")
+                            .url("https://developers.sovereignrag.ai")
                     )
                     .license(
                         License()
                             .name("Commercial License")
-                            .url("https://bml.africa/terms")
+                            .url("https://sovereignrag.ai/terms")
                     )
             )
             .addServersItem(
                 Server()
-                    .url("https://identity.bml.africa")
+                    .url("https://identity.sovereignrag.ai")
                     .description("Production Environment")
             )
     }

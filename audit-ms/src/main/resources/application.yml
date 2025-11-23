@@ -6,9 +6,9 @@ spring:
 
   datasource:
     main:
-      url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:bml_local}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true&prepareThreshold=1&preferQueryMode=extended"
-      username: "${bml_db_user:bml}"
-      password: "${bml_db_password:RespectTheHangover}"
+      url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:sovereignrag}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true&prepareThreshold=1&preferQueryMode=extended"
+      username: "${sovereignrag_db_user:sovereignrag}"
+      password: "${sovereignrag_db_password:RespectTheHangover}"
       driver-class-name: org.postgresql.Driver
       hikari:
         data-source-properties:
@@ -40,9 +40,9 @@ spring:
         connectionTestQuery: "SELECT 1"
         initializationFailTimeout: 30000
     read-replica:
-      url: "jdbc:postgresql://${READ_REPLICA_DB_HOST:localhost}:${READ_REPLICA_DATABASE_PORT:5432}/${READ_REPLICA_DATABASE_NAME:bml_local}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true"
-      username: "${bml_db_user:bml}"
-      password: "${bml_db_password:RespectTheHangover}"
+      url: "jdbc:postgresql://${READ_REPLICA_DB_HOST:localhost}:${READ_REPLICA_DATABASE_PORT:5432}/${READ_REPLICA_DATABASE_NAME:sovereignrag_local}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true"
+      username: "${sovereignrag_db_user:sovereignrag}"
+      password: "${sovereignrag_db_password:RespectTheHangover}"
       driver-class-name: org.postgresql.Driver
       hikari:
         data-source-properties:
@@ -74,39 +74,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-
-
-  # Kafka configuration disabled
-  # kafka:
-  #   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-  #   producer:
-  #     properties:
-  #       schema.registry.url: ${SCHEMA_REGISTRY_URL}
-  #       allow.auto.create.topics: false
-  #       specific.avro.reader: true
-  #       enable.auto.commit: false
-  #     key-serializer: org.apache.kafka.common.serialization.StringSerializer
-  #     value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
-  #   listener:
-  #     ack-mode: batch
-  #   consumer:
-  #     auto-offset-reset: latest
-  #     group-id: audit_logging
-  #     properties:
-  #       schema.registry.url: ${SCHEMA_REGISTRY_URL}
-  #       allow.auto.create.topics: false
-  #       specific.avro.reader: true
-  #       enable.auto.commit: false
-  #       spring:
-  #         deserializer:
-  #           key:
-  #             delegate:
-  #               class: org.apache.kafka.common.serialization.StringDeserializer
-  #           value:
-  #             delegate:
-  #               class: io.confluent.kafka.serializers.KafkaAvroDeserializer
-  #     key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-  #     value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 
 management:
   endpoints:

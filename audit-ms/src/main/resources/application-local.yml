@@ -2,5 +2,5 @@ SERVER_PORT: 9080
 
 DB_HOST: localhost
 READ_REPLICA_DB_HOST: localhost
-DB_NAME: bml_local
-READ_REPLICA_DB_NAME: bml_local
+DB_NAME: sovereignrag
+READ_REPLICA_DB_NAME: sovereignrag

@@ -58,12 +58,12 @@ class TwoFactorEmailService(
         if (ipAddress.isNullOrBlank() || ipAddress == "unknown") {
             return "Unknown location"
         }
-        
+
         // For now, return a simple location based on common IP patterns
         // In production, this could integrate with a GeoIP service
         return when {
             isLocalOrPrivateIp(ipAddress) -> "Local network"
-            else -> "Nigeria" // Default for BML users
+            else -> throw RuntimeException("Unable to resolve location for IP address: $ipAddress")
         }
     }
     

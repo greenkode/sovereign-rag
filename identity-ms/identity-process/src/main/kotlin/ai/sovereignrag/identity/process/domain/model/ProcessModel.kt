@@ -12,7 +12,7 @@ import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
 import java.time.Instant
 import java.util.UUID
 
-data class BmlProcess(
+data class SrProcess(
     val publicId: UUID,
     val type: ProcessType,
     val description: String,

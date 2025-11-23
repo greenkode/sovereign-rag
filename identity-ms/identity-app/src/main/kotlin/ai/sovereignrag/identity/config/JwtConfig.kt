@@ -73,7 +73,7 @@ class JwtConfig(
     fun jwkSource(rsaPublicKey: RSAPublicKey, rsaPrivateKey: RSAPrivateKey): JWKSource<SecurityContext?> {
         val rsaKey = RSAKey.Builder(rsaPublicKey)
             .privateKey(rsaPrivateKey)
-            .keyID("bml-identity-key-1")
+            .keyID("sovereignrag-identity-key-1")
             .build()
         
         val jwkSet = JWKSet(rsaKey)

@@ -9,7 +9,7 @@ import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
-import ai.sovereignrag.identity.process.domain.model.BmlProcess
+import ai.sovereignrag.identity.process.domain.model.SrProcess
 import ai.sovereignrag.identity.process.domain.model.ProcessEventTransition
 import ai.sovereignrag.identity.process.domain.model.ProcessRequest
 import ai.sovereignrag.identity.process.domain.model.ProcessRequestData
@@ -62,7 +62,7 @@ class ProcessEntity(
     val transitions: MutableSet<ProcessEventTransitionEntity> = mutableSetOf(),
 ) :
     AuditableEntity(), Serializable {
-    fun toDomain() = BmlProcess(
+    fun toDomain() = SrProcess(
         publicId,
         type,
         description,

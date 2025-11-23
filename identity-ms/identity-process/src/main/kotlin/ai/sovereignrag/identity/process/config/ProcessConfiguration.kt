@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync
  */
 @Configuration
 @EnableAsync
-@ConfigurationProperties(prefix = "bml.process")
+@ConfigurationProperties(prefix = "sovereignrag.process")
 data class ProcessConfiguration(
     /**
      * Event processing configuration

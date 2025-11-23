@@ -3,9 +3,5 @@ server:
 
 DB_HOST: ${DB_HOST}
 DB_NAME: ${DB_NAME}
-DATABASE_USERNAME: "bml"
+DATABASE_USERNAME: "sovereignrag"
 DATABASE_PASSWORD: "RespectTheHangover"
-
-#Kafka
-KAFKA_BOOTSTRAP_SERVERS: http://localhost:9092
-SCHEMA_REGISTRY_URL: http://localhost:8075
