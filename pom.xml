@@ -16,7 +16,9 @@
     </properties>
 
     <modules>
+        <module>audit-ms</module>
         <module>core-ms</module>
+        <module>identity-ms</module>
     </modules>
 
 </project>

@@ -1,0 +1,54 @@
+package ai.sovereignrag.identity.commons.process.enumeration
+
+object ProcessStrategyBeanNames {
+    const val DEFAULT_PROCESS_STRATEGY = "DefaultProcessStrategy"
+}
+
+enum class ProcessType(val description: String, val timeInSeconds: Long, val strategyBeanName: String? = null) {
+
+    WEBHOOK_CREATION("Webhook Configuration Creation", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    WEBHOOK_UPDATE("Webhook Configuration Update", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    WEBHOOK_DELETION("Webhook Configuration Deletion", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    MERCHANT_USER_INVITATION("Merchant User Invitation", 604800, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    PASSWORD_RESET("Password Reset", 1200, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    TWO_FACTOR_AUTH("Two Factor Authentication", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY) ;
+}
+
+enum class ProcessRequestType {
+    CREATE_NEW_PROCESS,
+    COMPLETE_PROCESS,
+    FAIL_PROCESS,
+    RESEND_AUTHENTICATION,
+}
+
+enum class ProcessRequestDataName(description: String) {
+
+    MERCHANT_ID("Merchant ID"),
+    USER_IDENTIFIER("User Identifier"),
+    AUTHENTICATION_REFERENCE("Authentication Reference"),
+    DEVICE_FINGERPRINT("Device Fingerprint");
+}
+
+enum class ProcessStakeholderType {
+
+    ACTOR_USER,
+    FOR_USER,
+}
+
+enum class ProcessState(val description: String) {
+    PENDING("Awaiting further action"),
+    FAILED("Process has failed"),
+    COMPLETE("Process completed successfully"),
+    EXPIRED("Process expired due to timeout"),
+    CANCELLED("Process was cancelled"),
+    INITIAL("Initial state"),
+}
+
+enum class ProcessEvent(val description: String) {
+    PROCESS_EXPIRED("Process expired due to timeout"),
+    PROCESS_FAILED("Process failed with error"),
+    PROCESS_COMPLETED("Process completed successfully"),
+    PENDING_TRANSACTION_STATUS_VERIFIED("Transaction status verified"),
+    PROCESS_CREATED("Process created"),
+    AUTH_TOKEN_RESEND("Auth Token Resend"),
+}

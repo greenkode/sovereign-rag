@@ -1,0 +1,13 @@
+DB_HOST: postgres
+SERVER_PORT: 80
+IDENTITY_BASEURL: https://sandbox-id.bml.africa
+MERCHANT_BASEURL: https://sandbox-merchant.bml.africa
+
+ALLOWED_CORS_ORIGINS: http://localhost:3002,http://localhost:3000,https://sandbox-backoffice.bml.africa,https://sandbox-merchant.bml.africa
+
+HAZELCAST_MEMBERS: identity-hazelcast:5702
+SPRING_CACHE_TYPE: hazelcast
+
+CORE_MS_BASE_URL: http://bml
+
+AUDIT_MS_BASE_URL: http://audit

@@ -1,0 +1,35 @@
+INSERT INTO oauth_registered_clients (
+    id,
+    client_id,
+    client_id_issued_at,
+    client_secret,
+    client_secret_expires_at,
+    client_name,
+    client_authentication_methods,
+    authorization_grant_types,
+    redirect_uris,
+    post_logout_redirect_uris,
+    scopes,
+    client_settings,
+    token_settings
+) VALUES (
+    gen_random_uuid(),
+    'identity-service',
+    CURRENT_TIMESTAMP,
+    '$2a$12$XGSQmSoxbsr.wkIOeANUnu.tNfLv3vtYzXgjgqD0Lh4LMmwWzphHK',
+    NULL,
+    'Identity Service Client',
+    'client_secret_basic',
+    'client_credentials',
+    '',
+    '',
+    'core-ms:access',
+    '{"@class":"java.util.HashMap","settings.client.require-proof-key":false,"settings.client.require-authorization-consent":false}',
+    '{"@class":"java.util.HashMap","settings.token.reuse-refresh-tokens":true,"settings.token.id-token-signature-algorithm":["org.springframework.security.oauth2.jose.jws.SignatureAlgorithm","RS256"],"settings.token.access-token-time-to-live":["java.time.Duration",3600.000000000],"settings.token.access-token-format":{"@class":"org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat","value":"self-contained"},"settings.token.refresh-token-time-to-live":["java.time.Duration",7200.000000000],"settings.token.authorization-code-time-to-live":["java.time.Duration",300.000000000],"settings.token.device-code-time-to-live":["java.time.Duration",300.000000000]}'
+) ON CONFLICT (client_id) DO UPDATE SET
+    client_secret = EXCLUDED.client_secret,
+    client_authentication_methods = EXCLUDED.client_authentication_methods,
+    authorization_grant_types = EXCLUDED.authorization_grant_types,
+    scopes = EXCLUDED.scopes,
+    client_settings = EXCLUDED.client_settings,
+    token_settings = EXCLUDED.token_settings;

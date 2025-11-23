@@ -1,0 +1,12 @@
+DB_HOST: postgres
+SERVER_PORT: 80
+IDENTITY_BASEURL: https://identity
+
+ALLOWED_CORS_ORIGINS: https://app.sovereignrag.ai
+
+HAZELCAST_MEMBERS: identity-hazelcast:5702
+SPRING_CACHE_TYPE: hazelcast
+
+CORE_MS_BASE_URL: http://corems
+
+AUDIT_MS_BASE_URL: http://audit

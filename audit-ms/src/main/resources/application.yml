@@ -1,0 +1,141 @@
+spring:
+  config:
+    import: "optional:configtree:/run/secrets/"
+  application:
+    name: audit
+
+  datasource:
+    main:
+      url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:bml_local}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true&prepareThreshold=1&preferQueryMode=extended"
+      username: "${bml_db_user:bml}"
+      password: "${bml_db_password:RespectTheHangover}"
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        data-source-properties:
+          cachePrepStmts: true
+          prepStmtCacheSize: 250
+          prepStmtCacheSqlLimit: 2048
+          useServerPrepStmts: true
+          useLocalSessionState: true
+          rewriteBatchedStatements: true
+          cacheResultSetMetadata: true
+          cacheServerConfiguration: true
+          elideSetAutoCommits: true
+          maintainTimeStats: false
+          application: ${spring.application.name}
+          tcpKeepAlive: true
+          socketTimeout: 30
+          prepareThreshold: 1
+          preferQueryMode: extended
+        maximum-pool-size: 5
+        minimum-idle: 2
+        schema: audit
+        register-mbeans: false
+        pool-name: "audit"
+        connectionTimeout: 30000
+        idleTimeout: 300000
+        maxLifetime: 1800000
+        leakDetectionThreshold: 60000
+        validationTimeout: 5000
+        connectionTestQuery: "SELECT 1"
+        initializationFailTimeout: 30000
+    read-replica:
+      url: "jdbc:postgresql://${READ_REPLICA_DB_HOST:localhost}:${READ_REPLICA_DATABASE_PORT:5432}/${READ_REPLICA_DATABASE_NAME:bml_local}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true"
+      username: "${bml_db_user:bml}"
+      password: "${bml_db_password:RespectTheHangover}"
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        data-source-properties:
+          cachePrepStmts: true
+          prepStmtCacheSize: 200
+          prepStmtCacheSqlLimit: 2048
+          useServerPrepStmts: true
+          useLocalSessionState: true
+          rewriteBatchedStatements: true
+          cacheResultSetMetadata: true
+          cacheServerConfiguration: true
+          elideSetAutoCommits: true
+          maintainTimeStats: false
+          application: ${spring.application.name}
+          tcpKeepAlive: true
+          socketTimeout: 30
+        maximum-pool-size: 3
+        minimum-idle: 1
+        schema: audit
+        register-mbeans: false
+        pool-name: "audit-replica"
+        connectionTimeout: 30000
+        idleTimeout: 300000
+        maxLifetime: 1800000
+        leakDetectionThreshold: 60000
+        validationTimeout: 5000
+        connectionTestQuery: "SELECT 1"
+        initializationFailTimeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+
+  # Kafka configuration disabled
+  # kafka:
+  #   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  #   producer:
+  #     properties:
+  #       schema.registry.url: ${SCHEMA_REGISTRY_URL}
+  #       allow.auto.create.topics: false
+  #       specific.avro.reader: true
+  #       enable.auto.commit: false
+  #     key-serializer: org.apache.kafka.common.serialization.StringSerializer
+  #     value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+  #   listener:
+  #     ack-mode: batch
+  #   consumer:
+  #     auto-offset-reset: latest
+  #     group-id: audit_logging
+  #     properties:
+  #       schema.registry.url: ${SCHEMA_REGISTRY_URL}
+  #       allow.auto.create.topics: false
+  #       specific.avro.reader: true
+  #       enable.auto.commit: false
+  #       spring:
+  #         deserializer:
+  #           key:
+  #             delegate:
+  #               class: org.apache.kafka.common.serialization.StringDeserializer
+  #           value:
+  #             delegate:
+  #               class: io.confluent.kafka.serializers.KafkaAvroDeserializer
+  #     key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+  #     value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+  health:
+    readinessState:
+      enabled: true
+    livenessState:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+application:
+  services:
+    accounting:
+      base-url: ${ACCOUNTING_BASE_URL:http://localhost:7070}
+
+server:
+  port: ${SERVER_PORT:9080}
+  shutdown: graceful
+  forward-headers-strategy: native

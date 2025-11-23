@@ -1,0 +1,192 @@
+spring:
+  config:
+    import: "optional:configtree:/run/secrets/"
+  application:
+    name: identity-ms
+  datasource:
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME}?ApplicationName=${spring.application.name}"
+    username: ${identity_db_user:bml}
+    password: ${identity_db_password:RespectTheHangover}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+        application: ${spring.application.name}
+      maximum-pool-size: 20
+      schema: identity
+      register-mbeans: false
+      pool-name: "identity-replica"
+      minimum-idle: 5
+      connectionTimeout: 20000
+      idleTimeout: 300000
+      maxLifetime: 1200000
+      leakDetectionThreshold: 60000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: false
+        format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  security:
+    oauth2:
+      resourceserver:
+        jwt: {}
+      client:
+        registration:
+          identity-ms-client:
+            client-id: ${identity_client_id:identity-ms-client}
+            client-secret: ${identity_client_secret:RespectTheHangover}
+            authorization-grant-type: client_credentials
+            scope: openid,profile,read,write
+        provider:
+          identity-ms-client:
+            token-uri: ${identity-ms.base-url}/oauth2/token
+  cache:
+    type: hazelcast
+
+hazelcast:
+  cluster:
+    name: identity-cluster
+  port: 5702
+  members: ${HAZELCAST_MEMBERS:127.0.0.1:5702}
+server:
+  forward-headers-strategy: native
+  port: ${SERVER_PORT:9093}
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
+      protocol-header-https-value: https
+
+jwt:
+  private-key-path: "${jwt_private_key:-----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDkMTjaXdE1WtgrKAAjMZ2HfOHKjMrpFEe+uyhAaiSFFmJ6CWpeaWYN95f3CkY3QfzN7WzXA1ivc6+lGJA9XGj1fYps4JNMa1vNR7gzUh110STahVtsm3PNTKCaxtWwmW818YZA1vnyk+ZGetQIwmeLfPiIV5dc5LSPhct074683rYhS+dDw2c8T4ROh5WndJTnuRGBa2kP3Gy29SDt7OXxD36+mX8DPaWxZGiBAPGe9bzLGuQfOteg/Vt10/0W9aAXeiX0D7xhWqQTfaluGl+C9n7VpzEumjZSWqCBmBC4iO4BX5oexiDibwWSatMkcYEgd0NDqaowVRMcbohJoSbHAgMBAAECggEAFfwQCCnFwCgyb2X5LWrYTHdhoYwS+IW1q9CIPjx7rD7N2ggSMWpiJLJX97sLrMM0wfo/5C80WiMBJxzIuMCwdAZWUcsJJfGp9IsWWgttPy6ZKFx0xG/tpjfduUuyxsLhjgbo8lJD3nUVWHD5AKcKJswxfaFCufZm1vUC9w8lZ1i2/HNJm8LAOet8JhK1R9+HGqD0f5mPhhK8KvyGjGLp+d4GQYJI+sTRxZmeF48EMeKYz9yj2g/wJTehTbNEwkOCHMW6udYb2ZaGG2xNVqBz0Pr8VDOlcG9GdoXPXeZ4gaPL/5YFYLlmLD/YJcRowigHm9S6uboluUH81BTdrYNykQKBgQD+vKQUdsn0e2le769lTq3rMVTKTaAOtOuL2QiRzPM3O2+awHRPT/IHB8bSN71bUwQPHtE8/Ql/iPsP1EC+Q2GFM+GrJPbaJwqzmV1GwhT854fQhlNXgNiUjsLhyrq7Tc+Hxan2WA4iQpK4ZBHwNgxGnAz/fLeSDOAeC8ws8G8UpQKBgQDlUuLF8i4Tciw0Y9ZZmQwd/Rl3wKUIeDQsSqMcWZkCR/3Jk5JQLLHaFZIVth9ZmuStAXQ8jaUht4V6NCl8ZHmSzyrd6woOmJq3ZGC9X6SglSfq6rJA0kyAhoVsVseqjnjyn9q9Xs+3r23XX6CMYrojkxQf/4LHzYN4BZ5P5j71+wKBgQDQqU8yIBfPtuOaS3V945QdCpys1iccxOAI/u/BFoPHo10JA0qCyTa0wY8AFX57dyXlCNZWQeNs35Tf43phH6qbROM+oJnAGqjuctrwIfy1KSacDdvo2ncOQV6rO7f3w4YSbjyJuJljQOsUNYxoGq21jRAsm0l3TiqrEfjeethSrQKBgGV9RTdtcs7QXJfjB14nyaEL/lVtQJx69jwT3BQT4w+LZNntIXeyEBQAL+LD8yPo1QNr/VE/LrG5Uq0+oI2YueUrIkGMX6sOBorbNaUZyvX2jO/+Zl0htRG8dxf3X+4vl39pF5lveGZGkUob3CXFG7Pax7FRl0NtxJ09f07FC2A5AoGBANGd7296YGCs7iro3w/GbZjVjXjUM2Tx6hWJnmF+9fqAb5cMof38l8SoqUeqdFimjOYE75BRTFsiGIs16Zt50ji31JMUX6+Ev2P2aaJS18yqovoLV9PRW8kXmGuQzS1NLiTcWqvdmlE08ms1sXULYKOrj7+aDRGTLydVjxxgjW7/-----END PRIVATE KEY-----}"
+  public-key-path: "${jwt_public_key:-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGdh3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJni3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpfgvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEmxwIDAQAB-----END PUBLIC KEY-----}"
+  issuer: ${IDENTITY_BASEURL}
+  expiration: 3600
+  audience: "core-ms-client"
+
+identity:
+  2fa:
+    token-length: 6
+    skip-for-trusted-devices: ${SKIP_2FA_TRUSTED_DEVICES:true}
+  trusted-device:
+    enabled: ${TRUSTED_DEVICE_ENABLED:true}
+    max-devices-per-user: ${MAX_TRUSTED_DEVICES:5}
+    default-duration-days: ${TRUSTED_DEVICE_DURATION:30}
+    cleanup-expired-cron: "0 0 2 * * *"
+
+logging:
+  level:
+    root: INFO
+
+bucket4j:
+  enabled: true
+  cache-to-use: hazelcast
+  methods:
+    - name: "2fa-resend"
+      cache-name: "buckets"
+      rate-limit:
+        bandwidths:
+          - capacity: 1
+            time: 1
+            unit: minutes
+    - name: "login-attempts"
+      cache-name: "buckets"
+      rate-limit:
+        bandwidths:
+          - capacity: 5
+            time: 1
+            unit: minutes
+    - name: "2fa-verify"
+      cache-name: "buckets"
+      rate-limit:
+        bandwidths:
+          - capacity: 10
+            time: 1
+            unit: minutes
+    - name: "password-reset"
+      cache-name: "buckets"
+      rate-limit:
+        bandwidths:
+          - capacity: 3
+            time: 5
+            unit: minutes
+    - name: "invitation-validate"
+      cache-name: "buckets"
+      rate-limit:
+        bandwidths:
+          - capacity: 10
+            time: 1
+            unit: minutes
+    - name: "invitation-complete"
+      cache-name: "buckets"
+      rate-limit:
+        bandwidths:
+          - capacity: 5
+            time: 5
+            unit: minutes
+    - name: "user-invitation"
+      cache-name: "buckets"
+      rate-limit:
+        bandwidths:
+          - capacity: 10
+            time: 5
+            unit: minutes
+    - name: "resend-invitation"
+      cache-name: "buckets"
+      rate-limit:
+        bandwidths:
+          - capacity: 1
+            time: 1
+            unit: minutes
+
+app:
+  cors:
+    allowed-origins: ${ALLOWED_CORS_ORIGINS}
+  password-reset:
+    base-url: ${MERCHANT_BASEURL:http://localhost:3001}/auth/reset-password/complete
+  merchant:
+    invitation:
+      base-url: ${MERCHANT_BASEURL:http://localhost:3001}/auth/onboard
+
+identity-ms:
+  base-url: ${IDENTITY_BASEURL:http://localhost:9093}
+  token:
+    expiry: 600
+  refresh-token:
+    expiry: 86400
+  client:
+    id: identity-ms-client
+    secret: ${identity_client_secret:RespectTheHangover}
+
+audit-ms:
+  base-url: ${AUDIT_MS_BASE_URL:http://localhost:9080}
+
+core-ms:
+  base-url: ${CORE_MS_BASE_URL:http://localhost:9091}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:true}
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: ${SPRINGDOC_ENABLED:true}
+    path: /swagger-ui.html
+    oauth:
+      client-id: ${identity_client_id:identity-ms-client}
+

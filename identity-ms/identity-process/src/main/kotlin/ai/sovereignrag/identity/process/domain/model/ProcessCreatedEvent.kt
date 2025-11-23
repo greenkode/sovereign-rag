@@ -1,0 +1,6 @@
+package ai.sovereignrag.identity.process.domain.model
+
+import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import java.util.UUID
+
+data class ProcessCreatedEvent(val id: UUID, val processType: ProcessType, val expiry: Long? = null)
