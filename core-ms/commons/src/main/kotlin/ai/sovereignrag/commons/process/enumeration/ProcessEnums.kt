@@ -28,7 +28,6 @@ enum class ProcessType(val description: String, val timeInSeconds: Long, val str
     INSURANCE("Insurance", -1, ProcessStrategyBeanNames.TRANSACTION_PROCESS_STRATEGY),
     BETTING("Betting", -1, ProcessStrategyBeanNames.TRANSACTION_PROCESS_STRATEGY),
     INTERNET("Internet", -1, ProcessStrategyBeanNames.TRANSACTION_PROCESS_STRATEGY),
-    SUPPORT_TICKET("Support Ticket", -1, null),
     WEBHOOK_CREATION("Webhook Configuration Creation", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
     WEBHOOK_UPDATE("Webhook Configuration Update", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
     WEBHOOK_DELETION("Webhook Configuration Deletion", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
@@ -165,7 +164,6 @@ enum class ProcessEvent(val description: String) {
     MANUAL_RECONCILIATION_CONFIRMED("Manual Reconciliation Confirmed"),
     REVERSAL_REQUESTED("Transaction reversal requested"),
     RECONCILIATION_ITEM_PROCESSED("Reconciliation item processed"),
-    SUPPORT_TICKET_CREATED("Support ticket created"),
     CHAT_MESSAGE_RECEIVED("Chat message received"),
 }
 
