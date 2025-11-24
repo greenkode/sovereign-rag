@@ -1,0 +1,28 @@
+apiVersion: v2
+name: sovereignrag
+description: A Helm chart for SovereignRAG - Self-Hosted RAG Platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - rag
+  - ai
+  - llm
+  - knowledge-graph
+  - semantic-search
+home: https://sovereignrag.ai
+sources:
+  - https://github.com/sovereignrag/core
+maintainers:
+  - name: SovereignRAG Team
+    email: support@sovereignrag.ai
+icon: https://sovereignrag.ai/logo.png
+dependencies:
+  - name: postgresql
+    version: "12.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: "17.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled

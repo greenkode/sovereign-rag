@@ -1,19 +1,23 @@
 package ai.sovereignrag.audit.config.db
 
+import ai.sovereignrag.audit.datasource.ReadWriteRoutingDataSource
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import javax.sql.DataSource
 
+private val log = KotlinLogging.logger {}
+
 @Configuration
 class DataSourceConfiguration {
 
     @Bean
-    @Primary
-    fun mainDataSource(
+    fun primaryDataSource(
         @Value("\${spring.datasource.main.url}") url: String,
         @Value("\${spring.datasource.main.username}") username: String,
         @Value("\${spring.datasource.main.password}") password: String,
@@ -39,7 +43,7 @@ class DataSourceConfiguration {
         @Value("\${spring.datasource.main.hikari.data-source-properties.application}") applicationName: String
     ): DataSource {
         return createHikariDataSource(
-            url, username, password, driverClassName, maximumPoolSize, minimumIdle, schema, poolName,
+            url, username, password, driverClassName, maximumPoolSize, minimumIdle, schema, "$poolName-primary",
             connectionTimeout, idleTimeout, maxLifetime, registerMbeans,
             cachePrepStmts, prepStmtCacheSize, prepStmtCacheSqlLimit, useServerPrepStmts,
             useLocalSessionState, rewriteBatchedStatements, cacheResultSetMetadata,
@@ -74,12 +78,31 @@ class DataSourceConfiguration {
         @Value("\${spring.datasource.read-replica.hikari.data-source-properties.application}") applicationName: String
     ): DataSource {
         return createHikariDataSource(
-            url, username, password, driverClassName, maximumPoolSize, minimumIdle, schema, poolName,
+            url, username, password, driverClassName, maximumPoolSize, minimumIdle, schema, "$poolName-replica",
             connectionTimeout, idleTimeout, maxLifetime, registerMbeans,
             cachePrepStmts, prepStmtCacheSize, prepStmtCacheSqlLimit, useServerPrepStmts,
             useLocalSessionState, rewriteBatchedStatements, cacheResultSetMetadata,
             cacheServerConfiguration, elideSetAutoCommits, maintainTimeStats, applicationName
         )
+    }
+
+    @Bean
+    @Primary
+    fun dataSource(
+        @Qualifier("primaryDataSource") primaryDataSource: DataSource,
+        @Qualifier("readReplicaDataSource") readReplicaDataSource: DataSource
+    ): DataSource {
+        val routingDataSource = ReadWriteRoutingDataSource()
+        val targetDataSources = mapOf<Any, Any>(
+            ReadWriteRoutingDataSource.WRITE_DATASOURCE to primaryDataSource,
+            ReadWriteRoutingDataSource.READ_DATASOURCE to readReplicaDataSource
+        )
+        routingDataSource.setTargetDataSources(targetDataSources)
+        routingDataSource.setDefaultTargetDataSource(primaryDataSource)
+        routingDataSource.afterPropertiesSet()
+
+        log.info { "Audit database routing configured: writes -> primary, reads -> replica" }
+        return routingDataSource
     }
 
     private fun createHikariDataSource(

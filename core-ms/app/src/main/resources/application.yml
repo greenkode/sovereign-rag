@@ -19,12 +19,17 @@ spring:
       max-lifetime: 1800000
       pool-name: core-pool
       connection-init-sql: SET search_path TO core, public
-      # PostgreSQL optimizations
       data-source-properties:
         cachePrepStmts: true
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         stringtype: unspecified
+
+    read-replica:
+      url: ${POSTGRES_READ_REPLICA_URL:${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=core}}
+      hikari:
+        maximum-pool-size: 15
+        minimum-idle: 3
 
   # JPA/Hibernate configuration
   jpa:
@@ -141,6 +146,29 @@ sovereignrag:
     id: ${DEV_TENANT_ID:dev}
     name: ${DEV_TENANT_NAME:Development Tenant}
     api-key: ${DEV_TENANT_API_KEY:dev-api-key-12345}
+
+sovereignrag:
+  license:
+    key: ${SOVEREIGNRAG_LICENSE_KEY:}
+    strict: ${SOVEREIGNRAG_LICENSE_STRICT:false}
+    public-key: ${SOVEREIGNRAG_LICENSE_PUBLIC_KEY:-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGd
+h3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo
+9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJn
+i3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl
+8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpf
+gvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEm
+xwIDAQAB
+-----END PUBLIC KEY-----}
+
+license:
+  online:
+    enabled: ${LICENSE_ONLINE_ENABLED:false}
+    server-url: ${LICENSE_SERVER_URL:http://localhost:9085}
+    timeout: ${LICENSE_ONLINE_TIMEOUT:5000}
+    deployment-id: ${LICENSE_DEPLOYMENT_ID:}
+    hostname: ${HOSTNAME:}
+    application-version: ${project.version:unknown}
 
   # LangChain4j Guardrails configuration
   guardrails:

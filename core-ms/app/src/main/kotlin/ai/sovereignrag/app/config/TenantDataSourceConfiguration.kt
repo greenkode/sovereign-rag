@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import jakarta.persistence.EntityManagerFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
+import ai.sovereignrag.commons.datasource.ReadWriteRoutingDataSource
 import ai.sovereignrag.tenant.config.TenantDataSourceRouter
 import ai.sovereignrag.tenant.service.TenantRegistry
 import org.springframework.beans.factory.annotation.Qualifier
@@ -65,46 +66,72 @@ class TenantDataSourceConfiguration {
             }
 
             override fun createTenantDataSource(tenantId: String): DataSource {
-                // IMPORTANT: Clear tenant context before looking up tenant metadata
-                // This prevents recursive datasource creation and forces queries to use master DB
                 val originalAuth = SecurityContextHolder.getContext().authentication
                 try {
                     SecurityContextHolder.clearContext()
 
                     val tenant = tenantRegistry.getTenant(tenantId)
-                    logger.info { "Creating datasource for tenant: $tenantId (database: ${tenant.databaseName})" }
+                    logger.info { "Creating routing datasource for tenant: $tenantId (database: ${tenant.databaseName})" }
 
-                    val config = HikariConfig().apply {
+                    val primaryConfig = HikariConfig().apply {
                         jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/${tenant.databaseName}"
                         username = dbUsername
                         password = dbPassword
 
-                        // Connection pool settings (per tenant)
                         maximumPoolSize = 10
                         minimumIdle = 2
                         connectionTimeout = 30000
-                        idleTimeout = 600000 // 10 minutes
-                        maxLifetime = 1800000 // 30 minutes
+                        idleTimeout = 600000
+                        maxLifetime = 1800000
 
-                        // Pool name for monitoring
-                        poolName = "tenant-${tenant.id}"
+                        poolName = "tenant-${tenant.id}-primary"
 
-                        // Performance settings
                         addDataSourceProperty("cachePrepStmts", "true")
                         addDataSourceProperty("prepStmtCacheSize", "250")
                         addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+                        addDataSourceProperty("stringtype", "unspecified")
 
-                        // Validation
                         connectionTestQuery = "SELECT 1"
                         validationTimeout = 5000
-
-                        // Register PostgreSQL types
-                        addDataSourceProperty("stringtype", "unspecified")
                     }
 
-                    return HikariDataSource(config)
+                    val replicaConfig = HikariConfig().apply {
+                        jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/${tenant.databaseName}"
+                        username = dbUsername
+                        password = dbPassword
+
+                        maximumPoolSize = 8
+                        minimumIdle = 1
+                        connectionTimeout = 30000
+                        idleTimeout = 600000
+                        maxLifetime = 1800000
+
+                        poolName = "tenant-${tenant.id}-replica"
+
+                        addDataSourceProperty("cachePrepStmts", "true")
+                        addDataSourceProperty("prepStmtCacheSize", "250")
+                        addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+                        addDataSourceProperty("stringtype", "unspecified")
+
+                        connectionTestQuery = "SELECT 1"
+                        validationTimeout = 5000
+                    }
+
+                    val primaryDataSource = HikariDataSource(primaryConfig)
+                    val replicaDataSource = HikariDataSource(replicaConfig)
+
+                    val routingDataSource = ReadWriteRoutingDataSource()
+                    val targetDataSources = mapOf<Any, Any>(
+                        ReadWriteRoutingDataSource.WRITE_DATASOURCE to primaryDataSource,
+                        ReadWriteRoutingDataSource.READ_DATASOURCE to replicaDataSource
+                    )
+                    routingDataSource.setTargetDataSources(targetDataSources)
+                    routingDataSource.setDefaultTargetDataSource(primaryDataSource)
+                    routingDataSource.afterPropertiesSet()
+
+                    logger.info { "Tenant $tenantId routing configured: writes -> tenant-${tenant.id}-primary, reads -> tenant-${tenant.id}-replica" }
+                    return routingDataSource
                 } finally {
-                    // Restore original authentication
                     if (originalAuth != null) {
                         SecurityContextHolder.getContext().authentication = originalAuth
                     }
@@ -112,19 +139,27 @@ class TenantDataSourceConfiguration {
             }
 
             override fun closeDataSource(dataSource: DataSource) {
-                if (dataSource is HikariDataSource) {
-                    logger.info { "Closing HikariDataSource: ${dataSource.poolName}" }
-                    dataSource.close()
+                when (dataSource) {
+                    is ReadWriteRoutingDataSource -> {
+                        val resolvedDataSources = dataSource.resolvedDataSources
+                        resolvedDataSources?.values?.forEach { ds ->
+                            if (ds is HikariDataSource) {
+                                logger.info { "Closing HikariDataSource: ${ds.poolName}" }
+                                ds.close()
+                            }
+                        }
+                    }
+                    is HikariDataSource -> {
+                        logger.info { "Closing HikariDataSource: ${dataSource.poolName}" }
+                        dataSource.close()
+                    }
                 }
             }
         }
     }
 
-    /**
-     * Master database datasource
-     */
     @Bean
-    fun masterDataSource(
+    fun masterPrimaryDataSource(
         @Value("\${spring.datasource.url}") url: String,
         @Value("\${spring.datasource.username}") username: String,
         @Value("\${spring.datasource.password}") password: String,
@@ -139,28 +174,74 @@ class TenantDataSourceConfiguration {
             this.username = username
             this.password = password
 
-            // Master pool settings from application.yml
             maximumPoolSize = maxPoolSize
             minimumIdle = minIdle
             this.connectionTimeout = connectionTimeout
             this.idleTimeout = idleTimeout
             this.maxLifetime = maxLifetime
 
-            poolName = "master-pool"
-
-            // Set search path to master schema
+            poolName = "master-primary-pool"
             connectionInitSql = "SET search_path TO master, public"
 
-            // Performance settings
             addDataSourceProperty("cachePrepStmts", "true")
             addDataSourceProperty("prepStmtCacheSize", "250")
             addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-
-            // PostgreSQL types
             addDataSourceProperty("stringtype", "unspecified")
         }
 
         return HikariDataSource(config)
+    }
+
+    @Bean
+    fun masterReadReplicaDataSource(
+        @Value("\${spring.datasource.read-replica.url:\${spring.datasource.url}}") url: String,
+        @Value("\${spring.datasource.username}") username: String,
+        @Value("\${spring.datasource.password}") password: String,
+        @Value("\${spring.datasource.read-replica.hikari.maximum-pool-size:15}") maxPoolSize: Int,
+        @Value("\${spring.datasource.read-replica.hikari.minimum-idle:3}") minIdle: Int,
+        @Value("\${spring.datasource.hikari.connection-timeout:30000}") connectionTimeout: Long,
+        @Value("\${spring.datasource.hikari.idle-timeout:600000}") idleTimeout: Long,
+        @Value("\${spring.datasource.hikari.max-lifetime:1800000}") maxLifetime: Long
+    ): DataSource {
+        val config = HikariConfig().apply {
+            jdbcUrl = url
+            this.username = username
+            this.password = password
+
+            maximumPoolSize = maxPoolSize
+            minimumIdle = minIdle
+            this.connectionTimeout = connectionTimeout
+            this.idleTimeout = idleTimeout
+            this.maxLifetime = maxLifetime
+
+            poolName = "master-replica-pool"
+            connectionInitSql = "SET search_path TO master, public"
+
+            addDataSourceProperty("cachePrepStmts", "true")
+            addDataSourceProperty("prepStmtCacheSize", "250")
+            addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+            addDataSourceProperty("stringtype", "unspecified")
+        }
+
+        return HikariDataSource(config)
+    }
+
+    @Bean
+    fun masterDataSource(
+        @Qualifier("masterPrimaryDataSource") masterPrimaryDataSource: DataSource,
+        @Qualifier("masterReadReplicaDataSource") masterReadReplicaDataSource: DataSource
+    ): DataSource {
+        val routingDataSource = ReadWriteRoutingDataSource()
+        val targetDataSources = mapOf<Any, Any>(
+            ReadWriteRoutingDataSource.WRITE_DATASOURCE to masterPrimaryDataSource,
+            ReadWriteRoutingDataSource.READ_DATASOURCE to masterReadReplicaDataSource
+        )
+        routingDataSource.setTargetDataSources(targetDataSources)
+        routingDataSource.setDefaultTargetDataSource(masterPrimaryDataSource)
+        routingDataSource.afterPropertiesSet()
+
+        logger.info { "Master database routing configured: writes -> master-primary-pool, reads -> master-replica-pool" }
+        return routingDataSource
     }
 
     /**

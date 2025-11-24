@@ -1,0 +1,50 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'sovereignrag'
+    environment: 'production'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'core-ms'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['core-ms:8000']
+        labels:
+          service: 'core-ms'
+
+  - job_name: 'identity-ms'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['identity-ms:9093']
+        labels:
+          service: 'identity-ms'
+
+  - job_name: 'audit-ms'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['audit-ms:9080']
+        labels:
+          service: 'audit-ms'
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+        labels:
+          service: 'postgres'
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+        labels:
+          service: 'redis'
+
+  - job_name: 'ollama'
+    static_configs:
+      - targets: ['ollama:11434']
+        labels:
+          service: 'ollama'

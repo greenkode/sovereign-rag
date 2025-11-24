@@ -1,0 +1,7 @@
+server:
+  port: 80
+
+DB_HOST: ${DB_HOST}
+DB_NAME: ${DB_NAME}
+DATABASE_USERNAME: "sovereignrag"
+DATABASE_PASSWORD: "RespectTheHangover"

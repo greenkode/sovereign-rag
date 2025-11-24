@@ -31,6 +31,12 @@ spring:
       idleTimeout: 300000
       maxLifetime: 1200000
       leakDetectionThreshold: 60000
+
+    read-replica:
+      url: ${IDENTITY_READ_REPLICA_URL:jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME}?ApplicationName=${spring.application.name}&currentSchema=identity}
+      hikari:
+        maximum-pool-size: 15
+        minimum-idle: 3
   jpa:
     hibernate:
       ddl-auto: validate

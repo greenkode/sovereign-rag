@@ -1,0 +1,369 @@
+version: '3.8'
+
+# Production-ready deployment with monitoring, backups, and high availability
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sovereignrag-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sovereignrag}
+      POSTGRES_USER: ${POSTGRES_USER:-sovereignrag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+      - ./backups:/backups
+    networks:
+      - sovereignrag
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.track=all
+      -c max_connections=200
+      -c shared_buffers=2GB
+      -c effective_cache_size=6GB
+      -c maintenance_work_mem=512MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=10485kB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+      -c max_worker_processes=4
+      -c max_parallel_workers_per_gather=2
+      -c max_parallel_workers=4
+      -c max_parallel_maintenance_workers=2
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sovereignrag}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgres-replica:
+    image: postgres:16-alpine
+    container_name: sovereignrag-postgres-replica
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sovereignrag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sovereignrag
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: sovereignrag-redis
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-sovereignrag}
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD", "redis-cli", "--pass", "${REDIS_PASSWORD:-sovereignrag}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sovereignrag-ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - sovereignrag
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_NUM_PARALLEL=4
+      - OLLAMA_MAX_LOADED_MODELS=2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  identity-ms:
+    image: sovereignrag/identity-ms:${VERSION:-latest}
+    container_name: sovereignrag-identity-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      DB_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-sovereignrag}
+      identity_db_user: ${POSTGRES_USER:-sovereignrag}
+      identity_db_password: ${POSTGRES_PASSWORD}
+      IDENTITY_READ_REPLICA_URL: jdbc:postgresql://postgres-replica:5432/${POSTGRES_DB:-sovereignrag}?ApplicationName=identity-ms&currentSchema=identity
+      SERVER_PORT: 9093
+      JWT_ISSUER: ${IDENTITY_BASEURL:-http://localhost:9093}
+      IDENTITY_BASEURL: ${IDENTITY_BASEURL:-http://localhost:9093}
+      ALLOWED_CORS_ORIGINS: ${ALLOWED_CORS_ORIGINS:-*}
+      HAZELCAST_MEMBERS: ${HAZELCAST_MEMBERS:-127.0.0.1:5702}
+      JAVA_OPTS: "-Xms2g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      SOVEREIGNRAG_LICENSE_KEY: ${SOVEREIGNRAG_LICENSE_KEY}
+    ports:
+      - "${IDENTITY_PORT:-9093}:9093"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9093/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  audit-ms:
+    image: sovereignrag/audit-ms:${VERSION:-latest}
+    container_name: sovereignrag-audit-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      DB_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-sovereignrag}
+      sovereignrag_db_user: ${POSTGRES_USER:-sovereignrag}
+      sovereignrag_db_password: ${POSTGRES_PASSWORD}
+      READ_REPLICA_DB_HOST: postgres-replica
+      SERVER_PORT: 9080
+      JWT_ISSUER_URI: http://identity-ms:9093
+      JWT_JWK_SET_URI: http://identity-ms:9093/.well-known/jwks.json
+      JAVA_OPTS: "-Xms1g -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      SOVEREIGNRAG_LICENSE_KEY: ${SOVEREIGNRAG_LICENSE_KEY}
+    ports:
+      - "${AUDIT_PORT:-9080}:9080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      identity-ms:
+        condition: service_healthy
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  core-ms:
+    image: sovereignrag/core-ms:${VERSION:-latest}
+    container_name: sovereignrag-core-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-sovereignrag}?currentSchema=core
+      POSTGRES_READ_REPLICA_URL: jdbc:postgresql://postgres-replica:5432/${POSTGRES_DB:-sovereignrag}?currentSchema=core
+      POSTGRES_USER: ${POSTGRES_USER:-sovereignrag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      SERVER_PORT: 8000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-sovereignrag}
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gpt-oss:20b-cloud}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-jeffh/intfloat-multilingual-e5-large:q8_0}
+      JWT_ISSUER_URI: http://identity-ms:9093
+      JWT_JWK_SET_URI: http://identity-ms:9093/.well-known/jwks.json
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-*}
+      JAVA_OPTS: "-Xms4g -Xmx8g -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      SOVEREIGNRAG_LICENSE_KEY: ${SOVEREIGNRAG_LICENSE_KEY}
+    ports:
+      - "${CORE_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      identity-ms:
+        condition: service_healthy
+      audit-ms:
+        condition: service_healthy
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sovereignrag-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - sovereignrag
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sovereignrag-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+    networks:
+      - sovereignrag
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  postgres_replica_data:
+  redis_data:
+  ollama_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  sovereignrag:
+    driver: bridge

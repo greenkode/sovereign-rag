@@ -1,0 +1,117 @@
+{{- if .Values.corems.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sovereignrag.fullname" . }}-core-ms
+  labels:
+    {{- include "sovereignrag.labels" . | nindent 4 }}
+    app.kubernetes.io/component: core-ms
+spec:
+  {{- if not .Values.corems.autoscaling.enabled }}
+  replicas: {{ .Values.corems.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sovereignrag.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: core-ms
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "sovereignrag.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: core-ms
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "sovereignrag.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: core-ms
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.registry }}/{{ .Values.corems.image.repository }}:{{ .Values.corems.image.tag | default .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.corems.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.corems.service.port }}
+          protocol: TCP
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: {{ .Values.corems.env.SPRING_PROFILES_ACTIVE | quote }}
+        - name: POSTGRES_URL
+          value: "jdbc:postgresql://{{ include "sovereignrag.fullname" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}?currentSchema=core"
+        - name: POSTGRES_READ_REPLICA_URL
+          value: "jdbc:postgresql://{{ include "sovereignrag.fullname" . }}-postgresql-read:5432/{{ .Values.postgresql.auth.database }}?currentSchema=core"
+        - name: POSTGRES_USER
+          value: {{ .Values.postgresql.auth.username | quote }}
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sovereignrag.fullname" . }}-postgresql
+              key: password
+        - name: POSTGRES_HOST
+          value: {{ include "sovereignrag.fullname" . }}-postgresql
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: REDIS_HOST
+          value: {{ include "sovereignrag.fullname" . }}-redis-master
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sovereignrag.fullname" . }}-redis
+              key: redis-password
+        - name: OLLAMA_BASE_URL
+          value: "http://{{ include "sovereignrag.fullname" . }}-ollama:{{ .Values.ollama.service.port }}"
+        - name: JWT_ISSUER_URI
+          value: "http://{{ include "sovereignrag.fullname" . }}-identity-ms:{{ .Values.identityms.service.port }}"
+        - name: JWT_JWK_SET_URI
+          value: "http://{{ include "sovereignrag.fullname" . }}-identity-ms:{{ .Values.identityms.service.port }}/.well-known/jwks.json"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sovereignrag.fullname" . }}-secrets
+              key: jwt-secret
+        - name: SOVEREIGNRAG_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sovereignrag.fullname" . }}-secrets
+              key: license-key
+        - name: JAVA_OPTS
+          value: "-Xms4g -Xmx8g -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: http
+          initialDelaySeconds: 90
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: http
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.corems.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,231 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sovereignrag-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sovereignrag}
+      POSTGRES_USER: ${POSTGRES_USER:-sovereignrag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_DB:-sovereignrag}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sovereignrag}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres-replica:
+    image: postgres:16-alpine
+    container_name: sovereignrag-postgres-replica
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sovereignrag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command: |
+      bash -c "
+      until pg_basebackup -h postgres -D /var/lib/postgresql/data/pgdata -U ${POSTGRES_USER:-sovereignrag} -v -P --wal-method=stream; do
+        echo 'Waiting for primary to be available...'
+        sleep 5
+      done
+      echo 'standby_mode = on' > /var/lib/postgresql/data/pgdata/recovery.conf
+      echo \"primary_conninfo = 'host=postgres port=5432 user=${POSTGRES_USER:-sovereignrag} password=${POSTGRES_PASSWORD}'\" >> /var/lib/postgresql/data/pgdata/recovery.conf
+      postgres -D /var/lib/postgresql/data/pgdata
+      "
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sovereignrag
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: sovereignrag-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-sovereignrag}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sovereignrag-ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - sovereignrag
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  identity-ms:
+    image: sovereignrag/identity-ms:${VERSION:-latest}
+    container_name: sovereignrag-identity-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-production}
+      DB_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-sovereignrag}
+      identity_db_user: ${POSTGRES_USER:-sovereignrag}
+      identity_db_password: ${POSTGRES_PASSWORD}
+      IDENTITY_READ_REPLICA_URL: jdbc:postgresql://postgres-replica:5432/${POSTGRES_DB:-sovereignrag}?ApplicationName=identity-ms&currentSchema=identity
+      SERVER_PORT: 9093
+      JWT_ISSUER: ${IDENTITY_BASEURL:-http://localhost:9093}
+      IDENTITY_BASEURL: ${IDENTITY_BASEURL:-http://localhost:9093}
+      ALLOWED_CORS_ORIGINS: ${ALLOWED_CORS_ORIGINS:-*}
+      HAZELCAST_MEMBERS: ${HAZELCAST_MEMBERS:-127.0.0.1:5702}
+      SOVEREIGNRAG_LICENSE_KEY: ${SOVEREIGNRAG_LICENSE_KEY}
+    ports:
+      - "${IDENTITY_PORT:-9093}:9093"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9093/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  audit-ms:
+    image: sovereignrag/audit-ms:${VERSION:-latest}
+    container_name: sovereignrag-audit-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-production}
+      DB_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-sovereignrag}
+      sovereignrag_db_user: ${POSTGRES_USER:-sovereignrag}
+      sovereignrag_db_password: ${POSTGRES_PASSWORD}
+      READ_REPLICA_DB_HOST: postgres-replica
+      READ_REPLICA_DATABASE_PORT: 5432
+      READ_REPLICA_DATABASE_NAME: ${POSTGRES_DB:-sovereignrag}
+      SERVER_PORT: 9080
+      JWT_ISSUER_URI: ${IDENTITY_BASEURL:-http://identity-ms:9093}
+      JWT_JWK_SET_URI: ${IDENTITY_BASEURL:-http://identity-ms:9093}/.well-known/jwks.json
+      SOVEREIGNRAG_LICENSE_KEY: ${SOVEREIGNRAG_LICENSE_KEY}
+    ports:
+      - "${AUDIT_PORT:-9080}:9080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      identity-ms:
+        condition: service_healthy
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  core-ms:
+    image: sovereignrag/core-ms:${VERSION:-latest}
+    container_name: sovereignrag-core-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-production}
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-sovereignrag}?currentSchema=core
+      POSTGRES_READ_REPLICA_URL: jdbc:postgresql://postgres-replica:5432/${POSTGRES_DB:-sovereignrag}?currentSchema=core
+      POSTGRES_USER: ${POSTGRES_USER:-sovereignrag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      SERVER_PORT: 8000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-sovereignrag}
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gpt-oss:20b-cloud}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-jeffh/intfloat-multilingual-e5-large:q8_0}
+      OLLAMA_GUARDRAIL_MODEL: ${OLLAMA_GUARDRAIL_MODEL:-gpt-oss:20b-cloud}
+      JWT_ISSUER_URI: ${IDENTITY_BASEURL:-http://identity-ms:9093}
+      JWT_JWK_SET_URI: ${IDENTITY_BASEURL:-http://identity-ms:9093}/.well-known/jwks.json
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-*}
+      ADMIN_ENABLED: ${ADMIN_ENABLED:-true}
+      DEV_TENANT_ENABLED: ${DEV_TENANT_ENABLED:-false}
+      SOVEREIGNRAG_LICENSE_KEY: ${SOVEREIGNRAG_LICENSE_KEY}
+    ports:
+      - "${CORE_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      identity-ms:
+        condition: service_healthy
+      audit-ms:
+        condition: service_healthy
+    networks:
+      - sovereignrag
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+volumes:
+  postgres_data:
+    driver: local
+  postgres_replica_data:
+    driver: local
+  redis_data:
+    driver: local
+  ollama_data:
+    driver: local
+
+networks:
+  sovereignrag:
+    driver: bridge
