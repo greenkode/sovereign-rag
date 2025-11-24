@@ -2,7 +2,6 @@ package ai.sovereignrag.commons.accounting
 
 import ai.sovereignrag.commons.accounting.dto.CreateTransactionPayload
 import ai.sovereignrag.commons.accounting.dto.CreateTransactionResult
-import ai.sovereignrag.commons.accounting.dto.RecentTransactionDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import java.util.UUID
@@ -30,10 +29,6 @@ interface TransactionGateway {
     fun completePendingTransaction(externalReference: String)
 
     fun completePendingTransaction(internalReference: UUID)
-    
-    fun searchTransactions(searchTerm: String, pageable: Pageable): Page<RecentTransactionDto>
-
-    fun searchTransactions(searchTerm: String, accountId: UUID?, pageable: Pageable): Page<RecentTransactionDto>
 
     fun findAllByExternalReferences(references: Set<String>) : List<TransactionDto>
 

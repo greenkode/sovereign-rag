@@ -294,67 +294,6 @@ CREATE TABLE IF NOT EXISTS materialized_view_refresh_log (
 
 CREATE INDEX IF NOT EXISTS idx_mv_refresh_log_view_date ON materialized_view_refresh_log (view_name, refresh_started_at DESC);
 
-CREATE TABLE IF NOT EXISTS billpay_vendor
-(
-    id                 SERIAL       NOT NULL PRIMARY KEY,
-    name               VARCHAR(255) NOT NULL,
-    public_id          UUID         NOT NULL DEFAULT gen_random_uuid(),
-    currency           VARCHAR(10)  NOT NULL,
-    minimum_amount     NUMERIC,
-    maximum_amount     NUMERIC,
-    status             VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
-    version            BIGINT       NOT NULL DEFAULT 0,
-    CONSTRAINT ix_vendor_name_unique UNIQUE (name),
-    CONSTRAINT chk_billpay_vendor_status CHECK (status IN ('ACTIVE', 'INACTIVE', 'SUSPENDED'))
-);
-
-CREATE INDEX IF NOT EXISTS idx_billpay_vendor_status ON billpay_vendor(status);
-
-CREATE TABLE IF NOT EXISTS billpay_vendor_property
-(
-    vendor_id INTEGER      NOT NULL,
-    name      VARCHAR(255) NOT NULL,
-    value     VARCHAR(255) NOT NULL,
-    PRIMARY KEY (vendor_id, name),
-    FOREIGN KEY (vendor_id) REFERENCES billpay_vendor (id)
-);
-
-CREATE TABLE IF NOT EXISTS billpay_product
-(
-    id                  BIGSERIAL    NOT NULL PRIMARY KEY,
-    name                VARCHAR(255) NOT NULL,
-    account_description VARCHAR(255) NOT NULL,
-    integrator_id       VARCHAR(255) NOT NULL,
-    vendor_id           INTEGER      NOT NULL,
-    public_id           UUID         NOT NULL DEFAULT gen_random_uuid(),
-    type                VARCHAR(255) NOT NULL,
-    status              VARCHAR(50)  NOT NULL,
-    fixed_price         BOOLEAN      NOT NULL DEFAULT FALSE,
-    amount              NUMERIC      NULL,
-    currency            VARCHAR(10)  NULL,
-    can_lend            BOOLEAN      NOT NULL DEFAULT FALSE,
-    created_date        TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date  TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by          VARCHAR(255) NOT NULL,
-    last_modified_by    VARCHAR(255) NOT NULL,
-    version             BIGINT       NOT NULL DEFAULT 0
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS unique_active_name_vendor ON billpay_product(name, vendor_id) WHERE status = 'ACTIVE';
-
-CREATE TABLE IF NOT EXISTS billpay_product_property
-(
-    product_id BIGINT       NOT NULL,
-    name       VARCHAR(255) NOT NULL,
-    value      VARCHAR(255) NOT NULL,
-    PRIMARY KEY (product_id, name),
-    FOREIGN KEY (product_id) REFERENCES billpay_product (id)
-);
-
 CREATE TABLE IF NOT EXISTS pricing
 (
     id                 BIGSERIAL PRIMARY KEY,

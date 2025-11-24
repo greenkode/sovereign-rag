@@ -59,7 +59,7 @@ class InitiatePendingTransactionAction(
                 senderAccount,
                 recipientAccount,
                 senderAccount.currency,
-                "BillPay: Vending $transactionType - $amount",
+                "$transactionType - $amount",
                 "${senderAccount.name}: ${recipientAccount.name}",
             ),
         )

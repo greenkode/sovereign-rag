@@ -99,7 +99,7 @@ class CreateMerchantCommandHandler(
                     productionClientSecret = passwordEncoder.encode(productionSecret)
                     clientAuthenticationMethods = "client_secret_basic,client_secret_post"
                     authorizationGrantTypes = "client_credentials,refresh_token"
-                    scopes = "openid,profile,email,read,write,billpay,merchant"
+                    scopes = "openid,profile,email,read,write,merchant"
                     clientSettings = objectMapper.writeValueAsString(
                         mapOf(
                             "requireAuthorizationConsent" to "false",

@@ -101,7 +101,6 @@ enum class ProcessRequestDataName(description: String) {
     LENDING_OFFERS_METADATA("Lending Offers Metadata"),
     LENDING_OFFER_ID("Lending Offer Id"),
     CUSTOMER_ACCOUNT_NUMBER("Customer Account Number"),
-    BILLPAYMENT_PRODUCT_TYPE("BillPayment Type"),
     CLASS_NAME("Class Name"),
     ADDITIONAL_INFORMATION("Additional Information"),
     LOAN_REFERENCE("Loan Reference"),
