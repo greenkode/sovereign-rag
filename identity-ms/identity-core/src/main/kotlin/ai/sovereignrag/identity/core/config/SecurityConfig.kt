@@ -131,8 +131,7 @@ class SecurityConfig(
         userDetailsService: UserDetailsService,
         passwordEncoder: PasswordEncoder
     ): DaoAuthenticationProvider {
-        val authProvider = DaoAuthenticationProvider()
-        authProvider.setUserDetailsService(userDetailsService)
+        val authProvider = DaoAuthenticationProvider(userDetailsService)
         authProvider.setPasswordEncoder(passwordEncoder)
         return authProvider
     }
