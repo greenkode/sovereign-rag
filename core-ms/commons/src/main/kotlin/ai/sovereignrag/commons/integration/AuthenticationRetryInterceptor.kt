@@ -168,7 +168,7 @@ abstract class AuthenticationRetryInterceptor(
         private val bufferedBody: ByteArray = response.body.use { it.readAllBytes() }
         private val headers = response.headers
         private val status = response.statusCode
-        private val statusText = response.statusText ?: ""
+        private val statusText = response.statusText
         
         override fun getBody(): InputStream = ByteArrayInputStream(bufferedBody)
         override fun getHeaders() = headers

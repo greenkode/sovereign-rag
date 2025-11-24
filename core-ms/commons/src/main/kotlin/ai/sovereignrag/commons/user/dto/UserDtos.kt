@@ -1,6 +1,6 @@
 package ai.sovereignrag.commons.user.dto
 
-import ai.sovereignrag.commons.accounting.TrustLevel
+import ai.sovereignrag.commons.kyc.TrustLevel
 import ai.sovereignrag.commons.exception.InvalidRequestException
 import com.neovisionaries.i18n.CountryCode
 import org.apache.commons.validator.routines.EmailValidator

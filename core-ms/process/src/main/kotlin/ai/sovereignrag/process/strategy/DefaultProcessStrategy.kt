@@ -35,9 +35,7 @@ class DefaultProcessStrategy : ProcessStrategy {
                 ProcessState.EXPIRED
             }
 
-            ProcessState.PENDING to ProcessEvent.PENDING_TRANSACTION_STATUS_VERIFIED,
-            ProcessState.PENDING to ProcessEvent.CHAT_MESSAGE_RECEIVED,
-                 ProcessState.PENDING to ProcessEvent.SUPPORT_TICKET_CREATED -> {
+            ProcessState.PENDING to ProcessEvent.PENDING_TRANSACTION_STATUS_VERIFIED -> {
                 log.info { "Default operation verified for process: ${process.publicId}" }
                 ProcessState.PENDING
             }
@@ -59,8 +57,6 @@ class DefaultProcessStrategy : ProcessStrategy {
             Triple(ProcessState.PENDING, ProcessEvent.PROCESS_COMPLETED, ProcessState.COMPLETE) -> true
             Triple(ProcessState.PENDING, ProcessEvent.PROCESS_FAILED, ProcessState.FAILED) -> true
             Triple(ProcessState.PENDING, ProcessEvent.PROCESS_EXPIRED, ProcessState.EXPIRED) -> true
-            Triple(ProcessState.PENDING, ProcessEvent.CHAT_MESSAGE_RECEIVED, ProcessState.PENDING) -> true
-            Triple(ProcessState.PENDING, ProcessEvent.SUPPORT_TICKET_CREATED, ProcessState.PENDING) -> true
             else -> false
         }
     }
@@ -73,8 +69,6 @@ class DefaultProcessStrategy : ProcessStrategy {
             ProcessState.PENDING to ProcessEvent.PROCESS_COMPLETED -> ProcessState.COMPLETE
             ProcessState.PENDING to ProcessEvent.PROCESS_FAILED -> ProcessState.FAILED
             ProcessState.PENDING to ProcessEvent.PROCESS_EXPIRED -> ProcessState.EXPIRED
-            ProcessState.PENDING to ProcessEvent.CHAT_MESSAGE_RECEIVED -> ProcessState.PENDING
-            ProcessState.PENDING to ProcessEvent.SUPPORT_TICKET_CREATED -> ProcessState.PENDING
             else -> currentState // No state change expected
         }
     }

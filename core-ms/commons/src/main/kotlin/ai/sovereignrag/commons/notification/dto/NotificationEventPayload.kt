@@ -1,6 +1,5 @@
 package ai.sovereignrag.commons.notification.dto
 
-import ai.sovereignrag.commons.accounting.AccountType
 import ai.sovereignrag.commons.exception.PropertyNotFoundException
 import ai.sovereignrag.commons.notification.enumeration.NotificationChannel
 import ai.sovereignrag.commons.notification.enumeration.NotificationParameter
@@ -21,8 +20,7 @@ data class NotificationEventPayload(
     val parameters: Map<NotificationParameter, String>,
     val locale: Locale,
     val userId: String? = null,
-    val processId: UUID? = null,
-    val accountType: AccountType? = null
+    val processId: UUID? = null
 ) : Serializable {
 
     fun requiredParameterValue(parameter: NotificationParameter): String {

@@ -1,29 +1,15 @@
 package ai.sovereignrag.commons.accounting.dto
 
-import ai.sovereignrag.commons.accounting.AccountType
-import ai.sovereignrag.commons.accounting.TransactionType
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import java.time.Instant
 import java.util.UUID
-import javax.money.CurrencyUnit
-import javax.money.MonetaryAmount
 
-data class TransactionLimitDto(
+data class SubscriptionLimitDto(
     val id: Int,
-    val profileId: UUID,
-    val transactionType: TransactionType,
-    val accountType: AccountType,
-    val currency: CurrencyUnit,
-    val maxDailyDebit: MonetaryAmount,
-    val maxDailyCredit: MonetaryAmount,
-    val cumulativeCredit: MonetaryAmount,
-    val cumulativeDebit: MonetaryAmount,
-    val minTransactionDebit: MonetaryAmount,
-    val minTransactionCredit: MonetaryAmount,
-    val maxTransactionDebit: MonetaryAmount,
-    val maxTransactionCredit: MonetaryAmount,
-    val maxAccountBalance: MonetaryAmount,
-
+    val tenantId: UUID,
+    val subscriptionTier: SubscriptionTier,
+    val dailyTokenLimit: Long,
+    val monthlyTokenLimit: Long,
     val start: Instant,
-
     val expiry: Instant?
 )

@@ -1,14 +1,9 @@
 package ai.sovereignrag.commons.accounting
 
-import ai.sovereignrag.commons.accounting.dto.TransactionLimitDto
+import ai.sovereignrag.commons.accounting.dto.SubscriptionLimitDto
 import java.util.UUID
-import javax.money.CurrencyUnit
 
-interface TransactionLimitGateway {
+interface SubscriptionLimitGateway {
 
-    fun findByProfileAndTransactionType(
-        profileId: UUID,
-        transactionType: TransactionType,
-        currency: CurrencyUnit
-    ): TransactionLimitDto?
+    fun findByTenant(tenantId: UUID): SubscriptionLimitDto?
 }

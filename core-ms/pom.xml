@@ -42,8 +42,7 @@
     </dependencyManagement>
 
     <modules>
-        <module>accounting</module>
-        <module>accounting-adapter-minigl</module>
+        <module>limits</module>
         <module>agent-core</module>
         <module>app</module>
         <module>auth</module>
@@ -52,7 +51,6 @@
         <module>guardrail</module>
         <module>notification</module>
         <module>notification-adapter-email</module>
-        <module>pricing</module>
         <module>process</module>
         <module>scheduler</module>
         <module>tenant</module>

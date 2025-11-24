@@ -1,6 +1,6 @@
 package ai.sovereignrag.commons.user.dto
 
-import ai.sovereignrag.commons.accounting.TrustLevel
+import ai.sovereignrag.commons.kyc.TrustLevel
 import java.time.LocalDate
 import java.util.Locale
 import java.util.UUID
