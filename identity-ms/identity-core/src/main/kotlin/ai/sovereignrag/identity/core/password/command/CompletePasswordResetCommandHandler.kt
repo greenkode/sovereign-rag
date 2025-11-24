@@ -14,7 +14,7 @@ import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataNa
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import an.awesome.pipelinr.Command
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component

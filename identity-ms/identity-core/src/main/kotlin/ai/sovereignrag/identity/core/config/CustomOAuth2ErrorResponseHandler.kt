@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.config
 
 import ai.sovereignrag.identity.core.service.ClientLockedException
 import com.fasterxml.jackson.databind.ObjectMapper
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus

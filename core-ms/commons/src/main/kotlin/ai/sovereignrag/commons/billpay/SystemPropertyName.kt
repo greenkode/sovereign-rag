@@ -1,0 +1,8 @@
+package ai.sovereignrag.commons.billpay
+
+enum class SystemPropertyName {
+    TRANSACTION_AUTO_RETRY_PERIOD,
+    DEFAULT_MERCHANT_DEPOSIT_INTEGRATION,
+    TRANSACTION_STATISTICS_EMAIL_INTERVAL_HOURS,
+    ZOHO_WEBHOOK_CALLBACK_URL,
+}

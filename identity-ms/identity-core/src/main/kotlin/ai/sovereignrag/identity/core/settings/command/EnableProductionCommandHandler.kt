@@ -4,7 +4,7 @@ import ai.sovereignrag.identity.commons.exception.NotFoundException
 import ai.sovereignrag.identity.core.service.MerchantService
 import ai.sovereignrag.identity.core.service.UserService
 import an.awesome.pipelinr.Command
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

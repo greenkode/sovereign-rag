@@ -6,7 +6,7 @@ import ai.sovereignrag.identity.core.service.CacheEvictionService
 import ai.sovereignrag.identity.core.service.UserService
 import an.awesome.pipelinr.Command
 import com.fasterxml.jackson.databind.ObjectMapper
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

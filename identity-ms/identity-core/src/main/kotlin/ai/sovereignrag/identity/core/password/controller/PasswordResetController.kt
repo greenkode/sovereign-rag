@@ -11,7 +11,7 @@ import ai.sovereignrag.identity.core.password.command.InitiatePasswordResetResul
 import ai.sovereignrag.identity.core.password.command.ValidatePasswordResetCommand
 import an.awesome.pipelinr.Pipeline
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema

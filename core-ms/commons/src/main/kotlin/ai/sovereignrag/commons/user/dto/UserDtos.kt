@@ -30,7 +30,6 @@ data class UserDetailsDto(
     val email: Email? = null,
     val phoneNumber: PhoneNumber? = null,
     val taxIdentificationNumber: String?,
-    val registeredOnBml: Boolean = false,
     val externalIds: MutableSet<UserExternalId> = mutableSetOf(),
     val userProperties: MutableSet<UserProperty> = mutableSetOf()
 ) : java.io.Serializable

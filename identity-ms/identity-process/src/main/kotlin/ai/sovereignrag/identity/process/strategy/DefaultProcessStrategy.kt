@@ -4,7 +4,7 @@ import ai.sovereignrag.identity.commons.process.ProcessDto
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStrategyBeanNames
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
 @Component(ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY)

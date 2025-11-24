@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.service
 
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException

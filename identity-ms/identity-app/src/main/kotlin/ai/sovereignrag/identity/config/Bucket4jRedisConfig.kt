@@ -3,7 +3,7 @@ package ai.sovereignrag.identity.config
 import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver
 import com.giffing.bucket4j.spring.boot.starter.config.cache.hazelcast.HazelcastCacheResolver
 import com.hazelcast.core.HazelcastInstance
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

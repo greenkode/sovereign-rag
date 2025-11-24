@@ -9,7 +9,7 @@ import ai.sovereignrag.identity.core.refreshtoken.service.RefreshTokenService
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.CustomUserDetails
 import an.awesome.pipelinr.Command
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.stereotype.Component

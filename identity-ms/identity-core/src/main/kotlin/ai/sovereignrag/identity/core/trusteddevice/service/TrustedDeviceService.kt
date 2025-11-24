@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.trusteddevice.service
 
 import ai.sovereignrag.identity.core.trusteddevice.domain.TrustedDevice
 import ai.sovereignrag.identity.core.trusteddevice.domain.TrustedDeviceRepository
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.UUID

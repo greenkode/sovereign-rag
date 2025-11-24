@@ -5,7 +5,7 @@ import ai.sovereignrag.identity.commons.process.ProcessGateway
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
 import an.awesome.pipelinr.Command
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.util.UUID
 

@@ -7,7 +7,7 @@ import ai.sovereignrag.identity.core.auth.command.VerifyTwoFactorCommand
 import ai.sovereignrag.identity.core.service.ClientIpExtractionService
 import an.awesome.pipelinr.Pipeline
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimiting
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema

@@ -17,7 +17,7 @@ import ai.sovereignrag.identity.process.domain.ProcessRepository
 import ai.sovereignrag.identity.process.domain.ProcessRequestEntity
 import ai.sovereignrag.identity.process.domain.model.ProcessCreatedEvent
 import ai.sovereignrag.identity.process.orchestrator.ProcessOrchestrator
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

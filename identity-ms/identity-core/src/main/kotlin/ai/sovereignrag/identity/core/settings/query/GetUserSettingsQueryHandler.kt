@@ -3,7 +3,7 @@ package ai.sovereignrag.identity.core.settings.query
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.service.UserService
 import an.awesome.pipelinr.Command
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}

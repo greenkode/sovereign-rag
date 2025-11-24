@@ -51,12 +51,6 @@
             <artifactId>spring-security-core</artifactId>
         </dependency>
 
-        <!-- Spring Cache -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-        </dependency>
-
         <!-- Jakarta Servlet API -->
         <dependency>
             <groupId>jakarta.servlet</groupId>

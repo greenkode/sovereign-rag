@@ -5,7 +5,7 @@ import ai.sovereignrag.identity.core.auth.service.JwtTokenService
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.refreshtoken.domain.RefreshTokenEntity
 import ai.sovereignrag.identity.core.refreshtoken.domain.RefreshTokenRepository
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.security.MessageDigest

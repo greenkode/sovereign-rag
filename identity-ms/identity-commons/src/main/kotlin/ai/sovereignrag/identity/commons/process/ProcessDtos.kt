@@ -9,7 +9,7 @@ import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
-import mu.KotlinLogging.logger
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import java.time.Instant
 import java.util.UUID
 

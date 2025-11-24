@@ -14,4 +14,12 @@ object ObjectMapperFacade {
     fun <T> fromJson(json: String, typeReference: TypeReference<T>): T {
         return objectMapper.readValue(json, typeReference)
     }
+
+    fun writeValueAsString(value: Any?): String {
+        return objectMapper.writeValueAsString(value)
+    }
+}
+
+fun <T> T.writeValueAsString(): String {
+    return ObjectMapperFacade.objectMapper.writeValueAsString(this)
 }

@@ -4,7 +4,7 @@ import ai.sovereignrag.identity.core.trusteddevice.domain.TrustedDeviceRepositor
 import ai.sovereignrag.identity.core.trusteddevice.dto.RevokeTrustedDeviceCommand
 import ai.sovereignrag.identity.core.trusteddevice.dto.RevokeTrustedDeviceResult
 import an.awesome.pipelinr.Command
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

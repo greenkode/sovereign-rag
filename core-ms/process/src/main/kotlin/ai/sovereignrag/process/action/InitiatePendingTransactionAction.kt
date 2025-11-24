@@ -1,5 +1,6 @@
 package ai.sovereignrag.process.action
 
+import ai.sovereignrag.commons.accounting.AccountGateway
 import ai.sovereignrag.commons.accounting.EntryType
 import ai.sovereignrag.commons.accounting.TransactionGateway
 import ai.sovereignrag.commons.accounting.TransactionStatus
@@ -19,7 +20,7 @@ import java.util.UUID
 @Component
 @Transactional
 class InitiatePendingTransactionAction(
-    private val accountService: AccountService,
+    private val accountGateway: AccountGateway,
     private val transactionGateway: TransactionGateway
 ) {
 
@@ -40,7 +41,7 @@ class InitiatePendingTransactionAction(
         val senderAccountId = UUID.fromString(request.data[ProcessRequestDataName.SENDER_ACCOUNT_ID])
         val recipientAccountId = UUID.fromString(request.getDataValue(ProcessRequestDataName.RECIPIENT_ACCOUNT_ID))
         
-        val accounts = accountService.findAllByPublicIds(setOf(senderAccountId, recipientAccountId))
+        val accounts = accountGateway.findAllByPublicIds(setOf(senderAccountId, recipientAccountId))
             .associateBy { it.publicId }
         
         val senderAccount = accounts[senderAccountId]

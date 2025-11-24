@@ -9,7 +9,7 @@ import ai.sovereignrag.identity.core.service.CustomUserDetails
 import ai.sovereignrag.identity.core.service.UserService
 import ai.sovereignrag.identity.core.settings.dto.EnvironmentStatusResponse
 import an.awesome.pipelinr.Command
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional

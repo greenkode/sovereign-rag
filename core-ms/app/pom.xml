@@ -29,6 +29,21 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <!-- Accounting Module -->
+        <dependency>
+            <groupId>ai.sovereignrag</groupId>
+            <artifactId>accounting</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <!-- TODO: Fix accounting-adapter-minigl dependencies -->
+        <!-- Accounting Adapter MiniGL -->
+        <!-- <dependency>
+            <groupId>ai.sovereignrag</groupId>
+            <artifactId>accounting-adapter-minigl</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency> -->
+
         <!-- Auth Module (JWT authentication) -->
         <dependency>
             <groupId>ai.sovereignrag</groupId>
