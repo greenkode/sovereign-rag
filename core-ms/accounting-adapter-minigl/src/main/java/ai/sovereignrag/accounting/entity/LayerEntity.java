@@ -58,14 +58,13 @@ public class LayerEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof LayerEntity)) return false;
-        LayerEntity that = (LayerEntity) o;
+        if (!(o instanceof LayerEntity that)) return false;
         return id == that.id && journal != null && journal.equals(that.journal);
     }
     
     @Override
     public int hashCode() {
-        int result = (int) id;
+        int result = id;
         result = 31 * result + (journal != null ? journal.hashCode() : 0);
         return result;
     }
@@ -104,14 +103,13 @@ public class LayerEntity {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof LayerId)) return false;
-            LayerId layerId = (LayerId) o;
+            if (!(o instanceof LayerId layerId)) return false;
             return id == layerId.id && journal != null && journal.equals(layerId.journal);
         }
         
         @Override
         public int hashCode() {
-            int result = (int) id;
+            int result = id;
             result = 31 * result + (journal != null ? journal.hashCode() : 0);
             return result;
         }

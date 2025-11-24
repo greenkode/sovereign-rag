@@ -82,8 +82,7 @@ public class BalanceCacheEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BalanceCacheEntity)) return false;
-        BalanceCacheEntity that = (BalanceCacheEntity) o;
+        if (!(o instanceof BalanceCacheEntity that)) return false;
         return journal != null && journal.equals(that.journal) &&
                account != null && account.equals(that.account) &&
                layers != null && layers.equals(that.layers);
@@ -141,8 +140,7 @@ public class BalanceCacheEntity {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof BalanceCacheId)) return false;
-            BalanceCacheId that = (BalanceCacheId) o;
+            if (!(o instanceof BalanceCacheId that)) return false;
             return journal != null && journal.equals(that.journal) &&
                    account != null && account.equals(that.account) &&
                    layers != null && layers.equals(that.layers);

@@ -85,8 +85,7 @@ public class CheckpointEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CheckpointEntity)) return false;
-        CheckpointEntity that = (CheckpointEntity) o;
+        if (!(o instanceof CheckpointEntity that)) return false;
         return date != null && date.equals(that.date) &&
                layers != null && layers.equals(that.layers) &&
                journal != null && journal.equals(that.journal) &&
@@ -156,8 +155,7 @@ public class CheckpointEntity {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof CheckpointId)) return false;
-            CheckpointId that = (CheckpointId) o;
+            if (!(o instanceof CheckpointId that)) return false;
             return date != null && date.equals(that.date) &&
                    layers != null && layers.equals(that.layers) &&
                    journal != null && journal.equals(that.journal) &&

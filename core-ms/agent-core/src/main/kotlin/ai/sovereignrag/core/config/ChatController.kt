@@ -1,4 +1,3 @@
 package ai.sovereignrag.core.config
 
-class ChatController {
-}
+class ChatController

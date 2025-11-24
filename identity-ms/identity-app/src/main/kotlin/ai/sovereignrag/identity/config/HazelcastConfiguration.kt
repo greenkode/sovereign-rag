@@ -44,7 +44,7 @@ class HazelcastConfiguration(private val environment: Environment) {
         val networkConfig = NetworkConfig()
 
         networkConfig.port = environment.getProperty("hazelcast.port", "5702").toInt()
-        networkConfig.setPortAutoIncrement(true)
+        networkConfig.isPortAutoIncrement = true
 
         val members = environment.getProperty("hazelcast.members", "127.0.0.1:5702")
             .split(",")

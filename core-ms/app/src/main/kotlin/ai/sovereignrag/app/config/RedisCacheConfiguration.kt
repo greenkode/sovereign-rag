@@ -25,10 +25,10 @@ private val logger = KotlinLogging.logger {}
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(value = ["spring.cache.type"], havingValue = "redis", matchIfMissing = false)
-open class RedisCacheConfiguration {
+class RedisCacheConfiguration {
 
     @Bean
-    open fun cacheManager(connectionFactory: RedisConnectionFactory): CacheManager {
+    fun cacheManager(connectionFactory: RedisConnectionFactory): CacheManager {
         logger.info { "Initializing Redis cache manager" }
 
         val defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
@@ -49,10 +49,10 @@ open class RedisCacheConfiguration {
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(value = ["spring.cache.type"], havingValue = "simple", matchIfMissing = true)
-open class SimpleCacheConfiguration {
+class SimpleCacheConfiguration {
 
     @Bean
-    open fun cacheManager(): CacheManager {
+    fun cacheManager(): CacheManager {
         logger.info { "Initializing simple in-memory cache manager" }
         return ConcurrentMapCacheManager()
     }

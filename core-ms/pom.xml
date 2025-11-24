@@ -43,8 +43,7 @@
 
     <modules>
         <module>accounting</module>
-        <!-- TODO: Fix accounting-adapter-minigl - needs MiniglAccountService, account subpackage -->
-        <!-- <module>accounting-adapter-minigl</module> -->
+        <module>accounting-adapter-minigl</module>
         <module>agent-core</module>
         <module>app</module>
         <module>auth</module>

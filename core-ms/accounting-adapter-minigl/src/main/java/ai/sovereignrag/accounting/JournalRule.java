@@ -29,8 +29,8 @@ public interface JournalRule {
      * @param entryOffsets entries that matches this ai.sovereignrag.minigl.rule
      * @throws GLException if ai.sovereignrag.minigl.rule denies transaction
      */
-    public void check (GLSession session, GLTransactionEntity txn,
-                       String param, GLAccountEntity account, int[] entryOffsets, short[] layers)
+    void check(GLSession session, GLTransactionEntity txn,
+               String param, GLAccountEntity account, int[] entryOffsets, short[] layers)
         throws GLException, HibernateException;
 }
 

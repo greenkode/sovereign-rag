@@ -38,7 +38,7 @@ class RuleEntry {
         StringBuffer sb = new StringBuffer (Long.toString (ri.getId()));
         if (account != null) {
             sb.append ('.');
-            sb.append (Long.toString (account.getId()));
+            sb.append (account.getId());
         }
         return sb.toString();
     }
@@ -71,7 +71,7 @@ class RuleEntry {
         }
         if (account != null) {
             sb.append ('[');
-            sb.append (account.toString());
+            sb.append (account);
             sb.append (']');
         }
         if (offsets != null) {

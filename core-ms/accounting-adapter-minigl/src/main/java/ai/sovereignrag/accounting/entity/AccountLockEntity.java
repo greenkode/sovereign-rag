@@ -64,8 +64,7 @@ public class AccountLockEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AccountLockEntity)) return false;
-        AccountLockEntity that = (AccountLockEntity) o;
+        if (!(o instanceof AccountLockEntity that)) return false;
         return id != null && id.equals(that.id);
     }
     
@@ -112,8 +111,7 @@ public class AccountLockEntity {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof AccountLockId)) return false;
-            AccountLockId that = (AccountLockId) o;
+            if (!(o instanceof AccountLockId that)) return false;
             return journal != null && journal.equals(that.journal) &&
                    account != null && account.equals(that.account);
         }

@@ -2,7 +2,6 @@ package ai.sovereignrag.accounting.minigl.transaction.service.builder
 
 import ai.sovereignrag.accounting.gateway.api.request.TransactionEntryRequest
 import ai.sovereignrag.accounting.minigl.transaction.service.builder.strategies.DirectTransactionStrategy
-import ai.sovereignrag.accounting.minigl.transaction.service.builder.strategies.PendingBillPaymentTransactionStrategy
 import ai.sovereignrag.accounting.minigl.transaction.service.builder.strategies.PendingInboundTransactionStrategy
 import org.springframework.stereotype.Component
 
@@ -11,8 +10,7 @@ class TransactionEntryStrategyFactory {
 
     private val strategies = listOf(
         DirectTransactionStrategy(),
-        PendingInboundTransactionStrategy(),
-        PendingBillPaymentTransactionStrategy()
+        PendingInboundTransactionStrategy()
     )
 
     fun getStrategy(request: TransactionEntryRequest, context: TransactionContext): TransactionEntryStrategy {

@@ -112,8 +112,7 @@ public class RuleInfoEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof RuleInfoEntity)) return false;
-        RuleInfoEntity that = (RuleInfoEntity) o;
+        if (!(o instanceof RuleInfoEntity that)) return false;
         return id != null && id.equals(that.id);
     }
     

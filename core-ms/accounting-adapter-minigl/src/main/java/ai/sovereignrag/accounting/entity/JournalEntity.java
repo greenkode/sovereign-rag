@@ -130,8 +130,7 @@ public class JournalEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JournalEntity)) return false;
-        JournalEntity that = (JournalEntity) o;
+        if (!(o instanceof JournalEntity that)) return false;
         return id != null && id.equals(that.id);
     }
     

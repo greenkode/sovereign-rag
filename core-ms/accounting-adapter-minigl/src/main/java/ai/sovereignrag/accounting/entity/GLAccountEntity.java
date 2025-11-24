@@ -205,8 +205,7 @@ public abstract class GLAccountEntity implements Comparable<GLAccountEntity> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GLAccountEntity)) return false;
-        GLAccountEntity that = (GLAccountEntity) o;
+        if (!(o instanceof GLAccountEntity that)) return false;
         return id != null && id.equals(that.id);
     }
     

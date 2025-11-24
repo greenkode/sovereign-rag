@@ -166,8 +166,7 @@ public class GLEntryEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GLEntryEntity)) return false;
-        GLEntryEntity that = (GLEntryEntity) o;
+        if (!(o instanceof GLEntryEntity that)) return false;
         return id != null && id.equals(that.id);
     }
 

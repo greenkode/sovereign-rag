@@ -75,8 +75,8 @@ public class DoubleEntry implements JournalRule {
         }
         if (!debits.equals (credits)) {
             throw new GLException (
-                "Transaction (" + txn.getDetail() + ") does not balance. debits="+debits.toString() +
-                ", credits=" + credits.toString() + " (layer=" + layer + ")", ResponseCode.TRANSACTION_FAILED
+                "Transaction (" + txn.getDetail() + ") does not balance. debits="+ debits +
+                ", credits=" + credits + " (layer=" + layer + ")", ResponseCode.TRANSACTION_FAILED
             );
         }
     }

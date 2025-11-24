@@ -12,7 +12,6 @@ import ai.sovereignrag.commons.accounting.TransactionLimitDto
 import ai.sovereignrag.commons.accounting.TransactionType
 import ai.sovereignrag.commons.accounting.dto.LedgerEntryDto
 import ai.sovereignrag.commons.exception.AccountServiceException
-import ai.sovereignrag.commons.monitoring.ProcessContext
 import ai.sovereignrag.commons.performance.LogExecutionTime
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,7 +24,6 @@ class MiniglTransactionGatewayAdapter(
 ) : MiniglTransactionGateway {
 
     @LogExecutionTime
-    @ProcessContext(processReferenceParam = "#transaction.processPublicId")
     @Transactional(transactionManager = "accountingTransactionManager")
     override fun createTransaction(
         transaction: MiniglTransactionDto,

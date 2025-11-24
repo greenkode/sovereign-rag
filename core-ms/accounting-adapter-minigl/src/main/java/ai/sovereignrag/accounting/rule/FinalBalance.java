@@ -71,16 +71,15 @@ public abstract class FinalBalance implements JournalRule {
         BigDecimal impact = getImpact (txn, account, offsets, layers);
 
         if (isError (balance.add (impact), minBalance)) {
-            StringBuffer sb = new StringBuffer (getRuleName());
-            sb.append (" ai.sovereignrag.minigl.rule for account ");
-            sb.append (account.getCode());
-            sb.append (" failed. balance=");
-            sb.append (balance);
-            sb.append (", impact=");
-            sb.append (impact);
-            sb.append (", minimum=");
-            sb.append (param);
-            throw new GLException (sb.toString(), ResponseCode.TRANSACTION_FAILED);
+            String sb = getRuleName() + " ai.sovereignrag.minigl.rule for account " +
+                    account.getCode() +
+                    " failed. balance=" +
+                    balance +
+                    ", impact=" +
+                    impact +
+                    ", minimum=" +
+                    param;
+            throw new GLException (sb, ResponseCode.TRANSACTION_FAILED);
         }
     }
     private BigDecimal getImpact 

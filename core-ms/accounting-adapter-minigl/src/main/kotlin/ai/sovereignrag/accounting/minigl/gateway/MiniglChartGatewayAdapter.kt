@@ -1,10 +1,10 @@
 package ai.sovereignrag.accounting.minigl.gateway
 
-import ai.sovereignrag.accounting.config.ChartOfAccountsRequest
 import ai.sovereignrag.accounting.minigl.account.service.CoaImportService
 import ai.sovereignrag.accounting.minigl.account.service.MiniglAccountService
 import ai.sovereignrag.commons.accounting.ChartDetailsResponseDto
 import ai.sovereignrag.commons.accounting.MiniglChartGateway
+import ai.sovereignrag.commons.coa.ChartOfAccountsRequest
 import ai.sovereignrag.commons.exception.AccountServiceException
 import ai.sovereignrag.commons.exception.RecordNotFoundException
 import org.springframework.stereotype.Service

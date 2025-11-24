@@ -25,7 +25,7 @@ import ai.sovereignrag.commons.enumeration.ResponseCode;
  */
 public class GLException extends Exception {
 
-    private ResponseCode responseCode;
+    private final ResponseCode responseCode;
 
     /**
      * Constructs a new GLException

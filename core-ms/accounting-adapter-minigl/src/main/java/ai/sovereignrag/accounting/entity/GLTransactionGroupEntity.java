@@ -74,8 +74,7 @@ public class GLTransactionGroupEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GLTransactionGroupEntity)) return false;
-        GLTransactionGroupEntity that = (GLTransactionGroupEntity) o;
+        if (!(o instanceof GLTransactionGroupEntity that)) return false;
         return id != null && id.equals(that.id);
     }
     

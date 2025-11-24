@@ -61,8 +61,7 @@ public class CurrencyEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CurrencyEntity)) return false;
-        CurrencyEntity that = (CurrencyEntity) o;
+        if (!(o instanceof CurrencyEntity that)) return false;
         return id != null && id.equals(that.id);
     }
     

@@ -105,7 +105,7 @@ public class ISOException extends Exception {
         StringBuilder buf = new StringBuilder (super.toString());
         if (nested != null) {
             buf.append (" (");
-            buf.append (nested.toString());
+            buf.append (nested);
             buf.append (")");
         }
         return buf.toString();

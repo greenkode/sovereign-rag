@@ -81,12 +81,12 @@ public class GLSession {
     private boolean strictAccountCodes = true;
     private NativeDialect nativeDialect = NativeDialect.ORM;
 
-    private static String POSTGRESQL_GET_BALANCES =
+    private static final String POSTGRESQL_GET_BALANCES =
             "SELECT SUM(CASE WHEN entry.credit='N' THEN entry.amount ELSE -entry.amount end) AS balance,\n" +
                     " COUNT(entry.id) AS count\n" +
                     " FROM accounting_transentry AS entry\n";
 
-    private static String MYSQL_GET_BALANCES =
+    private static final String MYSQL_GET_BALANCES =
             "SELECT SUM(if(entry.credit='N',entry.amount,-entry.amount)) AS balance,\n" +
                     "  COUNT(entry.id) AS count\n" +
                     "  from transentry as entry\n";
@@ -168,20 +168,18 @@ public class GLSession {
             validateAccountCode(parent, acct);
 
         if (!parent.isChart() && !parent.equalsType(acct)) {
-            StringBuffer sb = new StringBuffer("Type mismatch ");
-            sb.append(parent.getTypeAsString());
-            sb.append('/');
-            sb.append(acct.getTypeAsString());
-            throw new GLException(sb.toString(), ResponseCode.INVALID_REQUEST);
+            String sb = "Type mismatch " + parent.getTypeAsString() +
+                    '/' +
+                    acct.getTypeAsString();
+            throw new GLException(sb, ResponseCode.INVALID_REQUEST);
         }
         String currencyCode = parent.getCurrencyCode();
         if (currencyCode != null
                 && !currencyCode.equals(acct.getCurrencyCode())) {
-            StringBuffer sb = new StringBuffer("ai.sovereignrag.accounting.entity.CurrencyEntity mismatch ");
-            sb.append(currencyCode);
-            sb.append('/');
-            sb.append(acct.getCurrencyCode());
-            throw new GLException(sb.toString(), ResponseCode.INVALID_REQUEST);
+            String sb = "ai.sovereignrag.accounting.entity.CurrencyEntity mismatch " + currencyCode +
+                    '/' +
+                    acct.getCurrencyCode();
+            throw new GLException(sb, ResponseCode.INVALID_REQUEST);
         }
         acct.setRoot(parent.getRoot());
         acct.setParent(parent);
@@ -926,7 +924,7 @@ public class GLSession {
     public BigDecimal[] getBalancesORM
     (JournalEntity JournalEntity, GLAccountEntity acct, Instant date, boolean inclusive, short[] layers, long maxId)
             throws HibernateException, GLException {
-        BigDecimal balance[] = {ZERO, ZERO};
+        BigDecimal[] balance = {ZERO, ZERO};
         short[] layersCopy = Arrays.copyOf(layers, layers.length);
         if (acct.getChildren() != null) {
             if (acct.isChart()) {
@@ -1034,7 +1032,7 @@ public class GLSession {
                 return getBalancesORM(JournalEntity, acct, date, inclusive, layers, maxId);
         }
 
-        BigDecimal balance[] = {ZERO, ZERO};
+        BigDecimal[] balance = {ZERO, ZERO};
         select.append(", accounting_transacc as txn\n");
 
         if (date == null && !ignoreBalanceCache) {
@@ -1186,7 +1184,7 @@ public class GLSession {
 
         long maxEntry = 0L;
         List<GLEntryEntity> entries;
-        BigDecimal initialBalance[];
+        BigDecimal[] initialBalance;
         if (ascendingOrder) {
             query.orderBy(
                     cb.asc(entryRoot.get("transaction").get("postDate")),
@@ -1353,7 +1351,7 @@ public class GLSession {
         BalanceCacheEntity bc = null;
         if (acct.isCompositeAccount()) {
             balance = ZERO;
-            Iterator iter = ((CompositeAccountEntity) acct).getChildren().iterator();
+            Iterator iter = acct.getChildren().iterator();
             while (iter.hasNext()) {
                 GLAccountEntity a = (GLAccountEntity) iter.next();
                 balance = balance.add(createBalanceCache(JournalEntity, a, layers, maxId));
@@ -1539,9 +1537,9 @@ public class GLSession {
             (JournalEntity JournalEntity, GLAccountEntity acct, GLTransactionGroupEntity group, short[] layers)
             throws HibernateException, GLException {
         BigDecimal balance = ZERO;
-        for (GLTransactionEntity transaction : (Set<GLTransactionEntity>) group.getTransactions()) {
+        for (GLTransactionEntity transaction : group.getTransactions()) {
             if (transaction.getJournal().equals(JournalEntity)) {
-                for (GLEntryEntity entry : (List<GLEntryEntity>) transaction.getEntries()) {
+                for (GLEntryEntity entry : transaction.getEntries()) {
                     if (acct.equals(entry.getAccount()) && entry.hasLayers(layers)) {
                         if (entry.isIncrease()) {
                             balance = balance.add(entry.getAmount());
@@ -1610,7 +1608,7 @@ public class GLSession {
             (JournalEntity JournalEntity, GLAccountEntity acct, Instant date, int threshold, short[] layers)
             throws HibernateException, GLException {
         if (acct.isCompositeAccount()) {
-            Iterator iter = ((CompositeAccountEntity) acct).getChildren().iterator();
+            Iterator iter = acct.getChildren().iterator();
             while (iter.hasNext()) {
                 GLAccountEntity a = (GLAccountEntity) iter.next();
                 createCheckpoint0(JournalEntity, a, date, threshold, layers);
@@ -1618,7 +1616,7 @@ public class GLSession {
         } else if (acct.isFinalAccount()) {
             Instant sod = Util.floor(date);   // sod = start of day
             invalidateCheckpoints(JournalEntity, new GLAccountEntity[]{acct}, sod, sod, layers);
-            BigDecimal b[] = getBalances(JournalEntity, acct, sod, false, layers, 0L);
+            BigDecimal[] b = getBalances(JournalEntity, acct, sod, false, layers, 0L);
             if (b[1].intValue() >= threshold) {
                 CheckpointEntity c = new CheckpointEntity();
                 c.setDate(sod);
@@ -1694,7 +1692,7 @@ public class GLSession {
         TypedQuery<CheckpointEntity> typedQuery = entityManager.createQuery(query);
         Iterator<CheckpointEntity> iter = typedQuery.getResultList().iterator();
         while (iter.hasNext()) {
-            CheckpointEntity cp = (CheckpointEntity) iter.next();
+            CheckpointEntity cp = iter.next();
             entityManager.remove(cp);
         }
     }
@@ -1710,7 +1708,7 @@ public class GLSession {
                 balance = balance.subtract(entry.getAmount());
             } else {
                 throw new GLException(
-                        entry.toString() + " has invalid GLAccountEntity type", ResponseCode.TRANSACTION_FAILED
+                        entry + " has invalid GLAccountEntity type", ResponseCode.TRANSACTION_FAILED
                 );
             }
         }
@@ -1801,8 +1799,8 @@ public class GLSession {
     private BigDecimal[] getChartBalances
             (JournalEntity JournalEntity, CompositeAccountEntity acct, Instant date, boolean inclusive, short[] layers, long maxId)
             throws HibernateException, GLException {
-        BigDecimal balance[] = {ZERO, ZERO};
-        Iterator iter = ((CompositeAccountEntity) acct).getChildren().iterator();
+        BigDecimal[] balance = {ZERO, ZERO};
+        Iterator iter = acct.getChildren().iterator();
         while (iter.hasNext()) {
             GLAccountEntity a = (GLAccountEntity) iter.next();
             BigDecimal[] b = getBalances(JournalEntity, a, date, inclusive, layers, maxId);

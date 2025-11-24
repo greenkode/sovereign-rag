@@ -817,14 +817,14 @@ public class ISOUtil {
                 case '\n':
                     if (!canonical) {
                         str.append("&#");
-                        str.append(Integer.toString(ch & 0xFF));
+                        str.append(ch & 0xFF);
                         str.append(';');
                         break;
                     }
                     // else, default append char
                 default: 
                     if (ch < 0x20) {
-                        str.append(String.format("\\u%04x", (int) (ch & 0xFF)));
+                        str.append(String.format("\\u%04x", ch & 0xFF));
                     } else {
                         str.append(ch);
                     }
@@ -1314,9 +1314,9 @@ public class ISOUtil {
                 case 15 :
                     sb.append (hexOffset (i));
                     sb.append (sep);
-                    sb.append (hex.toString());
+                    sb.append (hex);
                     sb.append (' ');
-                    sb.append (ascii.toString());
+                    sb.append (ascii);
                     sb.append (lineSep);
                     hex   = new StringBuilder ();
                     ascii = new StringBuilder ();
@@ -1329,9 +1329,9 @@ public class ISOUtil {
 
             sb.append (hexOffset (len));
             sb.append (sep);
-            sb.append (hex.toString());
+            sb.append (hex);
             sb.append (' ');
-            sb.append (ascii.toString());
+            sb.append (ascii);
             sb.append (lineSep);
         }
         return sb.toString();
@@ -1421,11 +1421,11 @@ public class ISOUtil {
         int ms = (int) (millis % 1000);
         millis /= 1000;
         int dd = (int) (millis/86400);
-        millis -= dd * 86400;
+        millis -= dd * 86400L;
         int hh = (int) (millis/3600);
-        millis -= hh * 3600;
+        millis -= hh * 3600L;
         int mm = (int) (millis/60);
-        millis -= mm * 60;
+        millis -= mm * 60L;
         int ss = (int) millis;
         if (dd > 0) {
             sb.append (Long.toString(dd));
