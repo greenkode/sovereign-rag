@@ -2,21 +2,23 @@ package ai.sovereignrag.license.domain
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.Enumerated
+import jakarta.persistence.EnumType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(name = "customer", schema = "license")
-data class Customer(
+@Table(name = "client", schema = "license")
+data class Client(
     @Id
     val id: UUID = UUID.randomUUID(),
 
     @Column(unique = true, nullable = false)
-    val customerId: String,
+    val clientId: String,
 
-    val customerName: String,
+    val clientName: String,
 
     val email: String,
 
@@ -30,7 +32,8 @@ data class Customer(
 
     val country: String? = null,
 
-    val status: CustomerStatus = CustomerStatus.ACTIVE,
+    @Enumerated(EnumType.STRING)
+    val status: ClientStatus = ClientStatus.ACTIVE,
 
     val createdAt: Instant = Instant.now(),
 
@@ -41,7 +44,7 @@ data class Customer(
     val updatedBy: String = "system"
 )
 
-enum class CustomerStatus {
+enum class ClientStatus {
     ACTIVE,
     SUSPENDED,
     INACTIVE,

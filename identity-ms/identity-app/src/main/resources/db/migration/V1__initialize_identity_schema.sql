@@ -6,22 +6,31 @@ CREATE TABLE IF NOT EXISTS oauth_users (
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(255),
-    enabled BOOLEAN DEFAULT true,
-    account_non_expired BOOLEAN DEFAULT true,
-    account_non_locked BOOLEAN DEFAULT true,
-    credentials_non_expired BOOLEAN DEFAULT true,
+    first_name VARCHAR(100),
+    middle_name VARCHAR(100),
+    last_name VARCHAR(100),
+    phone_number VARCHAR(20),
+    merchant_id UUID,
+    aku_id UUID,
+    user_type VARCHAR(20),
+    trust_level VARCHAR(20),
+    email_verified BOOLEAN NOT NULL DEFAULT false,
+    phone_number_verified BOOLEAN NOT NULL DEFAULT false,
+    invitation_status BOOLEAN NOT NULL DEFAULT false,
+    date_of_birth DATE,
+    tax_identification_number VARCHAR(50),
+    locale VARCHAR(10) NOT NULL DEFAULT 'en',
+    enabled BOOLEAN NOT NULL DEFAULT true,
+    account_non_expired BOOLEAN NOT NULL DEFAULT true,
+    account_non_locked BOOLEAN NOT NULL DEFAULT true,
+    credentials_non_expired BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     failed_login_attempts INTEGER NOT NULL DEFAULT 0,
     locked_until TIMESTAMP,
     last_failed_login TIMESTAMP,
-    trust_level VARCHAR(50),
-    first_name VARCHAR(255),
-    last_name VARCHAR(255),
-    phone_number VARCHAR(20),
-    date_of_birth DATE,
-    invitation_status VARCHAR(50) DEFAULT 'PENDING',
-    environment VARCHAR(50) DEFAULT 'SANDBOX',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    environment_preference VARCHAR(20) NOT NULL DEFAULT 'SANDBOX',
+    environment_last_switched_at TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS oauth_user_authorities (
@@ -39,6 +48,10 @@ CREATE TABLE IF NOT EXISTS oauth_registered_clients (
     client_id_issued_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     client_secret VARCHAR(255),
     client_secret_expires_at TIMESTAMP,
+    sandbox_client_secret VARCHAR(255),
+    sandbox_client_secret_expires_at TIMESTAMP,
+    production_client_secret VARCHAR(255),
+    production_client_secret_expires_at TIMESTAMP,
     client_name VARCHAR(200) NOT NULL,
     client_authentication_methods VARCHAR(1000) NOT NULL,
     authorization_grant_types VARCHAR(1000) NOT NULL,
@@ -47,16 +60,12 @@ CREATE TABLE IF NOT EXISTS oauth_registered_clients (
     scopes VARCHAR(1000) NOT NULL,
     client_settings TEXT NOT NULL,
     token_settings TEXT NOT NULL,
-    failed_authentication_attempts INTEGER NOT NULL DEFAULT 0,
-    locked_until TIMESTAMP,
-    last_failed_authentication TIMESTAMP,
-    environment VARCHAR(50) DEFAULT 'SANDBOX',
-    sandbox_client_id VARCHAR(255),
-    sandbox_client_secret VARCHAR(255),
-    production_client_id VARCHAR(255),
-    production_client_secret VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    failed_auth_attempts INTEGER NOT NULL DEFAULT 0,
+    locked_until TIMESTAMP,
+    last_failed_auth TIMESTAMP,
+    environment_mode VARCHAR(20) NOT NULL DEFAULT 'SANDBOX'
 );
 
 -- Refresh Tokens
@@ -149,7 +158,7 @@ CREATE TABLE IF NOT EXISTS process_request_data (
 CREATE INDEX IF NOT EXISTS idx_oauth_users_username ON oauth_users(username);
 CREATE INDEX IF NOT EXISTS idx_oauth_users_lockout ON oauth_users (username, locked_until, failed_login_attempts);
 CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_client_id ON oauth_registered_clients(client_id);
-CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_lockout ON oauth_registered_clients (client_id, locked_until, failed_authentication_attempts);
+CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_lockout ON oauth_registered_clients (client_id, locked_until, failed_auth_attempts);
 CREATE INDEX IF NOT EXISTS idx_refresh_token_jti ON refresh_tokens(jti);
 CREATE INDEX IF NOT EXISTS idx_refresh_token_user_id ON refresh_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_refresh_token_expires_at ON refresh_tokens(expires_at);

@@ -2,7 +2,7 @@ package ai.sovereignrag.license.verification.command
 
 data class ReportUsageCommand(
     val licenseKey: String,
-    val customerId: String,
+    val clientId: String,
     val deploymentId: String?,
     val tokensUsed: Long,
     val activeTenants: Int,

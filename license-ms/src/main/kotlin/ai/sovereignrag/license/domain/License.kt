@@ -20,7 +20,7 @@ data class License(
     @Column(unique = true, nullable = false, columnDefinition = "TEXT")
     val licenseKey: String,
 
-    val customerId: String,
+    val clientId: String,
 
     @Enumerated(EnumType.STRING)
     val tier: LicenseTier,
@@ -66,7 +66,7 @@ data class License(
 
         if (id != other.id) return false
         if (licenseKey != other.licenseKey) return false
-        if (customerId != other.customerId) return false
+        if (clientId != other.clientId) return false
 
         return true
     }
@@ -74,7 +74,7 @@ data class License(
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + licenseKey.hashCode()
-        result = 31 * result + customerId.hashCode()
+        result = 31 * result + clientId.hashCode()
         return result
     }
 }

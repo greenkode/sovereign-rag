@@ -20,7 +20,7 @@ class ReportUsageCommandHandler(
 
         verificationRepository.recordUsage(
             licenseKeyHash = licenseKeyHash,
-            customerId = command.customerId,
+            clientId = command.clientId,
             deploymentId = command.deploymentId,
             tokensUsed = command.tokensUsed,
             activeTenants = command.activeTenants,
@@ -29,7 +29,7 @@ class ReportUsageCommandHandler(
             metadata = command.metadata
         )
 
-        log.info { "Usage reported for ${command.customerId}: tokens=${command.tokensUsed}, tenants=${command.activeTenants}" }
+        log.info { "Usage reported for ${command.clientId}: tokens=${command.tokensUsed}, tenants=${command.activeTenants}" }
 
         return ReportUsageResult(
             success = true,

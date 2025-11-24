@@ -14,7 +14,7 @@ class LicenseVerificationRepository(
     @Transactional
     fun recordVerification(
         licenseKeyHash: String,
-        customerId: String,
+        clientId: String,
         deploymentId: String?,
         ipAddress: String?,
         hostname: String?,
@@ -32,7 +32,7 @@ class LicenseVerificationRepository(
 
         entityManager.createNativeQuery(sql)
             .setParameter(1, licenseKeyHash)
-            .setParameter(2, customerId)
+            .setParameter(2, clientId)
             .setParameter(3, deploymentId)
             .setParameter(4, ipAddress)
             .setParameter(5, hostname)
@@ -47,7 +47,7 @@ class LicenseVerificationRepository(
     @Transactional
     fun recordUsage(
         licenseKeyHash: String,
-        customerId: String,
+        clientId: String,
         deploymentId: String?,
         tokensUsed: Long,
         activeTenants: Int,
@@ -71,7 +71,7 @@ class LicenseVerificationRepository(
 
         entityManager.createNativeQuery(sql)
             .setParameter(1, licenseKeyHash)
-            .setParameter(2, customerId)
+            .setParameter(2, clientId)
             .setParameter(3, deploymentId)
             .setParameter(4, LocalDate.now())
             .setParameter(5, tokensUsed)

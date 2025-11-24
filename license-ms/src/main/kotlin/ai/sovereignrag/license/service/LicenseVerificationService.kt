@@ -68,7 +68,7 @@ class LicenseVerificationService(
 
         verificationRepository.recordUsage(
             licenseKeyHash = licenseKeyHash,
-            customerId = request.customerId,
+            clientId = request.clientId,
             deploymentId = request.deploymentId,
             tokensUsed = request.tokensUsed,
             activeTenants = request.activeTenants,
@@ -87,7 +87,7 @@ class LicenseVerificationService(
     ): VerificationResponse {
         verificationRepository.recordVerification(
             licenseKeyHash = licenseKeyHash,
-            customerId = license.customerId,
+            clientId = license.clientId,
             deploymentId = request.deploymentId,
             ipAddress = request.ipAddress,
             hostname = request.hostname,
@@ -99,8 +99,8 @@ class LicenseVerificationService(
 
         return VerificationResponse(
             valid = true,
-            customerId = license.customerId,
-            customerName = null,
+            clientId = license.clientId,
+            clientName = null,
             tier = license.tier.name,
             maxTokensPerMonth = license.maxTokensPerMonth,
             maxTenants = license.maxTenants,
@@ -117,7 +117,7 @@ class LicenseVerificationService(
     ): VerificationResponse {
         verificationRepository.recordVerification(
             licenseKeyHash = licenseKeyHash,
-            customerId = "unknown",
+            clientId = "unknown",
             deploymentId = request.deploymentId,
             ipAddress = request.ipAddress,
             hostname = request.hostname,
@@ -151,8 +151,8 @@ data class VerificationRequest(
 
 data class VerificationResponse(
     val valid: Boolean,
-    val customerId: String? = null,
-    val customerName: String? = null,
+    val clientId: String? = null,
+    val clientName: String? = null,
     val tier: String? = null,
     val maxTokensPerMonth: Long? = null,
     val maxTenants: Int? = null,
@@ -163,7 +163,7 @@ data class VerificationResponse(
 
 data class UsageReportRequest(
     val licenseKey: String,
-    val customerId: String,
+    val clientId: String,
     val deploymentId: String?,
     val tokensUsed: Long,
     val activeTenants: Int,

@@ -49,8 +49,10 @@ class RefreshTokenEntity(
     @Column(name = "replaced_by_jti")
     var replacedByJti: String? = null,
 
+    @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
+    @Column(name = "updated_at", nullable = false)
     var updatedAt: Instant = Instant.now()
 
 ) {

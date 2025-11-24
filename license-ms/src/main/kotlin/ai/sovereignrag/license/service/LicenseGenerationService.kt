@@ -17,7 +17,7 @@ private val log = KotlinLogging.logger {}
 class LicenseGenerationService {
 
     fun generateLicenseKey(request: LicenseGenerationRequest): String {
-        log.info { "Generating license for customer: ${request.customerId}" }
+        log.info { "Generating license for client: ${request.clientId}" }
 
         val payload = buildPayload(request)
         val metadata = buildMetadata()
@@ -34,14 +34,14 @@ class LicenseGenerationService {
 
         val licenseKey = "$payloadBase64.$signatureBase64.$metadataBase64"
 
-        log.info { "License generated successfully for ${request.customerId}" }
+        log.info { "License generated successfully for ${request.clientId}" }
         return licenseKey
     }
 
     private fun buildPayload(request: LicenseGenerationRequest): String {
         return buildString {
-            append("cid=${request.customerId}")
-            append("&name=${request.customerName}")
+            append("cid=${request.clientId}")
+            append("&name=${request.clientName}")
             append("&tier=${request.tier}")
             append("&tokens=${request.maxTokensPerMonth}")
             append("&tenants=${request.maxTenants}")
@@ -123,8 +123,8 @@ class LicenseGenerationService {
 }
 
 data class LicenseGenerationRequest(
-    val customerId: String,
-    val customerName: String,
+    val clientId: String,
+    val clientName: String,
     val tier: String,
     val maxTokensPerMonth: Long,
     val maxTenants: Int,

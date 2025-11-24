@@ -3,7 +3,7 @@ package ai.sovereignrag.license.generation.command
 import java.time.Instant
 
 data class GenerateLicenseCommand(
-    val customerId: String,
+    val clientId: String,
     val tier: String,
     val maxTokensPerMonth: Long,
     val maxTenants: Int,
@@ -15,7 +15,7 @@ data class GenerateLicenseCommand(
 data class GenerateLicenseResult(
     val success: Boolean,
     val licenseKey: String?,
-    val customerId: String?,
+    val clientId: String?,
     val tier: String?,
     val expiresAt: Instant?,
     val error: String?

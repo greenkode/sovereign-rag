@@ -23,10 +23,10 @@ class LicenseGenerationController(
 
     @PostMapping("/generate")
     fun generateLicense(@RequestBody request: GenerateLicenseApiRequest): ResponseEntity<GenerateLicenseApiResponse> {
-        log.info { "License generation request for customer: ${request.customerId}" }
+        log.info { "License generation request for customer: ${request.clientId}" }
 
         val command = GenerateLicenseCommand(
-            customerId = request.customerId,
+            clientId = request.clientId,
             tier = request.tier,
             maxTokensPerMonth = request.maxTokensPerMonth,
             maxTenants = request.maxTenants,
@@ -50,7 +50,7 @@ class LicenseGenerationController(
             GenerateLicenseApiResponse(
                 success = true,
                 licenseKey = result.licenseKey,
-                customerId = result.customerId,
+                clientId = result.clientId,
                 tier = result.tier,
                 expiresAt = result.expiresAt
             )
@@ -74,7 +74,7 @@ class LicenseGenerationController(
 }
 
 data class GenerateLicenseApiRequest(
-    val customerId: String,
+    val clientId: String,
     val tier: String,
     val maxTokensPerMonth: Long,
     val maxTenants: Int,
@@ -86,7 +86,7 @@ data class GenerateLicenseApiRequest(
 data class GenerateLicenseApiResponse(
     val success: Boolean,
     val licenseKey: String? = null,
-    val customerId: String? = null,
+    val clientId: String? = null,
     val tier: String? = null,
     val expiresAt: Instant? = null,
     val error: String? = null

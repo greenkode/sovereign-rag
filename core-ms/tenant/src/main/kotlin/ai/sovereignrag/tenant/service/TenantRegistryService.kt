@@ -74,11 +74,12 @@ class TenantRegistryService(
     fun createTenant(
         tenantId: String,
         name: String,
+        clientId: String,
         contactEmail: String? = null,
         contactName: String? = null,
         wordpressUrl: String? = null
     ): CreateTenantResult {
-        logger.info { "Creating new tenant: $tenantId ($name)" }
+        logger.info { "Creating new tenant: $tenantId ($name) for client: $clientId" }
 
         val databaseName = "sovereignrag_tenant_${tenantId.lowercase().replace("-", "_")}"
         val apiKey = generateApiKey()
@@ -98,6 +99,7 @@ class TenantRegistryService(
                 databaseName = databaseName,
                 apiKeyHash = apiKeyHash,
                 status = TenantStatus.ACTIVE,
+                clientId = clientId,
                 contactEmail = contactEmail,
                 contactName = contactName,
                 wordpressUrl = wordpressUrl

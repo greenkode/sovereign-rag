@@ -13,7 +13,7 @@ interface LicenseRepository : JpaRepository<License, UUID> {
 
     fun findByLicenseKey(licenseKey: String): License?
 
-    fun findByCustomerId(customerId: String): List<License>
+    fun findByClientId(clientId: String): List<License>
 
     fun findByStatus(status: LicenseStatus): List<License>
 
@@ -23,5 +23,5 @@ interface LicenseRepository : JpaRepository<License, UUID> {
     @Query("SELECT l FROM License l WHERE l.expiresAt > :now AND l.expiresAt < :warningDate AND l.status = 'ACTIVE'")
     fun findExpiringLicenses(now: Instant = Instant.now(), warningDate: Instant): List<License>
 
-    fun findByCustomerIdAndStatus(customerId: String, status: LicenseStatus): List<License>
+    fun findByClientIdAndStatus(clientId: String, status: LicenseStatus): List<License>
 }

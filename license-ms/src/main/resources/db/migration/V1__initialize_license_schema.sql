@@ -1,8 +1,8 @@
-CREATE TABLE IF NOT EXISTS customer
+CREATE TABLE IF NOT EXISTS client
 (
     id                  UUID         NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
-    customer_id         VARCHAR(100) NOT NULL UNIQUE,
-    customer_name       VARCHAR(255) NOT NULL,
+    client_id           VARCHAR(100) NOT NULL UNIQUE,
+    client_name         VARCHAR(255) NOT NULL,
     email               VARCHAR(255) NOT NULL,
     company_name        VARCHAR(255),
     contact_person      VARCHAR(255),
@@ -16,15 +16,15 @@ CREATE TABLE IF NOT EXISTS customer
     updated_by          VARCHAR(100) NOT NULL DEFAULT 'system'
 );
 
-CREATE INDEX idx_customer_customer_id ON customer (customer_id);
-CREATE INDEX idx_customer_email ON customer (email);
-CREATE INDEX idx_customer_status ON customer (status);
+CREATE INDEX idx_client_client_id ON client (client_id);
+CREATE INDEX idx_client_email ON client (email);
+CREATE INDEX idx_client_status ON client (status);
 
 CREATE TABLE IF NOT EXISTS license
 (
     id                   UUID         NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
     license_key          TEXT         NOT NULL UNIQUE,
-    customer_id          VARCHAR(100) NOT NULL REFERENCES customer (customer_id),
+    client_id            VARCHAR(100) NOT NULL REFERENCES client (client_id),
     tier                 VARCHAR(50)  NOT NULL,
     max_tokens_per_month BIGINT       NOT NULL,
     max_tenants          INT          NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS license
     updated_by           VARCHAR(100) NOT NULL DEFAULT 'system'
 );
 
-CREATE INDEX idx_license_customer_id ON license (customer_id);
+CREATE INDEX idx_license_client_id ON license (client_id);
 CREATE INDEX idx_license_status ON license (status);
 CREATE INDEX idx_license_tier ON license (tier);
 CREATE INDEX idx_license_expires_at ON license (expires_at);
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS license_verification
 (
     id                 UUID         NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
     license_key_hash   VARCHAR(64)  NOT NULL,
-    customer_id        VARCHAR(100) NOT NULL,
+    client_id          VARCHAR(100) NOT NULL,
     deployment_id      VARCHAR(255),
     ip_address         VARCHAR(50),
     hostname           VARCHAR(255),
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS license_verification
 );
 
 CREATE INDEX idx_verification_license_hash ON license_verification (license_key_hash);
-CREATE INDEX idx_verification_customer_id ON license_verification (customer_id);
+CREATE INDEX idx_verification_client_id ON license_verification (client_id);
 CREATE INDEX idx_verification_time ON license_verification (verification_time);
 CREATE INDEX idx_verification_deployment_id ON license_verification (deployment_id);
 
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS license_usage
 (
     id                   UUID         NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
     license_key_hash     VARCHAR(64)  NOT NULL,
-    customer_id          VARCHAR(100) NOT NULL,
+    client_id            VARCHAR(100) NOT NULL,
     deployment_id        VARCHAR(255),
     report_date          DATE         NOT NULL,
     tokens_used          BIGINT       NOT NULL DEFAULT 0,
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS license_usage
 );
 
 CREATE INDEX idx_usage_license_hash ON license_usage (license_key_hash);
-CREATE INDEX idx_usage_customer_id ON license_usage (customer_id);
+CREATE INDEX idx_usage_client_id ON license_usage (client_id);
 CREATE INDEX idx_usage_report_date ON license_usage (report_date);
 CREATE INDEX idx_usage_deployment_id ON license_usage (deployment_id);
 
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS license_keys
 CREATE INDEX idx_license_keys_active ON license_keys (active);
 CREATE INDEX idx_license_keys_type ON license_keys (key_type);
 
-COMMENT ON TABLE customer IS 'Customer information for license management';
+COMMENT ON TABLE client IS 'Client information synced from oauth_registered_clients in identity-ms';
 COMMENT ON TABLE license IS 'License records with keys and configurations';
 COMMENT ON TABLE license_verification IS 'Log of license verification attempts';
 COMMENT ON TABLE license_usage IS 'Usage metrics reported by deployments';

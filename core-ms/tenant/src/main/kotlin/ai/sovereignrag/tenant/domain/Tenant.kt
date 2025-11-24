@@ -32,7 +32,11 @@ data class Tenant(
     @Column(name = "status", nullable = false, length = 50)
     override val status: TenantStatus = TenantStatus.ACTIVE,
 
-    // Limits and quotas
+    // Client reference (OAuth client from identity-ms)
+    @Column(name = "client_id", nullable = false, length = 100)
+    val clientId: String,
+
+    // Limits and quotas (per-client, not per-tenant)
     @Column(name = "max_documents", nullable = false)
     val maxDocuments: Int = 10000,
 
@@ -41,10 +45,6 @@ data class Tenant(
 
     @Column(name = "max_requests_per_day", nullable = false)
     val maxRequestsPerDay: Int = 10000,
-
-    // Billing
-    @Column(name = "subscription_tier", nullable = false, length = 50)
-    val subscriptionTier: String = "free",
 
     // Contact info
     @Column(name = "contact_email", length = 500)

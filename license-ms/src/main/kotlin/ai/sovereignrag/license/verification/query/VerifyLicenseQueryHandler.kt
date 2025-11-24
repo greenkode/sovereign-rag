@@ -27,7 +27,7 @@ class VerifyLicenseQueryHandler(
         if (license == null) {
             verificationRepository.recordVerification(
                 licenseKeyHash = licenseKeyHash,
-                customerId = "unknown",
+                clientId = "unknown",
                 deploymentId = query.deploymentId,
                 ipAddress = query.ipAddress,
                 hostname = query.hostname,
@@ -40,8 +40,8 @@ class VerifyLicenseQueryHandler(
             return VerifyLicenseResult(
                 valid = false,
                 message = "License key not found",
-                customerId = "unknown",
-                customerName = "Unknown",
+                clientId = "unknown",
+                clientName = "Unknown",
                 tier = ai.sovereignrag.license.domain.LicenseTier.TRIAL,
                 maxTokensPerMonth = 0,
                 maxTenants = 0,
@@ -66,7 +66,7 @@ class VerifyLicenseQueryHandler(
 
         verificationRepository.recordVerification(
             licenseKeyHash = licenseKeyHash,
-            customerId = license.customerId,
+            clientId = license.clientId,
             deploymentId = query.deploymentId,
             ipAddress = query.ipAddress,
             hostname = query.hostname,
@@ -76,7 +76,7 @@ class VerifyLicenseQueryHandler(
             metadata = query.metadata
         )
 
-        log.info { "License verification for ${license.customerId}: valid=$isValid" }
+        log.info { "License verification for ${license.clientId}: valid=$isValid" }
 
         val features = license.features.mapNotNull { featureString ->
             try {
@@ -89,8 +89,8 @@ class VerifyLicenseQueryHandler(
         return VerifyLicenseResult(
             valid = isValid,
             message = failureReason,
-            customerId = license.customerId,
-            customerName = license.customerId,
+            clientId = license.clientId,
+            clientName = license.clientId,
             tier = license.tier,
             maxTokensPerMonth = license.maxTokensPerMonth,
             maxTenants = license.maxTenants,

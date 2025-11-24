@@ -16,8 +16,8 @@ data class VerifyLicenseQuery(
 data class VerifyLicenseResult(
     val valid: Boolean,
     val message: String?,
-    val customerId: String,
-    val customerName: String,
+    val clientId: String,
+    val clientName: String,
     val tier: LicenseTier,
     val maxTokensPerMonth: Long,
     val maxTenants: Int,

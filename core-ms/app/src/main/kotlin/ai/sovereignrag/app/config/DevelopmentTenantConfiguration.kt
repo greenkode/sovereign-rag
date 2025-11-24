@@ -50,6 +50,7 @@ class DevelopmentTenantConfiguration(
             val result = tenantRegistryService.createTenant(
                 tenantId = devTenantId,
                 name = devTenantName,
+                clientId = "dev-client-id",
                 contactEmail = "dev@sovereignrag.local",
                 contactName = "Development",
                 wordpressUrl = "http://localhost:8080"

@@ -45,8 +45,8 @@ class LicenseVerificationController(
         val response = VerifyLicenseApiResponse(
             valid = result.valid,
             message = result.message,
-            customerId = result.customerId,
-            customerName = result.customerName,
+            clientId = result.clientId,
+            clientName = result.clientName,
             tier = result.tier,
             maxTokensPerMonth = result.maxTokensPerMonth,
             maxTenants = result.maxTenants,
@@ -65,7 +65,7 @@ class LicenseVerificationController(
 
         val command = ReportUsageCommand(
             licenseKey = request.licenseKey,
-            customerId = request.customerId,
+            clientId = request.clientId,
             deploymentId = request.deploymentId,
             tokensUsed = request.tokensUsed,
             activeTenants = request.activeTenants,
@@ -96,8 +96,8 @@ data class VerifyLicenseApiRequest(
 data class VerifyLicenseApiResponse(
     val valid: Boolean,
     val message: String?,
-    val customerId: String,
-    val customerName: String,
+    val clientId: String,
+    val clientName: String,
     val tier: LicenseTier,
     val maxTokensPerMonth: Long,
     val maxTenants: Int,
@@ -109,7 +109,7 @@ data class VerifyLicenseApiResponse(
 
 data class ReportUsageApiRequest(
     val licenseKey: String,
-    val customerId: String,
+    val clientId: String,
     val deploymentId: String?,
     val tokensUsed: Long,
     val activeTenants: Int,

@@ -36,6 +36,7 @@ class TenantController(
             val result = tenantRegistry.createTenant(
                 tenantId = request.tenantId,
                 name = request.name,
+                clientId = request.clientId,
                 contactEmail = request.contactEmail,
                 contactName = request.contactName,
                 wordpressUrl = request.wordpressUrl
@@ -180,6 +181,7 @@ class TenantController(
 data class CreateTenantRequest(
     val tenantId: String,
     val name: String,
+    val clientId: String,
     val contactEmail: String? = null,
     val contactName: String? = null,
     val wordpressUrl: String? = null
@@ -220,10 +222,10 @@ data class TenantDto(
     val name: String,
     val databaseName: String,
     val status: TenantStatus,
+    val clientId: String,
     val maxDocuments: Int,
     val maxEmbeddings: Int,
     val maxRequestsPerDay: Int,
-    val subscriptionTier: String,
     val contactEmail: String?,
     val contactName: String?,
     val wordpressUrl: String?,
@@ -240,10 +242,10 @@ data class TenantDto(
                 name = tenant.name,
                 databaseName = tenant.databaseName,
                 status = tenant.status,
+                clientId = tenant.clientId,
                 maxDocuments = tenant.maxDocuments,
                 maxEmbeddings = tenant.maxEmbeddings,
                 maxRequestsPerDay = tenant.maxRequestsPerDay,
-                subscriptionTier = tenant.subscriptionTier,
                 contactEmail = tenant.contactEmail,
                 contactName = tenant.contactName,
                 wordpressUrl = tenant.wordpressUrl,
