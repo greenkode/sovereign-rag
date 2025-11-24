@@ -29,7 +29,7 @@ import java.util.UUID
 import javax.money.CurrencyUnit
 
 @Entity
-@Table(name = "pricing", schema = "core")
+@Table(name = "pricing")
 class PricingEntity(
 
     val publicId: UUID,
@@ -92,7 +92,7 @@ class PricingEntity(
 }
 
 @Entity
-@Table(name = "pricing_data", schema = "core")
+@Table(name = "pricing_data")
 class PricingDataEntity(
 
     @Enumerated(EnumType.STRING)

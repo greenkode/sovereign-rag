@@ -15,7 +15,7 @@ import java.util.*
  * - Tied to specific tenant
  */
 @Entity
-@Table(name = "reset_tokens", schema = "identity")
+@Table(name = "reset_tokens")
 data class ResetToken(
     @Id
     @Column(name = "id", nullable = false, length = 255)

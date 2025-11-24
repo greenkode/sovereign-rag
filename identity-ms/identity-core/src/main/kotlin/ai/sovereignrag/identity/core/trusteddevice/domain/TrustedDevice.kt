@@ -5,7 +5,7 @@ import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(name = "trusted_devices", schema = "identity")
+@Table(name = "trusted_devices")
 class TrustedDevice(
 
     @Id

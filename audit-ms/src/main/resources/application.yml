@@ -6,7 +6,7 @@ spring:
 
   datasource:
     main:
-      url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:sovereignrag}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true&prepareThreshold=1&preferQueryMode=extended"
+      url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:sovereignrag}?ApplicationName=${spring.application.name}&currentSchema=audit&reWriteBatchedInserts=true&prepareThreshold=1&preferQueryMode=extended"
       username: "${sovereignrag_db_user:sovereignrag}"
       password: "${sovereignrag_db_password:RespectTheHangover}"
       driver-class-name: org.postgresql.Driver
@@ -30,6 +30,7 @@ spring:
         maximum-pool-size: 5
         minimum-idle: 2
         schema: audit
+        connection-init-sql: SET search_path TO audit, public
         register-mbeans: false
         pool-name: "audit"
         connectionTimeout: 30000
@@ -40,7 +41,7 @@ spring:
         connectionTestQuery: "SELECT 1"
         initializationFailTimeout: 30000
     read-replica:
-      url: "jdbc:postgresql://${READ_REPLICA_DB_HOST:localhost}:${READ_REPLICA_DATABASE_PORT:5432}/${READ_REPLICA_DATABASE_NAME:sovereignrag_local}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true"
+      url: "jdbc:postgresql://${READ_REPLICA_DB_HOST:localhost}:${READ_REPLICA_DATABASE_PORT:5432}/${READ_REPLICA_DATABASE_NAME:sovereignrag_local}?ApplicationName=${spring.application.name}&currentSchema=audit&reWriteBatchedInserts=true"
       username: "${sovereignrag_db_user:sovereignrag}"
       password: "${sovereignrag_db_password:RespectTheHangover}"
       driver-class-name: org.postgresql.Driver
@@ -62,6 +63,7 @@ spring:
         maximum-pool-size: 3
         minimum-idle: 1
         schema: audit
+        connection-init-sql: SET search_path TO audit, public
         register-mbeans: false
         pool-name: "audit-replica"
         connectionTimeout: 30000

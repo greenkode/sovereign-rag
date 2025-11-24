@@ -11,7 +11,7 @@ import java.util.UUID
  * Stored in tenant databases (uses tenant DataSource routing)
  */
 @Entity
-@Table(name = "escalations", schema = "core")
+@Table(name = "escalations")
 data class Escalation(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

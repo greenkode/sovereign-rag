@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import java.time.Instant
 
 @Entity
-@Table(name = "oauth_registered_clients", schema = "identity")
+@Table(name = "oauth_registered_clients")
 class OAuthRegisteredClient {
     @Id
     @Column(length = 100)

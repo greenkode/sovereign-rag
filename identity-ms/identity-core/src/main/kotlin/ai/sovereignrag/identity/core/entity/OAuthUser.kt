@@ -14,7 +14,7 @@ enum class TrustLevel {
 }
 
 @Entity
-@Table(name = "oauth_users", schema = "identity")
+@Table(name = "oauth_users")
 class OAuthUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

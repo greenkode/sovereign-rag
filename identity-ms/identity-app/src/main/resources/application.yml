@@ -4,7 +4,7 @@ spring:
   application:
     name: identity-ms
   datasource:
-    url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME}?ApplicationName=${spring.application.name}"
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME}?ApplicationName=${spring.application.name}&currentSchema=identity"
     username: ${identity_db_user:sovereignrag}
     password: ${identity_db_password:RespectTheHangover}
     driver-class-name: org.postgresql.Driver
@@ -23,6 +23,7 @@ spring:
         application: ${spring.application.name}
       maximum-pool-size: 20
       schema: identity
+      connection-init-sql: SET search_path TO identity, public
       register-mbeans: false
       pool-name: "identity-replica"
       minimum-idle: 5
