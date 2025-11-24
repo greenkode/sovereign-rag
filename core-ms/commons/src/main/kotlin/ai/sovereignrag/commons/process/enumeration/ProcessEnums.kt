@@ -96,7 +96,6 @@ enum class ProcessRequestDataName(description: String) {
     TRANSACTION_TYPE("Transaction Type"),
     PRODUCT_ID("Product ID"),
     INTEGRATOR_REFERENCE("Integrator Reference"),
-    VENDOR_ID("Vendor ID"),
     INTEGRATOR_METADATA("Integrator Metadata"),
     LENDING_OFFERS_METADATA("Lending Offers Metadata"),
     LENDING_OFFER_ID("Lending Offer Id"),

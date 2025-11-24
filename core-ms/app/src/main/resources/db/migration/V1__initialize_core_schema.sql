@@ -638,42 +638,6 @@ CREATE TABLE IF NOT EXISTS loan_repayment_property
 
 CREATE INDEX IF NOT EXISTS idx_loan_repayment_property_group ON loan_repayment_property(property_group);
 
-CREATE TABLE IF NOT EXISTS support_ticket
-(
-    id                 BIGSERIAL PRIMARY KEY,
-    public_id          UUID         NOT NULL,
-    external_ticket_id VARCHAR(255),
-    subject            VARCHAR(500) NOT NULL,
-    description        TEXT         NOT NULL,
-    status             VARCHAR(30)  NOT NULL,
-    priority           VARCHAR(20)  NOT NULL,
-    category           VARCHAR(30)  NOT NULL,
-    customer_email     VARCHAR(255) NOT NULL,
-    customer_name      VARCHAR(255),
-    assignee_id        VARCHAR(255),
-    web_url            VARCHAR(500),
-    closed_date        TIMESTAMP,
-    process_id         UUID         NOT NULL,
-    vendor_id          UUID,
-    merchant_id        UUID,
-    transaction_id     UUID,
-    version            BIGINT       NOT NULL DEFAULT 0,
-    created_date       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by         VARCHAR(255)          DEFAULT 'system',
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_modified_by   VARCHAR(255)          DEFAULT 'system'
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_support_ticket_public_id ON support_ticket(public_id);
-CREATE INDEX IF NOT EXISTS idx_support_ticket_external_id ON support_ticket(external_ticket_id);
-CREATE INDEX IF NOT EXISTS idx_support_ticket_status ON support_ticket(status);
-CREATE INDEX IF NOT EXISTS idx_support_ticket_customer_email ON support_ticket(customer_email);
-CREATE INDEX IF NOT EXISTS idx_support_ticket_process_id ON support_ticket(process_id);
-CREATE INDEX IF NOT EXISTS idx_support_ticket_created_date ON support_ticket(created_date);
-CREATE INDEX IF NOT EXISTS idx_support_ticket_vendor_id ON support_ticket(vendor_id);
-CREATE INDEX IF NOT EXISTS idx_support_ticket_merchant_id ON support_ticket(merchant_id);
-CREATE INDEX IF NOT EXISTS idx_support_ticket_transaction_id ON support_ticket(transaction_id);
-
 CREATE TABLE IF NOT EXISTS webhook_configuration
 (
     id                 BIGSERIAL PRIMARY KEY,
@@ -726,28 +690,6 @@ CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_event_id ON webhook_delivery
 CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_status ON webhook_delivery_log(delivery_status);
 CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_created_date ON webhook_delivery_log(created_date);
 CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_config_status_date ON webhook_delivery_log(webhook_configuration_id, delivery_status, created_date);
-
-CREATE TABLE IF NOT EXISTS vendor_integration_config
-(
-    id                 SERIAL PRIMARY KEY,
-    public_id          UUID                     NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-    integration_id     VARCHAR(255)             NOT NULL,
-    vendor_name        VARCHAR(255)             NOT NULL,
-    pool_account_id    UUID                     NOT NULL,
-    currency_code      VARCHAR(3)               NOT NULL        DEFAULT 'NGN',
-    is_active          BOOLEAN                  NOT NULL        DEFAULT TRUE,
-    version            BIGINT                   NOT NULL        DEFAULT 0,
-    created_date       TIMESTAMP WITH TIME ZONE NOT NULL        DEFAULT CURRENT_TIMESTAMP,
-    created_by         VARCHAR(255)             NOT NULL        DEFAULT 'system',
-    last_modified_date TIMESTAMP WITH TIME ZONE NOT NULL        DEFAULT CURRENT_TIMESTAMP,
-    last_modified_by   VARCHAR(255)             NOT NULL        DEFAULT 'system',
-    CONSTRAINT unique_integration_currency UNIQUE (integration_id, currency_code)
-);
-
-CREATE INDEX IF NOT EXISTS idx_vendor_integration_config_pool_account ON vendor_integration_config(pool_account_id);
-CREATE INDEX IF NOT EXISTS idx_vendor_integration_config_integration_id ON vendor_integration_config(integration_id);
-CREATE INDEX IF NOT EXISTS idx_vendor_integration_config_active ON vendor_integration_config(is_active) WHERE is_active = TRUE;
-CREATE INDEX IF NOT EXISTS idx_vendor_integration_config_public_id ON vendor_integration_config(public_id);
 
 CREATE TABLE IF NOT EXISTS reconciliation_record
 (

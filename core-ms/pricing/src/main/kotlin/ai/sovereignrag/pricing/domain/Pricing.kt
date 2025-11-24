@@ -13,7 +13,7 @@ import javax.money.CurrencyUnit
 import javax.money.MonetaryAmount
 
 data class Pricing(
-    val id: Long, val publicId: UUID, val vendorId: UUID?, val accountType: AccountType?, val accountPublicId: UUID?,
+    val id: Long, val publicId: UUID, val accountType: AccountType?, val accountPublicId: UUID?,
     val transactionType: TransactionType, val currency: CurrencyUnit?, val validFrom: Instant, val validUntil: Instant?,
     val integratorId: String?, val data: Set<PricingData>
 ) {

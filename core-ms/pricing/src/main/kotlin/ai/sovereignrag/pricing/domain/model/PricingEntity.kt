@@ -66,7 +66,6 @@ class PricingEntity(
     fun toDomain() = Pricing(
         id!!,
         publicId,
-        productId,
         accountType,
         accountPublicId,
         transactionType,

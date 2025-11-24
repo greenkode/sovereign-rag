@@ -222,7 +222,7 @@ data class PricingDtoResult(
 ) {
     companion object {
 
-        fun fromDto(dto: PricingDto, vendor: Any?, account: AccountDto?) =
+        fun fromDto(dto: PricingDto, account: AccountDto?) =
 
             PricingDtoResult(
                 dto.publicId,
