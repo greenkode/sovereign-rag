@@ -4,7 +4,7 @@ spring:
   application:
     name: identity-ms
   datasource:
-    url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME}?ApplicationName=${spring.application.name}&currentSchema=identity"
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:sovereignrag_identity}?ApplicationName=${spring.application.name}"
     username: ${identity_db_user:sovereignrag}
     password: ${identity_db_password:RespectTheHangover}
     driver-class-name: org.postgresql.Driver
@@ -23,9 +23,8 @@ spring:
         application: ${spring.application.name}
       maximum-pool-size: 20
       schema: identity
-      connection-init-sql: SET search_path TO identity, public
       register-mbeans: false
-      pool-name: "identity-replica"
+      pool-name: "identity"
       minimum-idle: 5
       connectionTimeout: 20000
       idleTimeout: 300000
@@ -33,10 +32,12 @@ spring:
       leakDetectionThreshold: 60000
 
     read-replica:
-      url: ${IDENTITY_READ_REPLICA_URL:jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME}?ApplicationName=${spring.application.name}&currentSchema=identity}
+      url: ${IDENTITY_READ_REPLICA_URL:jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:sovereignrag_identity}?ApplicationName=${spring.application.name}}
       hikari:
         maximum-pool-size: 15
         minimum-idle: 3
+        schema: identity
+        pool-name: "identity-replica"
   jpa:
     hibernate:
       ddl-auto: validate
@@ -49,6 +50,7 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    schemas: [identity]
   security:
     oauth2:
       resourceserver:

@@ -1,7 +1,3 @@
-CREATE SCHEMA IF NOT EXISTS license;
-
-SET search_path TO license, public;
-
 CREATE TABLE IF NOT EXISTS customer
 (
     id                  UUID         NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),

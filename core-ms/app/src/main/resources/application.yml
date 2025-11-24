@@ -4,7 +4,7 @@ spring:
 
   # PostgreSQL configuration for multi-tenant architecture
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=core}
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master}
     username: ${POSTGRES_USER:sovereignrag}
     password: ${POSTGRES_PASSWORD:RespectTheHangover}
     host: ${POSTGRES_HOST:localhost}
@@ -18,7 +18,7 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       pool-name: core-pool
-      connection-init-sql: SET search_path TO core, public
+      schema: core
       data-source-properties:
         cachePrepStmts: true
         prepStmtCacheSize: 250
@@ -26,10 +26,11 @@ spring:
         stringtype: unspecified
 
     read-replica:
-      url: ${POSTGRES_READ_REPLICA_URL:${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master?currentSchema=core}}
+      url: ${POSTGRES_READ_REPLICA_URL:${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master}}
       hikari:
         maximum-pool-size: 15
         minimum-idle: 3
+        schema: core
 
   # JPA/Hibernate configuration
   jpa:
@@ -49,6 +50,7 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
     placeholder-replacement: false  # Disable to preserve ${} in templates
+    schemas: [core]
 
   # OAuth2 Resource Server (validates JWTs from identity-ms)
   security:
