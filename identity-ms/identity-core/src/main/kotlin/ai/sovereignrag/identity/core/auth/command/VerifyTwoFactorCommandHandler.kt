@@ -2,6 +2,11 @@ package ai.sovereignrag.identity.core.auth.command
 
 import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.CODE
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.PROCESS_ID
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.SESSION_ID
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.TwoFactorCodeInvalidException
@@ -116,11 +121,11 @@ class VerifyTwoFactorCommandHandler(
                 eventTime = Instant.now(),
                 timeRecorded = Instant.now(),
                 payload = mapOf(
-                    "processId" to process.publicId.toString(),
-                    "username" to user.username,
-                    "sessionId" to command.sessionId,
-                    "code" to command.code,
-                    "userId" to user.id.toString()
+                    PROCESS_ID.value to process.publicId.toString(),
+                    USERNAME.value to user.username,
+                    SESSION_ID.value to command.sessionId,
+                    CODE.value to command.code,
+                    USER_ID.value to user.id.toString()
                 )
             )
         )

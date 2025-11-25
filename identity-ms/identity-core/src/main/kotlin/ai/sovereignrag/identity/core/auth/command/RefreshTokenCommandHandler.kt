@@ -1,6 +1,9 @@
 package ai.sovereignrag.identity.core.auth.command
 
 import ai.sovereignrag.identity.commons.audit.AuditEvent
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.OLD_JTI
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.ClientException
@@ -70,9 +73,9 @@ class RefreshTokenCommandHandler(
                     eventTime = Instant.now(),
                     timeRecorded = Instant.now(),
                     payload = mapOf(
-                        "username" to user.username,
-                        "oldJti" to jti,
-                        "userId" to user.id.toString()
+                        USERNAME.value to user.username,
+                        OLD_JTI.value to jti,
+                        USER_ID.value to user.id.toString()
                     )
                 )
             )

@@ -3,6 +3,11 @@ package ai.sovereignrag.identity.core.password.command
 
 import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.PROCESS_ID
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.REFERENCE
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.TOKEN
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.ClientException
@@ -79,11 +84,11 @@ class CompletePasswordResetCommandHandler(
                 eventTime = Instant.now(),
                 timeRecorded = Instant.now(),
                 payload = mapOf(
-                    "processId" to processId.toString(),
-                    "username" to user.username,
-                    "reference" to command.reference,
-                    "token" to command.token,
-                    "userId" to userId.toString()
+                    PROCESS_ID.value to processId.toString(),
+                    USERNAME.value to user.username,
+                    REFERENCE.value to command.reference,
+                    TOKEN.value to command.token,
+                    USER_ID.value to userId.toString()
                 )
             )
         )

@@ -1,6 +1,13 @@
 package ai.sovereignrag.identity.core.auth.command
 
 import ai.sovereignrag.identity.commons.audit.AuditEvent
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.FAILED_ATTEMPTS
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.IP_ADDRESS
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.LOCKED_UNTIL
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.LOGIN_METHOD
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.REASON
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.InvalidCredentialsException
@@ -109,10 +116,10 @@ class LoginCommandHandler(
                 eventTime = Instant.now(),
                 timeRecorded = Instant.now(),
                 payload = mapOf(
-                    "username" to command.username,
-                    "ipAddress" to (command.ipAddress ?: "unknown"),
-                    "userId" to oauthUser.id.toString(),
-                    "loginMethod" to "direct_login"
+                    USERNAME.value to command.username,
+                    IP_ADDRESS.value to (command.ipAddress ?: "unknown"),
+                    USER_ID.value to oauthUser.id.toString(),
+                    LOGIN_METHOD.value to "direct_login"
                 )
             )
         )
@@ -130,12 +137,12 @@ class LoginCommandHandler(
                 eventTime = Instant.now(),
                 timeRecorded = Instant.now(),
                 payload = mapOf(
-                    "username" to command.username,
-                    "ipAddress" to (command.ipAddress ?: "unknown"),
-                    "reason" to "account_locked",
-                    "failedAttempts" to failedAttempts.toString(),
-                    "lockedUntil" to lockedUntil.toString(),
-                    "loginMethod" to "direct_login"
+                    USERNAME.value to command.username,
+                    IP_ADDRESS.value to (command.ipAddress ?: "unknown"),
+                    REASON.value to "account_locked",
+                    FAILED_ATTEMPTS.value to failedAttempts.toString(),
+                    LOCKED_UNTIL.value to lockedUntil.toString(),
+                    LOGIN_METHOD.value to "direct_login"
                 )
             )
         )
@@ -153,10 +160,10 @@ class LoginCommandHandler(
                 eventTime = Instant.now(),
                 timeRecorded = Instant.now(),
                 payload = mapOf(
-                    "username" to command.username,
-                    "ipAddress" to (command.ipAddress ?: "unknown"),
-                    "reason" to "invalid_credentials",
-                    "loginMethod" to "direct_login"
+                    USERNAME.value to command.username,
+                    IP_ADDRESS.value to (command.ipAddress ?: "unknown"),
+                    REASON.value to "invalid_credentials",
+                    LOGIN_METHOD.value to "direct_login"
                 )
             )
         )

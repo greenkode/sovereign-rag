@@ -2,6 +2,11 @@ package ai.sovereignrag.identity.core.auth.command
 
 import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.IP_ADDRESS
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.SESSION_ID
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.TRUSTED_DEVICE_ID
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.ClientException
@@ -106,9 +111,9 @@ class InitiateTwoFactorCommandHandler(
                             eventTime = Instant.now(),
                             timeRecorded = Instant.now(),
                             payload = mapOf(
-                                "username" to oauthUser.username,
-                                "ipAddress" to (command.ipAddress ?: "unknown"),
-                                "trustedDeviceId" to (trustedDevice.id?.toString() ?: "unknown")
+                                USERNAME.value to oauthUser.username,
+                                IP_ADDRESS.value to (command.ipAddress ?: "unknown"),
+                                TRUSTED_DEVICE_ID.value to (trustedDevice.id?.toString() ?: "unknown")
                             )
                         )
                     )
@@ -168,10 +173,10 @@ class InitiateTwoFactorCommandHandler(
                     eventTime = Instant.now(),
                     timeRecorded = Instant.now(),
                     payload = mapOf(
-                        "username" to oauthUser.username,
-                        "sessionId" to sessionId,
-                        "ipAddress" to (command.ipAddress ?: "unknown"),
-                        "userId" to userId.toString()
+                        USERNAME.value to oauthUser.username,
+                        SESSION_ID.value to sessionId,
+                        IP_ADDRESS.value to (command.ipAddress ?: "unknown"),
+                        USER_ID.value to userId.toString()
                     )
                 )
             )

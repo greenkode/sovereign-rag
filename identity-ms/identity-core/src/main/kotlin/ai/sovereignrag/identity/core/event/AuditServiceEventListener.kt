@@ -1,6 +1,14 @@
 package ai.sovereignrag.identity.core.event
 
 import ai.sovereignrag.identity.commons.audit.AuditEvent
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.ACTOR_ID
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.ACTOR_NAME
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.EVENT
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.EVENT_TIME
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.IDENTITY_TYPE
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.MERCHANT_ID
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.PAYLOAD
+import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.RESOURCE
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.event.EventListener
@@ -19,33 +27,31 @@ class AuditServiceEventListener(
     @Async
     @EventListener
     fun on(event: AuditEvent) {
-        try {
+        runCatching {
             log.debug { "Sending audit event to Audit MS: ${event.event} for ${event.actorId}" }
 
             val requestBody = mapOf(
-                "actorId" to event.actorId,
-                "actorName" to event.actorName,
-                "merchantId" to event.merchantId,
-                "identityType" to event.identityType.name,
-                "resource" to event.resource.name,
-                "event" to event.event,
-                "eventTime" to event.eventTime,
-                "payload" to event.payload
+                ACTOR_ID.value to event.actorId,
+                ACTOR_NAME.value to event.actorName,
+                MERCHANT_ID.value to event.merchantId,
+                IDENTITY_TYPE.value to event.identityType.name,
+                RESOURCE.value to event.resource.name,
+                EVENT.value to event.event,
+                EVENT_TIME.value to event.eventTime,
+                PAYLOAD.value to event.payload
             )
 
-            val restClient = RestClient.builder()
+            RestClient.builder()
                 .baseUrl(auditMsBaseUrl)
                 .build()
-
-            val response = restClient.post()
+                .post()
                 .uri("/v1/events/create")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(requestBody)
                 .retrieve()
                 .body(Map::class.java)
-
-            log.info { "Audit event sent successfully to Audit MS: ${response?.get("message")}" }
-        } catch (e: Exception) {
+                ?.let { log.info { "Audit event sent successfully to Audit MS: ${it["message"]}" } }
+        }.onFailure { e ->
             log.error(e) { "Failed to send audit event to Audit MS: ${event.event}" }
         }
     }
