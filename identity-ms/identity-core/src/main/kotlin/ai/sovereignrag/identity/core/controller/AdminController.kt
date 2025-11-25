@@ -2,9 +2,11 @@ package ai.sovereignrag.identity.core.controller
 
 import ai.sovereignrag.identity.commons.dto.LockoutStatusResponse
 import ai.sovereignrag.identity.commons.dto.UnlockResponse
-import ai.sovereignrag.identity.commons.exception.NotFoundException
-import ai.sovereignrag.identity.core.service.AccountLockoutService
-import ai.sovereignrag.identity.core.service.ClientLockoutService
+import ai.sovereignrag.identity.core.admin.command.UnlockAccountCommand
+import ai.sovereignrag.identity.core.admin.command.UnlockAccountResult
+import ai.sovereignrag.identity.core.admin.query.GetLockoutStatusQuery
+import ai.sovereignrag.identity.core.admin.query.LockoutStatusResult
+import an.awesome.pipelinr.Pipeline
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -28,8 +30,7 @@ private val log = KotlinLogging.logger {}
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Admin", description = "Administrative operations for user and client management")
 class AdminController(
-    private val accountLockoutService: AccountLockoutService,
-    private val clientLockoutService: ClientLockoutService
+    private val pipeline: Pipeline
 ) {
 
     @PostMapping("/unlock-user/{username}")
@@ -46,14 +47,7 @@ class AdminController(
         @PathVariable username: String
     ): UnlockResponse {
         log.info { "Admin request to unlock user: $username" }
-
-        return accountLockoutService.unlockAccount(username)
-            .takeIf { it }
-            ?.let {
-                log.info { "Successfully unlocked user: $username" }
-                UnlockResponse.toResponse(success = true, identifier = username, isUser = true)
-            }
-            ?: throw NotFoundException("User not found or account was not locked: $username")
+        return pipeline.send(UnlockAccountCommand(identifier = username, isUser = true)).toResponse()
     }
 
     @PostMapping("/unlock-client/{clientId}")
@@ -70,14 +64,7 @@ class AdminController(
         @PathVariable clientId: String
     ): UnlockResponse {
         log.info { "Admin request to unlock client: $clientId" }
-
-        return clientLockoutService.unlockClient(clientId)
-            .takeIf { it }
-            ?.let {
-                log.info { "Successfully unlocked client: $clientId" }
-                UnlockResponse.toResponse(success = true, identifier = clientId, isUser = false)
-            }
-            ?: throw NotFoundException("Client not found or was not locked: $clientId")
+        return pipeline.send(UnlockAccountCommand(identifier = clientId, isUser = false)).toResponse()
     }
 
     @GetMapping("/lockout-status/user/{username}")
@@ -91,11 +78,7 @@ class AdminController(
         @PathVariable username: String
     ): LockoutStatusResponse {
         log.info { "Admin checking lockout status for user: $username" }
-        return LockoutStatusResponse.toResponse(
-            identifier = username,
-            remainingMinutes = accountLockoutService.getRemainingLockoutMinutes(username),
-            isUser = true
-        )
+        return pipeline.send(GetLockoutStatusQuery(identifier = username, isUser = true)).toResponse()
     }
 
     @GetMapping("/lockout-status/client/{clientId}")
@@ -109,10 +92,20 @@ class AdminController(
         @PathVariable clientId: String
     ): LockoutStatusResponse {
         log.info { "Admin checking lockout status for client: $clientId" }
-        return LockoutStatusResponse.toResponse(
-            identifier = clientId,
-            remainingMinutes = clientLockoutService.getRemainingLockoutMinutes(clientId),
-            isUser = false
-        )
+        return pipeline.send(GetLockoutStatusQuery(identifier = clientId, isUser = false)).toResponse()
     }
+
+    private fun UnlockAccountResult.toResponse() = UnlockResponse(
+        status = status,
+        message = message,
+        username = identifier.takeIf { isUser },
+        clientId = identifier.takeUnless { isUser }
+    )
+
+    private fun LockoutStatusResult.toResponse() = LockoutStatusResponse(
+        identifier = identifier,
+        locked = locked,
+        remainingMinutes = remainingMinutes,
+        message = message
+    )
 }

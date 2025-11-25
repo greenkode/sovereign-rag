@@ -86,21 +86,7 @@ data class UnlockResponse(
     val message: String,
     val username: String? = null,
     val clientId: String? = null
-) {
-    companion object {
-        fun toResponse(success: Boolean, identifier: String, isUser: Boolean) = UnlockResponse(
-            status = if (success) "success" else "not_found",
-            message = when {
-                success && isUser -> "User account unlocked successfully"
-                success -> "Client unlocked successfully"
-                isUser -> "User not found or account was not locked"
-                else -> "Client not found or was not locked"
-            },
-            username = identifier.takeIf { isUser },
-            clientId = identifier.takeUnless { isUser }
-        )
-    }
-}
+)
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class LockoutStatusResponse(
@@ -108,19 +94,7 @@ data class LockoutStatusResponse(
     val locked: Boolean,
     val remainingMinutes: Long? = null,
     val message: String
-) {
-    companion object {
-        fun toResponse(identifier: String, remainingMinutes: Long?, isUser: Boolean) = LockoutStatusResponse(
-            identifier = identifier,
-            locked = remainingMinutes != null && remainingMinutes > 0,
-            remainingMinutes = remainingMinutes?.takeIf { it > 0 },
-            message = remainingMinutes
-                ?.takeIf { it > 0 }
-                ?.let { "${if (isUser) "User" else "Client"} is locked for $it more minutes" }
-                ?: "${if (isUser) "User" else "Client"} is not locked"
-        )
-    }
-}
+)
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class AccountLockedResponse(
