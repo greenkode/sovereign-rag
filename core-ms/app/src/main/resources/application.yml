@@ -59,6 +59,16 @@ spring:
         jwt:
           issuer-uri: ${JWT_ISSUER_URI:http://localhost:9093}
           jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:9093/.well-known/jwks.json}
+      client:
+        registration:
+          identity-ms:
+            client-id: ${IDENTITY_CLIENT_ID:core-ms}
+            client-secret: ${IDENTITY_CLIENT_SECRET:RespectTheHangover}
+            authorization-grant-type: client_credentials
+            scope: internal
+        provider:
+          identity-ms:
+            token-uri: ${IDENTITY_MS_TOKEN_URI:http://localhost:9093/oauth2/token}
 
   # Redis configuration for chat session storage
   data:
@@ -84,6 +94,9 @@ server:
   port: ${SERVER_PORT:8000}
 
 sovereignrag:
+  identity-ms:
+    base-url: ${IDENTITY_MS_BASE_URL:http://localhost:9093}
+
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
     # Performance tip: Use smaller/faster models for better response times:
