@@ -33,66 +33,71 @@ class TrustDeviceCommandHandler(
 
         log.info { "Attempting to trust device for user ${command.userId} with session ${command.sessionId}" }
 
-        // Check if device already exists
-        val existingDevice = trustedDeviceRepository.findByUserIdAndDeviceFingerprintHashAndExpiresAtAfter(
+        return trustedDeviceRepository.findByUserIdAndDeviceFingerprintHashAndExpiresAtAfter(
             command.userId,
             fingerprintHash,
             Instant.now()
+        )?.let { existingDevice ->
+            extendExistingDeviceTrust(existingDevice, trustDuration, command.userId)
+        } ?: createNewTrustedDevice(command, fingerprintHash, expiresAt)
+    }
+
+    private fun extendExistingDeviceTrust(
+        device: TrustedDevice,
+        trustDuration: Duration,
+        userId: java.util.UUID
+    ): TrustDeviceResult {
+        device.extendExpiration(trustDuration)
+        device.lastUsedAt = Instant.now()
+        trustedDeviceRepository.save(device)
+
+        log.info { "Extended trust for existing device ${device.id} for user $userId" }
+
+        return TrustDeviceResult(
+            deviceId = device.id!!,
+            expiresAt = device.expiresAt,
+            message = "Device trust extended until ${device.expiresAt}"
+        )
+    }
+
+    private fun createNewTrustedDevice(
+        command: TrustDeviceCommand,
+        fingerprintHash: String,
+        expiresAt: Instant
+    ): TrustDeviceResult {
+        enforceDeviceLimit(command.userId)
+
+        val trustedDevice = TrustedDevice(
+            userId = command.userId,
+            deviceFingerprint = command.deviceFingerprint,
+            deviceFingerprintHash = fingerprintHash,
+            deviceName = command.deviceName ?: deviceFingerprintService.extractDeviceName(command.userAgent),
+            ipAddress = command.ipAddress,
+            userAgent = command.userAgent,
+            expiresAt = expiresAt
         )
 
-        return if (existingDevice != null) {
-            // Extend expiration for existing trusted device
-            existingDevice.extendExpiration(trustDuration)
-            existingDevice.lastUsedAt = Instant.now()
+        val savedDevice = trustedDeviceRepository.save(trustedDevice)
 
-            trustedDeviceRepository.save(existingDevice)
+        log.info { "Created new trusted device ${savedDevice.id} for user ${command.userId}" }
 
-            log.info { "Extended trust for existing device ${existingDevice.id} for user ${command.userId}" }
+        return TrustDeviceResult(
+            deviceId = savedDevice.id!!,
+            expiresAt = savedDevice.expiresAt,
+            message = "Device trusted until ${savedDevice.expiresAt}"
+        )
+    }
 
-            TrustDeviceResult(
-                deviceId = existingDevice.id!!,
-                expiresAt = existingDevice.expiresAt,
-                message = "Device trust extended until ${existingDevice.expiresAt}"
-            )
-        } else {
-            // Check device limit
-            val currentDeviceCount = trustedDeviceRepository.countByUserIdAndExpiresAtAfter(
-                command.userId,
-                Instant.now()
-            )
+    private fun enforceDeviceLimit(userId: java.util.UUID) {
+        val currentDeviceCount = trustedDeviceRepository.countByUserIdAndExpiresAtAfter(userId, Instant.now())
 
-            if (currentDeviceCount >= maxDevicesPerUser) {
-                // Delete oldest device
-                val devices = trustedDeviceRepository.findAllByUserIdAndExpiresAtAfter(
-                    command.userId,
-                    Instant.now()
-                )
-                devices.minByOrNull { it.lastUsedAt }?.let {
-                    trustedDeviceRepository.delete(it)
-                    log.info { "Deleted oldest trusted device ${it.id} to make room for new device" }
+        currentDeviceCount.takeIf { it >= maxDevicesPerUser }?.let {
+            trustedDeviceRepository.findAllByUserIdAndExpiresAtAfter(userId, Instant.now())
+                .minByOrNull { device -> device.lastUsedAt }
+                ?.let { oldestDevice ->
+                    trustedDeviceRepository.delete(oldestDevice)
+                    log.info { "Deleted oldest trusted device ${oldestDevice.id} to make room for new device" }
                 }
-            }
-
-            // Create new trusted device
-            val trustedDevice = TrustedDevice(
-                userId = command.userId,
-                deviceFingerprint = command.deviceFingerprint,
-                deviceFingerprintHash = fingerprintHash,
-                deviceName = command.deviceName ?: deviceFingerprintService.extractDeviceName(command.userAgent),
-                ipAddress = command.ipAddress,
-                userAgent = command.userAgent,
-                expiresAt = expiresAt
-            )
-
-            val savedDevice = trustedDeviceRepository.save(trustedDevice)
-
-            log.info { "Created new trusted device ${savedDevice.id} for user ${command.userId}" }
-
-            TrustDeviceResult(
-                deviceId = savedDevice.id!!,
-                expiresAt = savedDevice.expiresAt,
-                message = "Device trusted until ${savedDevice.expiresAt}"
-            )
         }
     }
 }

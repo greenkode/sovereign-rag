@@ -1,9 +1,9 @@
 package ai.sovereignrag.identity.core.trusteddevice.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Service
 import java.security.MessageDigest
-import jakarta.servlet.http.HttpServletRequest
 
 private val log = KotlinLogging.logger {}
 
@@ -16,24 +16,21 @@ class DeviceFingerprintService {
         acceptLanguage: String? = null,
         acceptEncoding: String? = null
     ): String {
-        val components = mutableListOf<String>()
-
-        userAgent?.let { components.add("ua:$it") }
-        ipAddress?.let { components.add("ip:${normalizeIpAddress(it)}") }
-        acceptLanguage?.let { components.add("lang:$it") }
-        acceptEncoding?.let { components.add("enc:$it") }
-
-        return components.joinToString("|")
+        return listOfNotNull(
+            userAgent?.let { "ua:$it" },
+            ipAddress?.let { "ip:${normalizeIpAddress(it)}" },
+            acceptLanguage?.let { "lang:$it" },
+            acceptEncoding?.let { "enc:$it" }
+        ).joinToString("|")
     }
 
-    fun generateFingerprintFromRequest(request: HttpServletRequest, ipAddress: String?): String {
-        return generateFingerprint(
+    fun generateFingerprintFromRequest(request: HttpServletRequest, ipAddress: String?): String =
+        generateFingerprint(
             userAgent = request.getHeader("User-Agent"),
             ipAddress = ipAddress,
             acceptLanguage = request.getHeader("Accept-Language"),
             acceptEncoding = request.getHeader("Accept-Encoding")
         )
-    }
 
     fun hashFingerprint(fingerprint: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
@@ -41,30 +38,30 @@ class DeviceFingerprintService {
         return hashBytes.fold("") { str, it -> str + "%02x".format(it) }
     }
 
-    fun extractDeviceName(userAgent: String?): String? {
-        if (userAgent == null) return null
-
-        return when {
-            userAgent.contains("iPhone") -> "iPhone"
-            userAgent.contains("iPad") -> "iPad"
-            userAgent.contains("Android") -> {
-                val modelMatch = Regex("\\(([^;]+);([^)]+)\\)").find(userAgent)
-                modelMatch?.groupValues?.getOrNull(2)?.trim() ?: "Android Device"
+    fun extractDeviceName(userAgent: String?): String =
+        userAgent?.let { agent ->
+            when {
+                agent.contains("iPhone") -> "iPhone"
+                agent.contains("iPad") -> "iPad"
+                agent.contains("Android") -> extractAndroidModel(agent)
+                agent.contains("Windows") -> "Windows PC"
+                agent.contains("Macintosh") -> "Mac"
+                agent.contains("Linux") -> "Linux PC"
+                else -> "Unknown Device"
             }
-            userAgent.contains("Windows") -> "Windows PC"
-            userAgent.contains("Macintosh") -> "Mac"
-            userAgent.contains("Linux") -> "Linux PC"
-            else -> "Unknown Device"
-        }
-    }
+        } ?: "Unknown Device"
 
-    private fun normalizeIpAddress(ip: String): String {
-        return if (ip.contains('.')) {
-            // For IPv4, keep first 3 octets to handle dynamic IPs in same subnet
-            ip.split('.').take(3).joinToString(".")
-        } else {
-            // For IPv6, keep first 4 blocks
-            ip.split(':').take(4).joinToString(":")
-        }
-    }
+    private fun extractAndroidModel(userAgent: String): String =
+        Regex("\\(([^;]+);([^)]+)\\)").find(userAgent)
+            ?.groupValues
+            ?.getOrNull(2)
+            ?.trim()
+            ?: "Android Device"
+
+    private fun normalizeIpAddress(ip: String): String =
+        ip.contains('.')
+            .let { isIpv4 ->
+                if (isIpv4) ip.split('.').take(3).joinToString(".")
+                else ip.split(':').take(4).joinToString(":")
+            }
 }

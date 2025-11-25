@@ -28,73 +28,59 @@ class ClientLockoutFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        // Only process OAuth2 token endpoint
-        if (request.requestURI == "/oauth2/token") {
-            val clientId = extractClientId(request)
-            
-            if (clientId != null) {
-                val client = clientRepository.findByClientId(clientId)
-                
-                if (client != null) {
-                    // Check and unlock if lockout has expired
-                    if (client.checkAndUnlockIfExpired()) {
-                        clientRepository.save(client)
-                        log.info { "Lockout expired for client: ${client.clientId}, client unlocked" }
-                    }
-                    
-                    // If client is still locked, block the request
-                    if (client.isCurrentlyLocked()) {
-                        log.warn { "Blocking locked client: $clientId" }
-                        
-                        val now = Instant.now()
-                        val remainingSeconds = if (client.lockedUntil != null && now.isBefore(client.lockedUntil)) {
-                            client.lockedUntil!!.epochSecond - now.epochSecond
-                        } else {
-                            0L
-                        }
-                        val remainingMinutes = remainingSeconds / 60
-                        
-                        val errorResponse = mapOf(
-                            "error" to "client_locked",
-                            "error_description" to "Client is locked due to ${client.failedAuthAttempts} failed authentication attempts. Try again in $remainingMinutes minutes.",
-                            "failed_attempts" to client.failedAuthAttempts,
-                            "locked_until" to (client.lockedUntil?.toString() ?: ""),
-                            "remaining_minutes" to remainingMinutes
-                        )
-                        
-                        response.status = HttpStatus.LOCKED.value()
-                        response.contentType = MediaType.APPLICATION_JSON_VALUE
-                        response.writer.write(objectMapper.writeValueAsString(errorResponse))
-                        return
-                    }
-                }
-            }
-        }
-        
+        (request.requestURI == "/oauth2/token")
+            .takeIf { it }
+            ?.let { extractClientId(request) }
+            ?.let { clientId -> clientRepository.findByClientId(clientId)?.also { processClientLockout(it, response) } }
+
         filterChain.doFilter(request, response)
     }
-    
-    private fun extractClientId(request: HttpServletRequest): String? {
-        // Try to get client_id from various sources
-        
-        // 1. From request parameter (client_secret_post)
-        val clientIdParam = request.getParameter("client_id")
-        if (clientIdParam != null) return clientIdParam
-        
-        // 2. From Basic Auth header (client_secret_basic)
-        val authHeader = request.getHeader("Authorization")
-        if (authHeader != null && authHeader.startsWith("Basic ")) {
-            try {
-                val credentials = String(java.util.Base64.getDecoder().decode(authHeader.substring(6)))
-                val parts = credentials.split(":")
-                if (parts.isNotEmpty()) {
-                    return parts[0]
-                }
-            } catch (e: Exception) {
-                log.debug { "Failed to parse Basic auth header: ${e.message}" }
+
+    private fun processClientLockout(client: ai.sovereignrag.identity.core.entity.OAuthRegisteredClient, response: HttpServletResponse) {
+        client.checkAndUnlockIfExpired()
+            .takeIf { it }
+            ?.also {
+                clientRepository.save(client)
+                log.info { "Lockout expired for client: ${client.clientId}, client unlocked" }
             }
+
+        client.takeIf { it.isCurrentlyLocked() }?.let {
+            log.warn { "Blocking locked client: ${client.clientId}" }
+
+            val now = Instant.now()
+            val remainingMinutes = client.lockedUntil
+                ?.takeIf { now.isBefore(it) }
+                ?.let { (it.epochSecond - now.epochSecond) / 60 }
+                ?: 0L
+
+            val errorResponse = mapOf(
+                "error" to "client_locked",
+                "error_description" to "Client is locked due to ${client.failedAuthAttempts} failed authentication attempts. Try again in $remainingMinutes minutes.",
+                "failed_attempts" to client.failedAuthAttempts,
+                "locked_until" to client.lockedUntil?.toString().orEmpty(),
+                "remaining_minutes" to remainingMinutes
+            )
+
+            response.status = HttpStatus.LOCKED.value()
+            response.contentType = MediaType.APPLICATION_JSON_VALUE
+            response.writer.write(objectMapper.writeValueAsString(errorResponse))
         }
-        
-        return null
     }
+    
+    private fun extractClientId(request: HttpServletRequest): String? =
+        request.getParameter("client_id")
+            ?: extractClientIdFromBasicAuth(request)
+
+    private fun extractClientIdFromBasicAuth(request: HttpServletRequest): String? =
+        request.getHeader("Authorization")
+            ?.takeIf { it.startsWith("Basic ") }
+            ?.let { header ->
+                runCatching {
+                    String(java.util.Base64.getDecoder().decode(header.substring(6)))
+                        .split(":")
+                        .firstOrNull()
+                }.onFailure { e ->
+                    log.debug { "Failed to parse Basic auth header: ${e.message}" }
+                }.getOrNull()
+            }
 }

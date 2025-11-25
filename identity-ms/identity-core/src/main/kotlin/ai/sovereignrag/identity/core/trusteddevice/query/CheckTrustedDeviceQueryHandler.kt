@@ -16,18 +16,15 @@ class CheckTrustedDeviceQueryHandler(
     private val trustedDeviceService: TrustedDeviceService
 ) : Command.Handler<CheckTrustedDeviceQuery, CheckTrustedDeviceResult> {
 
-    override fun handle(query: CheckTrustedDeviceQuery): CheckTrustedDeviceResult {
-        val trustedDevice = trustedDeviceService.checkTrustedDevice(query.userId, query.deviceFingerprint)
-
-        return if (trustedDevice != null) {
-            CheckTrustedDeviceResult(
-                isTrusted = true,
-                deviceId = trustedDevice.id,
-                lastUsedAt = trustedDevice.lastUsedAt,
-                expiresAt = trustedDevice.expiresAt
-            )
-        } else {
-            CheckTrustedDeviceResult(isTrusted = false)
-        }
-    }
+    override fun handle(query: CheckTrustedDeviceQuery): CheckTrustedDeviceResult =
+        trustedDeviceService.checkTrustedDevice(query.userId, query.deviceFingerprint)
+            ?.let { device ->
+                CheckTrustedDeviceResult(
+                    isTrusted = true,
+                    deviceId = device.id,
+                    lastUsedAt = device.lastUsedAt,
+                    expiresAt = device.expiresAt
+                )
+            }
+            ?: CheckTrustedDeviceResult(isTrusted = false)
 }

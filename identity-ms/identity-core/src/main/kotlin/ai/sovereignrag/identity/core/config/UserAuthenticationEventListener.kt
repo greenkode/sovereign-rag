@@ -18,10 +18,7 @@ class UserAuthenticationEventListener(
 
     @EventListener
     fun onAuthenticationSuccess(event: AuthenticationSuccessEvent) {
-        val authentication = event.authentication
-        val username = extractUsername(authentication)
-        
-        if (username != null) {
+        extractUsername(event.authentication)?.let { username ->
             log.info { "User authentication success: $username" }
             accountLockoutService.handleSuccessfulLogin(username)
         }
@@ -29,20 +26,16 @@ class UserAuthenticationEventListener(
 
     @EventListener
     fun onAuthenticationFailure(event: AbstractAuthenticationFailureEvent) {
-        val authentication = event.authentication
-        val username = extractUsername(authentication)
-        
-        if (username != null) {
+        extractUsername(event.authentication)?.let { username ->
             log.warn { "User authentication failure: $username - ${event.exception.message}" }
             accountLockoutService.handleFailedLogin(username)
         }
     }
-    
-    private fun extractUsername(authentication: Any?): String? {
-        return when (authentication) {
+
+    private fun extractUsername(authentication: Any?): String? =
+        when (authentication) {
             is UsernamePasswordAuthenticationToken -> authentication.principal as? String ?: authentication.name
             is JwtAuthenticationToken -> authentication.name
             else -> null
         }
-    }
 }

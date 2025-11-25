@@ -17,36 +17,27 @@ class ClientAuthenticationEventListener(
 
     @EventListener
     fun onAuthenticationSuccess(event: AuthenticationSuccessEvent) {
-        val authentication = event.authentication
-        
-        if (authentication is OAuth2ClientAuthenticationToken) {
-            val clientId = extractClientId(authentication)
-            if (clientId != null) {
+        (event.authentication as? OAuth2ClientAuthenticationToken)
+            ?.let { extractClientId(it) }
+            ?.let { clientId ->
                 log.info { "Client authentication success: $clientId" }
                 clientLockoutService.handleSuccessfulClientAuth(clientId)
             }
-        }
     }
 
     @EventListener
     fun onAuthenticationFailure(event: AbstractAuthenticationFailureEvent) {
-        val authentication = event.authentication
-
-        if (authentication is OAuth2ClientAuthenticationToken) {
-            val clientId = extractClientId(authentication)
-            if (clientId != null) {
+        (event.authentication as? OAuth2ClientAuthenticationToken)
+            ?.let { extractClientId(it) }
+            ?.let { clientId ->
                 log.warn { "Client authentication failure: $clientId - ${event.exception.message}" }
             }
-        }
     }
-    
-    private fun extractClientId(authentication: OAuth2ClientAuthenticationToken): String? {
-        // Try to get from principal first
-        val principal = authentication.principal
-        return when (principal) {
+
+    private fun extractClientId(authentication: OAuth2ClientAuthenticationToken): String? =
+        when (val principal = authentication.principal) {
             is String -> principal
             is org.springframework.security.oauth2.server.authorization.client.RegisteredClient -> principal.clientId
             else -> null
         }
-    }
 }

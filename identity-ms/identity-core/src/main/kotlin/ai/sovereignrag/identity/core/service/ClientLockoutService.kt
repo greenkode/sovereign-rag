@@ -24,15 +24,14 @@ class ClientLockoutService(
     @Transactional
     fun handleFailedClientAuth(clientId: String) {
         log.warn { "Failed authentication attempt for client: $clientId" }
-        
-        val client = clientRepository.findByClientId(clientId)
-        if (client != null) {
+
+        clientRepository.findByClientId(clientId)?.let { client ->
             client.recordFailedAuth()
             clientRepository.save(client)
-            
-            log.warn { 
+
+            log.warn {
                 "Client $clientId failed auth attempts: ${client.failedAuthAttempts}/${OAuthRegisteredClient.MAX_FAILED_ATTEMPTS}" +
-                if (client.isCurrentlyLocked()) " - Client locked until: ${client.lockedUntil}" else ""
+                    client.lockedUntil?.let { " - Client locked until: $it" }.orEmpty()
             }
         }
     }
@@ -40,58 +39,50 @@ class ClientLockoutService(
     @Transactional
     fun handleSuccessfulClientAuth(clientId: String) {
         log.info { "Successful authentication for client: $clientId" }
-        
-        val client = clientRepository.findByClientId(clientId)
-        if (client != null && client.failedAuthAttempts > 0) {
-            log.info { "Resetting failed authentication attempts for client: $clientId" }
-            client.resetFailedAuthAttempts()
-            clientRepository.save(client)
-        }
+
+        clientRepository.findByClientId(clientId)
+            ?.takeIf { it.failedAuthAttempts > 0 }
+            ?.let { client ->
+                log.info { "Resetting failed authentication attempts for client: $clientId" }
+                client.resetFailedAuthAttempts()
+                clientRepository.save(client)
+            }
     }
 
     @Transactional
     fun checkClientLockStatus(client: OAuthRegisteredClient) {
-        // First check if lockout has expired and unlock if so
-        if (client.checkAndUnlockIfExpired()) {
-            clientRepository.save(client)
-            log.info { "Lockout expired for client: ${client.clientId}, client unlocked" }
-            return
-        }
+        client.checkAndUnlockIfExpired()
+            .takeIf { it }
+            ?.let {
+                clientRepository.save(client)
+                log.info { "Lockout expired for client: ${client.clientId}, client unlocked" }
+                return
+            }
 
-        // Check if client is currently locked
-        if (client.isCurrentlyLocked()) {
+        client.takeIf { it.isCurrentlyLocked() }?.let {
             throw ClientLockedException(
-                clientId = client.clientId,
-                lockedUntil = client.lockedUntil!!,
-                failedAttempts = client.failedAuthAttempts
+                clientId = it.clientId,
+                lockedUntil = it.lockedUntil!!,
+                failedAttempts = it.failedAuthAttempts
             )
         }
     }
 
-    fun getRemainingLockoutMinutes(clientId: String): Long? {
-        val client = clientRepository.findByClientId(clientId) ?: return null
-        
-        if (client.lockedUntil == null) return null
-        
-        val now = Instant.now()
-        return if (now.isBefore(client.lockedUntil)) {
-            (client.lockedUntil!!.epochSecond - now.epochSecond) / 60
-        } else {
-            null
-        }
-    }
+    fun getRemainingLockoutMinutes(clientId: String): Long? =
+        clientRepository.findByClientId(clientId)
+            ?.lockedUntil
+            ?.takeIf { Instant.now().isBefore(it) }
+            ?.let { (it.epochSecond - Instant.now().epochSecond) / 60 }
 
     @Transactional
-    fun unlockClient(clientId: String): Boolean {
-        val client = clientRepository.findByClientId(clientId) ?: return false
-        
-        if (client.isCurrentlyLocked() || client.failedAuthAttempts > 0) {
-            log.info { "Manually unlocking client: $clientId" }
-            client.resetFailedAuthAttempts()
-            clientRepository.save(client)
-            return true
-        }
-        
-        return false
-    }
+    fun unlockClient(clientId: String): Boolean =
+        clientRepository.findByClientId(clientId)
+            ?.takeIf { it.isCurrentlyLocked() || it.failedAuthAttempts > 0 }
+            ?.let { client ->
+                log.info { "Manually unlocking client: $clientId" }
+                client.resetFailedAuthAttempts()
+                clientRepository.save(client)
+                true
+            }
+            ?: false
 }

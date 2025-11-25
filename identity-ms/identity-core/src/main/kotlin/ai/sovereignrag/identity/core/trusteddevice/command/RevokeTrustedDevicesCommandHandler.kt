@@ -17,28 +17,13 @@ class RevokeTrustedDevicesCommandHandler(
 ) : Command.Handler<RevokeTrustedDeviceCommand, RevokeTrustedDeviceResult> {
 
     override fun handle(command: RevokeTrustedDeviceCommand): RevokeTrustedDeviceResult {
-        val revokedCount = if (command.deviceId != null) {
-            log.info { "Deleting trusted device ${command.deviceId} for user ${command.userId}" }
-            val device = trustedDeviceRepository.findByIdAndUserId(command.deviceId, command.userId)
-            if (device != null) {
-                trustedDeviceRepository.delete(device)
-                1
-            } else {
-                log.warn { "Device ${command.deviceId} not found for user ${command.userId}" }
-                0
-            }
-        } else {
-            log.info { "Deleting all trusted devices for user ${command.userId}" }
-            val count = trustedDeviceRepository.countByUserId(command.userId)
-            trustedDeviceRepository.deleteAllByUserId(command.userId)
-            count.toInt()
-        }
+        val revokedCount = command.deviceId
+            ?.let { deviceId -> revokeSingleDevice(deviceId, command.userId) }
+            ?: revokeAllDevices(command.userId)
 
-        val message = if (command.deviceId != null) {
-            if (revokedCount > 0) "Device revoked successfully" else "Device not found"
-        } else {
-            if (revokedCount > 0) "$revokedCount trusted devices revoked" else "No trusted devices found"
-        }
+        val message = command.deviceId
+            ?.let { if (revokedCount > 0) "Device revoked successfully" else "Device not found" }
+            ?: if (revokedCount > 0) "$revokedCount trusted devices revoked" else "No trusted devices found"
 
         log.info { "Revoked $revokedCount trusted devices for user ${command.userId}" }
 
@@ -46,5 +31,23 @@ class RevokeTrustedDevicesCommandHandler(
             devicesRevoked = revokedCount,
             message = message
         )
+    }
+
+    private fun revokeSingleDevice(deviceId: java.util.UUID, userId: java.util.UUID): Int {
+        log.info { "Deleting trusted device $deviceId for user $userId" }
+
+        return trustedDeviceRepository.findByIdAndUserId(deviceId, userId)
+            ?.let { device ->
+                trustedDeviceRepository.delete(device)
+                1
+            }
+            ?: 0.also { log.warn { "Device $deviceId not found for user $userId" } }
+    }
+
+    private fun revokeAllDevices(userId: java.util.UUID): Int {
+        log.info { "Deleting all trusted devices for user $userId" }
+
+        return trustedDeviceRepository.countByUserId(userId).toInt()
+            .also { trustedDeviceRepository.deleteAllByUserId(userId) }
     }
 }

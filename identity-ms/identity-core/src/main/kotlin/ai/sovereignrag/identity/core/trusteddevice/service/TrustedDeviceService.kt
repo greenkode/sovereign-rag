@@ -15,27 +15,23 @@ class TrustedDeviceService(
     private val deviceFingerprintService: DeviceFingerprintService
 ) {
 
-    fun checkTrustedDevice(userId: UUID, deviceFingerprint: String): TrustedDevice? {
-        val fingerprintHash = deviceFingerprintService.hashFingerprint(deviceFingerprint)
-
-        log.debug { "Checking trusted device for user $userId with fingerprint hash: $fingerprintHash" }
-
-        val trustedDevice = trustedDeviceRepository.findByUserIdAndDeviceFingerprintHashAndExpiresAtAfter(
-            userId,
-            fingerprintHash,
-            Instant.now()
-        )
-
-        if (trustedDevice != null) {
-            log.info { "Found trusted device for user $userId, expires at ${trustedDevice.expiresAt}" }
-
-            // Update last used timestamp
-            trustedDevice.updateLastUsed()
-            trustedDeviceRepository.save(trustedDevice)
-        } else {
-            log.info { "No trusted device found for user $userId" }
-        }
-
-        return trustedDevice
-    }
+    fun checkTrustedDevice(userId: UUID, deviceFingerprint: String): TrustedDevice? =
+        deviceFingerprintService.hashFingerprint(deviceFingerprint)
+            .also { log.debug { "Checking trusted device for user $userId with fingerprint hash: $it" } }
+            .let { fingerprintHash ->
+                trustedDeviceRepository.findByUserIdAndDeviceFingerprintHashAndExpiresAtAfter(
+                    userId,
+                    fingerprintHash,
+                    Instant.now()
+                )
+            }
+            ?.also { device ->
+                log.info { "Found trusted device for user $userId, expires at ${device.expiresAt}" }
+                device.updateLastUsed()
+                trustedDeviceRepository.save(device)
+            }
+            ?: run {
+                log.info { "No trusted device found for user $userId" }
+                null
+            }
 }

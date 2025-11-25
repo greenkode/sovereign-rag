@@ -10,9 +10,6 @@ import java.time.Instant
 
 private val log = KotlinLogging.logger {}
 
-/**
- * Exception thrown when an account is locked due to too many failed login attempts
- */
 class AccountLockedException(
     val username: String,
     val lockedUntil: Instant,
@@ -24,92 +21,68 @@ class AccountLockoutService(
     private val userRepository: OAuthUserRepository
 ) {
 
-    /**
-     * Handles failed login attempt by incrementing counter and potentially locking account
-     */
     @Transactional
     fun handleFailedLogin(username: String) {
         log.warn { "Failed login attempt for user: $username" }
-        
-        val user = userRepository.findByUsername(username)
-        if (user != null) {
+
+        userRepository.findByUsername(username)?.let { user ->
             user.recordFailedLogin()
             userRepository.save(user)
-            
-            log.warn { 
+
+            log.warn {
                 "User $username failed login attempts: ${user.failedLoginAttempts}/${OAuthUser.MAX_FAILED_ATTEMPTS}" +
-                if (user.isCurrentlyLocked()) " - Account locked until: ${user.lockedUntil}" else ""
+                    user.lockedUntil?.let { " - Account locked until: $it" }.orEmpty()
             }
         }
     }
 
-    /**
-     * Handles successful login by resetting failed attempts counter
-     */
     @Transactional
     fun handleSuccessfulLogin(username: String) {
         log.info { "Successful login for user: $username" }
-        
-        val user = userRepository.findByUsername(username)
-        if (user != null && user.failedLoginAttempts > 0) {
-            log.info { "Resetting failed login attempts for user: $username" }
-            user.resetFailedLoginAttempts()
-            userRepository.save(user)
-        }
+
+        userRepository.findByUsername(username)
+            ?.takeIf { it.failedLoginAttempts > 0 }
+            ?.let { user ->
+                log.info { "Resetting failed login attempts for user: $username" }
+                user.resetFailedLoginAttempts()
+                userRepository.save(user)
+            }
     }
 
-    /**
-     * Checks if user account is locked and throws appropriate exception
-     */
     @Transactional
     fun checkAccountLockStatus(user: OAuthUser) {
-        // First check if lockout has expired and unlock if so
-        if (user.checkAndUnlockIfExpired()) {
-            userRepository.save(user)
-            log.info { "Lockout expired for user: ${user.username}, account unlocked" }
-            return
-        }
+        user.checkAndUnlockIfExpired()
+            .takeIf { it }
+            ?.let {
+                userRepository.save(user)
+                log.info { "Lockout expired for user: ${user.username}, account unlocked" }
+                return
+            }
 
-        // Check if account is currently locked
-        if (user.isCurrentlyLocked()) {
+        user.takeIf { it.isCurrentlyLocked() }?.let {
             throw AccountLockedException(
-                username = user.username,
-                lockedUntil = user.lockedUntil!!,
-                failedAttempts = user.failedLoginAttempts
+                username = it.username,
+                lockedUntil = it.lockedUntil!!,
+                failedAttempts = it.failedLoginAttempts
             )
         }
     }
 
-    /**
-     * Gets remaining lockout time in minutes for a user
-     */
-    fun getRemainingLockoutMinutes(username: String): Long? {
-        val user = userRepository.findByUsername(username) ?: return null
-        
-        if (user.lockedUntil == null) return null
-        
-        val now = Instant.now()
-        return if (now.isBefore(user.lockedUntil)) {
-            (user.lockedUntil!!.epochSecond - now.epochSecond) / 60
-        } else {
-            null
-        }
-    }
+    fun getRemainingLockoutMinutes(username: String): Long? =
+        userRepository.findByUsername(username)
+            ?.lockedUntil
+            ?.takeIf { Instant.now().isBefore(it) }
+            ?.let { (it.epochSecond - Instant.now().epochSecond) / 60 }
 
-    /**
-     * Manually unlocks a user account (for admin purposes)
-     */
     @Transactional
-    fun unlockAccount(username: String): Boolean {
-        val user = userRepository.findByUsername(username) ?: return false
-        
-        if (user.isCurrentlyLocked() || user.failedLoginAttempts > 0) {
-            log.info { "Manually unlocking account for user: $username" }
-            user.resetFailedLoginAttempts()
-            userRepository.save(user)
-            return true
-        }
-        
-        return false
-    }
+    fun unlockAccount(username: String): Boolean =
+        userRepository.findByUsername(username)
+            ?.takeIf { it.isCurrentlyLocked() || it.failedLoginAttempts > 0 }
+            ?.let { user ->
+                log.info { "Manually unlocking account for user: $username" }
+                user.resetFailedLoginAttempts()
+                userRepository.save(user)
+                true
+            }
+            ?: false
 }
