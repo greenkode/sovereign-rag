@@ -1,5 +1,8 @@
 package ai.sovereignrag.identity.core.controller
 
+import ai.sovereignrag.identity.commons.dto.LockoutStatusResponse
+import ai.sovereignrag.identity.commons.dto.UnlockResponse
+import ai.sovereignrag.identity.commons.exception.NotFoundException
 import ai.sovereignrag.identity.core.service.AccountLockoutService
 import ai.sovereignrag.identity.core.service.ClientLockoutService
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -11,9 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 private val log = KotlinLogging.logger {}
 
@@ -31,33 +37,23 @@ class AdminController(
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "User unlocked successfully",
             content = [Content(mediaType = "application/json",
-                schema = Schema(implementation = Map::class))]),
+                schema = Schema(implementation = UnlockResponse::class))]),
         ApiResponse(responseCode = "404", description = "User not found or not locked")
     ])
     @SecurityRequirement(name = "bearerAuth")
     fun unlockUser(
         @Parameter(description = "Username to unlock", example = "john.doe", required = true)
         @PathVariable username: String
-    ): ResponseEntity<Any> {
+    ): UnlockResponse {
         log.info { "Admin request to unlock user: $username" }
-        
-        val unlocked = accountLockoutService.unlockAccount(username)
-        
-        return if (unlocked) {
-            log.info { "Successfully unlocked user: $username" }
-            ResponseEntity.ok(mapOf(
-                "status" to "success",
-                "message" to "User account unlocked successfully",
-                "username" to username
-            ))
-        } else {
-            log.warn { "User not found or not locked: $username" }
-            ResponseEntity.status(404).body(mapOf(
-                "status" to "not_found",
-                "message" to "User not found or account was not locked",
-                "username" to username
-            ))
-        }
+
+        return accountLockoutService.unlockAccount(username)
+            .takeIf { it }
+            ?.let {
+                log.info { "Successfully unlocked user: $username" }
+                UnlockResponse.toResponse(success = true, identifier = username, isUser = true)
+            }
+            ?: throw NotFoundException("User not found or account was not locked: $username")
     }
 
     @PostMapping("/unlock-client/{clientId}")
@@ -65,92 +61,58 @@ class AdminController(
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Client unlocked successfully",
             content = [Content(mediaType = "application/json",
-                schema = Schema(implementation = Map::class))]),
+                schema = Schema(implementation = UnlockResponse::class))]),
         ApiResponse(responseCode = "404", description = "Client not found or not locked")
     ])
     @SecurityRequirement(name = "bearerAuth")
     fun unlockClient(
         @Parameter(description = "Client ID to unlock", example = "client_123", required = true)
         @PathVariable clientId: String
-    ): ResponseEntity<Any> {
+    ): UnlockResponse {
         log.info { "Admin request to unlock client: $clientId" }
-        
-        val unlocked = clientLockoutService.unlockClient(clientId)
-        
-        return if (unlocked) {
-            log.info { "Successfully unlocked client: $clientId" }
-            ResponseEntity.ok(mapOf(
-                "status" to "success",
-                "message" to "Client unlocked successfully",
-                "clientId" to clientId
-            ))
-        } else {
-            log.warn { "Client not found or not locked: $clientId" }
-            ResponseEntity.status(404).body(mapOf(
-                "status" to "not_found",
-                "message" to "Client not found or was not locked",
-                "clientId" to clientId
-            ))
-        }
+
+        return clientLockoutService.unlockClient(clientId)
+            .takeIf { it }
+            ?.let {
+                log.info { "Successfully unlocked client: $clientId" }
+                UnlockResponse.toResponse(success = true, identifier = clientId, isUser = false)
+            }
+            ?: throw NotFoundException("Client not found or was not locked: $clientId")
     }
 
     @GetMapping("/lockout-status/user/{username}")
     @Operation(summary = "Get user lockout status", description = "Check if a user account is locked")
     @ApiResponse(responseCode = "200", description = "Lockout status retrieved",
         content = [Content(mediaType = "application/json",
-            schema = Schema(implementation = Map::class))])
+            schema = Schema(implementation = LockoutStatusResponse::class))])
     @SecurityRequirement(name = "bearerAuth")
     fun getUserLockoutStatus(
         @Parameter(description = "Username to check", example = "john.doe", required = true)
         @PathVariable username: String
-    ): ResponseEntity<Any> {
+    ): LockoutStatusResponse {
         log.info { "Admin checking lockout status for user: $username" }
-        
-        val remainingMinutes = accountLockoutService.getRemainingLockoutMinutes(username)
-        
-        return if (remainingMinutes != null && remainingMinutes > 0) {
-            ResponseEntity.ok(mapOf(
-                "username" to username,
-                "locked" to true,
-                "remainingMinutes" to remainingMinutes,
-                "message" to "User is locked for $remainingMinutes more minutes"
-            ))
-        } else {
-            ResponseEntity.ok(mapOf(
-                "username" to username,
-                "locked" to false,
-                "message" to "User is not locked"
-            ))
-        }
+        return LockoutStatusResponse.toResponse(
+            identifier = username,
+            remainingMinutes = accountLockoutService.getRemainingLockoutMinutes(username),
+            isUser = true
+        )
     }
 
     @GetMapping("/lockout-status/client/{clientId}")
     @Operation(summary = "Get client lockout status", description = "Check if an OAuth client is locked")
     @ApiResponse(responseCode = "200", description = "Client lockout status retrieved",
         content = [Content(mediaType = "application/json",
-            schema = Schema(implementation = Map::class))])
+            schema = Schema(implementation = LockoutStatusResponse::class))])
     @SecurityRequirement(name = "bearerAuth")
     fun getClientLockoutStatus(
         @Parameter(description = "Client ID to check", example = "client_123", required = true)
         @PathVariable clientId: String
-    ): ResponseEntity<Any> {
+    ): LockoutStatusResponse {
         log.info { "Admin checking lockout status for client: $clientId" }
-        
-        val remainingMinutes = clientLockoutService.getRemainingLockoutMinutes(clientId)
-        
-        return if (remainingMinutes != null && remainingMinutes > 0) {
-            ResponseEntity.ok(mapOf(
-                "clientId" to clientId,
-                "locked" to true,
-                "remainingMinutes" to remainingMinutes,
-                "message" to "Client is locked for $remainingMinutes more minutes"
-            ))
-        } else {
-            ResponseEntity.ok(mapOf(
-                "clientId" to clientId,
-                "locked" to false,
-                "message" to "Client is not locked"
-            ))
-        }
+        return LockoutStatusResponse.toResponse(
+            identifier = clientId,
+            remainingMinutes = clientLockoutService.getRemainingLockoutMinutes(clientId),
+            isUser = false
+        )
     }
 }

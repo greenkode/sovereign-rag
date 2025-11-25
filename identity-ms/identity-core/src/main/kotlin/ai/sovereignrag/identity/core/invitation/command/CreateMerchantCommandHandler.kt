@@ -157,9 +157,7 @@ class CreateMerchantCommandHandler(
                     "merchant_name" to existingClient.clientName,
                     "invitation_url" to "$invitationBaseUrl?token=${process.externalReference}",
                     "expiration_date" to formatter.format(
-                        Instant.now().plusSeconds(process.type.timeInSeconds).atZone(
-                            ZoneId.systemDefault()
-                        ).toLocalDateTime()
+                        Instant.now().plusSeconds(process.type.timeInSeconds).atZone(ZoneId.systemDefault())
                     )
                 ), Locale.ENGLISH, UUID.randomUUID().toString(), "INDIVIDUAL"
             )

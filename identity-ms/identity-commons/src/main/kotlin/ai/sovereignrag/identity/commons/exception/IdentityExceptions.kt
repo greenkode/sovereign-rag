@@ -88,3 +88,9 @@ class PhoneNumberNotVerifiedException(
     message: String = "Phone number not verified. Please verify your phone number before logging in.",
     cause: Throwable? = null
 ) : ClientException(message, cause)
+
+@ResponseStatus(HttpStatus.UNAUTHORIZED)
+class InvalidCredentialsException(
+    message: String = "Invalid username or password",
+    cause: Throwable? = null
+) : RuntimeException(message, cause)

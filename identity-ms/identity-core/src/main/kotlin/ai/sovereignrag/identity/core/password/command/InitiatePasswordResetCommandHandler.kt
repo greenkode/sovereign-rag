@@ -23,7 +23,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
-import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
@@ -91,7 +91,7 @@ class InitiatePasswordResetCommandHandler(
                 "PASSWORD_RESET", "EMAIL", "HIGH", mapOf(
                     "name" to (user.firstName ?: user.email),
                     "reset_link" to "${passwordResetBaseUrl}?token=$token",
-                    "request_time" to formatter.format(LocalDateTime.now()),
+                    "request_time" to formatter.format(Instant.now().atZone(ZoneId.systemDefault())),
                     "expiry_time" to "${process.type.timeInSeconds / 60} minutes"
                 ), Locale.ENGLISH, UUID.randomUUID().toString(), "INDIVIDUAL"
             )

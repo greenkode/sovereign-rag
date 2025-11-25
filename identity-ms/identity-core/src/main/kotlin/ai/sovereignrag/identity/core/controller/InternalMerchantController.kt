@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.controller
 
+import ai.sovereignrag.identity.commons.dto.UpdateMerchantEnvironmentResponse
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
 import ai.sovereignrag.identity.core.service.MerchantService
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -22,24 +23,22 @@ class InternalMerchantController(
     fun updateMerchantEnvironment(
         @PathVariable merchantId: String,
         @RequestBody request: UpdateMerchantEnvironmentRequest
-    ): Map<String, Any> {
+    ): UpdateMerchantEnvironmentResponse {
         log.info { "Internal request to update merchant environment for: $merchantId" }
 
-        val result = merchantService.updateMerchantEnvironment(merchantId, request.environmentMode)
-
-        return mapOf(
-            "merchantId" to result.merchantId,
-            "environmentMode" to result.environmentMode,
-            "lastModifiedAt" to result.lastModifiedAt.toString(),
-            "affectedUsers" to result.affectedUsers
-        )
+        return merchantService.updateMerchantEnvironment(merchantId, request.environmentMode)
+            .let { result ->
+                UpdateMerchantEnvironmentResponse(
+                    merchantId = result.merchantId,
+                    environmentMode = result.environmentMode.name,
+                    lastModifiedAt = result.lastModifiedAt,
+                    affectedUsers = result.affectedUsers
+                )
+            }
     }
 }
 
 data class UpdateMerchantEnvironmentRequest(
-    @JsonProperty("merchantId")
-    val merchantId: String,
-
     @JsonProperty("environmentMode")
     val environmentMode: EnvironmentMode
 )

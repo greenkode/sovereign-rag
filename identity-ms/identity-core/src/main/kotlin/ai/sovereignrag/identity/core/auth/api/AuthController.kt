@@ -3,6 +3,13 @@ package ai.sovereignrag.identity.core.auth.api
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
+import ai.sovereignrag.identity.commons.dto.ClientSettings
+import ai.sovereignrag.identity.commons.dto.EndpointsInfo
+import ai.sovereignrag.identity.commons.dto.ErrorResponse
+import ai.sovereignrag.identity.commons.dto.HomeResponse
+import ai.sovereignrag.identity.commons.dto.MerchantInfoResponse
+import ai.sovereignrag.identity.commons.dto.TokenResponse
+import ai.sovereignrag.identity.commons.dto.UserInfoResponse
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.AccountLockoutService
@@ -36,6 +43,8 @@ import java.security.Principal
 import java.time.Instant
 import java.util.UUID
 
+private val log = KotlinLogging.logger {}
+
 @Schema(description = "Login request with username and password")
 data class LoginRequest(
     @Schema(description = "Username or email address", example = "user@example.com", required = true)
@@ -61,74 +70,48 @@ class AuthController(
     @Value("\${identity-ms.token.expiry:600}") private val tokenExpiry: Long,
 ) {
 
-    private val log = KotlinLogging.logger {}
-    
-    private fun extractEmailFromClientSettings(clientSettings: String?, clientId: String): String {
-
-        return try {
-            if (clientSettings.isNullOrBlank()) {
-                return "merchant-$clientId@example.com" // fallback
-            }
-            val settingsMap = objectMapper.readValue(clientSettings, Map::class.java) as Map<String, Any>
-            val emailAddress = settingsMap["emailAddress"] as? String
-            emailAddress ?: "merchant-$clientId@example.com" // fallback if email_address not found
-        } catch (e: Exception) {
-            log.warn(e) { "Failed to parse client_settings JSON for clientId: $clientId" }
-            "merchant-$clientId@example.com" // fallback on parsing error
-        }
+    companion object {
+        private const val DEFAULT_RESOURCE_CLIENT_ID = "akupay-payment-gateway"
+        private val DEFAULT_REALM_ROLES = listOf("offline_access", "uma_authorization", "default-roles-akuid")
+        private val DEFAULT_ACCOUNT_ROLES = listOf("manage-account", "manage-account-links", "view-profile")
+        private const val DEFAULT_SCOPE = "openid email phone profile"
+        private const val DEFAULT_LOW_BALANCE_ALERT = 50000
+        private const val DEFAULT_FAILURE_RATE = 5
     }
 
-    private fun extractDataFromClientSettings(clientSettings: String?, clientId: String): Map<String, String?> {
-        return try {
-            if (clientSettings.isNullOrBlank()) {
-                return mapOf(
-                    "emailAddress" to "merchant-$clientId@example.com",
-                    "phoneNumber" to null
-                )
+    private fun parseClientSettings(clientSettings: String?, clientId: String): ClientSettings {
+        return clientSettings?.takeIf { it.isNotBlank() }
+            ?.let {
+                runCatching { objectMapper.readValue(it, ClientSettings::class.java) }
+                    .onFailure { e -> log.warn(e) { "Failed to parse client_settings JSON for clientId: $clientId" } }
+                    .getOrNull()
             }
-            val settingsMap = objectMapper.readValue(clientSettings, Map::class.java) as Map<String, Any>
-            mapOf(
-                "emailAddress" to (settingsMap["emailAddress"] as? String ?: "merchant-$clientId@example.com"),
-                "phoneNumber" to (settingsMap["phoneNumber"] as? String)
-            )
-        } catch (e: Exception) {
-            log.warn(e) { "Failed to parse client_settings JSON for clientId: $clientId" }
-            mapOf(
-                "emailAddress" to "merchant-$clientId@example.com",
-                "phoneNumber" to null
-            )
-        }
+            ?: ClientSettings.fallback(clientId)
     }
-    
+
     @GetMapping("/")
     @ResponseBody
     @Operation(summary = "Home endpoint", description = "Returns service information and available endpoints")
     @ApiResponse(responseCode = "200", description = "Service information",
         content = [Content(mediaType = "application/json",
-            schema = Schema(implementation = Map::class))])
-    fun home(principal: Principal?): Map<String, Any> {
+            schema = Schema(implementation = HomeResponse::class))])
+    fun home(principal: Principal?): HomeResponse {
         log.info { "Home endpoint accessed by: ${principal?.name}" }
-        return mapOf(
-            "message" to "Identity Service Home",
-            "user" to (principal?.name ?: "anonymous"),
-            "authenticated" to (principal != null),
-            "endpoints" to mapOf(
-                "authorize" to "/oauth2/authorize",
-                "token" to "/oauth2/token",
-                "jwks" to "/oauth2/jwks",
-                "userinfo" to "/userinfo",
-                "openid-config" to "/.well-known/openid-configuration"
-            )
+        return HomeResponse(
+            message = "Identity Service Home",
+            user = principal?.name ?: "anonymous",
+            authenticated = principal != null,
+            endpoints = EndpointsInfo()
         )
     }
-    
+
     @GetMapping("/login-success")
     @ResponseBody
     @Operation(summary = "OAuth login success callback", description = "Handles successful OAuth2 authentication")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Token generated successfully",
             content = [Content(mediaType = "application/json",
-                schema = Schema(implementation = Map::class))]),
+                schema = Schema(implementation = TokenResponse::class))]),
         ApiResponse(responseCode = "302", description = "Redirect to frontend with token")
     ])
     @SecurityRequirement(name = "OAuth2")
@@ -137,37 +120,36 @@ class AuthController(
         @Parameter(description = "Optional redirect URL") @RequestParam(required = false) redirect: String?
     ): ResponseEntity<Any> {
         log.info { "Login success for user: ${userDetails?.username}" }
-        
+
         val customUserDetails = userDetails as? CustomUserDetails
         val oauthUser = customUserDetails?.getOAuthUser()
-        
+
+        val token = generateOAuthToken(customUserDetails, oauthUser)
+
+        oauthUser?.let { publishOAuthLoginAudit(it, userDetails, redirect) }
+
+        return redirect?.takeIf { it.isNotBlank() }
+            ?.let {
+                val redirectUrl = "$it?token=$token&expires_in=$tokenExpiry"
+                log.info { "Redirecting to frontend: $redirectUrl" }
+                ResponseEntity.status(302).header("Location", redirectUrl).build()
+            }
+            ?: ResponseEntity.ok(TokenResponse(
+                accessToken = token,
+                expiresIn = tokenExpiry,
+                scope = DEFAULT_SCOPE
+            ))
+    }
+
+    private fun generateOAuthToken(customUserDetails: CustomUserDetails?, oauthUser: ai.sovereignrag.identity.core.entity.OAuthUser?): String {
         val now = Instant.now()
-        val authTime = now.minusSeconds(1) // auth_time slightly before iat
+        val authTime = now.minusSeconds(1)
         val expiry = now.plusSeconds(tokenExpiry)
-        
         val jti = UUID.randomUUID().toString()
         val sid = UUID.randomUUID().toString()
-        
-        val verificationStatus = mapOf(
-            "phone_number" to if (oauthUser?.phoneNumberVerified == true) "VERIFIED" else "PENDING",
-            "email" to if (oauthUser?.emailVerified == true) "VERIFIED" else "PENDING"
-        )
-        
-        // Include user authorities from database
+
         val userAuthorities = customUserDetails?.authorities?.map { it.authority } ?: emptyList()
-        val realmAccess = mapOf(
-            "roles" to (listOf("offline_access", "uma_authorization", "default-roles-akuid") + userAuthorities)
-        )
-        
-        val resourceAccess = mapOf(
-            "account" to mapOf(
-                "roles" to listOf("manage-account", "manage-account-links", "view-profile")
-            )
-        )
-        
-        // Add authorities as a dedicated claim for easier access
-        val authorities = userAuthorities
-        
+
         val claims = JwtClaimsSet.builder()
             .issuer(identityBaseUrl)
             .subject(oauthUser?.id?.toString() ?: UUID.randomUUID().toString())
@@ -177,14 +159,14 @@ class AuthController(
             .claim("auth_time", authTime.epochSecond)
             .claim("jti", jti)
             .claim("typ", "Bearer")
-            .claim("azp", "akupay-payment-gateway")
+            .claim("azp", DEFAULT_RESOURCE_CLIENT_ID)
             .claim("sid", sid)
             .claim("acr", "1")
             .claim("allowed-origins", listOf("https://oauth.pstmn.io"))
-            .claim("realm_access", realmAccess)
-            .claim("resource_access", resourceAccess)
-            .claim("authorities", authorities)
-            .claim("scope", "openid email phone profile")
+            .claim("realm_access", mapOf("roles" to (DEFAULT_REALM_ROLES + userAuthorities)))
+            .claim("resource_access", mapOf("account" to mapOf("roles" to DEFAULT_ACCOUNT_ROLES)))
+            .claim("authorities", userAuthorities)
+            .claim("scope", DEFAULT_SCOPE)
             .claim("email_verified", oauthUser?.emailVerified ?: false)
             .claim("name", customUserDetails?.getFullName() ?: "Unknown User")
             .claim("last_name", oauthUser?.lastName ?: "")
@@ -193,56 +175,43 @@ class AuthController(
             .claim("preferred_username", oauthUser?.email ?: oauthUser?.username ?: "")
             .claim("merchant_id", oauthUser?.merchantId?.toString() ?: "")
             .claim("type", oauthUser?.userType?.name ?: "INDIVIDUAL")
-            .claim("verification_status", verificationStatus)
+            .claim("verification_status", mapOf(
+                "phone_number" to if (oauthUser?.phoneNumberVerified == true) "VERIFIED" else "PENDING",
+                "email" to if (oauthUser?.emailVerified == true) "VERIFIED" else "PENDING"
+            ))
             .claim("first_name", oauthUser?.firstName ?: "")
             .claim("email", oauthUser?.email ?: "")
             .claim("aku_id", oauthUser?.akuId?.toString() ?: "")
             .build()
-        
-        val token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
 
-        // Publish successful OAuth login audit event
-        if (oauthUser != null) {
-            applicationEventPublisher.publishEvent(
-                AuditEvent(
-                    actorId = oauthUser.id.toString(),
-                    actorName = "${oauthUser.firstName ?: ""} ${oauthUser.lastName ?: ""}".trim().ifEmpty { oauthUser.email },
-                    merchantId = oauthUser.merchantId?.toString() ?: "unknown",
-                    identityType = IdentityType.USER,
-                    resource = AuditResource.IDENTITY,
-                    event = "User login successful via OAuth - Username: ${userDetails?.username}",
-                    eventTime = Instant.now(),
-                    timeRecorded = Instant.now(),
-                    payload = mapOf<String, String>(
-                        "username" to (userDetails?.username ?: "unknown"),
-                        "ipAddress" to clientIpExtractionService.getClientIpAddressFromContext(),
-                        "userId" to oauthUser.id.toString(),
-                        "loginMethod" to "oauth_login",
-                        "hasRedirect" to (!redirect.isNullOrBlank()).toString()
-                    )
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
+    }
+
+    private fun publishOAuthLoginAudit(
+        oauthUser: ai.sovereignrag.identity.core.entity.OAuthUser,
+        userDetails: UserDetails?,
+        redirect: String?
+    ) {
+        applicationEventPublisher.publishEvent(
+            AuditEvent(
+                actorId = oauthUser.id.toString(),
+                actorName = "${oauthUser.firstName ?: ""} ${oauthUser.lastName ?: ""}".trim().ifEmpty { oauthUser.email },
+                merchantId = oauthUser.merchantId?.toString() ?: "unknown",
+                identityType = IdentityType.USER,
+                resource = AuditResource.IDENTITY,
+                event = "User login successful via OAuth - Username: ${userDetails?.username}",
+                eventTime = Instant.now(),
+                timeRecorded = Instant.now(),
+                payload = mapOf(
+                    "username" to (userDetails?.username ?: "unknown"),
+                    "ipAddress" to clientIpExtractionService.getClientIpAddressFromContext(),
+                    "userId" to oauthUser.id.toString(),
+                    "loginMethod" to "oauth_login",
+                    "hasRedirect" to (!redirect.isNullOrBlank()).toString()
                 )
             )
-        }
-
-        // If redirect parameter is provided, redirect to frontend with token
-        if (!redirect.isNullOrBlank()) {
-            val redirectUrl = "$redirect?token=$token&expires_in=86400"
-            log.info { "Redirecting to frontend: $redirectUrl" }
-            return ResponseEntity.status(302)
-                .header("Location", redirectUrl)
-                .build()
-        }
-        
-        // Otherwise return JSON response
-        val response = mapOf(
-            "access_token" to token,
-            "token_type" to "Bearer",
-            "expires_in" to tokenExpiry,
-            "scope" to "openid email phone profile"
         )
-        return ResponseEntity.ok(response)
     }
-    
 
     @GetMapping("/api/userinfo")
     @ResponseBody
@@ -250,7 +219,7 @@ class AuthController(
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "User information retrieved",
             content = [Content(mediaType = "application/json",
-                schema = Schema(implementation = Map::class))]),
+                schema = Schema(implementation = UserInfoResponse::class))]),
         ApiResponse(responseCode = "404", description = "User not found")
     ])
     @SecurityRequirement(name = "bearerAuth")
@@ -258,71 +227,69 @@ class AuthController(
         @Parameter(description = "AKU ID of the user", example = "550e8400-e29b-41d4-a716-446655440000")
         @RequestParam(required = false) akuId: String?,
         @AuthenticationPrincipal jwt: Jwt?
-    ): Map<String, Any?> {
+    ): Any {
         log.info { "API UserInfo requested for akuId: $akuId, client: ${jwt?.subject}" }
-        
-        // Verify client has proper scope for userinfo access
-        val scopes = jwt?.getClaimAsStringList("scope") ?: run {
-            // Fallback: if scope is a string, split it
-            val scopeString = jwt?.getClaimAsString("scope")
-            scopeString?.split(" ") ?: emptyList()
-        }
+
+        val scopes = extractScopes(jwt)
         if (!scopes.contains("profile") && !scopes.contains("read")) {
             log.warn { "Insufficient scope for client: ${jwt?.subject}, scopes: $scopes" }
-            return mapOf(
-                "error" to "insufficient_scope",
-                "message" to "Client requires 'profile' or 'read' scope to access user information"
+            return ErrorResponse(
+                error = "insufficient_scope",
+                message = "Client requires 'profile' or 'read' scope to access user information"
             )
         }
-        
-        return if (akuId != null) {
-            try {
-                val akuIdUuid = UUID.fromString(akuId)
-                val user = userRepository.findByAkuId(akuIdUuid)
-                
-                if (user != null) {
-                    mapOf(
-                        "sub" to user.id.toString(),
-                        "aku_id" to user.akuId.toString(),
-                        "name" to "${user.firstName ?: ""} ${user.lastName ?: ""}".trim(),
-                        "first_name" to (user.firstName ?: ""),
-                        "last_name" to (user.lastName ?: ""),
-                        "email" to user.email,
-                        "phone" to (user.phoneNumber),
-                        "username" to user.username,
-                        "user_type" to (user.userType?.name ?: "INDIVIDUAL"),
-                        "trust_level" to (user.trustLevel?.name ?: "UNVERIFIED"),
-                        "email_verified" to user.emailVerified,
-                        "phone_verified" to user.phoneNumberVerified,
-                        "merchant_id" to user.merchantId?.toString(),
-                        "source" to "identity-database",
-                        "requested_by" to jwt?.subject
+
+        return akuId?.let { findUserByAkuId(it, jwt?.subject) }
+            ?: buildClientInfoResponse(jwt, scopes)
+    }
+
+    private fun extractScopes(jwt: Jwt?): List<String> {
+        return jwt?.getClaimAsStringList("scope")
+            ?: jwt?.getClaimAsString("scope")?.split(" ")
+            ?: emptyList()
+    }
+
+    private fun findUserByAkuId(akuId: String, requestedBy: String?): Any {
+        return runCatching { UUID.fromString(akuId) }
+            .mapCatching { uuid ->
+                userRepository.findByAkuId(uuid)?.let { user ->
+                    UserInfoResponse(
+                        sub = user.id.toString(),
+                        akuId = user.akuId.toString(),
+                        name = "${user.firstName ?: ""} ${user.lastName ?: ""}".trim(),
+                        firstName = user.firstName,
+                        lastName = user.lastName,
+                        email = user.email,
+                        phone = user.phoneNumber,
+                        username = user.username,
+                        userType = user.userType?.name ?: "INDIVIDUAL",
+                        trustLevel = user.trustLevel?.name ?: "UNVERIFIED",
+                        emailVerified = user.emailVerified,
+                        phoneVerified = user.phoneNumberVerified,
+                        merchantId = user.merchantId?.toString(),
+                        source = "identity-database",
+                        requestedBy = requestedBy
                     )
-                } else {
+                } ?: run {
                     log.warn { "User not found for akuId: $akuId" }
-                    mapOf(
-                        "error" to "user_not_found",
-                        "message" to "No user found with akuId: $akuId"
-                    )
+                    ErrorResponse(error = "user_not_found", message = "No user found with akuId: $akuId")
                 }
-            } catch (e: IllegalArgumentException) {
-                log.error { "Invalid UUID format for akuId: $akuId" }
-                mapOf(
-                    "error" to "invalid_aku_id",
-                    "message" to "Invalid akuId format: $akuId"
-                )
             }
-        } else {
-            // Return client info if no akuId provided
-            mapOf(
-                "sub" to (jwt?.subject ?: "unknown-client"),
-                "name" to "Service Client",
-                "client_id" to jwt?.getClaimAsString("azp"),
-                "scopes" to scopes,
-                "authenticated" to true,
-                "source" to "identity-service"
-            )
-        }
+            .getOrElse {
+                log.error { "Invalid UUID format for akuId: $akuId" }
+                ErrorResponse(error = "invalid_aku_id", message = "Invalid akuId format: $akuId")
+            }
+    }
+
+    private fun buildClientInfoResponse(jwt: Jwt?, scopes: List<String>): UserInfoResponse {
+        return UserInfoResponse(
+            sub = jwt?.subject ?: "unknown-client",
+            name = "Service Client",
+            clientId = jwt?.getClaimAsString("azp"),
+            scopes = scopes,
+            authenticated = true,
+            source = "identity-service"
+        )
     }
 
     @GetMapping("/api/merchantinfo")
@@ -331,7 +298,7 @@ class AuthController(
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Merchant information retrieved",
             content = [Content(mediaType = "application/json",
-                schema = Schema(implementation = Map::class))]),
+                schema = Schema(implementation = MerchantInfoResponse::class))]),
         ApiResponse(responseCode = "404", description = "Merchant not found")
     ])
     @SecurityRequirement(name = "bearerAuth")
@@ -339,81 +306,45 @@ class AuthController(
         @Parameter(description = "Merchant ID", example = "merchant-123")
         @RequestParam(required = false) merchantId: String?,
         @AuthenticationPrincipal jwt: Jwt?
-    ): Map<String, Any?> {
+    ): Any {
         log.info { "API MerchantInfo requested for merchantId: $merchantId, client: ${jwt?.subject}" }
-        
-        // Verify client has proper scope for merchant info access
-        val scopes = jwt?.getClaimAsStringList("scope") ?: run {
-            // Fallback: if scope is a string, split it
-            val scopeString = jwt?.getClaimAsString("scope")
-            scopeString?.split(" ") ?: emptyList()
-        }
+
+        val scopes = extractScopes(jwt)
         if (!scopes.contains("profile") && !scopes.contains("read")) {
             log.warn { "Insufficient scope for client: ${jwt?.subject}, scopes: $scopes" }
-            return mapOf(
-                "error" to "insufficient_scope",
-                "message" to "Client requires 'profile' or 'read' scope to access merchant information"
+            return ErrorResponse(
+                error = "insufficient_scope",
+                message = "Client requires 'profile' or 'read' scope to access merchant information"
             )
         }
-        
-        // Query merchant details from oauth_registered_clients table
-        return if (merchantId != null) {
-            val merchantOptional = oAuthRegisteredClientRepository.findById(merchantId)
-            if (merchantOptional.isPresent) {
-                val merchant = merchantOptional.get()
-                val clientData = extractDataFromClientSettings(merchant.clientSettings, merchant.clientId)
-                mapOf(
-                    "merchant_id" to merchant.id,
-                    "name" to merchant.clientName,
-                    "email" to clientData["emailAddress"],
-                    "phone" to clientData["phoneNumber"],
-                    "locale" to "en_US",
-                    "client_id" to merchant.clientId,
-                    "source" to "identity-service",
-                    "requested_by" to jwt?.subject,
-                    "low_balance_alert" to (clientData["lowBalance"] ?: 50000),
-                    "failureRate" to (clientData["failureRate"] ?: 5),
+
+        val targetMerchantId = merchantId ?: jwt?.getClaimAsString("merchant_id")
+
+        return targetMerchantId
+            ?.let { findMerchantById(it, jwt?.subject, merchantId == null) }
+            ?: ErrorResponse(error = "no_merchant_context", message = "No merchant context found")
+    }
+
+    private fun findMerchantById(merchantId: String, requestedBy: String?, isAuthenticated: Boolean): Any {
+        return oAuthRegisteredClientRepository.findById(merchantId)
+            .map<Any> { merchant ->
+                val settings = parseClientSettings(merchant.clientSettings, merchant.clientId)
+                MerchantInfoResponse(
+                    merchantId = merchant.id,
+                    name = merchant.clientName,
+                    email = settings.emailAddress,
+                    phone = settings.phoneNumber,
+                    clientId = merchant.clientId,
+                    requestedBy = requestedBy,
+                    authenticatedMerchant = if (isAuthenticated) true else null,
+                    lowBalanceAlert = settings.lowBalance ?: DEFAULT_LOW_BALANCE_ALERT,
+                    failureRate = settings.failureRate ?: DEFAULT_FAILURE_RATE
                 )
-            } else {
+            }
+            .orElseGet {
                 log.warn { "Merchant not found for merchantId: $merchantId" }
-                mapOf(
-                    "error" to "merchant_not_found",
-                    "message" to "No merchant found with merchantId: $merchantId"
-                )
+                ErrorResponse(error = "merchant_not_found", message = "No merchant found with merchantId: $merchantId")
             }
-        } else {
-            // Return info for the authenticated client's merchant
-            val clientMerchantId = jwt?.getClaimAsString("merchant_id")
-            if (clientMerchantId != null) {
-                val merchantOptional = oAuthRegisteredClientRepository.findById(clientMerchantId)
-                if (merchantOptional.isPresent) {
-                    val merchant = merchantOptional.get()
-                    val clientData = extractDataFromClientSettings(merchant.clientSettings, merchant.clientId)
-                    mapOf(
-                        "merchant_id" to merchant.id,
-                        "name" to merchant.clientName,
-                        "email" to clientData["emailAddress"],
-                        "phone" to clientData["phoneNumber"],
-                        "locale" to "en_US",
-                        "client_id" to merchant.clientId,
-                        "source" to "identity-service",
-                        "authenticated_merchant" to true,
-                        "low_balance_alert" to (clientData["lowBalance"] ?: 50000),
-                        "failureRate" to (clientData["failureRate"] ?: 5),
-                    )
-                } else {
-                    mapOf(
-                        "error" to "merchant_not_found",
-                        "message" to "No merchant found with merchantId: $clientMerchantId"
-                    )
-                }
-            } else {
-                mapOf(
-                    "error" to "no_merchant_context",
-                    "message" to "No merchant context found"
-                )
-            }
-        }
     }
 
     @GetMapping("/userinfo")
@@ -421,15 +352,15 @@ class AuthController(
     @Operation(summary = "Get authenticated user info", description = "Returns information about the currently authenticated user")
     @ApiResponse(responseCode = "200", description = "User information",
         content = [Content(mediaType = "application/json",
-            schema = Schema(implementation = Map::class))])
+            schema = Schema(implementation = UserInfoResponse::class))])
     @SecurityRequirement(name = "OAuth2")
-    fun userInfo(@AuthenticationPrincipal userDetails: UserDetails?): Map<String, Any> {
+    fun userInfo(@AuthenticationPrincipal userDetails: UserDetails?): UserInfoResponse {
         log.info { "UserInfo requested for: ${userDetails?.username}" }
-        return mapOf(
-            "sub" to (userDetails?.username ?: "unknown"),
-            "name" to (userDetails?.username ?: "unknown"),
-            "email" to "${userDetails?.username}@example.com",
-            "authorities" to (userDetails?.authorities?.map { it.authority } ?: emptyList())
+        return UserInfoResponse(
+            sub = userDetails?.username ?: "unknown",
+            name = userDetails?.username ?: "unknown",
+            email = "${userDetails?.username}@example.com",
+            authorities = userDetails?.authorities?.map { it.authority }
         )
     }
 }

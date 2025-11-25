@@ -117,6 +117,40 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse)
     }
 
+    @ExceptionHandler(InvalidCredentialsException::class)
+    fun handleInvalidCredentialsException(
+        ex: InvalidCredentialsException,
+        request: WebRequest
+    ): ResponseEntity<ErrorResponse> {
+        log.warn { "Invalid credentials: ${ex.message}" }
+
+        val errorResponse = ErrorResponse(
+            status = HttpStatus.UNAUTHORIZED.value(),
+            error = "invalid_credentials",
+            message = ex.message ?: "Invalid username or password",
+            path = request.getDescription(false).removePrefix("uri=")
+        )
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse)
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.LockedException::class)
+    fun handleLockedException(
+        ex: org.springframework.security.authentication.LockedException,
+        request: WebRequest
+    ): ResponseEntity<ErrorResponse> {
+        log.warn { "Account locked: ${ex.message}" }
+
+        val errorResponse = ErrorResponse(
+            status = HttpStatus.LOCKED.value(),
+            error = "account_locked",
+            message = ex.message ?: "Account is locked",
+            path = request.getDescription(false).removePrefix("uri=")
+        )
+
+        return ResponseEntity.status(HttpStatus.LOCKED).body(errorResponse)
+    }
+
     @ExceptionHandler(ServerException::class)
     fun handleServerException(
         ex: ServerException,
