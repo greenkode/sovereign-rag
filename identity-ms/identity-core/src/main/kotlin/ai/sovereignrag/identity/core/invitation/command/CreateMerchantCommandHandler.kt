@@ -114,8 +114,6 @@ class CreateMerchantCommandHandler(
                             "reuseRefreshTokens" to "false"
                         )
                     )
-                    createdAt = Instant.now()
-                    updatedAt = Instant.now()
                     failedAuthAttempts = 0
                 }
 

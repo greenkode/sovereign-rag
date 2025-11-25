@@ -19,7 +19,7 @@ data class MerchantDto(
     val refreshTokenTimeToLive: String,
     val reuseRefreshTokens: Boolean,
     val createdAt: Instant,
-    val updatedAt: Instant,
+    val lastModifiedAt: Instant,
     val isLocked: Boolean,
     val failedAuthAttempts: Int
 )

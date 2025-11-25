@@ -1,11 +1,12 @@
 package ai.sovereignrag.identity.core.entity
 
+import ai.sovereignrag.identity.commons.AuditableEntity
 import jakarta.persistence.*
 import java.time.Instant
 
 @Entity
-@Table(name = "oauth_registered_clients")
-class OAuthRegisteredClient {
+@Table(name = "oauth_registered_clients", schema = "identity")
+class OAuthRegisteredClient() : AuditableEntity() {
     @Id
     @Column(length = 100)
     var id: String = ""
@@ -58,12 +59,6 @@ class OAuthRegisteredClient {
     @Column(name = "token_settings", nullable = false, columnDefinition = "TEXT")
     var tokenSettings: String = ""
 
-    @Column(name = "created_at", nullable = false)
-    var createdAt: Instant = Instant.now()
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant = Instant.now()
-
     @Column(name = "failed_auth_attempts", nullable = false)
     var failedAuthAttempts: Int = 0
 
@@ -77,10 +72,6 @@ class OAuthRegisteredClient {
     @Enumerated(EnumType.STRING)
     var environmentMode: EnvironmentMode = EnvironmentMode.SANDBOX
 
-    constructor() {
-        // Default constructor for JPA
-    }
-
     constructor(
         id: String,
         clientId: String,
@@ -90,7 +81,7 @@ class OAuthRegisteredClient {
         scopes: String,
         clientSettings: String,
         tokenSettings: String
-    ) {
+    ) : this() {
         this.id = id
         this.clientId = clientId
         this.clientName = clientName
@@ -99,11 +90,6 @@ class OAuthRegisteredClient {
         this.scopes = scopes
         this.clientSettings = clientSettings
         this.tokenSettings = tokenSettings
-    }
-
-    @PreUpdate
-    fun preUpdate() {
-        updatedAt = Instant.now()
     }
 
     fun isCurrentlyLocked(): Boolean {
@@ -118,15 +104,12 @@ class OAuthRegisteredClient {
         if (failedAuthAttempts >= MAX_FAILED_ATTEMPTS) {
             lockedUntil = now.plusSeconds(LOCKOUT_DURATION_MINUTES * 60)
         }
-        
-        updatedAt = now
     }
 
     fun resetFailedAuthAttempts() {
         failedAuthAttempts = 0
         lastFailedAuth = null
         lockedUntil = null
-        updatedAt = Instant.now()
     }
 
     fun checkAndUnlockIfExpired(): Boolean {

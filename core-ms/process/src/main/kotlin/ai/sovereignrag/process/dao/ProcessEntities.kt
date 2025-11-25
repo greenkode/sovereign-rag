@@ -180,6 +180,7 @@ data class ProcessRequestDataEntity(
 }
 
 @Entity
+@Table(name = "process_request_stakeholder")
 class ProcessRequestStakeholder(
 
     @ManyToOne
@@ -199,6 +200,7 @@ class ProcessRequestStakeholder(
 }
 
 @Entity
+@Table(name = "process_event_transition")
 class ProcessEventTransitionEntity(
 
     @ManyToOne

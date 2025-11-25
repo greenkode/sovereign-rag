@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.refreshtoken.domain
 
+import ai.sovereignrag.identity.commons.AuditableEntity
 import jakarta.persistence.*
 import java.time.Instant
 import java.util.UUID
@@ -47,15 +48,9 @@ class RefreshTokenEntity(
     var revokedAt: Instant? = null,
 
     @Column(name = "replaced_by_jti")
-    var replacedByJti: String? = null,
+    var replacedByJti: String? = null
 
-    @Column(name = "created_at", nullable = false)
-    val createdAt: Instant = Instant.now(),
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant = Instant.now()
-
-) {
+) : AuditableEntity() {
     fun isExpired(): Boolean = Instant.now().isAfter(expiresAt)
 
     fun isRevoked(): Boolean = revokedAt != null
@@ -65,6 +60,5 @@ class RefreshTokenEntity(
     fun revoke(replacedBy: String? = null) {
         this.revokedAt = Instant.now()
         this.replacedByJti = replacedBy
-        this.updatedAt = Instant.now()
     }
 }

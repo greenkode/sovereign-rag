@@ -27,11 +27,6 @@
         </dependency>
         <dependency>
             <groupId>ai.sovereignrag</groupId>
-            <artifactId>client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.sovereignrag</groupId>
             <artifactId>guardrail</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

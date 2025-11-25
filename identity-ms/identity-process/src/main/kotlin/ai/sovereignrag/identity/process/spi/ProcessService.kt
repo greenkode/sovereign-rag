@@ -172,7 +172,7 @@ class ProcessService(
                 userId = transition.userId,
                 oldState = transition.oldState,
                 newState = transition.newState,
-                timestamp = transition.createdDate
+                timestamp = transition.createdAt
             )
         }.sortedBy { it.timestamp }
     }

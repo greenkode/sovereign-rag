@@ -9,11 +9,11 @@ import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
-import ai.sovereignrag.identity.process.domain.model.SrProcess
 import ai.sovereignrag.identity.process.domain.model.ProcessEventTransition
 import ai.sovereignrag.identity.process.domain.model.ProcessRequest
 import ai.sovereignrag.identity.process.domain.model.ProcessRequestData
 import ai.sovereignrag.identity.process.domain.model.ProcessStakeholder
+import ai.sovereignrag.identity.process.domain.model.SrProcess
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -28,7 +28,6 @@ import jakarta.persistence.Table
 import java.io.Serializable
 import java.time.Instant
 import java.util.UUID
-import kotlin.collections.map
 
 @Entity
 @Table(name = "process")
@@ -49,8 +48,6 @@ class ProcessEntity(
 
     val externalReference: String? = null,
 
-    private val integratorReference: String? = null,
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
@@ -69,11 +66,10 @@ class ProcessEntity(
         state,
         id ?: 0L,
         channel,
-        createdDate!!,
+        createdAt!!,
         requests.map { it.toDomain() }.toSet(),
         transitions.map { it.toDomain() }.toSet(),
         externalReference,
-        integratorReference,
     )
 
     fun updateState(newState: ProcessState) {
@@ -197,6 +193,7 @@ class ProcessRequestStakeholder(
 }
 
 @Entity
+@Table(name = "process_event_transition")
 class ProcessEventTransitionEntity(
 
     @ManyToOne
@@ -221,5 +218,5 @@ class ProcessEventTransitionEntity(
     fun toDomain() =
         ProcessEventTransition(process.id!!, event, userId, oldState, newState, id ?: 0L)
 
-    fun createdDate() = createdDate!!
+    fun createdAt() = createdAt!!
 }

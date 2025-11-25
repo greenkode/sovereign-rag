@@ -1,3 +1,32 @@
+CREATE TABLE IF NOT EXISTS tenants
+(
+    id                   VARCHAR(255) NOT NULL PRIMARY KEY,
+    name                 VARCHAR(255) NOT NULL,
+    database_name        VARCHAR(255) NOT NULL UNIQUE,
+    api_key_hash         VARCHAR(512) NOT NULL,
+    status               VARCHAR(50)  NOT NULL DEFAULT 'ACTIVE',
+    client_id            VARCHAR(100) NOT NULL,
+    max_documents        INTEGER      NOT NULL DEFAULT 10000,
+    max_embeddings       INTEGER      NOT NULL DEFAULT 50000,
+    max_requests_per_day INTEGER      NOT NULL DEFAULT 10000,
+    contact_email        VARCHAR(500),
+    contact_name         VARCHAR(500),
+    admin_email          VARCHAR(255),
+    wordpress_url        VARCHAR(1000),
+    wordpress_version    VARCHAR(50),
+    plugin_version       VARCHAR(50),
+    features             JSONB        NOT NULL DEFAULT '{}',
+    settings             JSONB        NOT NULL DEFAULT '{}',
+    created_at           TIMESTAMP    NOT NULL DEFAULT NOW(),
+    updated_at           TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_active_at       TIMESTAMP,
+    deleted_at           TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tenants_status ON tenants(status);
+CREATE INDEX IF NOT EXISTS idx_tenants_client_id ON tenants(client_id);
+CREATE INDEX IF NOT EXISTS idx_tenants_database_name ON tenants(database_name);
+
 CREATE TABLE IF NOT EXISTS groups
 (
     id                 SERIAL       NOT NULL PRIMARY KEY,
@@ -138,7 +167,7 @@ CREATE TABLE IF NOT EXISTS subscription_limit
 );
 
 CREATE INDEX IF NOT EXISTS idx_subscription_limit_tenant_id ON subscription_limit(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_subscription_limit_tenant_active ON subscription_limit(tenant_id, start, expiry) WHERE expiry IS NULL OR expiry > CURRENT_TIMESTAMP;
+CREATE INDEX IF NOT EXISTS idx_subscription_limit_tenant_active ON subscription_limit(tenant_id, start, expiry);
 
 CREATE TABLE IF NOT EXISTS access_token
 (

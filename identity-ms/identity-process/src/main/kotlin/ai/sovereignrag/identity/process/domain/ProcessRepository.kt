@@ -133,7 +133,7 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
     @Query(
         """
         SELECT new ai.sovereignrag.identity.process.domain.model.ProcessBasicInfo(
-            p.id, p.publicId, p.type, p.state, p.channel, p.createdDate, p.externalReference
+            p.id, p.publicId, p.type, p.state, p.channel, p.createdAt, p.externalReference
         )
         FROM ProcessEntity p 
         WHERE p.publicId = :publicId
@@ -145,11 +145,11 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
     @Query(
         """
         SELECT new ai.sovereignrag.identity.process.domain.model.ProcessTransitionInfo(
-            t.id, t.process.id, t.event, t.userId, t.oldState, t.newState, t.createdDate
+            t.id, t.process.id, t.event, t.userId, t.oldState, t.newState, t.createdAt
         )
         FROM ProcessEventTransitionEntity t
         WHERE t.process.publicId = :publicId
-        ORDER BY t.createdDate DESC
+        ORDER BY t.createdAt DESC
     """
     )
     fun findTransitionsByProcessId(@Param("publicId") publicId: UUID): List<ProcessTransitionInfo>
@@ -210,9 +210,9 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
         WHERE p.type = :processType 
         AND s.type = :stakeholderType 
         AND s.stakeholderId = :userId
-        AND p.createdDate >= :sinceDate
+        AND p.createdAt >= :sinceDate
         AND p.state = :state
-        ORDER BY p.createdDate DESC
+        ORDER BY p.createdAt DESC
     """
     )
     fun findRecentPendingProcessesByTypeAndForUserId(
@@ -248,8 +248,8 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
         WHERE p.type = :processType 
         AND s.type = :stakeholderType 
         AND s.stakeholderId = :userId
-        AND p.createdDate >= :sinceDate
-        ORDER BY p.createdDate DESC LIMIT 1
+        AND p.createdAt >= :sinceDate
+        ORDER BY p.createdAt DESC LIMIT 1
     """
     )
     fun findLatestPendingProcessByTypeAndForUserId(

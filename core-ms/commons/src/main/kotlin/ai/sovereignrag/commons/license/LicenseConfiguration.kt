@@ -62,20 +62,29 @@ class LicenseConfiguration(
     }
 
     private fun printLicenseInfo() {
+        val contentWidth = 64
+        val labelWidth = 18
+        val valueWidth = contentWidth - labelWidth
+        val border = "═".repeat(contentWidth)
+        val title = "SovereignRAG License Information"
+        val centeredTitle = title.padStart((contentWidth + title.length) / 2).padEnd(contentWidth)
+
+        fun row(label: String, value: String) = "║ ${label.padEnd(labelWidth - 1)}${value.padEnd(valueWidth)}║"
+
         log.info {
             """
 
-            ╔════════════════════════════════════════════════════════════════╗
-            ║              SovereignRAG License Information                  ║
-            ╠════════════════════════════════════════════════════════════════╣
-            ║ Customer:        ${licenseInfo.customerName.padEnd(42)}║
-            ║ Tier:            ${licenseInfo.tier.name.padEnd(42)}║
-            ║ Max Tokens:      ${formatNumber(licenseInfo.maxTokensPerMonth).padEnd(42)}║
-            ║ Max Tenants:     ${licenseInfo.maxTenants.toString().padEnd(42)}║
-            ║ Status:          ${(if (licenseInfo.isValid) "Valid" else "Invalid").padEnd(42)}║
-            ║ Expires:         ${formatExpiry(licenseInfo.expiresAt).padEnd(42)}║
-            ║ Features:        ${licenseInfo.features.size.toString().padEnd(42)}║
-            ╚════════════════════════════════════════════════════════════════╝
+            ╔$border╗
+            ║$centeredTitle║
+            ╠$border╣
+            ${row("Customer:", licenseInfo.customerName)}
+            ${row("Tier:", licenseInfo.tier.name)}
+            ${row("Max Tokens:", formatNumber(licenseInfo.maxTokensPerMonth))}
+            ${row("Max Tenants:", licenseInfo.maxTenants.toString())}
+            ${row("Status:", if (licenseInfo.isValid) "Valid" else "Invalid")}
+            ${row("Expires:", formatExpiry(licenseInfo.expiresAt))}
+            ${row("Features:", licenseInfo.features.size.toString())}
+            ╚$border╝
             """.trimIndent()
         }
 

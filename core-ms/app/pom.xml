@@ -29,21 +29,6 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <!-- Accounting Module -->
-        <dependency>
-            <groupId>ai.sovereignrag</groupId>
-            <artifactId>accounting</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <!-- TODO: Fix accounting-adapter-minigl dependencies -->
-        <!-- Accounting Adapter MiniGL -->
-        <!-- <dependency>
-            <groupId>ai.sovereignrag</groupId>
-            <artifactId>accounting-adapter-minigl</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency> -->
-
         <!-- Auth Module (JWT authentication) -->
         <dependency>
             <groupId>ai.sovereignrag</groupId>
@@ -72,17 +57,9 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <!-- Client Module -->
         <dependency>
             <groupId>ai.sovereignrag</groupId>
-            <artifactId>client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <!-- Pricing Module -->
-        <dependency>
-            <groupId>ai.sovereignrag</groupId>
-            <artifactId>pricing</artifactId>
+            <artifactId>limits</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
@@ -97,20 +74,6 @@
         <dependency>
             <groupId>ai.sovereignrag</groupId>
             <artifactId>scheduler</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <!-- Messaging Adapters -->
-        <dependency>
-            <groupId>ai.sovereignrag</groupId>
-            <artifactId>messaging-adapter-sendgrid</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <!-- Support Adapters -->
-        <dependency>
-            <groupId>ai.sovereignrag</groupId>
-            <artifactId>support-adapter-zoho</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 

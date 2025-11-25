@@ -46,7 +46,6 @@
         <module>agent-core</module>
         <module>app</module>
         <module>auth</module>
-        <module>client</module>
         <module>commons</module>
         <module>guardrail</module>
         <module>notification</module>

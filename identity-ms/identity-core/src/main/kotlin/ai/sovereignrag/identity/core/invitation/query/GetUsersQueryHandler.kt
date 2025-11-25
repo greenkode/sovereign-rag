@@ -9,6 +9,7 @@ import ai.sovereignrag.identity.core.service.UserService
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 private val log = KotlinLogging.logger {}
 
@@ -38,7 +39,7 @@ class GetUsersQueryHandler(
                 fullName = user.fullName(),
                 role = userRoles.ifEmpty { "No roles assigned" },
                 status = status,
-                createdAt = user.createdAt
+                createdAt = user.createdAt ?: Instant.now()
             )
         }
 

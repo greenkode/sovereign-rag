@@ -19,7 +19,7 @@ data class SrProcess(
     val state: ProcessState,
     val id: Long,
     val channel: Channel,
-    val createdDate: Instant,
+    val createdAt: Instant,
     val requests: Set<ProcessRequest>,
     val transitions: Set<ProcessEventTransition>,
     val externalReference: String? = null,
@@ -27,7 +27,7 @@ data class SrProcess(
 ) {
 
     fun toDto(): ProcessDto {
-        return ProcessDto(id, publicId, state, type, channel, createdDate, requests.map { request ->
+        return ProcessDto(id, publicId, state, type, channel, createdAt, requests.map { request ->
             ProcessRequestDto(
                 request.id,
                 request.type,

@@ -24,13 +24,16 @@ CREATE TABLE IF NOT EXISTS oauth_users (
     account_non_expired BOOLEAN NOT NULL DEFAULT true,
     account_non_locked BOOLEAN NOT NULL DEFAULT true,
     credentials_non_expired BOOLEAN NOT NULL DEFAULT true,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     failed_login_attempts INTEGER NOT NULL DEFAULT 0,
     locked_until TIMESTAMP,
     last_failed_login TIMESTAMP,
     environment_preference VARCHAR(20) NOT NULL DEFAULT 'SANDBOX',
-    environment_last_switched_at TIMESTAMP
+    environment_last_switched_at TIMESTAMP,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS oauth_user_authorities (
@@ -60,12 +63,15 @@ CREATE TABLE IF NOT EXISTS oauth_registered_clients (
     scopes VARCHAR(1000) NOT NULL,
     client_settings TEXT NOT NULL,
     token_settings TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     failed_auth_attempts INTEGER NOT NULL DEFAULT 0,
     locked_until TIMESTAMP,
     last_failed_auth TIMESTAMP,
-    environment_mode VARCHAR(20) NOT NULL DEFAULT 'SANDBOX'
+    environment_mode VARCHAR(20) NOT NULL DEFAULT 'SANDBOX',
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255)
 );
 
 -- Refresh Tokens
@@ -82,8 +88,11 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
     expires_at TIMESTAMP NOT NULL,
     revoked_at TIMESTAMP,
     replaced_by_jti VARCHAR(255),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255),
     CONSTRAINT fk_refresh_tokens_user_id FOREIGN KEY (user_id) REFERENCES oauth_users(id) ON DELETE CASCADE
 );
 
@@ -101,8 +110,11 @@ CREATE TABLE IF NOT EXISTS trusted_devices (
     expires_at TIMESTAMP NOT NULL,
     last_used_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     trust_count INTEGER DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255),
     CONSTRAINT fk_trusted_device_user FOREIGN KEY (user_id) REFERENCES oauth_users(id) ON DELETE CASCADE
 );
 
@@ -117,11 +129,11 @@ CREATE TABLE IF NOT EXISTS process (
     expiry TIMESTAMP NOT NULL DEFAULT NOW(),
     external_reference VARCHAR(255),
     channel VARCHAR(255) NOT NULL,
-    created_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    created_by VARCHAR(255) NOT NULL,
-    last_modified_by VARCHAR(255) NOT NULL,
-    version BIGINT NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255),
     CONSTRAINT unique_process_type_external_reference UNIQUE (type, external_reference)
 );
 
@@ -132,11 +144,11 @@ CREATE TABLE IF NOT EXISTS process_request (
     type VARCHAR(255) NOT NULL,
     state VARCHAR(255) NOT NULL,
     channel VARCHAR(255) NOT NULL,
-    created_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    created_by VARCHAR(255) NOT NULL,
-    last_modified_by VARCHAR(255) NOT NULL,
-    version BIGINT NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255),
     CONSTRAINT fk_process_request_process FOREIGN KEY (process_id) REFERENCES process (id)
 );
 
@@ -144,13 +156,41 @@ CREATE TABLE IF NOT EXISTS process_request_data (
     process_request_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,
     value TEXT NOT NULL,
-    created_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    created_by VARCHAR(255) NOT NULL,
-    last_modified_by VARCHAR(255) NOT NULL,
-    version BIGINT NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255),
     PRIMARY KEY (process_request_id, name),
     CONSTRAINT fk_process_request_data FOREIGN KEY (process_request_id) REFERENCES process_request (id)
+);
+
+CREATE TABLE IF NOT EXISTS process_request_stakeholder (
+    id BIGSERIAL PRIMARY KEY,
+    process_request_id BIGINT NOT NULL,
+    stakeholder_id VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255),
+    CONSTRAINT fk_process_request_stakeholder FOREIGN KEY (process_request_id) REFERENCES process_request (id)
+);
+
+CREATE TABLE IF NOT EXISTS process_event_transition (
+    id BIGSERIAL PRIMARY KEY,
+    process_id BIGINT NOT NULL,
+    event VARCHAR(255) NOT NULL,
+    user_id UUID NOT NULL,
+    old_state VARCHAR(255) NOT NULL,
+    new_state VARCHAR(255) NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    created_by VARCHAR(255),
+    last_modified_at TIMESTAMP,
+    last_modified_by VARCHAR(255),
+    CONSTRAINT fk_process_event_transition FOREIGN KEY (process_id) REFERENCES process (id)
 );
 
 -- Indexes

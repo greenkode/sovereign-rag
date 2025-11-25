@@ -13,7 +13,7 @@ private val log = KotlinLogging.logger {}
 data class UpdateMerchantEnvironmentResult(
     val merchantId: String,
     val environmentMode: EnvironmentMode,
-    val updatedAt: Instant,
+    val lastModifiedAt: Instant,
     val affectedUsers: Int
 )
 
@@ -60,7 +60,7 @@ class MerchantService(
         return UpdateMerchantEnvironmentResult(
             merchantId = merchantId,
             environmentMode = environmentMode,
-            updatedAt = Instant.now(),
+            lastModifiedAt = Instant.now(),
             affectedUsers = affectedUsers
         )
     }

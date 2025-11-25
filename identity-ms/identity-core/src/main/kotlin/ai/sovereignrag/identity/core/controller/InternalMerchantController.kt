@@ -30,7 +30,7 @@ class InternalMerchantController(
         return mapOf(
             "merchantId" to result.merchantId,
             "environmentMode" to result.environmentMode,
-            "updatedAt" to result.updatedAt.toString(),
+            "lastModifiedAt" to result.lastModifiedAt.toString(),
             "affectedUsers" to result.affectedUsers
         )
     }

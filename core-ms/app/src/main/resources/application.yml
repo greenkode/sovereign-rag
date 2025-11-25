@@ -40,7 +40,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        # Note: No default_schema here - tenant routing handles schema selection
+        default_schema: core
     show-sql: false
 
   # Flyway database migrations
@@ -148,29 +148,10 @@ sovereignrag:
     id: ${DEV_TENANT_ID:dev}
     name: ${DEV_TENANT_NAME:Development Tenant}
     api-key: ${DEV_TENANT_API_KEY:dev-api-key-12345}
-
-sovereignrag:
   license:
     key: ${SOVEREIGNRAG_LICENSE_KEY:}
     strict: ${SOVEREIGNRAG_LICENSE_STRICT:false}
-    public-key: ${SOVEREIGNRAG_LICENSE_PUBLIC_KEY:-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGd
-h3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo
-9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJn
-i3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl
-8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpf
-gvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEm
-xwIDAQAB
------END PUBLIC KEY-----}
-
-license:
-  online:
-    enabled: ${LICENSE_ONLINE_ENABLED:false}
-    server-url: ${LICENSE_SERVER_URL:http://localhost:9085}
-    timeout: ${LICENSE_ONLINE_TIMEOUT:5000}
-    deployment-id: ${LICENSE_DEPLOYMENT_ID:}
-    hostname: ${HOSTNAME:}
-    application-version: ${project.version:unknown}
+    public-key: ${SOVEREIGNRAG_LICENSE_PUBLIC_KEY:-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGdh3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJni3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpfgvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEmxwIDAQAB-----END PUBLIC KEY-----}
 
   # LangChain4j Guardrails configuration
   guardrails:
@@ -212,6 +193,16 @@ license:
     support-email: ${SENDGRID_SUPPORT_EMAIL:support@sovereignrag.ai}
     response-time: ${SENDGRID_RESPONSE_TIME:as soon as possible}
     dashboard-url: ${DASHBOARD_URL:http://localhost}
+
+# License online validation configuration
+license:
+  online:
+    enabled: ${LICENSE_ONLINE_ENABLED:false}
+    server-url: ${LICENSE_SERVER_URL:http://localhost:9085}
+    timeout: ${LICENSE_ONLINE_TIMEOUT:5000}
+    deployment-id: ${LICENSE_DEPLOYMENT_ID:}
+    hostname: ${HOSTNAME:}
+    application-version: ${project.version:unknown}
 
 # Messaging adapter configuration
 messaging:

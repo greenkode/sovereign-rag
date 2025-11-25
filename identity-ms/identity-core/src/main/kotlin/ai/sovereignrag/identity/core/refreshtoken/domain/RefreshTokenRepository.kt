@@ -20,7 +20,7 @@ interface RefreshTokenRepository : JpaRepository<RefreshTokenEntity, UUID> {
     fun findActiveTokensByUserId(@Param("userId") userId: UUID, @Param("now") now: Instant = Instant.now()): List<RefreshTokenEntity>
 
     @Modifying
-    @Query("UPDATE RefreshTokenEntity rt SET rt.revokedAt = :now, rt.updatedAt = :now WHERE rt.userId = :userId AND rt.revokedAt IS NULL")
+    @Query("UPDATE RefreshTokenEntity rt SET rt.revokedAt = :now, rt.lastModifiedAt = :now WHERE rt.userId = :userId AND rt.revokedAt IS NULL")
     fun revokeAllUserTokens(@Param("userId") userId: UUID, @Param("now") now: Instant = Instant.now()): Int
 
     @Modifying

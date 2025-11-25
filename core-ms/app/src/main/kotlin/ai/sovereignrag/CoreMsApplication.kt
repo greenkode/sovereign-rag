@@ -1,4 +1,4 @@
-package ai.sovereignrag.app.config
+package ai.sovereignrag
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -11,9 +11,9 @@ import org.springframework.boot.runApplication
  * - ai.sovereignrag.guardrail.* (guardrail module)
  * - ai.sovereignrag.security.* (auth module)
  */
-@SpringBootApplication(scanBasePackages = ["ai.sovereignrag"])
-class SovereignRagApplication
+@SpringBootApplication
+class CoreMsApplication
 
 fun main(args: Array<String>) {
-    runApplication<SovereignRagApplication>(*args)
+    runApplication<CoreMsApplication>(*args)
 }

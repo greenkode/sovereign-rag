@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.entity
 
+import ai.sovereignrag.identity.commons.AuditableEntity
 import jakarta.persistence.*
 import java.time.Instant
 import java.time.LocalDate
@@ -14,8 +15,8 @@ enum class TrustLevel {
 }
 
 @Entity
-@Table(name = "oauth_users")
-class OAuthUser {
+@Table(name = "oauth_users", schema = "identity")
+class OAuthUser() : AuditableEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID? = null
@@ -94,12 +95,6 @@ class OAuthUser {
     @Column(name = "authority")
     var authorities: MutableSet<String> = mutableSetOf()
 
-    @Column(name = "created_at", nullable = false)
-    var createdAt: Instant = Instant.now()
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant = Instant.now()
-
     @Column(name = "failed_login_attempts", nullable = false)
     var failedLoginAttempts: Int = 0
 
@@ -116,11 +111,8 @@ class OAuthUser {
     @Column(name = "environment_last_switched_at")
     var environmentLastSwitchedAt: Instant? = null
 
-    constructor() {
-        // Default constructor for JPA
-    }
 
-    constructor(username: String, password: String) {
+    constructor(username: String, password: String) : this() {
         this.username = username
         this.password = password
     }
@@ -131,17 +123,12 @@ class OAuthUser {
         email: String,
         enabled: Boolean = true,
         authorities: MutableSet<String> = mutableSetOf()
-    ) {
+    ) : this() {
         this.username = username
         this.password = password
         this.email = email
         this.enabled = enabled
         this.authorities = authorities
-    }
-
-    @PreUpdate
-    fun preUpdate() {
-        updatedAt = Instant.now()
     }
 
     /**
@@ -163,8 +150,6 @@ class OAuthUser {
             lockedUntil = now.plusSeconds(LOCKOUT_DURATION_MINUTES * 60)
             accountNonLocked = false
         }
-        
-        updatedAt = now
     }
 
     /**
@@ -175,7 +160,6 @@ class OAuthUser {
         lastFailedLogin = null
         lockedUntil = null
         accountNonLocked = true
-        updatedAt = Instant.now()
     }
 
     /**

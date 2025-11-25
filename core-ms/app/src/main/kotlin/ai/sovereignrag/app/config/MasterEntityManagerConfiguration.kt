@@ -25,10 +25,7 @@ import javax.sql.DataSource
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-    basePackages = [
-        "ai.sovereignrag.tenant.repository",
-        "ai.sovereignrag.prompt.repository"
-    ],
+    basePackages = ["ai.sovereignrag"],
     entityManagerFactoryRef = "masterEntityManagerFactory",
     transactionManagerRef = "masterTransactionManager"
 )
@@ -46,10 +43,7 @@ class MasterEntityManagerConfiguration {
     ): LocalContainerEntityManagerFactoryBean {
         return builder
             .dataSource(masterDataSource)
-            .packages(
-                "ai.sovereignrag.tenant.domain",
-                "ai.sovereignrag.prompt.domain"
-            )
+            .packages("ai.sovereignrag")
             .persistenceUnit("master")
             .properties(jpaProperties.properties)
             .build()

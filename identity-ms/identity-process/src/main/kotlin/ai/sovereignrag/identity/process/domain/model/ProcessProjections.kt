@@ -18,7 +18,7 @@ data class ProcessBasicInfo(
     val type: ProcessType,
     val state: ProcessState,
     val channel: Channel,
-    val createdDate: Instant,
+    val createdAt: Instant,
     val externalReference: String?
 ) : Serializable
 
@@ -33,5 +33,5 @@ data class ProcessTransitionInfo(
     val userId: UUID,
     val oldState: ProcessState,
     val newState: ProcessState,
-    val createdDate: Instant
+    val createdAt: Instant
 ) : Serializable

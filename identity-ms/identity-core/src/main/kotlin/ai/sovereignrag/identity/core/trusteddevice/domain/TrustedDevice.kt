@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.trusteddevice.domain
 
+import ai.sovereignrag.identity.commons.AuditableEntity
 import jakarta.persistence.*
 import java.time.Instant
 import java.util.UUID
@@ -40,15 +41,9 @@ class TrustedDevice(
     var lastUsedAt: Instant = Instant.now(),
 
     @Column(name = "trust_count")
-    var trustCount: Int = 1,
+    var trustCount: Int = 1
 
-    @Column(name = "created_at")
-    val createdAt: Instant = Instant.now(),
-
-    @Column(name = "updated_at")
-    var updatedAt: Instant = Instant.now(),
-
-) {
+) : AuditableEntity() {
     fun isExpired(): Boolean = Instant.now().isAfter(expiresAt)
 
     fun updateLastUsed() {
