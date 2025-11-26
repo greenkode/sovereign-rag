@@ -14,6 +14,14 @@ enum class TrustLevel {
     TIER_ONE, TIER_TWO, TIER_THREE, TIER_ZERO
 }
 
+enum class RegistrationSource {
+    INVITATION, OAUTH_GOOGLE, OAUTH_MICROSOFT
+}
+
+enum class OAuthProvider {
+    GOOGLE, MICROSOFT
+}
+
 @Entity
 @Table(name = "oauth_users", schema = "identity")
 class OAuthUser() : AuditableEntity() {
@@ -111,6 +119,9 @@ class OAuthUser() : AuditableEntity() {
     @Column(name = "environment_last_switched_at")
     var environmentLastSwitchedAt: Instant? = null
 
+    @Column(name = "registration_source", length = 50)
+    @Enumerated(EnumType.STRING)
+    var registrationSource: RegistrationSource = RegistrationSource.INVITATION
 
     constructor(username: String, password: String) : this() {
         this.username = username

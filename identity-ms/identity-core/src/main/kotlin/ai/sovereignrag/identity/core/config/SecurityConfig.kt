@@ -36,6 +36,9 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher
+import ai.sovereignrag.identity.core.oauth.CustomOAuth2UserService
+import ai.sovereignrag.identity.core.oauth.OAuth2AuthenticationSuccessHandler
+import ai.sovereignrag.identity.core.oauth.OAuth2AuthenticationFailureHandler
 
 @Configuration
 @EnableWebSecurity
@@ -44,7 +47,10 @@ class SecurityConfig(
     @Lazy private val clientLockoutAuthenticationProvider: ClientLockoutAuthenticationProvider,
     private val customOAuth2ErrorResponseHandler: CustomOAuth2ErrorResponseHandler,
     private val clientLockoutFilter: ClientLockoutFilter,
-    private val jwtAuthenticationConverter: CustomJwtAuthenticationConverter
+    private val jwtAuthenticationConverter: CustomJwtAuthenticationConverter,
+    @Lazy private val customOAuth2UserService: CustomOAuth2UserService,
+    @Lazy private val oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
+    @Lazy private val oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler
 ) {
     @Bean
     @Order(1)
@@ -98,13 +104,41 @@ class SecurityConfig(
             }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers("/oauth2/**", "/.well-known/**", "/error", "/test/**", "/", "/api/login", "/api/2fa/login", "/api/2fa/verify", "/api/2fa/resend", "/api/2fa/refresh", "/actuator/**", "/merchant/invitation/validate", "/merchant/invitation/complete", "/password-reset/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                    .requestMatchers(
+                        "/oauth2/**",
+                        "/.well-known/**",
+                        "/error",
+                        "/test/**",
+                        "/",
+                        "/api/login",
+                        "/api/2fa/login",
+                        "/api/2fa/verify",
+                        "/api/2fa/resend",
+                        "/api/2fa/refresh",
+                        "/actuator/**",
+                        "/merchant/invitation/validate",
+                        "/merchant/invitation/complete",
+                        "/password-reset/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/login/oauth2/code/**",
+                        "/oauth2/authorization/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->
                 oauth2.jwt { jwt ->
                     jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)
                 }
+            }
+            .oauth2Login { oauth2 ->
+                oauth2
+                    .authorizationEndpoint { it.baseUri("/oauth2/authorization") }
+                    .redirectionEndpoint { it.baseUri("/login/oauth2/code/*") }
+                    .userInfoEndpoint { it.userService(customOAuth2UserService) }
+                    .successHandler(oAuth2AuthenticationSuccessHandler)
+                    .failureHandler(oAuth2AuthenticationFailureHandler)
             }
             .formLogin { form ->
                 form

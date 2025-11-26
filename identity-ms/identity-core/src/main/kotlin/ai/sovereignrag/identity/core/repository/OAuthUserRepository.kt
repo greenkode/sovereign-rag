@@ -8,6 +8,7 @@ import java.util.UUID
 @Repository
 interface OAuthUserRepository : JpaRepository<OAuthUser, UUID> {
     fun findByUsername(username: String): OAuthUser?
+    fun findByEmail(email: String): OAuthUser?
     fun findByAkuId(akuId: UUID): OAuthUser?
     fun findByMerchantId(merchantId: UUID): List<OAuthUser>
 }
