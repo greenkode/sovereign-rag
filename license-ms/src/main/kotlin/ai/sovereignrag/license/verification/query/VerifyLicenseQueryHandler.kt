@@ -1,5 +1,6 @@
 package ai.sovereignrag.license.verification.query
 
+import ai.sovereignrag.license.config.MessageService
 import ai.sovereignrag.license.domain.LicenseStatus
 import ai.sovereignrag.license.repository.LicenseRepository
 import ai.sovereignrag.license.repository.LicenseVerificationRepository
@@ -15,7 +16,8 @@ private val log = KotlinLogging.logger {}
 @Service
 class VerifyLicenseQueryHandler(
     private val licenseRepository: LicenseRepository,
-    private val verificationRepository: LicenseVerificationRepository
+    private val verificationRepository: LicenseVerificationRepository,
+    private val messageService: MessageService
 ) {
 
     @Transactional
@@ -23,34 +25,7 @@ class VerifyLicenseQueryHandler(
         val licenseKeyHash = hashLicenseKey(query.licenseKey)
 
         val license = licenseRepository.findByLicenseKey(query.licenseKey)
-
-        if (license == null) {
-            verificationRepository.recordVerification(
-                licenseKeyHash = licenseKeyHash,
-                clientId = "unknown",
-                deploymentId = query.deploymentId,
-                ipAddress = query.ipAddress,
-                hostname = query.hostname,
-                applicationVersion = query.applicationVersion,
-                success = false,
-                failureReason = "License not found",
-                metadata = query.metadata
-            )
-
-            return VerifyLicenseResult(
-                valid = false,
-                message = "License key not found",
-                clientId = "unknown",
-                clientName = "Unknown",
-                tier = ai.sovereignrag.license.domain.LicenseTier.TRIAL,
-                maxTokensPerMonth = 0,
-                maxTenants = 0,
-                features = emptySet(),
-                issuedAt = Instant.now(),
-                expiresAt = null,
-                revoked = false
-            )
-        }
+            ?: return handleLicenseNotFound(licenseKeyHash, query)
 
         val isExpired = license.expiresAt?.let { it.isBefore(Instant.now()) } ?: false
         val isRevoked = license.status == LicenseStatus.REVOKED
@@ -58,9 +33,9 @@ class VerifyLicenseQueryHandler(
         val isValid = !isExpired && !isRevoked && !isSuspended
 
         val failureReason = when {
-            isRevoked -> "License revoked"
-            isSuspended -> "License suspended"
-            isExpired -> "License expired"
+            isRevoked -> messageService.getMessage("license.error.revoked")
+            isSuspended -> messageService.getMessage("license.error.suspended")
+            isExpired -> messageService.getMessage("license.error.expired")
             else -> null
         }
 
@@ -79,11 +54,7 @@ class VerifyLicenseQueryHandler(
         log.info { "License verification for ${license.clientId}: valid=$isValid" }
 
         val features = license.features.mapNotNull { featureString ->
-            try {
-                ai.sovereignrag.license.domain.LicenseFeature.valueOf(featureString)
-            } catch (e: IllegalArgumentException) {
-                null
-            }
+            runCatching { ai.sovereignrag.license.domain.LicenseFeature.valueOf(featureString) }.getOrNull()
         }.toSet()
 
         return VerifyLicenseResult(
@@ -98,6 +69,36 @@ class VerifyLicenseQueryHandler(
             issuedAt = license.createdAt,
             expiresAt = license.expiresAt,
             revoked = isRevoked
+        )
+    }
+
+    private fun handleLicenseNotFound(licenseKeyHash: String, query: VerifyLicenseQuery): VerifyLicenseResult {
+        val message = messageService.getMessage("license.error.key_not_found")
+
+        verificationRepository.recordVerification(
+            licenseKeyHash = licenseKeyHash,
+            clientId = "unknown",
+            deploymentId = query.deploymentId,
+            ipAddress = query.ipAddress,
+            hostname = query.hostname,
+            applicationVersion = query.applicationVersion,
+            success = false,
+            failureReason = message,
+            metadata = query.metadata
+        )
+
+        return VerifyLicenseResult(
+            valid = false,
+            message = message,
+            clientId = "unknown",
+            clientName = "Unknown",
+            tier = ai.sovereignrag.license.domain.LicenseTier.TRIAL,
+            maxTokensPerMonth = 0,
+            maxTenants = 0,
+            features = emptySet(),
+            issuedAt = Instant.now(),
+            expiresAt = null,
+            revoked = false
         )
     }
 

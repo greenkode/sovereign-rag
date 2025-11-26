@@ -40,21 +40,15 @@ class AuditEventController(private val pipeline: Pipeline) {
     fun createAuditEvent(@RequestBody request: CreateAuditEventRequest): ResponseEntity<CreateAuditEventResponse> {
         val result = pipeline.send(request.toCommand())
 
-        return if (result.success) {
-            ResponseEntity.status(HttpStatus.CREATED).body(
-                CreateAuditEventResponse(
-                    success = true,
-                    message = "Audit event created successfully"
+        return result.takeIf { it.success }
+            ?.let {
+                ResponseEntity.status(HttpStatus.CREATED).body(
+                    CreateAuditEventResponse(success = true, message = it.message)
                 )
+            }
+            ?: ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                CreateAuditEventResponse(success = false, message = result.message)
             )
-        } else {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                CreateAuditEventResponse(
-                    success = false,
-                    message = result.message
-                )
-            )
-        }
     }
 
     @PostMapping

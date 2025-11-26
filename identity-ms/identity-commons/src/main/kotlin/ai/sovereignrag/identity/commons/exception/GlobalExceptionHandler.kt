@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.commons.exception
 
+import ai.sovereignrag.identity.commons.i18n.MessageService
 import com.giffing.bucket4j.spring.boot.starter.context.RateLimitException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
@@ -29,7 +30,7 @@ data class TwoFactorErrorResponse(
 )
 
 @RestControllerAdvice
-class GlobalExceptionHandler {
+class GlobalExceptionHandler(private val messageService: MessageService) {
 
     @ExceptionHandler(ClientException::class)
     fun handleClientException(
@@ -37,14 +38,14 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
         log.warn { "Client error: ${ex.message}" }
-        
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.BAD_REQUEST.value(),
             error = "Bad Request",
-            message = ex.message ?: "Invalid request",
+            message = ex.message ?: messageService.getMessage("auth.error.internal"),
             path = request.getDescription(false).removePrefix("uri=")
         )
-        
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
@@ -58,7 +59,7 @@ class GlobalExceptionHandler {
         val errorResponse = ErrorResponse(
             status = HttpStatus.NOT_FOUND.value(),
             error = "Not Found",
-            message = ex.message ?: "Resource not found",
+            message = ex.message ?: messageService.getMessage("invitation.error.user_not_found"),
             path = request.getDescription(false).removePrefix("uri=")
         )
 
@@ -75,7 +76,7 @@ class GlobalExceptionHandler {
         val errorResponse = ErrorResponse(
             status = HttpStatus.TOO_MANY_REQUESTS.value(),
             error = "Too Many Requests",
-            message = "Please wait before requesting another verification code",
+            message = messageService.getMessage("auth.error.rate_limit"),
             path = request.getDescription(false).removePrefix("uri=")
         )
 
@@ -92,7 +93,7 @@ class GlobalExceptionHandler {
         val errorResponse = TwoFactorErrorResponse(
             status = HttpStatus.PRECONDITION_REQUIRED.value(),
             error = ex.status,
-            message = ex.message ?: "Two-factor authentication required",
+            message = ex.message ?: messageService.getMessage("twofactor.required"),
             sessionId = ex.sessionId,
             path = request.getDescription(false).removePrefix("uri=")
         )
@@ -110,7 +111,7 @@ class GlobalExceptionHandler {
         val errorResponse = ErrorResponse(
             status = HttpStatus.FORBIDDEN.value(),
             error = "Forbidden",
-            message = "Access denied",
+            message = messageService.getMessage("auth.error.access_denied"),
             path = request.getDescription(false).removePrefix("uri=")
         )
 
@@ -127,7 +128,7 @@ class GlobalExceptionHandler {
         val errorResponse = ErrorResponse(
             status = HttpStatus.UNAUTHORIZED.value(),
             error = "invalid_credentials",
-            message = ex.message ?: "Invalid username or password",
+            message = ex.message ?: messageService.getMessage("auth.error.invalid_credentials"),
             path = request.getDescription(false).removePrefix("uri=")
         )
 
@@ -144,7 +145,7 @@ class GlobalExceptionHandler {
         val errorResponse = ErrorResponse(
             status = HttpStatus.LOCKED.value(),
             error = "account_locked",
-            message = ex.message ?: "Account is locked",
+            message = ex.message ?: messageService.getMessage("auth.error.account_locked"),
             path = request.getDescription(false).removePrefix("uri=")
         )
 
@@ -161,7 +162,7 @@ class GlobalExceptionHandler {
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             error = "Internal Server Error",
-            message = ex.message ?: "An unexpected error occurred",
+            message = ex.message ?: messageService.getMessage("auth.error.internal"),
             path = request.getDescription(false).removePrefix("uri=")
         )
 
@@ -174,14 +175,14 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
         log.error(ex) { "Runtime error: ${ex.message}" }
-        
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             error = "Internal Server Error",
-            message = "An unexpected error occurred",
+            message = messageService.getMessage("auth.error.internal"),
             path = request.getDescription(false).removePrefix("uri=")
         )
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
     }
 
@@ -191,14 +192,14 @@ class GlobalExceptionHandler {
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
         log.error(ex) { "Unexpected error: ${ex.message}" }
-        
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             error = "Internal Server Error",
-            message = "An unexpected error occurred",
+            message = messageService.getMessage("auth.error.internal"),
             path = request.getDescription(false).removePrefix("uri=")
         )
-        
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
     }
 }

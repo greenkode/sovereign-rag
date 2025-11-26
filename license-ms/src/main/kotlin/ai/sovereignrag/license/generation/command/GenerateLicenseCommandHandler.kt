@@ -1,5 +1,6 @@
 package ai.sovereignrag.license.generation.command
 
+import ai.sovereignrag.license.config.MessageService
 import ai.sovereignrag.license.domain.ClientStatus
 import ai.sovereignrag.license.domain.License
 import ai.sovereignrag.license.domain.LicenseTier
@@ -17,7 +18,8 @@ private val log = KotlinLogging.logger {}
 class GenerateLicenseCommandHandler(
     private val licenseGenerationService: LicenseGenerationService,
     private val licenseRepository: LicenseRepository,
-    private val clientRepository: ClientRepository
+    private val clientRepository: ClientRepository,
+    private val messageService: MessageService
 ) {
 
     @Transactional
@@ -32,7 +34,7 @@ class GenerateLicenseCommandHandler(
                 clientId = null,
                 tier = null,
                 expiresAt = null,
-                error = "Client not found or inactive"
+                error = messageService.getMessage("license.error.client_inactive")
             )
 
         val generationRequest = LicenseGenerationRequest(

@@ -1,5 +1,6 @@
 package ai.sovereignrag.license.verification.command
 
+import ai.sovereignrag.license.config.MessageService
 import ai.sovereignrag.license.repository.LicenseVerificationRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
@@ -11,7 +12,8 @@ private val log = KotlinLogging.logger {}
 
 @Service
 class ReportUsageCommandHandler(
-    private val verificationRepository: LicenseVerificationRepository
+    private val verificationRepository: LicenseVerificationRepository,
+    private val messageService: MessageService
 ) {
 
     @Transactional
@@ -33,7 +35,7 @@ class ReportUsageCommandHandler(
 
         return ReportUsageResult(
             success = true,
-            message = "Usage reported successfully"
+            message = messageService.getMessage("license.success.usage_reported")
         )
     }
 

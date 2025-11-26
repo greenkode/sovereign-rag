@@ -2,6 +2,7 @@ package ai.sovereignrag.commons.exception
 
 import ai.sovereignrag.commons.enumeration.ResponseCode
 import ai.sovereignrag.commons.exception.ExceptionCodeEnum.AN_ERROR_OCCURRED
+import ai.sovereignrag.commons.i18n.MessageService
 import ai.sovereignrag.commons.process.enumeration.ProcessState
 import ai.sovereignrag.commons.rest.ErrorResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class GlobalExceptionHandler {
+class GlobalExceptionHandler(private val messageService: MessageService) {
 
     private val log = KotlinLogging.logger { }
 
@@ -68,10 +69,11 @@ class GlobalExceptionHandler {
 
         log.error(ex) { ex.message }
 
-        val message = if (ex is SrServiceException) ex.message else AN_ERROR_OCCURRED.name
+        val message = (ex as? SrServiceException)?.message
+            ?: messageService.getMessage("commons.error.internal")
 
         return ErrorResponse(
-            message = message!!,
+            message = message,
             errorCode = ResponseCode.GENERAL_ERROR,
             reference = null,
             status = ProcessState.UNKNOWN,
@@ -82,24 +84,30 @@ class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException::class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     fun handleAccessDeniedException(ex: AccessDeniedException): ErrorResponse {
-
         log.error { ex }
-
-        return ErrorResponse(ResponseCode.ACCESS_DENIED, "", status = ProcessState.UNKNOWN, mapOf())
+        return ErrorResponse(
+            message = messageService.getMessage("commons.error.access_denied"),
+            errorCode = ResponseCode.ACCESS_DENIED,
+            reference = "",
+            status = ProcessState.UNKNOWN,
+            entry = mapOf()
+        )
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(AuthenticationException::class)
-    fun handleAuthenticationException(
-        ex: AuthenticationException,
-    ): ErrorResponse {
+    fun handleAuthenticationException(ex: AuthenticationException): ErrorResponse {
+        (ex as? BadCredentialsException ?: ex as? CredentialsExpiredException)
+            ?.let { log.error { it.message } }
+            ?: log.error { ex }
 
-        if (ex is BadCredentialsException || ex is CredentialsExpiredException)
-            log.error { ex.message }
-        else
-            log.error { ex }
-
-        return ErrorResponse(ResponseCode.AUTHENTICATION_FAILED, "", status = ProcessState.UNKNOWN, mapOf())
+        return ErrorResponse(
+            message = messageService.getMessage("commons.error.authentication_failed"),
+            errorCode = ResponseCode.AUTHENTICATION_FAILED,
+            reference = "",
+            status = ProcessState.UNKNOWN,
+            entry = mapOf()
+        )
     }
 
 
