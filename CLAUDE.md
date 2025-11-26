@@ -34,3 +34,4 @@ spring boot starters should be in the app or identity-app modules,
 libraries that are reused in multiple modules should be imported into the parent module e.g. the core-ms or identity-ms pom file.
 don't add inter module dependencies, rather create gateway interfaces in the commons and services in the modules that implement the gateway interfaces
 the gateways can be called from anywhere.
+Always use internationalization with any error or information messages going back to the frontend.
