@@ -7,8 +7,8 @@ import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.exception.NotFoundException
-import ai.sovereignrag.identity.commons.notification.MessagePayload
-import ai.sovereignrag.identity.commons.notification.MessageRecipient
+import ai.sovereignrag.commons.notification.dto.MessageRecipient
+import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.identity.commons.process.ProcessGateway
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
@@ -18,7 +18,7 @@ import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.entity.TrustLevel
 import ai.sovereignrag.identity.core.entity.UserType
-import ai.sovereignrag.identity.core.integration.CoreMerchantClient
+import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.invitation.dto.InviteUserCommand
 import ai.sovereignrag.identity.core.invitation.dto.InviteUserResult
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
@@ -45,7 +45,7 @@ class InviteUserCommandHandler(
     private val clientRepository: OAuthRegisteredClientRepository,
     private val passwordEncoder: PasswordEncoder,
     private val processGateway: ProcessGateway,
-    private val coreMerchantClient: CoreMerchantClient,
+    private val notificationClient: NotificationClient,
     private val applicationEventPublisher: ApplicationEventPublisher,
     @Value("\${app.merchant.invitation.base-url}")
     private val invitationBaseUrl: String
@@ -80,7 +80,6 @@ class InviteUserCommandHandler(
                 userType = UserType.BUSINESS
                 trustLevel = TrustLevel.TIER_THREE
                 emailVerified = false
-                akuId = UUID.randomUUID()
                 merchantId = invitingUser.merchantId
             }
         )
@@ -93,7 +92,7 @@ class InviteUserCommandHandler(
 
         val process = processGateway.createProcess(
             CreateNewProcessPayload(
-                userId = newUser.akuId!!,
+                userId = newUser.id!!,
                 publicId = processId,
                 type = ProcessType.MERCHANT_USER_INVITATION,
                 description = "User invitation for ${newUser.email} to join ${merchant.clientName}",
@@ -102,32 +101,32 @@ class InviteUserCommandHandler(
                 channel = Channel.SYSTEM,
                 externalReference = token,
                 data = mapOf(
-                    ProcessRequestDataName.USER_IDENTIFIER to newUser.akuId.toString(),
+                    ProcessRequestDataName.USER_IDENTIFIER to newUser.id.toString(),
                     ProcessRequestDataName.MERCHANT_ID to merchant.id,
                     ProcessRequestDataName.AUTHENTICATION_REFERENCE to authReference
                 ),
                 stakeholders = mapOf(
-                    ProcessStakeholderType.FOR_USER to newUser.akuId.toString()
+                    ProcessStakeholderType.FOR_USER to newUser.id.toString()
                 )
             )
         )
 
         val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 
-        coreMerchantClient.sendMessage(
-            MessagePayload(
-                listOf(MessageRecipient(address = newUser.email)),
-                "MERCHANT_USER_INVITATION", "EMAIL", "HIGH",
-                mapOf(
-                    "merchant_name" to merchant.clientName,
-                    "invited_by" to "${invitingUser.firstName ?: ""} ${invitingUser.lastName ?: ""}".trim()
-                        .ifEmpty { invitingUser.email },
-                    "invitation_url" to "$invitationBaseUrl?token=${process.externalReference}",
-                    "expiration_date" to formatter.format(
-                        Instant.now().plusSeconds(process.type.timeInSeconds).atZone(ZoneId.systemDefault())
-                    )
-                ), Locale.ENGLISH, UUID.randomUUID().toString(), "INDIVIDUAL"
-            )
+        notificationClient.sendNotification(
+            recipients = listOf(MessageRecipient(address = newUser.email)),
+            templateName = TemplateName.MERCHANT_USER_INVITATION,
+            parameters = mapOf(
+                "merchant_name" to merchant.clientName,
+                "invited_by" to "${invitingUser.firstName ?: ""} ${invitingUser.lastName ?: ""}".trim()
+                    .ifEmpty { invitingUser.email },
+                "invitation_url" to "$invitationBaseUrl?token=${process.externalReference}",
+                "expiration_date" to formatter.format(
+                    Instant.now().plusSeconds(process.type.timeInSeconds).atZone(ZoneId.systemDefault())
+                )
+            ),
+            locale = Locale.ENGLISH,
+            clientIdentifier = UUID.randomUUID().toString()
         )
 
         log.info { "User invitation sent successfully to ${newUser.email}" }

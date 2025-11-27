@@ -29,7 +29,6 @@ data class UserSummary(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class UserInfoResponse(
     val sub: String,
-    val akuId: String? = null,
     val name: String,
     val firstName: String? = null,
     val lastName: String? = null,

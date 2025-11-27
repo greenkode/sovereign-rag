@@ -1,0 +1,14 @@
+package ai.sovereignrag.commons.notification.enumeration
+
+enum class TemplateName {
+    PAYOUT_SUCCESSFUL,
+    INITIATE_ELECTRONIC_MANDATE,
+    MERCHANT_USER_INVITATION,
+    PASSWORD_RESET,
+    TWO_FACTOR_AUTH,
+    TRANSACTION_EXPORT_COMPLETE,
+    TRANSACTION_EXPORT_FAILED,
+    EMAIL_VALIDATION,
+    EMAIL_VERIFICATION,
+    WELCOME
+}

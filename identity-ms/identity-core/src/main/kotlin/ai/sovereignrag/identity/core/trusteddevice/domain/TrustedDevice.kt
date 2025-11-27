@@ -1,7 +1,11 @@
 package ai.sovereignrag.identity.core.trusteddevice.domain
 
 import ai.sovereignrag.identity.commons.AuditableEntity
-import jakarta.persistence.*
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.time.Instant
 import java.util.UUID
 
@@ -13,34 +17,24 @@ class TrustedDevice(
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
 
-    @Column(name = "user_id", nullable = false)
     val userId: UUID,
 
-    @Column(name = "device_fingerprint", nullable = false)
     val deviceFingerprint: String,
 
-    @Column(name = "device_fingerprint_hash", nullable = false)
     val deviceFingerprintHash: String,
 
-    @Column(name = "device_name")
     val deviceName: String? = null,
 
-    @Column(name = "ip_address")
     val ipAddress: String? = null,
 
-    @Column(name = "user_agent")
     val userAgent: String? = null,
 
-    @Column(name = "trusted_at", nullable = false)
     val trustedAt: Instant = Instant.now(),
 
-    @Column(name = "expires_at", nullable = false)
     var expiresAt: Instant,
 
-    @Column(name = "last_used_at", nullable = false)
     var lastUsedAt: Instant = Instant.now(),
 
-    @Column(name = "trust_count")
     var trustCount: Int = 1
 
 ) : AuditableEntity() {

@@ -1,12 +1,12 @@
 package ai.sovereignrag.identity.core.config
 
 
+import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient
+import ai.sovereignrag.identity.core.entity.OAuthTokenSettingName
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.service.ClientLockedException
 import ai.sovereignrag.identity.core.service.ClientLockoutService
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.core.Authentication
@@ -30,55 +30,48 @@ private val log = KotlinLogging.logger {}
 class ClientLockoutAuthenticationProvider(
     private val clientRepository: OAuthRegisteredClientRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val clientLockoutService: ClientLockoutService,
-    private val objectMapper: ObjectMapper
+    private val clientLockoutService: ClientLockoutService
 ) : AuthenticationProvider {
 
     override fun authenticate(authentication: Authentication): Authentication? {
         val clientAuth = authentication as? OAuth2ClientAuthenticationToken ?: return null
-        
+
         val clientId = extractClientId(clientAuth) ?: return null
         val clientSecret = clientAuth.credentials as? String
-        
-        log.info { "Authenticating client: $clientId" }
-        
-        try {
-            // First check if client exists in our database
-            val clientEntity = clientRepository.findByClientId(clientId)
-            if (clientEntity == null) {
-                log.warn { "Client not found: $clientId" }
-                throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Client authentication failed", null))
-            }
 
-            // Check if lockout has expired and unlock if so
-            if (clientEntity.checkAndUnlockIfExpired()) {
-                clientRepository.save(clientEntity)
+        log.info { "Authenticating client: $clientId" }
+
+        runCatching {
+            val clientEntity = clientRepository.findByClientId(clientId)
+                ?: run {
+                    log.warn { "Client not found: $clientId" }
+                    throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Client authentication failed", null))
+                }
+
+            clientEntity.takeIf { it.checkAndUnlockIfExpired() }?.let {
+                clientRepository.save(it)
                 log.info { "Lockout expired for client: $clientId, client unlocked and counter reset" }
             }
 
-            // Check if client is locked
-            if (clientEntity.isCurrentlyLocked()) {
+            clientEntity.takeIf { it.isCurrentlyLocked() }?.let {
                 val now = Instant.now()
-                val remainingSeconds = if (clientEntity.lockedUntil != null && now.isBefore(clientEntity.lockedUntil)) {
-                    clientEntity.lockedUntil!!.epochSecond - now.epochSecond
-                } else {
-                    0L
-                }
+                val remainingSeconds = it.lockedUntil?.takeIf { lockedUntil -> now.isBefore(lockedUntil) }
+                    ?.let { lockedUntil -> lockedUntil.epochSecond - now.epochSecond }
+                    ?: 0L
                 remainingSeconds / 60
-                
-                log.warn { "Client $clientId is locked until ${clientEntity.lockedUntil}" }
+
+                log.warn { "Client $clientId is locked until ${it.lockedUntil}" }
                 throw ClientLockedException(
                     clientId = clientId,
-                    lockedUntil = clientEntity.lockedUntil!!,
-                    failedAttempts = clientEntity.failedAuthAttempts
+                    lockedUntil = it.lockedUntil!!,
+                    failedAttempts = it.failedAuthAttempts
                 )
             }
-            
-            // Verify client secret for client_secret_basic or client_secret_post
+
             if (clientAuth.clientAuthenticationMethod == ClientAuthenticationMethod.CLIENT_SECRET_BASIC ||
                 clientAuth.clientAuthenticationMethod == ClientAuthenticationMethod.CLIENT_SECRET_POST) {
 
-                if (clientSecret == null) {
+                clientSecret ?: run {
                     log.warn { "Missing client secret for client: $clientId" }
                     clientLockoutService.handleFailedClientAuth(clientId)
                     throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Client authentication failed", null))
@@ -90,7 +83,7 @@ class ClientLockoutAuthenticationProvider(
                     clientEntity.clientSecret
                 )
 
-                if (secretsToCheck.isEmpty()) {
+                secretsToCheck.takeIf { it.isEmpty() }?.let {
                     log.warn { "No client secrets configured for client: $clientId" }
                     clientLockoutService.handleFailedClientAuth(clientId)
                     throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Client authentication failed", null))
@@ -100,44 +93,44 @@ class ClientLockoutAuthenticationProvider(
                     passwordEncoder.matches(clientSecret, storedSecret)
                 }
 
-                if (!isValid) {
+                isValid.takeIf { !it }?.let {
                     log.warn { "Invalid client secret for client: $clientId" }
                     clientLockoutService.handleFailedClientAuth(clientId)
                     throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "Client authentication failed", null))
                 }
             }
-            
-            // Authentication successful - convert entity to RegisteredClient
+
             log.info { "Client authentication successful: $clientId" }
             clientLockoutService.handleSuccessfulClientAuth(clientId)
-            
+
             val registeredClient = mapToRegisteredClient(clientEntity)
             return OAuth2ClientAuthenticationToken(registeredClient, clientAuth.clientAuthenticationMethod, clientAuth.credentials)
-            
-        } catch (e: ClientLockedException) {
-            // Re-throw lockout exception with proper OAuth2 error
-            throw OAuth2AuthenticationException(
-                OAuth2Error(
-                    "client_locked",
-                    "Client is locked due to ${e.failedAttempts} failed authentication attempts. Try again in ${(e.lockedUntil.epochSecond - Instant.now().epochSecond) / 60} minutes.",
-                    null
+
+        }.onFailure { e ->
+            when (e) {
+                is ClientLockedException -> throw OAuth2AuthenticationException(
+                    OAuth2Error(
+                        "client_locked",
+                        "Client is locked due to ${e.failedAttempts} failed authentication attempts. Try again in ${(e.lockedUntil.epochSecond - Instant.now().epochSecond) / 60} minutes.",
+                        null
+                    )
                 )
-            )
-        } catch (e: OAuth2AuthenticationException) {
-            // Re-throw OAuth2 exceptions
-            throw e
-        } catch (e: Exception) {
-            log.error(e) { "Unexpected error during client authentication" }
-            throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR, "An unexpected error occurred", null))
+                is OAuth2AuthenticationException -> throw e
+                else -> {
+                    log.error(e) { "Unexpected error during client authentication" }
+                    throw OAuth2AuthenticationException(OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR, "An unexpected error occurred", null))
+                }
+            }
         }
+
+        return null
     }
 
     override fun supports(authentication: Class<*>): Boolean {
         return OAuth2ClientAuthenticationToken::class.java.isAssignableFrom(authentication)
     }
-    
+
     private fun extractClientId(clientAuth: OAuth2ClientAuthenticationToken): String? {
-        // Try to get from principal first
         val principal = clientAuth.principal
         return when (principal) {
             is String -> principal
@@ -145,76 +138,71 @@ class ClientLockoutAuthenticationProvider(
             else -> null
         }
     }
-    
+
     private fun mapToRegisteredClient(entity: OAuthRegisteredClient): RegisteredClient {
         val builder = RegisteredClient.withId(entity.id)
             .clientId(entity.clientId)
             .clientIdIssuedAt(entity.clientIdIssuedAt)
             .clientName(entity.clientName)
-        
+
         entity.clientSecret?.let { builder.clientSecret(it) }
         entity.clientSecretExpiresAt?.let { builder.clientSecretExpiresAt(it) }
-        
-        entity.clientAuthenticationMethods.split(",").forEach { method ->
-            builder.clientAuthenticationMethod(ClientAuthenticationMethod(method.trim()))
+
+        entity.authenticationMethods.forEach { authMethod ->
+            builder.clientAuthenticationMethod(ClientAuthenticationMethod(authMethod.name.trim()))
         }
-        
-        entity.authorizationGrantTypes.split(",").forEach { grantType ->
-            builder.authorizationGrantType(AuthorizationGrantType(grantType.trim()))
+
+        entity.grantTypes.forEach { grantType ->
+            builder.authorizationGrantType(AuthorizationGrantType(grantType.name.trim()))
         }
-        
-        entity.redirectUris?.split(",")?.forEach { uri ->
-            builder.redirectUri(uri.trim())
+
+        entity.redirectUris.forEach { redirectUri ->
+            builder.redirectUri(redirectUri.uri.trim())
         }
-        
-        entity.postLogoutRedirectUris?.split(",")?.forEach { uri ->
-            builder.postLogoutRedirectUri(uri.trim())
+
+        entity.postLogoutRedirectUris.forEach { postLogoutUri ->
+            builder.postLogoutRedirectUri(postLogoutUri.uri.trim())
         }
-        
-        entity.scopes.split(",").forEach { scope ->
-            builder.scope(scope.trim())
+
+        entity.scopes.forEach { scope ->
+            builder.scope(scope.name.trim())
         }
-        
-        val clientSettingsMap: Map<String, Any> = objectMapper.readValue(entity.clientSettings)
+
         val clientSettings = ClientSettings.builder().apply {
-            clientSettingsMap["requireAuthorizationConsent"]?.let {
-                requireAuthorizationConsent(it.toString().toBoolean())
+            entity.getSetting(OAuthClientSettingName.REQUIRE_AUTHORIZATION_CONSENT)?.let {
+                requireAuthorizationConsent(it.toBoolean())
             }
-            clientSettingsMap["requireProofKey"]?.let {
-                requireProofKey(it.toString().toBoolean())
+            entity.getSetting(OAuthClientSettingName.REQUIRE_PROOF_KEY)?.let {
+                requireProofKey(it.toBoolean())
             }
         }.build()
         builder.clientSettings(clientSettings)
-        
-        val tokenSettingsMap: Map<String, Any> = objectMapper.readValue(entity.tokenSettings)
+
         val tokenSettings = TokenSettings.builder().apply {
-            tokenSettingsMap["accessTokenTimeToLive"]?.let {
-                try {
-                    accessTokenTimeToLive(Duration.parse(it as String))
-                } catch (e: Exception) {
-                    log.warn { "Failed to parse accessTokenTimeToLive: $it, using default" }
-                    accessTokenTimeToLive(Duration.ofMinutes(5))
-                }
+            entity.getTokenSetting(OAuthTokenSettingName.ACCESS_TOKEN_TIME_TO_LIVE)?.let {
+                runCatching { accessTokenTimeToLive(Duration.parse(it)) }
+                    .onFailure { e ->
+                        log.warn { "Failed to parse accessTokenTimeToLive: $it, using default" }
+                        accessTokenTimeToLive(Duration.ofMinutes(5))
+                    }
             }
-            tokenSettingsMap["refreshTokenTimeToLive"]?.let {
-                try {
-                    refreshTokenTimeToLive(Duration.parse(it as String))
-                } catch (e: Exception) {
-                    log.warn { "Failed to parse refreshTokenTimeToLive: $it, using default" }
-                    refreshTokenTimeToLive(Duration.ofDays(7))
-                }
+            entity.getTokenSetting(OAuthTokenSettingName.REFRESH_TOKEN_TIME_TO_LIVE)?.let {
+                runCatching { refreshTokenTimeToLive(Duration.parse(it)) }
+                    .onFailure { e ->
+                        log.warn { "Failed to parse refreshTokenTimeToLive: $it, using default" }
+                        refreshTokenTimeToLive(Duration.ofDays(7))
+                    }
             }
-            tokenSettingsMap["reuseRefreshTokens"]?.let {
-                try {
-                    reuseRefreshTokens(it.toString().toBoolean())
-                } catch (e: Exception) {
-                    log.warn { "Failed to parse reuseRefreshTokens: $it, using default" }
-                    reuseRefreshTokens(false)
-                }
+            entity.getTokenSetting(OAuthTokenSettingName.REUSE_REFRESH_TOKENS)?.let {
+                runCatching { reuseRefreshTokens(it.toBoolean()) }
+                    .onFailure { e ->
+                        log.warn { "Failed to parse reuseRefreshTokens: $it, using default" }
+                        reuseRefreshTokens(false)
+                    }
             }
         }.build()
         builder.tokenSettings(tokenSettings)
-        
+
         return builder.build()
     }
 }

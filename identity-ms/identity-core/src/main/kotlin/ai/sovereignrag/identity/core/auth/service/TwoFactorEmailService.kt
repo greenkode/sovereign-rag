@@ -1,9 +1,9 @@
 package ai.sovereignrag.identity.core.auth.service
 
-import ai.sovereignrag.identity.commons.notification.MessagePayload
-import ai.sovereignrag.identity.commons.notification.MessageRecipient
+import ai.sovereignrag.commons.notification.dto.MessageRecipient
+import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.core.entity.OAuthUser
-import ai.sovereignrag.identity.core.integration.CoreMerchantClient
+import ai.sovereignrag.identity.core.integration.NotificationClient
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -16,7 +16,7 @@ private val log = KotlinLogging.logger {}
 
 @Service
 class TwoFactorEmailService(
-    private val coreMerchantClient: CoreMerchantClient
+    private val notificationClient: NotificationClient
 ) {
 
     companion object {
@@ -31,26 +31,22 @@ class TwoFactorEmailService(
         val approximateLocation = resolveLocationFromIp(ipAddress)
         val displayIpAddress = normalizeIpForDisplay(ipAddress ?: "unknown")
 
-        val messagePayload = MessagePayload(
-            recipients = listOf(MessageRecipient(user.email, user.fullName())),
-            templateName = "TWO_FACTOR_AUTH",
-            channel = "EMAIL",
-            priority = "HIGH",
-            parameters = mapOf(
-                "name" to user.fullName(),
-                "verification_code" to code,
-                "expiry_time" to CODE_EXPIRY_MINUTES,
-                "request_time" to formattedTime,
-                "ip_address" to displayIpAddress,
-                "location" to approximateLocation
-            ),
-            locale = Locale.ENGLISH,
-            clientIdentifier = UUID.randomUUID().toString(),
-            recipientType = "INDIVIDUAL"
-        )
-
-        runCatching { coreMerchantClient.sendMessage(messagePayload) }
-            .onSuccess { log.info { "2FA code email sent to ${user.email}" } }
+        runCatching {
+            notificationClient.sendNotification(
+                recipients = listOf(MessageRecipient(user.email, user.fullName())),
+                templateName = TemplateName.TWO_FACTOR_AUTH,
+                parameters = mapOf(
+                    "name" to user.fullName(),
+                    "verification_code" to code,
+                    "expiry_time" to CODE_EXPIRY_MINUTES,
+                    "request_time" to formattedTime,
+                    "ip_address" to displayIpAddress,
+                    "location" to approximateLocation
+                ),
+                locale = Locale.ENGLISH,
+                clientIdentifier = UUID.randomUUID().toString()
+            )
+        }.onSuccess { log.info { "2FA code email sent to ${user.email}" } }
             .onFailure { e ->
                 log.error(e) { "Failed to send 2FA code email to ${user.email}" }
                 throw RuntimeException("Failed to send verification email", e)

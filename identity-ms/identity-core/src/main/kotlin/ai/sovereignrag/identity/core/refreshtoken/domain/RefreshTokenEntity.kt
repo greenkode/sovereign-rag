@@ -1,7 +1,12 @@
 package ai.sovereignrag.identity.core.refreshtoken.domain
 
 import ai.sovereignrag.identity.commons.AuditableEntity
-import jakarta.persistence.*
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.Table
 import java.time.Instant
 import java.util.UUID
 
@@ -20,34 +25,24 @@ class RefreshTokenEntity(
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
 
-    @Column(nullable = false, unique = true)
     val jti: String,
 
-    @Column(name = "user_id", nullable = false)
     val userId: UUID,
 
-    @Column(name = "token_hash", nullable = false)
     val tokenHash: String,
 
-    @Column(name = "ip_address", length = 45)
     val ipAddress: String? = null,
 
-    @Column(name = "user_agent", length = 500)
     val userAgent: String? = null,
 
-    @Column(name = "device_fingerprint", length = 255)
     val deviceFingerprint: String? = null,
 
-    @Column(name = "issued_at", nullable = false)
     val issuedAt: Instant = Instant.now(),
 
-    @Column(name = "expires_at", nullable = false)
     val expiresAt: Instant,
 
-    @Column(name = "revoked_at")
     var revokedAt: Instant? = null,
 
-    @Column(name = "replaced_by_jti")
     var replacedByJti: String? = null
 
 ) : AuditableEntity() {

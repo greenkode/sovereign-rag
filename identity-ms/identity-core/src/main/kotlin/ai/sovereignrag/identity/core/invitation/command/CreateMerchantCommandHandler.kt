@@ -4,25 +4,27 @@ import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.notification.MessagePayload
-import ai.sovereignrag.identity.commons.notification.MessageRecipient
+import ai.sovereignrag.commons.notification.dto.MessageRecipient
+import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.identity.commons.process.ProcessGateway
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient
+import ai.sovereignrag.identity.core.entity.OAuthTokenSettingName
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.entity.TrustLevel
 import ai.sovereignrag.identity.core.entity.UserType
 import ai.sovereignrag.identity.core.invitation.dto.CreateMerchantResult
-import ai.sovereignrag.identity.core.integration.CoreMerchantClient
+import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.invitation.dto.CreateMerchantCommand
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
+import ai.sovereignrag.identity.core.service.OAuthClientConfigService
 import an.awesome.pipelinr.Command
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.beans.factory.annotation.Value
@@ -45,10 +47,10 @@ class CreateMerchantCommandHandler(
     private val repository: OAuthRegisteredClientRepository,
     private val userRepository: OAuthUserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val objectMapper: ObjectMapper,
     private val processGateway: ProcessGateway,
-    private val coreMerchantClient: CoreMerchantClient,
+    private val notificationClient: NotificationClient,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    private val oauthClientConfigService: OAuthClientConfigService,
     @Value("\${app.merchant.invitation.base-url}")
     private val invitationBaseUrl: String
 ) : Command.Handler<CreateMerchantCommand, CreateMerchantResult> {
@@ -77,7 +79,6 @@ class CreateMerchantCommandHandler(
                         userType = UserType.BUSINESS
                         trustLevel = TrustLevel.TIER_THREE
                         emailVerified = false
-                        akuId = UUID.randomUUID()
                         merchantId = newMerchantId
                     }
                 )
@@ -97,24 +98,24 @@ class CreateMerchantCommandHandler(
                     clientSecret = passwordEncoder.encode(sandboxSecret)
                     sandboxClientSecret = passwordEncoder.encode(sandboxSecret)
                     productionClientSecret = passwordEncoder.encode(productionSecret)
-                    clientAuthenticationMethods = "client_secret_basic,client_secret_post"
-                    authorizationGrantTypes = "client_credentials,refresh_token"
-                    scopes = "openid,profile,email,read,write,merchant"
-                    clientSettings = objectMapper.writeValueAsString(
-                        mapOf(
-                            "requireAuthorizationConsent" to "false",
-                            "requireProofKey" to "false",
-                            "email" to command.adminEmail,
-                        )
-                    )
-                    tokenSettings = objectMapper.writeValueAsString(
-                        mapOf(
-                            "accessTokenTimeToLive" to "PT30M",
-                            "refreshTokenTimeToLive" to "PT12H",
-                            "reuseRefreshTokens" to "false"
-                        )
-                    )
                     failedAuthAttempts = 0
+
+                    addAuthenticationMethod(oauthClientConfigService.findOrCreateAuthenticationMethod("client_secret_basic"))
+                    addAuthenticationMethod(oauthClientConfigService.findOrCreateAuthenticationMethod("client_secret_post"))
+                    addGrantType(oauthClientConfigService.findOrCreateGrantType("client_credentials"))
+                    addGrantType(oauthClientConfigService.findOrCreateGrantType("refresh_token"))
+                    addScope(oauthClientConfigService.findOrCreateScope("openid"))
+                    addScope(oauthClientConfigService.findOrCreateScope("profile"))
+                    addScope(oauthClientConfigService.findOrCreateScope("email"))
+                    addScope(oauthClientConfigService.findOrCreateScope("read"))
+                    addScope(oauthClientConfigService.findOrCreateScope("write"))
+                    addScope(oauthClientConfigService.findOrCreateScope("merchant"))
+                    addSetting(OAuthClientSettingName.REQUIRE_AUTHORIZATION_CONSENT, "false")
+                    addSetting(OAuthClientSettingName.REQUIRE_PROOF_KEY, "false")
+                    addSetting(OAuthClientSettingName.EMAIL, command.adminEmail)
+                    addTokenSetting(OAuthTokenSettingName.ACCESS_TOKEN_TIME_TO_LIVE, "PT30M")
+                    addTokenSetting(OAuthTokenSettingName.REFRESH_TOKEN_TIME_TO_LIVE, "PT12H")
+                    addTokenSetting(OAuthTokenSettingName.REUSE_REFRESH_TOKENS, "false")
                 }
 
                 repository.save(client)
@@ -128,7 +129,7 @@ class CreateMerchantCommandHandler(
 
         val process = processGateway.createProcess(
             CreateNewProcessPayload(
-                userId = adminUser.akuId!!,
+                userId = adminUser.id!!,
                 publicId = processId,
                 type = ProcessType.MERCHANT_USER_INVITATION,
                 description = "Merchant invitation for ${adminUser.email} to join ${existingClient.clientName}",
@@ -137,30 +138,30 @@ class CreateMerchantCommandHandler(
                 channel = Channel.SYSTEM,
                 externalReference = token,
                 data = mapOf(
-                    ProcessRequestDataName.USER_IDENTIFIER to adminUser.akuId.toString(),
+                    ProcessRequestDataName.USER_IDENTIFIER to adminUser.id.toString(),
                     ProcessRequestDataName.MERCHANT_ID to existingClient.id,
                     ProcessRequestDataName.AUTHENTICATION_REFERENCE to authReference
                 ),
                 stakeholders = mapOf(
-                    ProcessStakeholderType.FOR_USER to adminUser.akuId.toString()
+                    ProcessStakeholderType.FOR_USER to adminUser.id.toString()
                 )
             )
         )
 
         val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 
-        coreMerchantClient.sendMessage(
-            MessagePayload(
-                listOf(MessageRecipient(address = adminUser.email)),
-                "MERCHANT_USER_INVITATION", "EMAIL", "HIGH",
-                mapOf(
-                    "merchant_name" to existingClient.clientName,
-                    "invitation_url" to "$invitationBaseUrl?token=${process.externalReference}",
-                    "expiration_date" to formatter.format(
-                        Instant.now().plusSeconds(process.type.timeInSeconds).atZone(ZoneId.systemDefault())
-                    )
-                ), Locale.ENGLISH, UUID.randomUUID().toString(), "INDIVIDUAL"
-            )
+        notificationClient.sendNotification(
+            recipients = listOf(MessageRecipient(address = adminUser.email)),
+            templateName = TemplateName.MERCHANT_USER_INVITATION,
+            parameters = mapOf(
+                "merchant_name" to existingClient.clientName,
+                "invitation_url" to "$invitationBaseUrl?token=${process.externalReference}",
+                "expiration_date" to formatter.format(
+                    Instant.now().plusSeconds(process.type.timeInSeconds).atZone(ZoneId.systemDefault())
+                )
+            ),
+            locale = Locale.ENGLISH,
+            clientIdentifier = UUID.randomUUID().toString()
         )
 
         log.info { "Merchant invitation sent successfully to ${adminUser.email}" }

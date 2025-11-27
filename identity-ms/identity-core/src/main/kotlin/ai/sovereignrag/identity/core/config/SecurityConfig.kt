@@ -100,7 +100,7 @@ class SecurityConfig(
         http
             .cors(Customizer.withDefaults())
             .csrf { csrf ->
-                csrf.ignoringRequestMatchers("/test/**", "/login", "/api/login", "/api/2fa/**", "/merchant/invitation/validate", "/merchant/invitation/complete", "/password-reset/**", "/v3/api-docs/**", "/swagger-ui/**")
+                csrf.ignoringRequestMatchers("/test/**", "/login", "/api/login", "/api/2fa/**", "/merchant/invitation/validate", "/merchant/invitation/complete", "/password-reset/**", "/api/registration/**", "/v3/api-docs/**", "/swagger-ui/**")
             }
             .authorizeHttpRequests { authorize ->
                 authorize
@@ -119,6 +119,7 @@ class SecurityConfig(
                         "/merchant/invitation/validate",
                         "/merchant/invitation/complete",
                         "/password-reset/**",
+                        "/api/registration/**",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",

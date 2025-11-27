@@ -1,7 +1,6 @@
 package ai.sovereignrag.identity.core.entity
 
 import ai.sovereignrag.identity.commons.AuditableEntity
-import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -26,20 +25,15 @@ class OAuthProviderAccount(
     @JoinColumn(name = "user_id", nullable = false)
     var user: OAuthUser,
 
-    @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     val provider: OAuthProvider,
 
-    @Column(name = "provider_user_id", nullable = false)
     val providerUserId: String,
 
-    @Column(name = "provider_email")
     val providerEmail: String? = null,
 
-    @Column(name = "linked_at", nullable = false)
     val linkedAt: Instant = Instant.now(),
 
-    @Column(name = "last_login_at")
     var lastLoginAt: Instant? = null
 ) : AuditableEntity() {
 

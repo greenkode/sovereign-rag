@@ -3,7 +3,6 @@ package ai.sovereignrag.process.strategy
 import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.commons.process.enumeration.ProcessEvent
 import ai.sovereignrag.commons.process.enumeration.ProcessState
-import ai.sovereignrag.commons.process.enumeration.ProcessType
 
 /**
  * Strategy interface for handling different process types

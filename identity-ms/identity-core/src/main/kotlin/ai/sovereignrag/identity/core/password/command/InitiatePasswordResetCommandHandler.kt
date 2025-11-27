@@ -4,16 +4,16 @@ import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
+import ai.sovereignrag.commons.notification.dto.MessageRecipient
+import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.commons.exception.NotFoundException
-import ai.sovereignrag.identity.commons.notification.MessagePayload
-import ai.sovereignrag.identity.commons.notification.MessageRecipient
 import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.identity.commons.process.ProcessGateway
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
-import ai.sovereignrag.identity.core.integration.CoreMerchantClient
+import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -36,7 +36,7 @@ class InitiatePasswordResetCommandHandler(
     private val processGateway: ProcessGateway,
     @Value("\${app.password-reset.base-url}")
     private val passwordResetBaseUrl: String,
-    private val coreMerchantClient: CoreMerchantClient,
+    private val notificationClient: NotificationClient,
     private val applicationEventPublisher: ApplicationEventPublisher
 ) : Command.Handler<InitiatePasswordResetCommand, InitiatePasswordResetResult> {
 
@@ -85,16 +85,17 @@ class InitiatePasswordResetCommandHandler(
 
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
 
-        coreMerchantClient.sendMessage(
-            MessagePayload(
-                listOf(MessageRecipient(command.email, "${user.firstName}")),
-                "PASSWORD_RESET", "EMAIL", "HIGH", mapOf(
-                    "name" to (user.firstName ?: user.email),
-                    "reset_link" to "${passwordResetBaseUrl}?token=$token",
-                    "request_time" to formatter.format(Instant.now().atZone(ZoneId.systemDefault())),
-                    "expiry_time" to "${process.type.timeInSeconds / 60} minutes"
-                ), Locale.ENGLISH, UUID.randomUUID().toString(), "INDIVIDUAL"
-            )
+        notificationClient.sendNotification(
+            recipients = listOf(MessageRecipient(command.email, user.firstName)),
+            templateName = TemplateName.PASSWORD_RESET,
+            parameters = mapOf(
+                "name" to (user.firstName ?: user.email),
+                "reset_link" to "${passwordResetBaseUrl}?token=$token",
+                "request_time" to formatter.format(Instant.now().atZone(ZoneId.systemDefault())),
+                "expiry_time" to "${process.type.timeInSeconds / 60} minutes"
+            ),
+            locale = Locale.ENGLISH,
+            clientIdentifier = UUID.randomUUID().toString()
         )
 
         applicationEventPublisher.publishEvent(

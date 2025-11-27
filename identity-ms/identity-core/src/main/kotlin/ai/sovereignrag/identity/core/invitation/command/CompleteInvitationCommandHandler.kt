@@ -52,8 +52,8 @@ class CompleteInvitationCommandHandler(
             ?.let { UUID.fromString(it) }
             ?: throw ClientException("User ID not found in invitation")
 
-        val user = userRepository.findByAkuId(userId)
-            ?: throw UserNotFoundException("User not found with ID: $userId")
+        val user = userRepository.findById(userId)
+            .orElseThrow { UserNotFoundException("User not found with ID: $userId") }
 
         val nameParts = command.fullName.trim().split("\\s+".toRegex(), 2)
         user.firstName = nameParts[0]

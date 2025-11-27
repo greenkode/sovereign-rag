@@ -1,0 +1,36 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: notification-ms
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sovereign_rag
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: notification
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas:
+      - notification
+    baseline-on-migrate: true
+
+sendgrid:
+  api-key: ${SENDGRID_API_KEY:}
+  from-email: ${SENDGRID_FROM_EMAIL:noreply@sovereignrag.ai}
+  from-name: ${SENDGRID_FROM_NAME:Sovereign RAG}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

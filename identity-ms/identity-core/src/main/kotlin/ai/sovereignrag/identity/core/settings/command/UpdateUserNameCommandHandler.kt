@@ -30,10 +30,9 @@ class UpdateUserNameCommandHandler(
 
         log.info { "Updated user name for user: ${user.id}" }
 
-        // Evict the KYC_USER and USER_DETAILS caches since user details have changed
-        user.akuId?.let { akuId ->
-            cacheEvictionService.evictUserCaches(akuId.toString())
-            cacheEvictionService.evictUserDetailsCaches(akuId.toString())
+        user.id?.let { userId ->
+            cacheEvictionService.evictUserCaches(userId.toString())
+            cacheEvictionService.evictUserDetailsCaches(userId.toString())
         }
 
         return UpdateUserNameResult(

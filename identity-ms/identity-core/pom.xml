@@ -74,6 +74,11 @@
             <version>0.13.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>ai.sovereignrag</groupId>
+            <artifactId>commons</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

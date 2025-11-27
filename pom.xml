@@ -16,10 +16,12 @@
     </properties>
 
     <modules>
+        <module>commons</module>
         <module>audit-ms</module>
         <module>core-ms</module>
         <module>identity-ms</module>
         <module>license-ms</module>
+        <module>notification-ms</module>
     </modules>
 
 </project>

@@ -1,0 +1,20 @@
+package ai.sovereignrag.identity.core.entity
+
+enum class OAuthClientSettingName {
+    REQUIRE_AUTHORIZATION_CONSENT,
+    REQUIRE_PROOF_KEY,
+    EMAIL,
+    PHONE_NUMBER,
+    FAILURE_LIMIT,
+    LOW_BALANCE
+}
+
+enum class OAuthTokenSettingName {
+    ACCESS_TOKEN_TIME_TO_LIVE,
+    REFRESH_TOKEN_TIME_TO_LIVE,
+    REUSE_REFRESH_TOKENS,
+    ID_TOKEN_SIGNATURE_ALGORITHM,
+    ACCESS_TOKEN_FORMAT,
+    AUTHORIZATION_CODE_TIME_TO_LIVE,
+    DEVICE_CODE_TIME_TO_LIVE
+}

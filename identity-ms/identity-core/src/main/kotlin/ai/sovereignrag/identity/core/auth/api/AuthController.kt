@@ -3,8 +3,8 @@ package ai.sovereignrag.identity.core.auth.api
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.dto.ClientSettings
 import ai.sovereignrag.identity.commons.dto.EndpointsInfo
+import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.commons.dto.ErrorResponse
 import ai.sovereignrag.identity.commons.dto.HomeResponse
 import ai.sovereignrag.identity.commons.dto.MerchantInfoResponse
@@ -79,15 +79,6 @@ class AuthController(
         private const val DEFAULT_FAILURE_RATE = 5
     }
 
-    private fun parseClientSettings(clientSettings: String?, clientId: String): ClientSettings {
-        return clientSettings?.takeIf { it.isNotBlank() }
-            ?.let {
-                runCatching { objectMapper.readValue(it, ClientSettings::class.java) }
-                    .onFailure { e -> log.warn(e) { "Failed to parse client_settings JSON for clientId: $clientId" } }
-                    .getOrNull()
-            }
-            ?: ClientSettings.fallback(clientId)
-    }
 
     @GetMapping("/")
     @ResponseBody
@@ -181,7 +172,6 @@ class AuthController(
             ))
             .claim("first_name", oauthUser?.firstName ?: "")
             .claim("email", oauthUser?.email ?: "")
-            .claim("aku_id", oauthUser?.akuId?.toString() ?: "")
             .build()
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).tokenValue
@@ -215,7 +205,7 @@ class AuthController(
 
     @GetMapping("/api/userinfo")
     @ResponseBody
-    @Operation(summary = "Get user information", description = "Retrieve user details by AKU ID")
+    @Operation(summary = "Get user information", description = "Retrieve user details by user ID")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "User information retrieved",
             content = [Content(mediaType = "application/json",
@@ -224,11 +214,11 @@ class AuthController(
     ])
     @SecurityRequirement(name = "bearerAuth")
     fun apiUserInfo(
-        @Parameter(description = "AKU ID of the user", example = "550e8400-e29b-41d4-a716-446655440000")
-        @RequestParam(required = false) akuId: String?,
+        @Parameter(description = "ID of the user", example = "550e8400-e29b-41d4-a716-446655440000")
+        @RequestParam(required = false) userId: String?,
         @AuthenticationPrincipal jwt: Jwt?
     ): Any {
-        log.info { "API UserInfo requested for akuId: $akuId, client: ${jwt?.subject}" }
+        log.info { "API UserInfo requested for userId: $userId, client: ${jwt?.subject}" }
 
         val scopes = extractScopes(jwt)
         if (!scopes.contains("profile") && !scopes.contains("read")) {
@@ -239,7 +229,7 @@ class AuthController(
             )
         }
 
-        return akuId?.let { findUserByAkuId(it, jwt?.subject) }
+        return userId?.let { findUserById(it, jwt?.subject) }
             ?: buildClientInfoResponse(jwt, scopes)
     }
 
@@ -249,13 +239,12 @@ class AuthController(
             ?: emptyList()
     }
 
-    private fun findUserByAkuId(akuId: String, requestedBy: String?): Any {
-        return runCatching { UUID.fromString(akuId) }
+    private fun findUserById(userId: String, requestedBy: String?): Any {
+        return runCatching { UUID.fromString(userId) }
             .mapCatching { uuid ->
-                userRepository.findByAkuId(uuid)?.let { user ->
+                userRepository.findById(uuid).map<Any> { user ->
                     UserInfoResponse(
                         sub = user.id.toString(),
-                        akuId = user.akuId.toString(),
                         name = "${user.firstName ?: ""} ${user.lastName ?: ""}".trim(),
                         firstName = user.firstName,
                         lastName = user.lastName,
@@ -270,14 +259,14 @@ class AuthController(
                         source = "identity-database",
                         requestedBy = requestedBy
                     )
-                } ?: run {
-                    log.warn { "User not found for akuId: $akuId" }
-                    ErrorResponse(error = "user_not_found", message = "No user found with akuId: $akuId")
+                }.orElseGet {
+                    log.warn { "User not found for userId: $userId" }
+                    ErrorResponse(error = "user_not_found", message = "No user found with userId: $userId")
                 }
             }
             .getOrElse {
-                log.error { "Invalid UUID format for akuId: $akuId" }
-                ErrorResponse(error = "invalid_aku_id", message = "Invalid akuId format: $akuId")
+                log.error { "Invalid UUID format for userId: $userId" }
+                ErrorResponse(error = "invalid_user_id", message = "Invalid userId format: $userId")
             }
     }
 
@@ -328,17 +317,16 @@ class AuthController(
     private fun findMerchantById(merchantId: String, requestedBy: String?, isAuthenticated: Boolean): Any {
         return oAuthRegisteredClientRepository.findById(merchantId)
             .map<Any> { merchant ->
-                val settings = parseClientSettings(merchant.clientSettings, merchant.clientId)
                 MerchantInfoResponse(
                     merchantId = merchant.id,
                     name = merchant.clientName,
-                    email = settings.emailAddress,
-                    phone = settings.phoneNumber,
+                    email = merchant.getSetting(OAuthClientSettingName.EMAIL),
+                    phone = merchant.getSetting(OAuthClientSettingName.PHONE_NUMBER),
                     clientId = merchant.clientId,
                     requestedBy = requestedBy,
                     authenticatedMerchant = if (isAuthenticated) true else null,
-                    lowBalanceAlert = settings.lowBalance ?: DEFAULT_LOW_BALANCE_ALERT,
-                    failureRate = settings.failureRate ?: DEFAULT_FAILURE_RATE
+                    lowBalanceAlert = merchant.getSetting(OAuthClientSettingName.LOW_BALANCE)?.toIntOrNull() ?: DEFAULT_LOW_BALANCE_ALERT,
+                    failureRate = merchant.getSetting(OAuthClientSettingName.FAILURE_LIMIT)?.toIntOrNull() ?: DEFAULT_FAILURE_RATE
                 )
             }
             .orElseGet {

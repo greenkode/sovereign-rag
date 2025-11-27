@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>ai.sovereignrag</groupId>
-            <artifactId>commons</artifactId>
+            <artifactId>core-commons</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>

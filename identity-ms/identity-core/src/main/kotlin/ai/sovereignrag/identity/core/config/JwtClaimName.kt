@@ -5,7 +5,6 @@ enum class JwtClaimName(val value: String) {
     ENVIRONMENT("environment"),
     TYPE("type"),
     CLIENT_TYPE("client_type"),
-    AKU_ID("aku_id"),
     ENVIRONMENT_CONFIG("environment_config"),
     ENVIRONMENT_PREFERENCE("environment_preference"),
     MERCHANT_ENVIRONMENT_MODE("merchant_environment_mode"),

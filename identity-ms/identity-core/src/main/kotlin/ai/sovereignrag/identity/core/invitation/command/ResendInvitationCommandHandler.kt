@@ -1,11 +1,11 @@
 package ai.sovereignrag.identity.core.invitation.command
 
+import ai.sovereignrag.commons.notification.dto.MessageRecipient
+import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.commons.exception.NotFoundException
-import ai.sovereignrag.identity.commons.notification.MessagePayload
-import ai.sovereignrag.identity.commons.notification.MessageRecipient
 import ai.sovereignrag.identity.commons.process.ProcessGateway
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
-import ai.sovereignrag.identity.core.integration.CoreMerchantClient
+import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.invitation.dto.ResendInvitationCommand
 import ai.sovereignrag.identity.core.invitation.dto.ResendInvitationResult
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
@@ -28,7 +28,7 @@ class ResendInvitationCommandHandler(
     private val userRepository: OAuthUserRepository,
     private val clientRepository: OAuthRegisteredClientRepository,
     private val processGateway: ProcessGateway,
-    private val coreMerchantClient: CoreMerchantClient,
+    private val notificationClient: NotificationClient,
     @Value("\${app.merchant.invitation.base-url}")
     private val invitationBaseUrl: String
 ) : Command.Handler<ResendInvitationCommand, ResendInvitationResult> {
@@ -52,26 +52,26 @@ class ResendInvitationCommandHandler(
             .orElseThrow { NotFoundException("Merchant not found") }
 
         val existingProcess = processGateway.findLatestPendingProcessesByTypeAndForUserId(
-            userId = targetUser.akuId!!,
+            userId = targetUser.id!!,
             processType = ProcessType.MERCHANT_USER_INVITATION
         ) ?: throw NotFoundException("No pending invitation found for user")
 
         val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 
-        coreMerchantClient.sendMessage(
-            MessagePayload(
-                listOf(MessageRecipient(address = targetUser.email)),
-                "MERCHANT_USER_INVITATION", "EMAIL", "HIGH",
-                mapOf(
-                    "merchant_name" to merchant.clientName,
-                    "invited_by" to "${resendingUser.firstName ?: ""} ${resendingUser.lastName ?: ""}".trim()
-                        .ifEmpty { resendingUser.email },
-                    "invitation_url" to "$invitationBaseUrl?token=${existingProcess.externalReference}",
-                    "expiration_date" to formatter.format(
-                        Instant.now().plusSeconds(existingProcess.type.timeInSeconds).atZone(ZoneId.systemDefault())
-                    )
-                ), Locale.ENGLISH, UUID.randomUUID().toString(), "INDIVIDUAL"
-            )
+        notificationClient.sendNotification(
+            recipients = listOf(MessageRecipient(address = targetUser.email)),
+            templateName = TemplateName.MERCHANT_USER_INVITATION,
+            parameters = mapOf(
+                "merchant_name" to merchant.clientName,
+                "invited_by" to "${resendingUser.firstName ?: ""} ${resendingUser.lastName ?: ""}".trim()
+                    .ifEmpty { resendingUser.email },
+                "invitation_url" to "$invitationBaseUrl?token=${existingProcess.externalReference}",
+                "expiration_date" to formatter.format(
+                    Instant.now().plusSeconds(existingProcess.type.timeInSeconds).atZone(ZoneId.systemDefault())
+                )
+            ),
+            locale = Locale.ENGLISH,
+            clientIdentifier = UUID.randomUUID().toString()
         )
 
         log.info { "Resent invitation successfully to ${targetUser.email}" }

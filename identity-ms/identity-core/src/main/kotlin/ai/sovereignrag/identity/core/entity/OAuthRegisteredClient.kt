@@ -1,96 +1,143 @@
 package ai.sovereignrag.identity.core.entity
 
 import ai.sovereignrag.identity.commons.AuditableEntity
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
+import jakarta.persistence.OneToMany
+import jakarta.persistence.Table
 import java.time.Instant
+
+enum class OrganizationStatus {
+    ACTIVE, SUSPENDED, PENDING
+}
+
+enum class OrganizationPlan {
+    TRIAL, STARTER, PROFESSIONAL, ENTERPRISE
+}
 
 @Entity
 @Table(name = "oauth_registered_clients", schema = "identity")
 class OAuthRegisteredClient() : AuditableEntity() {
     @Id
-    @Column(length = 100)
     var id: String = ""
 
-    @Column(name = "client_id", nullable = false, unique = true, length = 100)
     var clientId: String = ""
 
-    @Column(name = "client_id_issued_at", nullable = false)
     var clientIdIssuedAt: Instant = Instant.now()
 
-    @Column(name = "client_secret")
     var clientSecret: String? = null
 
-    @Column(name = "client_secret_expires_at")
     var clientSecretExpiresAt: Instant? = null
 
-    @Column(name = "sandbox_client_secret")
     var sandboxClientSecret: String? = null
 
-    @Column(name = "sandbox_client_secret_expires_at")
     var sandboxClientSecretExpiresAt: Instant? = null
 
-    @Column(name = "production_client_secret")
     var productionClientSecret: String? = null
 
-    @Column(name = "production_client_secret_expires_at")
     var productionClientSecretExpiresAt: Instant? = null
 
-    @Column(name = "client_name", nullable = false, length = 200)
     var clientName: String = ""
 
-    @Column(name = "client_authentication_methods", nullable = false, length = 1000)
-    var clientAuthenticationMethods: String = ""
-
-    @Column(name = "authorization_grant_types", nullable = false, length = 1000)
-    var authorizationGrantTypes: String = ""
-
-    @Column(name = "redirect_uris", length = 1000)
-    var redirectUris: String? = null
-
-    @Column(name = "post_logout_redirect_uris", length = 1000)
-    var postLogoutRedirectUris: String? = null
-
-    @Column(nullable = false, length = 1000)
-    var scopes: String = ""
-
-    @Column(name = "client_settings", nullable = false, columnDefinition = "TEXT")
-    var clientSettings: String = ""
-
-    @Column(name = "token_settings", nullable = false, columnDefinition = "TEXT")
-    var tokenSettings: String = ""
-
-    @Column(name = "failed_auth_attempts", nullable = false)
     var failedAuthAttempts: Int = 0
 
-    @Column(name = "locked_until")
     var lockedUntil: Instant? = null
 
-    @Column(name = "last_failed_auth")
     var lastFailedAuth: Instant? = null
 
-    @Column(name = "environment_mode", length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
     var environmentMode: EnvironmentMode = EnvironmentMode.SANDBOX
 
-    constructor(
-        id: String,
-        clientId: String,
-        clientName: String,
-        clientAuthenticationMethods: String,
-        authorizationGrantTypes: String,
-        scopes: String,
-        clientSettings: String,
-        tokenSettings: String
-    ) : this() {
-        this.id = id
-        this.clientId = clientId
-        this.clientName = clientName
-        this.clientAuthenticationMethods = clientAuthenticationMethods
-        this.authorizationGrantTypes = authorizationGrantTypes
-        this.scopes = scopes
-        this.clientSettings = clientSettings
-        this.tokenSettings = tokenSettings
+    var domain: String? = null
+
+    @Enumerated(EnumType.STRING)
+    var status: OrganizationStatus = OrganizationStatus.ACTIVE
+
+    @Enumerated(EnumType.STRING)
+    var plan: OrganizationPlan = OrganizationPlan.TRIAL
+
+    @OneToMany(mappedBy = "client", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val redirectUris: MutableSet<OAuthClientRedirectUri> = mutableSetOf()
+
+    @OneToMany(mappedBy = "client", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val postLogoutRedirectUris: MutableSet<OAuthClientPostLogoutRedirectUri> = mutableSetOf()
+
+    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "oauth_client_scopes",
+        schema = "identity",
+        joinColumns = [JoinColumn(name = "client_id")],
+        inverseJoinColumns = [JoinColumn(name = "scope_id")]
+    )
+    val scopes: MutableSet<OAuthScope> = mutableSetOf()
+
+    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "oauth_client_authentication_methods",
+        schema = "identity",
+        joinColumns = [JoinColumn(name = "client_id")],
+        inverseJoinColumns = [JoinColumn(name = "method_id")]
+    )
+    val authenticationMethods: MutableSet<OAuthAuthenticationMethod> = mutableSetOf()
+
+    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "oauth_client_grant_types",
+        schema = "identity",
+        joinColumns = [JoinColumn(name = "client_id")],
+        inverseJoinColumns = [JoinColumn(name = "grant_type_id")]
+    )
+    val grantTypes: MutableSet<OAuthGrantType> = mutableSetOf()
+
+    @OneToMany(mappedBy = "client", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val settings: MutableSet<OAuthClientSetting> = mutableSetOf()
+
+    @OneToMany(mappedBy = "client", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    val tokenSettings: MutableSet<OAuthClientTokenSetting> = mutableSetOf()
+
+    fun addRedirectUri(uri: String) {
+        redirectUris.add(OAuthClientRedirectUri(this, uri))
     }
+
+    fun addPostLogoutRedirectUri(uri: String) {
+        postLogoutRedirectUris.add(OAuthClientPostLogoutRedirectUri(this, uri))
+    }
+
+    fun addScope(scope: OAuthScope) {
+        scopes.add(scope)
+        scope.clients.add(this)
+    }
+
+    fun addAuthenticationMethod(method: OAuthAuthenticationMethod) {
+        authenticationMethods.add(method)
+        method.clients.add(this)
+    }
+
+    fun addGrantType(grantType: OAuthGrantType) {
+        grantTypes.add(grantType)
+        grantType.clients.add(this)
+    }
+
+    fun addSetting(name: OAuthClientSettingName, value: String) {
+        settings.removeIf { it.settingName == name }
+        settings.add(OAuthClientSetting(this, name, value))
+    }
+
+    fun addTokenSetting(name: OAuthTokenSettingName, value: String) {
+        tokenSettings.removeIf { it.settingName == name }
+        tokenSettings.add(OAuthClientTokenSetting(this, name, value))
+    }
+
+    fun getSetting(name: OAuthClientSettingName): String? = settings.find { it.settingName == name }?.settingValue
+
+    fun getTokenSetting(name: OAuthTokenSettingName): String? = tokenSettings.find { it.settingName == name }?.settingValue
 
     fun isCurrentlyLocked(): Boolean {
         return lockedUntil != null && Instant.now().isBefore(lockedUntil)
@@ -100,7 +147,7 @@ class OAuthRegisteredClient() : AuditableEntity() {
         val now = Instant.now()
         failedAuthAttempts++
         lastFailedAuth = now
-        
+
         if (failedAuthAttempts >= MAX_FAILED_ATTEMPTS) {
             lockedUntil = now.plusSeconds(LOCKOUT_DURATION_MINUTES * 60)
         }

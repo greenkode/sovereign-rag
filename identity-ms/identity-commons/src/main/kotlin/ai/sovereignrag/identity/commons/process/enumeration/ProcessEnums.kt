@@ -11,7 +11,9 @@ enum class ProcessType(val description: String, val timeInSeconds: Long, val str
     WEBHOOK_DELETION("Webhook Configuration Deletion", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
     MERCHANT_USER_INVITATION("Merchant User Invitation", 604800, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
     PASSWORD_RESET("Password Reset", 1200, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
-    TWO_FACTOR_AUTH("Two Factor Authentication", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY) ;
+    TWO_FACTOR_AUTH("Two Factor Authentication", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    EMAIL_VERIFICATION("Email Verification", 86400, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    USER_REGISTRATION("User Registration", 86400, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY);
 }
 
 enum class ProcessRequestType {
@@ -26,7 +28,10 @@ enum class ProcessRequestDataName(description: String) {
     MERCHANT_ID("Merchant ID"),
     USER_IDENTIFIER("User Identifier"),
     AUTHENTICATION_REFERENCE("Authentication Reference"),
-    DEVICE_FINGERPRINT("Device Fingerprint");
+    DEVICE_FINGERPRINT("Device Fingerprint"),
+    USER_EMAIL("User Email"),
+    ORGANIZATION_ID("Organization ID"),
+    VERIFICATION_TOKEN("Verification Token");
 }
 
 enum class ProcessStakeholderType {

@@ -21,8 +21,8 @@ class CacheEvictionService(
         }
     }
 
-    fun evictUserCaches(akuId: String) {
-        evictCache("KycUser", akuId, "akuId")
+    fun evictUserCaches(userId: String) {
+        evictCache("KycUser", userId, "userId")
     }
 
     fun evictMerchantCaches(merchantId: String) {

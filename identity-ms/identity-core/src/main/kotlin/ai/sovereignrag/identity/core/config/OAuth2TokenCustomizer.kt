@@ -1,6 +1,5 @@
 package ai.sovereignrag.identity.core.config
 
-import ai.sovereignrag.identity.core.config.JwtClaimName.AKU_ID
 import ai.sovereignrag.identity.core.config.JwtClaimName.AUTHORITIES
 import ai.sovereignrag.identity.core.config.JwtClaimName.CLIENT_TYPE
 import ai.sovereignrag.identity.core.config.JwtClaimName.EMAIL
@@ -128,7 +127,6 @@ class OAuth2TokenCustomizerConfig {
             )
 
             user.merchantId?.let { context.claims.claim(MERCHANT_ID.value, it.toString()) }
-            user.akuId?.let { context.claims.claim(AKU_ID.value, it.toString()) }
 
             val environmentConfig = mapOf(
                 ENVIRONMENT.value to effectiveEnvironment.name,
