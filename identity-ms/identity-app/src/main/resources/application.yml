@@ -61,7 +61,7 @@ spring:
             client-id: ${identity_client_id:identity-ms-client}
             client-secret: ${identity_client_secret:RespectTheHangover}
             authorization-grant-type: client_credentials
-            scope: openid,profile,read,write
+            scope: service:audit,service:notification,service:core
           google:
             client-id: ${GOOGLE_CLIENT_ID:}
             client-secret: ${GOOGLE_CLIENT_SECRET:}
@@ -194,7 +194,7 @@ app:
     blocked-domains: gmail.com,yahoo.com,hotmail.com,outlook.com,live.com,aol.com,icloud.com,mail.com,protonmail.com,yandex.com
 
 identity-ms:
-  base-url: ${IDENTITY_BASEURL:http://localhost:9093}
+  base-url: ${IDENTITY_BASEURL:http://localhost:9083}
   token:
     expiry: 600
   refresh-token:

@@ -4,27 +4,33 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 object CacheNames {
-    const val ACCOUNT = "accounts"
-    const val PRICING_CALC = "PricingCalc"
-    const val USER_DETAILS = "UserDetails"
-    const val ACCOUNT_BALANCE = "AccountBalance"
-    const val POOL_ACCOUNT = "PoolAccount"
-    const val SYSTEM_PROPERTIES = "SystemProps"
-    const val AUTH_TOKEN = "AuthToken"
-    const val KYC_USER = "KycUser"
-    const val MERCHANT_DETAILS = "MerchantDetails"
-    const val PROCESS = "Process"
-    const val WEBHOOK_CONFIG = "WebhookConfig"
-    const val INTEGRATION_RESPONSE_CODE = "IntegrationResponseCode"
-    const val CHAT_SESSION = "ChatSession"
-    const val CHAT_MESSAGES = "ChatMessages"
-    const val CHAT_RESPONSES = "ChatResponses"
-    const val AGENT_CONFIG = "AgentConfig"
+    const val ACCOUNT = "core-accounts"
+    const val PRICING_CALC = "core-PricingCalc"
+    const val USER_DETAILS = "core-UserDetails"
+    const val ACCOUNT_BALANCE = "core-AccountBalance"
+    const val POOL_ACCOUNT = "core-PoolAccount"
+    const val SYSTEM_PROPERTIES = "core-SystemProps"
+    const val AUTH_TOKEN = "core-AuthToken"
+    const val KYC_USER = "identity-KycUser"
+    const val MERCHANT_DETAILS = "identity-MerchantDetails"
+    const val PROCESS = "core-Process"
+    const val WEBHOOK_CONFIG = "core-WebhookConfig"
+    const val INTEGRATION_RESPONSE_CODE = "core-IntegrationResponseCode"
+    const val CHAT_SESSION = "core-ChatSession"
+    const val CHAT_MESSAGES = "core-ChatMessages"
+    const val CHAT_RESPONSES = "core-ChatResponses"
+    const val AGENT_CONFIG = "core-AgentConfig"
     const val MINIGL_BALANCE_SNAPSHOTS = "minigl-balance-snapshots"
     const val MINIGL_DAILY_LIMITS = "minigl-daily-limits"
     const val MINIGL_TRANSACTIONS = "minigl-transactions"
     const val MINIGL_TRANSACTION_LIMITS = "minigl-transaction-limits"
     const val MINIGL_ACCOUNT_PROFILES = "minigl-account-profiles"
+
+    const val USER_SETTINGS = "identity-UserSettings"
+    const val MERCHANT_CLIENT = "identity-MerchantClient"
+    const val OAUTH_USER = "identity-OAuthUser"
+    const val USER_ROLES = "identity-UserRoles"
+    const val REGISTERED_CLIENT = "identity-RegisteredClient"
 }
 
 enum class SrCache(val cacheName: String, val ttl: Long, val timeUnit: TimeUnit) {
@@ -57,7 +63,14 @@ enum class SrCache(val cacheName: String, val ttl: Long, val timeUnit: TimeUnit)
     MINIGL_DAILY_LIMITS(CacheNames.MINIGL_DAILY_LIMITS, 24, TimeUnit.HOURS),
     MINIGL_TRANSACTIONS(CacheNames.MINIGL_TRANSACTIONS, 30, TimeUnit.MINUTES),
     MINIGL_TRANSACTION_LIMITS(CacheNames.MINIGL_TRANSACTION_LIMITS, 60, TimeUnit.MINUTES),
-    MINIGL_ACCOUNT_PROFILES(CacheNames.MINIGL_ACCOUNT_PROFILES, 120, TimeUnit.MINUTES);
+    MINIGL_ACCOUNT_PROFILES(CacheNames.MINIGL_ACCOUNT_PROFILES, 120, TimeUnit.MINUTES),
+
+    // Identity specific caches
+    USER_SETTINGS(CacheNames.USER_SETTINGS, 15, TimeUnit.MINUTES),
+    MERCHANT_CLIENT(CacheNames.MERCHANT_CLIENT, 30, TimeUnit.MINUTES),
+    OAUTH_USER(CacheNames.OAUTH_USER, 10, TimeUnit.MINUTES),
+    USER_ROLES(CacheNames.USER_ROLES, 20, TimeUnit.MINUTES),
+    REGISTERED_CLIENT(CacheNames.REGISTERED_CLIENT, 30, TimeUnit.MINUTES);
 
     fun computeTtl(ttlTimeUnit: TimeUnit, ttl: Long): Duration {
         return when (ttlTimeUnit) {

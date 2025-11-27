@@ -1,10 +1,13 @@
 package ai.sovereignrag.identity.core.service
 
+import ai.sovereignrag.commons.cache.CacheNames
 import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient
 import ai.sovereignrag.identity.core.entity.OAuthTokenSettingName
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient
@@ -12,6 +15,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 
 private val log = KotlinLogging.logger {}
@@ -26,22 +30,32 @@ class CustomRegisteredClientRepository(
         throw UnsupportedOperationException("Client registration not supported via this interface")
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(value = [CacheNames.REGISTERED_CLIENT], key = "'id_' + #id", unless = "#result == null")
     override fun findById(id: String): RegisteredClient? {
         log.debug { "Finding registered client by id: $id" }
         val client = clientRepository.findById(id).orElse(null)
         return client?.let { mapToRegisteredClient(it) }
     }
 
+    @Transactional
+    @Cacheable(value = [CacheNames.REGISTERED_CLIENT], key = "'clientId_' + #clientId", unless = "#result == null")
     override fun findByClientId(clientId: String): RegisteredClient? {
         log.info { "Finding registered client by clientId: $clientId" }
         val client = clientRepository.findByClientId(clientId)
 
         client?.takeIf { it.checkAndUnlockIfExpired() }?.let {
             clientRepository.save(it)
+            evictClientCache(it.id, it.clientId)
             log.info { "Lockout expired for client: ${it.clientId}, client unlocked" }
         }
 
         return client?.let { mapToRegisteredClient(it) }
+    }
+
+    @CacheEvict(value = [CacheNames.REGISTERED_CLIENT], allEntries = true)
+    fun evictClientCache(id: String, clientId: String) {
+        log.debug { "Evicting cache for client: $clientId" }
     }
 
     private fun mapToRegisteredClient(entity: OAuthRegisteredClient): RegisteredClient {

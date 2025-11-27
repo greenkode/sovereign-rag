@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.time.Instant
 
@@ -33,6 +34,7 @@ class ClientLockoutAuthenticationProvider(
     private val clientLockoutService: ClientLockoutService
 ) : AuthenticationProvider {
 
+    @Transactional
     override fun authenticate(authentication: Authentication): Authentication? {
         val clientAuth = authentication as? OAuth2ClientAuthenticationToken ?: return null
 
@@ -41,7 +43,7 @@ class ClientLockoutAuthenticationProvider(
 
         log.info { "Authenticating client: $clientId" }
 
-        runCatching {
+        return runCatching {
             val clientEntity = clientRepository.findByClientId(clientId)
                 ?: run {
                     log.warn { "Client not found: $clientId" }
@@ -104,9 +106,9 @@ class ClientLockoutAuthenticationProvider(
             clientLockoutService.handleSuccessfulClientAuth(clientId)
 
             val registeredClient = mapToRegisteredClient(clientEntity)
-            return OAuth2ClientAuthenticationToken(registeredClient, clientAuth.clientAuthenticationMethod, clientAuth.credentials)
+            OAuth2ClientAuthenticationToken(registeredClient, clientAuth.clientAuthenticationMethod, clientAuth.credentials)
 
-        }.onFailure { e ->
+        }.getOrElse { e ->
             when (e) {
                 is ClientLockedException -> throw OAuth2AuthenticationException(
                     OAuth2Error(
@@ -122,8 +124,6 @@ class ClientLockoutAuthenticationProvider(
                 }
             }
         }
-
-        return null
     }
 
     override fun supports(authentication: Class<*>): Boolean {

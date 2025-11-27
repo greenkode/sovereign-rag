@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.config
 
-import ai.sovereignrag.identity.commons.cache.IdentityCache
+import ai.sovereignrag.commons.cache.CacheNames
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
@@ -14,9 +14,17 @@ import org.springframework.context.annotation.Configuration
 class IdentitySimpleCacheConfig {
     @Bean
     fun identityCacheManager(): CacheManager {
-        val identityNames = IdentityCache.entries.map { it.cacheName }
-        val coreCacheNames = listOf("KycUser", "MerchantDetails", "UserDetails")
-        val allNames = (identityNames + coreCacheNames).toTypedArray()
-        return ConcurrentMapCacheManager(*allNames)
+        val identitySpecificCaches = listOf(
+            CacheNames.USER_SETTINGS,
+            CacheNames.MERCHANT_CLIENT,
+            CacheNames.OAUTH_USER,
+            CacheNames.USER_ROLES,
+            CacheNames.REGISTERED_CLIENT,
+            CacheNames.KYC_USER,
+            CacheNames.MERCHANT_DETAILS,
+            CacheNames.USER_DETAILS,
+            CacheNames.PROCESS
+        )
+        return ConcurrentMapCacheManager(*identitySpecificCaches.toTypedArray())
     }
 }

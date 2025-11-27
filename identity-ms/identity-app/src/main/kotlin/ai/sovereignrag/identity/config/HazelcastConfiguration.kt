@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.config
 
-import ai.sovereignrag.identity.commons.cache.IdentityCache
+import ai.sovereignrag.commons.cache.SrCache
 import com.hazelcast.config.Config
 import com.hazelcast.config.EvictionConfig
 import com.hazelcast.config.EvictionPolicy
@@ -82,13 +82,12 @@ class HazelcastConfiguration(private val environment: Environment) {
 
         config.addMapConfig(defaultMapConfig)
 
-        configureIdentityCaches(config)
-        configureCoreCaches(config)
+        configureCachesFromSrCache(config)
         configureRateLimitCache(config)
     }
 
-    private fun configureIdentityCaches(config: Config) {
-        IdentityCache.entries.forEach { cache ->
+    private fun configureCachesFromSrCache(config: Config) {
+        SrCache.entries.forEach { cache ->
             val ttlSeconds = cache.timeUnit.toSeconds(cache.ttl).toInt()
             val idleSeconds = (ttlSeconds / 2).coerceAtLeast(60)
 
@@ -100,12 +99,6 @@ class HazelcastConfiguration(private val environment: Environment) {
                 5000
             )
         }
-    }
-
-    private fun configureCoreCaches(config: Config) {
-        configureMapWithTtl(config, "KycUser", 1800, 900, 5000)
-        configureMapWithTtl(config, "MerchantDetails", 3600, 1800, 5000)
-        configureMapWithTtl(config, "UserDetails", 1800, 900, 5000)
     }
 
     private fun configureRateLimitCache(config: Config) {

@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.process.domain
 
-import ai.sovereignrag.identity.commons.CacheNames
+import ai.sovereignrag.commons.cache.CacheNames
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
