@@ -38,23 +38,28 @@ class SendGridEmailSender(
 
         val sendGrid = SendGrid(apiKey)
         val from = Email(fromEmail, fromName)
-
-        val content = template.content?.let { processTemplate(it, parameters) } ?: ""
         val mail = Mail()
         mail.setFrom(from)
-        mail.setSubject(processTemplate(template.title, parameters))
-        mail.addContent(Content("text/html", content))
 
         val personalization = Personalization()
         recipients.forEach { recipient ->
             personalization.addTo(Email(recipient.address, recipient.name))
         }
-        parameters.forEach { (key, value) ->
-            personalization.addDynamicTemplateData(key, value)
-        }
-        mail.addPersonalization(personalization)
 
-        template.externalId?.let { mail.templateId = it }
+        template.externalId?.takeIf { it.isNotBlank() }?.let { externalId ->
+            mail.templateId = externalId
+            parameters.forEach { (key, value) ->
+                personalization.addDynamicTemplateData(key, value)
+            }
+            log.info { "Using SendGrid dynamic template: $externalId" }
+        } ?: run {
+            mail.setSubject(processTemplate(template.title, parameters))
+            val content = template.content?.let { processTemplate(it, parameters) } ?: ""
+            mail.addContent(Content("text/html", content))
+            log.info { "Using inline template content for: ${template.name}" }
+        }
+
+        mail.addPersonalization(personalization)
 
         val request = Request().apply {
             method = Method.POST
