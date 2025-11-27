@@ -73,12 +73,14 @@ spring:
             scope: openid,email,profile
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
         provider:
           identity-ms-client:
             token-uri: ${identity-ms.base-url}/oauth2/token
           microsoft:
             authorization-uri: https://login.microsoftonline.com/${MICROSOFT_TENANT_ID:common}/oauth2/v2.0/authorize
             token-uri: https://login.microsoftonline.com/${MICROSOFT_TENANT_ID:common}/oauth2/v2.0/token
+            jwk-set-uri: https://login.microsoftonline.com/${MICROSOFT_TENANT_ID:common}/discovery/v2.0/keys
             user-info-uri: https://graph.microsoft.com/oidc/userinfo
             user-name-attribute: sub
   cache:

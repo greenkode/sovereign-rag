@@ -36,7 +36,6 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher
-import ai.sovereignrag.identity.core.oauth.CustomOAuth2UserService
 import ai.sovereignrag.identity.core.oauth.CustomOidcUserService
 import ai.sovereignrag.identity.core.oauth.OAuth2AuthenticationSuccessHandler
 import ai.sovereignrag.identity.core.oauth.OAuth2AuthenticationFailureHandler
@@ -49,7 +48,6 @@ class SecurityConfig(
     private val customOAuth2ErrorResponseHandler: CustomOAuth2ErrorResponseHandler,
     private val clientLockoutFilter: ClientLockoutFilter,
     private val jwtAuthenticationConverter: CustomJwtAuthenticationConverter,
-    @Lazy private val customOAuth2UserService: CustomOAuth2UserService,
     @Lazy private val customOidcUserService: CustomOidcUserService,
     @Lazy private val oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
     @Lazy private val oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler
@@ -140,7 +138,6 @@ class SecurityConfig(
                     .authorizationEndpoint { it.baseUri("/oauth2/authorization") }
                     .redirectionEndpoint { it.baseUri("/login/oauth2/code/*") }
                     .userInfoEndpoint {
-                        it.userService(customOAuth2UserService)
                         it.oidcUserService(customOidcUserService)
                     }
                     .successHandler(oAuth2AuthenticationSuccessHandler)
