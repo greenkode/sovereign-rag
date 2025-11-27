@@ -1,6 +1,5 @@
 package ai.sovereignrag.identity.core.oauth
 
-import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.core.entity.OAuthProvider
 import ai.sovereignrag.identity.core.entity.OAuthProviderAccount
@@ -13,6 +12,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException
+import org.springframework.security.oauth2.core.OAuth2Error
 import org.springframework.security.oauth2.core.oidc.user.OidcUser
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -30,36 +31,44 @@ class CustomOidcUserService(
 ) : OidcUserService() {
 
     @Transactional
-    override fun loadUser(userRequest: OidcUserRequest): OidcUser {
-        val oidcUser = super.loadUser(userRequest)
-        val registrationId = userRequest.clientRegistration.registrationId
+    override fun loadUser(userRequest: OidcUserRequest): OidcUser =
+        runCatching {
+            val oidcUser = super.loadUser(userRequest)
+            val registrationId = userRequest.clientRegistration.registrationId
 
-        log.info { "OIDC login attempt from provider: $registrationId" }
+            log.info { "OIDC login attempt from provider: $registrationId" }
 
-        val provider = parseProvider(registrationId)
-        val providerUserId = oidcUser.subject
-            ?: throw ClientException(messageService.getMessage("oauth.error.missing_user_id"))
-        val email = oidcUser.email
-            ?: throw ClientException(messageService.getMessage("oauth.error.email_required"))
+            val provider = parseProvider(registrationId)
+            val providerUserId = oidcUser.subject
+                ?: throw oauthError("missing_user_id", messageService.getMessage("oauth.error.missing_user_id"))
+            val email = oidcUser.email
+                ?: throw oauthError("email_required", messageService.getMessage("oauth.error.email_required"))
 
-        businessEmailValidationService.validateBusinessEmail(email)
+            businessEmailValidationService.validateBusinessEmail(email)
 
-        val user = findUserByProviderAccount(provider, providerUserId)
-            ?: findUserByEmailAndLinkProvider(email, provider, providerUserId)
-            ?: createUserWithProviderAccount(provider, providerUserId, email, oidcUser)
+            val user = findUserByProviderAccount(provider, providerUserId)
+                ?: findUserByEmailAndLinkProvider(email, provider, providerUserId)
+                ?: createUserWithProviderAccount(provider, providerUserId, email, oidcUser)
 
-        return OAuth2UserPrincipal(
-            oauth2User = oidcUser,
-            internalUser = user,
-            provider = provider
-        )
-    }
+            OAuth2UserPrincipal(
+                oauth2User = oidcUser,
+                internalUser = user,
+                provider = provider
+            )
+        }.getOrElse { e ->
+            log.error(e) { "OIDC authentication failed: ${e.message}" }
+            throw (e as? OAuth2AuthenticationException)
+                ?: oauthError("authentication_failed", e.message ?: "Authentication failed")
+        }
+
+    private fun oauthError(errorCode: String, description: String): OAuth2AuthenticationException =
+        OAuth2AuthenticationException(OAuth2Error(errorCode, description, null), description)
 
     private fun parseProvider(registrationId: String): OAuthProvider =
         when (registrationId.lowercase()) {
             "google" -> OAuthProvider.GOOGLE
             "microsoft" -> OAuthProvider.MICROSOFT
-            else -> throw ClientException(messageService.getMessage("oauth.error.unsupported_provider", registrationId))
+            else -> throw oauthError("unsupported_provider", messageService.getMessage("oauth.error.unsupported_provider", registrationId))
         }
 
     private fun findUserByProviderAccount(provider: OAuthProvider, providerUserId: String): OAuthUser? {
