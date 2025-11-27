@@ -1,22 +1,81 @@
-server:
-  port: 8082
-
 spring:
+  config:
+    import: "optional:configtree:/run/secrets/"
   application:
     name: notification-ms
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/sovereign_rag
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
-    driver-class-name: org.postgresql.Driver
+    main:
+      url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:sovereign_rag}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true&prepareThreshold=1&preferQueryMode=extended"
+      username: "${DB_USERNAME:postgres}"
+      password: "${DB_PASSWORD:postgres}"
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        data-source-properties:
+          cachePrepStmts: true
+          prepStmtCacheSize: 250
+          prepStmtCacheSqlLimit: 2048
+          useServerPrepStmts: true
+          useLocalSessionState: true
+          rewriteBatchedStatements: true
+          cacheResultSetMetadata: true
+          cacheServerConfiguration: true
+          elideSetAutoCommits: true
+          maintainTimeStats: false
+          application: ${spring.application.name}
+          tcpKeepAlive: true
+          socketTimeout: 30
+          prepareThreshold: 1
+          preferQueryMode: extended
+        maximum-pool-size: 8
+        minimum-idle: 2
+        schema: notification
+        register-mbeans: false
+        pool-name: "notification"
+        connectionTimeout: 30000
+        idleTimeout: 300000
+        maxLifetime: 1800000
+        leakDetectionThreshold: 60000
+        validationTimeout: 5000
+        connectionTestQuery: "SELECT 1"
+        initializationFailTimeout: 30000
+    read-replica:
+      url: "jdbc:postgresql://${READ_REPLICA_DB_HOST:${DB_HOST:localhost}}:${READ_REPLICA_DATABASE_PORT:${DATABASE_PORT:5432}}/${READ_REPLICA_DATABASE_NAME:sovereign_rag}?ApplicationName=${spring.application.name}&reWriteBatchedInserts=true"
+      username: "${DB_USERNAME:postgres}"
+      password: "${DB_PASSWORD:postgres}"
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        data-source-properties:
+          cachePrepStmts: true
+          prepStmtCacheSize: 200
+          prepStmtCacheSqlLimit: 2048
+          useServerPrepStmts: true
+          useLocalSessionState: true
+          rewriteBatchedStatements: true
+          cacheResultSetMetadata: true
+          cacheServerConfiguration: true
+          elideSetAutoCommits: true
+          maintainTimeStats: false
+          application: ${spring.application.name}
+          tcpKeepAlive: true
+          socketTimeout: 30
+        maximum-pool-size: 6
+        minimum-idle: 1
+        schema: notification
+        register-mbeans: false
+        pool-name: "notification-replica"
+        connectionTimeout: 30000
+        idleTimeout: 300000
+        maxLifetime: 1800000
+        leakDetectionThreshold: 60000
+        validationTimeout: 5000
+        connectionTestQuery: "SELECT 1"
+        initializationFailTimeout: 30000
+
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        default_schema: notification
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -33,4 +92,25 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+  health:
+    readinessState:
+      enabled: true
+    livenessState:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+server:
+  port: ${SERVER_PORT:8082}
+  shutdown: graceful
+  forward-headers-strategy: native
