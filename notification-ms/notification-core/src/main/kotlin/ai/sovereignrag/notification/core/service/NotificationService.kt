@@ -48,19 +48,18 @@ class NotificationService(
                 message = "No recipients provided"
             )
 
-        val notificationRequest = request
         val message = MessageEntity().apply {
             publicId = UUID.fromString(messageId)
-            channel = notificationRequest.channel
+            channel = request.channel
             this.template = template
-            templateName = notificationRequest.templateName
+            templateName = request.templateName
             recipient = primaryRecipient.address
             recipientName = primaryRecipient.name
             deliveryStatus = DeliveryStatus.PENDING
-            this.request = notificationRequest.parameters.toString()
-            priority = notificationRequest.priority
-            clientIdentifier = notificationRequest.clientIdentifier
-            locale = notificationRequest.locale
+            this.request = request.parameters.toString()
+            priority = request.priority
+            clientIdentifier = request.clientIdentifier
+            locale = request.locale
             createdAt = Instant.now()
         }
 

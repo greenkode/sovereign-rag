@@ -66,21 +66,4 @@ class NotificationClient(
             null
         }
     }
-
-    fun sendEmail(
-        recipientEmail: String,
-        recipientName: String? = null,
-        templateName: TemplateName,
-        parameters: Map<String, String>,
-        clientIdentifier: String
-    ): SendNotificationResponse? {
-        return sendNotification(
-            recipients = listOf(MessageRecipient(recipientEmail, recipientName)),
-            templateName = templateName,
-            channel = MessageChannel.EMAIL,
-            priority = MessagePriority.HIGH,
-            parameters = parameters,
-            clientIdentifier = clientIdentifier
-        )
-    }
 }
