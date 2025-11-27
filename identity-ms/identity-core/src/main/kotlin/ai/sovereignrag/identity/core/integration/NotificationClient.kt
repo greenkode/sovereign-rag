@@ -21,7 +21,7 @@ private val log = KotlinLogging.logger {}
 
 @Service
 class NotificationClient(
-    @param:Value("\${notification.service.url}")
+    @param:Value("\${notification-ms.base-url}")
     private val notificationServiceUrl: String
 ) {
     private val restClient = RestClient.builder()

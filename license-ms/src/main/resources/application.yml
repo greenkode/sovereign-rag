@@ -115,6 +115,6 @@ management:
       application: ${spring.application.name}
 
 server:
-  port: ${SERVER_PORT:9085}
+  port: ${SERVER_PORT:9084}
   shutdown: graceful
   forward-headers-strategy: native

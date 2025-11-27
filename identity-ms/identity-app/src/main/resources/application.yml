@@ -91,7 +91,7 @@ hazelcast:
   members: ${HAZELCAST_MEMBERS:127.0.0.1:5702}
 server:
   forward-headers-strategy: native
-  port: ${SERVER_PORT:9093}
+  port: ${SERVER_PORT:9083}
   tomcat:
     remoteip:
       remote-ip-header: x-forwarded-for
@@ -202,6 +202,9 @@ identity-ms:
   client:
     id: identity-ms-client
     secret: ${identity_client_secret:RespectTheHangover}
+
+notification-ms:
+  base-url: ${NOTIFICATION_MS_BASE_URL:http://localhost:9092}
 
 audit-ms:
   base-url: ${AUDIT_MS_BASE_URL:http://localhost:9080}

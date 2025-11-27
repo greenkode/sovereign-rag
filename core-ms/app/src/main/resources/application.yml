@@ -91,7 +91,7 @@ spring:
     default-property-inclusion: non_null
 
 server:
-  port: ${SERVER_PORT:8000}
+  port: ${SERVER_PORT:9082}
 
 sovereignrag:
   identity-ms:
