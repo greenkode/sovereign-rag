@@ -15,20 +15,34 @@ import org.springframework.context.event.EventListener
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 
+private val log = KotlinLogging.logger {}
+
 @Component
 class AuditServiceEventListener(
-    @Value("\${audit-ms.base-url}") private val auditMsBaseUrl: String
+    @Value("\${audit-ms.base-url}") private val auditMsBaseUrl: String,
+    private val serviceAuthorizedClientManager: AuthorizedClientServiceOAuth2AuthorizedClientManager
 ) {
-    private val log = KotlinLogging.logger {}
+
+    companion object {
+        private const val CLIENT_REGISTRATION_ID = "identity-ms-client"
+    }
 
     @Async
     @EventListener
     fun on(event: AuditEvent) {
         runCatching {
             log.debug { "Sending audit event to Audit MS: ${event.event} for ${event.actorId}" }
+
+            val accessToken = getAccessToken()
+                ?: run {
+                    log.warn { "Unable to obtain access token for audit-ms communication" }
+                    return
+                }
 
             val requestBody = mapOf(
                 ACTOR_ID.value to event.actorId,
@@ -47,6 +61,7 @@ class AuditServiceEventListener(
                 .post()
                 .uri("/v1/events/create")
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
                 .body(requestBody)
                 .retrieve()
                 .body(Map::class.java)
@@ -54,5 +69,18 @@ class AuditServiceEventListener(
         }.onFailure { e ->
             log.error(e) { "Failed to send audit event to Audit MS: ${event.event}" }
         }
+    }
+
+    private fun getAccessToken(): String? {
+        return runCatching {
+            val authorizeRequest = OAuth2AuthorizeRequest
+                .withClientRegistrationId(CLIENT_REGISTRATION_ID)
+                .principal("identity-ms")
+                .build()
+
+            serviceAuthorizedClientManager.authorize(authorizeRequest)?.accessToken?.tokenValue
+        }.onFailure { e ->
+            log.error(e) { "Failed to obtain OAuth2 access token for audit-ms" }
+        }.getOrNull()
     }
 }

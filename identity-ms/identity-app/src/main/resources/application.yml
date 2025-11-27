@@ -184,12 +184,12 @@ app:
   cors:
     allowed-origins: ${ALLOWED_CORS_ORIGINS}
   password-reset:
-    base-url: ${MERCHANT_BASEURL:http://localhost:3001}/auth/reset-password/complete
+    base-url: ${MERCHANT_BASEURL:http://localhost:3000}/auth/reset-password
   merchant:
     invitation:
-      base-url: ${MERCHANT_BASEURL:http://localhost:3001}/auth/onboard
+      base-url: ${MERCHANT_BASEURL:http://localhost:3000}/auth/onboard
   oauth:
-    frontend-callback-url: ${FRONTEND_URL:http://localhost:3001}/auth/oauth-callback
+    frontend-callback-url: ${FRONTEND_URL:http://localhost:3000}/auth/oauth-callback
   registration:
     blocked-domains: gmail.com,yahoo.com,hotmail.com,outlook.com,live.com,aol.com,icloud.com,mail.com,protonmail.com,yandex.com
 

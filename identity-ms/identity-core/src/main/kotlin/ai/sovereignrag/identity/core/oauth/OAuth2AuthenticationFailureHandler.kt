@@ -15,7 +15,7 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class OAuth2AuthenticationFailureHandler(
-    @Value("\${app.oauth.frontend-callback-url:http://localhost:3001/auth/oauth-callback}")
+    @Value("\${app.oauth.frontend-callback-url:http://localhost:3000/auth/oauth-callback}")
     private val frontendCallbackUrl: String
 ) : AuthenticationFailureHandler {
 

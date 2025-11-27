@@ -11,9 +11,9 @@ import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.BusinessEmailValidationService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
-import org.springframework.security.oauth2.core.user.OAuth2User
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService
+import org.springframework.security.oauth2.core.oidc.user.OidcUser
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -21,34 +21,35 @@ import java.util.UUID
 private val log = KotlinLogging.logger {}
 
 @Service
-class CustomOAuth2UserService(
+class CustomOidcUserService(
     private val userRepository: OAuthUserRepository,
     private val providerAccountRepository: OAuthProviderAccountRepository,
     private val businessEmailValidationService: BusinessEmailValidationService,
     private val passwordEncoder: PasswordEncoder,
     private val messageService: MessageService
-) : DefaultOAuth2UserService() {
+) : OidcUserService() {
 
     @Transactional
-    override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User {
-        val oauth2User = super.loadUser(userRequest)
+    override fun loadUser(userRequest: OidcUserRequest): OidcUser {
+        val oidcUser = super.loadUser(userRequest)
         val registrationId = userRequest.clientRegistration.registrationId
 
-        log.info { "OAuth2 login attempt from provider: $registrationId" }
+        log.info { "OIDC login attempt from provider: $registrationId" }
 
         val provider = parseProvider(registrationId)
-        val providerUserId = extractProviderUserId(oauth2User, provider)
-        val email = extractEmail(oauth2User, provider)
+        val providerUserId = oidcUser.subject
+            ?: throw ClientException(messageService.getMessage("oauth.error.missing_user_id"))
+        val email = oidcUser.email
             ?: throw ClientException(messageService.getMessage("oauth.error.email_required"))
 
         businessEmailValidationService.validateBusinessEmail(email)
 
         val user = findUserByProviderAccount(provider, providerUserId)
             ?: findUserByEmailAndLinkProvider(email, provider, providerUserId)
-            ?: createUserWithProviderAccount(provider, providerUserId, email, oauth2User)
+            ?: createUserWithProviderAccount(provider, providerUserId, email, oidcUser)
 
         return OAuth2UserPrincipal(
-            oauth2User = oauth2User,
+            oauth2User = oidcUser,
             internalUser = user,
             provider = provider
         )
@@ -61,25 +62,12 @@ class CustomOAuth2UserService(
             else -> throw ClientException(messageService.getMessage("oauth.error.unsupported_provider", registrationId))
         }
 
-    private fun extractProviderUserId(oauth2User: OAuth2User, provider: OAuthProvider): String =
-        when (provider) {
-            OAuthProvider.GOOGLE -> oauth2User.getAttribute<String>("sub")
-            OAuthProvider.MICROSOFT -> oauth2User.getAttribute<String>("sub") ?: oauth2User.getAttribute<String>("oid")
-        } ?: throw ClientException(messageService.getMessage("oauth.error.missing_user_id"))
-
-    private fun extractEmail(oauth2User: OAuth2User, provider: OAuthProvider): String? =
-        when (provider) {
-            OAuthProvider.GOOGLE -> oauth2User.getAttribute("email")
-            OAuthProvider.MICROSOFT -> oauth2User.getAttribute("email")
-                ?: oauth2User.getAttribute("preferred_username")
-        }
-
     private fun findUserByProviderAccount(provider: OAuthProvider, providerUserId: String): OAuthUser? {
         return providerAccountRepository.findByProviderAndProviderUserId(provider, providerUserId)
             ?.also { account ->
                 account.updateLastLogin()
                 providerAccountRepository.save(account)
-                log.info { "Existing OAuth user logged in: ${account.user.email} via $provider" }
+                log.info { "Existing OIDC user logged in: ${account.user.email} via $provider" }
             }?.user
     }
 
@@ -101,12 +89,10 @@ class CustomOAuth2UserService(
         provider: OAuthProvider,
         providerUserId: String,
         email: String,
-        oauth2User: OAuth2User
+        oidcUser: OidcUser
     ): OAuthUser {
-        val firstName = oauth2User.getAttribute<String>("given_name")
-            ?: oauth2User.getAttribute<String>("name")?.split(" ")?.firstOrNull()
-        val lastName = oauth2User.getAttribute<String>("family_name")
-            ?: oauth2User.getAttribute<String>("name")?.split(" ")?.drop(1)?.joinToString(" ")?.takeIf { it.isNotBlank() }
+        val firstName = oidcUser.givenName ?: oidcUser.fullName?.split(" ")?.firstOrNull()
+        val lastName = oidcUser.familyName ?: oidcUser.fullName?.split(" ")?.drop(1)?.joinToString(" ")?.takeIf { it.isNotBlank() }
 
         val user = OAuthUser(
             username = email,
@@ -135,7 +121,7 @@ class CustomOAuth2UserService(
         providerAccount.updateLastLogin()
         providerAccountRepository.save(providerAccount)
 
-        log.info { "Created new user via $provider: $email" }
+        log.info { "Created new user via $provider OIDC: $email" }
         return savedUser
     }
 }

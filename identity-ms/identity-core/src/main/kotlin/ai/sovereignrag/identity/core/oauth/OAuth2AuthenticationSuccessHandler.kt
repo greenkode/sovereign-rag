@@ -29,7 +29,7 @@ class OAuth2AuthenticationSuccessHandler(
     private val clientIpExtractionService: ClientIpExtractionService,
     private val deviceFingerprintService: DeviceFingerprintService,
     private val applicationEventPublisher: ApplicationEventPublisher,
-    @Value("\${app.oauth.frontend-callback-url:http://localhost:3001/auth/oauth-callback}")
+    @Value("\${app.oauth.frontend-callback-url:http://localhost:3000/auth/oauth-callback}")
     private val frontendCallbackUrl: String
 ) : AuthenticationSuccessHandler {
 
