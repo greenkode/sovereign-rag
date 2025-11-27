@@ -19,7 +19,7 @@ class CreateAuditEventCommandHandler(
 
     private val log = KotlinLogging.logger {}
 
-    @Transactional(transactionManager = "mainTransactionManager")
+    @Transactional
     override fun handle(command: CreateAuditEventCommand): CreateAuditEventResult =
         runCatching {
             val ipAddress = extractIpAddress(command.payload)
