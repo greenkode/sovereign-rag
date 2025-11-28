@@ -1,6 +1,9 @@
 package ai.sovereignrag.identity.core.settings.dto
 
+import ai.sovereignrag.identity.core.entity.CompanyRole
+import ai.sovereignrag.identity.core.entity.CompanySize
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
+import ai.sovereignrag.identity.core.entity.IntendedPurpose
 import ai.sovereignrag.identity.core.entity.OrganizationPlan
 import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import io.swagger.v3.oas.annotations.media.Schema
@@ -95,13 +98,13 @@ data class EnableProductionResponse(
 data class CompleteOrganizationSetupRequest(
     @Schema(description = "Company name", example = "Acme Corporation", required = true)
     val companyName: String,
-    @Schema(description = "Goal with Generative AI", example = "CUSTOMER_SUPPORT", required = true)
-    val generativeAiGoal: String,
-    @Schema(description = "Company size", example = "11-50", required = true)
-    val companySize: String,
+    @Schema(description = "Intended purpose for using the platform", example = "CUSTOMER_SUPPORT", required = true)
+    val intendedPurpose: IntendedPurpose,
+    @Schema(description = "Company size", example = "SIZE_11_50", required = true)
+    val companySize: CompanySize,
     @Schema(description = "User's role in the company", example = "CTO", required = true)
-    val roleInCompany: String,
-    @Schema(description = "Country", example = "United States", required = true)
+    val roleInCompany: CompanyRole,
+    @Schema(description = "Country ISO2 code", example = "US", required = true)
     val country: String,
     @Schema(description = "Phone number", example = "+1234567890", required = true)
     val phoneNumber: String,

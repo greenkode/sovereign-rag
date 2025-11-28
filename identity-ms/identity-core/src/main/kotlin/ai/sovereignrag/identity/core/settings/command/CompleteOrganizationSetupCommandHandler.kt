@@ -43,9 +43,9 @@ class CompleteOrganizationSetupCommandHandler(
 
         client.clientName = command.companyName
         client.status = OrganizationStatus.ACTIVE
-        client.addSetting(OAuthClientSettingName.GENERATIVE_AI_GOAL, command.generativeAiGoal)
-        client.addSetting(OAuthClientSettingName.COMPANY_SIZE, command.companySize)
-        client.addSetting(OAuthClientSettingName.ROLE_IN_COMPANY, command.roleInCompany)
+        client.addSetting(OAuthClientSettingName.INTENDED_PURPOSE, command.intendedPurpose.name)
+        client.addSetting(OAuthClientSettingName.COMPANY_SIZE, command.companySize.name)
+        client.addSetting(OAuthClientSettingName.ROLE_IN_COMPANY, command.roleInCompany.name)
         client.addSetting(OAuthClientSettingName.COUNTRY, command.country)
         client.addSetting(OAuthClientSettingName.PHONE_NUMBER, command.phoneNumber)
         client.addSetting(OAuthClientSettingName.TERMS_ACCEPTED, "true")

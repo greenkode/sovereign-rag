@@ -3,6 +3,9 @@ package ai.sovereignrag.identity.core.unit
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.exception.NotFoundException
 import ai.sovereignrag.identity.commons.i18n.MessageService
+import ai.sovereignrag.identity.core.entity.CompanyRole
+import ai.sovereignrag.identity.core.entity.CompanySize
+import ai.sovereignrag.identity.core.entity.IntendedPurpose
 import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient
 import ai.sovereignrag.identity.core.entity.OAuthUser
@@ -69,7 +72,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
 
         verify { client.clientName = "Test Company" }
         verify { client.status = OrganizationStatus.ACTIVE }
-        verify { client.addSetting(OAuthClientSettingName.GENERATIVE_AI_GOAL, "CUSTOMER_SUPPORT") }
+        verify { client.addSetting(OAuthClientSettingName.INTENDED_PURPOSE, "CUSTOMER_SUPPORT") }
         verify { client.addSetting(OAuthClientSettingName.SETUP_COMPLETED, "true") }
         verify { oAuthRegisteredClientRepository.save(client) }
         verify { cacheEvictionService.evictMerchantCaches(merchantId.toString()) }
@@ -131,15 +134,15 @@ class CompleteOrganizationSetupCommandHandlerTest {
 
     private fun createCommand(
         companyName: String = "Test Company",
-        generativeAiGoal: String = "CUSTOMER_SUPPORT",
-        companySize: String = "11-50",
-        roleInCompany: String = "CTO",
-        country: String = "United States",
+        intendedPurpose: IntendedPurpose = IntendedPurpose.CUSTOMER_SUPPORT,
+        companySize: CompanySize = CompanySize.SIZE_11_50,
+        roleInCompany: CompanyRole = CompanyRole.CTO,
+        country: String = "US",
         phoneNumber: String = "+1234567890",
         termsAccepted: Boolean = true
     ) = CompleteOrganizationSetupCommand(
         companyName = companyName,
-        generativeAiGoal = generativeAiGoal,
+        intendedPurpose = intendedPurpose,
         companySize = companySize,
         roleInCompany = roleInCompany,
         country = country,

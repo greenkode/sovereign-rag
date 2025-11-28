@@ -31,6 +31,7 @@ object CacheNames {
     const val OAUTH_USER = "identity-OAuthUser"
     const val USER_ROLES = "identity-UserRoles"
     const val REGISTERED_CLIENT = "identity-RegisteredClient"
+    const val COUNTRIES = "identity-Countries"
 }
 
 enum class SrCache(val cacheName: String, val ttl: Long, val timeUnit: TimeUnit) {
@@ -70,7 +71,8 @@ enum class SrCache(val cacheName: String, val ttl: Long, val timeUnit: TimeUnit)
     MERCHANT_CLIENT(CacheNames.MERCHANT_CLIENT, 30, TimeUnit.MINUTES),
     OAUTH_USER(CacheNames.OAUTH_USER, 10, TimeUnit.MINUTES),
     USER_ROLES(CacheNames.USER_ROLES, 20, TimeUnit.MINUTES),
-    REGISTERED_CLIENT(CacheNames.REGISTERED_CLIENT, 30, TimeUnit.MINUTES);
+    REGISTERED_CLIENT(CacheNames.REGISTERED_CLIENT, 30, TimeUnit.MINUTES),
+    COUNTRIES(CacheNames.COUNTRIES, 24, TimeUnit.HOURS);
 
     fun computeTtl(ttlTimeUnit: TimeUnit, ttl: Long): Duration {
         return when (ttlTimeUnit) {

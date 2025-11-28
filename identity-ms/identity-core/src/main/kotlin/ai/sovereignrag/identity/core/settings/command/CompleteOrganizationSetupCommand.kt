@@ -1,12 +1,15 @@
 package ai.sovereignrag.identity.core.settings.command
 
+import ai.sovereignrag.identity.core.entity.CompanyRole
+import ai.sovereignrag.identity.core.entity.CompanySize
+import ai.sovereignrag.identity.core.entity.IntendedPurpose
 import an.awesome.pipelinr.Command
 
 data class CompleteOrganizationSetupCommand(
     val companyName: String,
-    val generativeAiGoal: String,
-    val companySize: String,
-    val roleInCompany: String,
+    val intendedPurpose: IntendedPurpose,
+    val companySize: CompanySize,
+    val roleInCompany: CompanyRole,
     val country: String,
     val phoneNumber: String,
     val termsAccepted: Boolean

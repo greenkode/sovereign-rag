@@ -225,7 +225,7 @@ class SettingsController(
 
         val result = pipeline.send(CompleteOrganizationSetupCommand(
             companyName = request.companyName,
-            generativeAiGoal = request.generativeAiGoal,
+            intendedPurpose = request.intendedPurpose,
             companySize = request.companySize,
             roleInCompany = request.roleInCompany,
             country = request.country,

@@ -7,7 +7,7 @@ enum class OAuthClientSettingName {
     PHONE_NUMBER,
     FAILURE_LIMIT,
     LOW_BALANCE,
-    GENERATIVE_AI_GOAL,
+    INTENDED_PURPOSE,
     COMPANY_SIZE,
     ROLE_IN_COMPANY,
     COUNTRY,
