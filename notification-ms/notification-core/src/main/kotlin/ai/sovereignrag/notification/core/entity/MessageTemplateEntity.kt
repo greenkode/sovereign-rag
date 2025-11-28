@@ -1,5 +1,6 @@
 package ai.sovereignrag.notification.core.entity
 
+import ai.sovereignrag.commons.model.AuditableEntity
 import ai.sovereignrag.commons.notification.enumeration.MessageChannel
 import ai.sovereignrag.commons.notification.enumeration.RecipientType
 import ai.sovereignrag.commons.notification.enumeration.TemplateName

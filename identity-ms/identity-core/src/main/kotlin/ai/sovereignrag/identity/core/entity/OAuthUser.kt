@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.entity
 
-import ai.sovereignrag.identity.commons.AuditableEntity
+import ai.sovereignrag.commons.model.AuditableEntity
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection

@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.process.domain
 
 
-import ai.sovereignrag.identity.commons.AuditableEntity
+import ai.sovereignrag.commons.model.AuditableEntity
 import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName

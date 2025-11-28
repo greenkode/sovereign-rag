@@ -157,5 +157,5 @@ class IngestionJob() : AuditableEntity() {
         this.progress = progress.coerceIn(0, 100)
     }
 
-    fun createdAt(): Instant = createdDate ?: Instant.now()
+    fun createdAt(): Instant = createdAt ?: Instant.now()
 }

@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.entity
 
+import ai.sovereignrag.commons.model.AuditableEntity
 import ai.sovereignrag.commons.subscription.SubscriptionTier
-import ai.sovereignrag.identity.commons.AuditableEntity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType

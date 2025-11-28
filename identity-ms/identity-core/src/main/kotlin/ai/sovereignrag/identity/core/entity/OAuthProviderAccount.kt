@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.entity
 
-import ai.sovereignrag.identity.commons.AuditableEntity
+import ai.sovereignrag.commons.model.AuditableEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated

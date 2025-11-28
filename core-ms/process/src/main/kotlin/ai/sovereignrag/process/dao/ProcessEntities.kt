@@ -69,7 +69,7 @@ class ProcessEntity(
         state,
         id ?: 0L,
         channel,
-        createdDate!!,
+        createdAt!!,
         requests.map { it.toDomain() }.toSet(),
         transitions.map { it.toDomain() }.toSet(),
         externalReference,
@@ -225,5 +225,5 @@ class ProcessEventTransitionEntity(
     fun toDomain() =
         ProcessEventTransition(process.id!!, event, userId, oldState, newState, id ?: 0L)
 
-    fun createdDate() = createdDate!!
+    fun createdAt() = createdAt!!
 }

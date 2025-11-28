@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.trusteddevice.domain
 
-import ai.sovereignrag.identity.commons.AuditableEntity
+import ai.sovereignrag.commons.model.AuditableEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType

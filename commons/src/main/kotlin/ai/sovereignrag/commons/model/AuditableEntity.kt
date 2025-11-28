@@ -14,9 +14,9 @@ import java.time.Instant
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
 open class AuditableEntity(
-    @Version var version: Long = 0,
-    @CreatedDate protected var createdDate: Instant? = null,
-    @CreatedBy protected var createdBy: String? = "system",
-    @LastModifiedDate protected var lastModifiedDate: Instant? = null,
-    @LastModifiedBy protected var lastModifiedBy: String? = "system"
+    @Version open var version: Long = 0,
+    @CreatedDate open var createdAt: Instant? = null,
+    @CreatedBy open var createdBy: String? = "system",
+    @LastModifiedDate open var lastModifiedAt: Instant? = null,
+    @LastModifiedBy open var lastModifiedBy: String? = "system"
 ) : Serializable
