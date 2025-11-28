@@ -1,6 +1,7 @@
 package ai.sovereignrag.identity.core.auth.api
 
 import ai.sovereignrag.identity.core.auth.command.InitiateTwoFactorCommand
+import ai.sovereignrag.identity.core.auth.command.LogoutCommand
 import ai.sovereignrag.identity.core.auth.command.RefreshTokenCommand
 import ai.sovereignrag.identity.core.auth.command.ResendTwoFactorCommand
 import ai.sovereignrag.identity.core.auth.command.VerifyTwoFactorCommand
@@ -158,6 +159,28 @@ class TwoFactorAuthController(
             tokenType = result.tokenType,
             expiresIn = result.expiresIn,
             scope = result.scope
+        )
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout", description = "Logout user and revoke refresh token")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Logout successful",
+            content = [Content(mediaType = "application/json",
+                schema = Schema(implementation = LogoutResponse::class))])
+    ])
+    fun logout(@RequestBody request: LogoutRequest): LogoutResponse {
+        log.info { "Logout request received" }
+
+        val result = pipeline.send(
+            LogoutCommand(
+                refreshToken = request.refreshToken
+            )
+        )
+
+        return LogoutResponse(
+            success = result.success,
+            message = result.message
         )
     }
 }

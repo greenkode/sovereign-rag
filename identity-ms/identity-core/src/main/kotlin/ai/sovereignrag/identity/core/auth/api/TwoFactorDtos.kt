@@ -95,3 +95,17 @@ data class RefreshTokenResponse(
     @Schema(description = "OAuth2 scope", example = "openid profile email")
     val scope: String = "openid email phone profile"
 )
+
+@Schema(description = "Logout request")
+data class LogoutRequest(
+    @Schema(description = "Refresh token to revoke", example = "eyJhbGciOiJIUzI1NiIsInR...", required = true)
+    val refreshToken: String
+)
+
+@Schema(description = "Logout response")
+data class LogoutResponse(
+    @Schema(description = "Whether logout was successful", example = "true")
+    val success: Boolean,
+    @Schema(description = "Response message", example = "Logout successful")
+    val message: String
+)

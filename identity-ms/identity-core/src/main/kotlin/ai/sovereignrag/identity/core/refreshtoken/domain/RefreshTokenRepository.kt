@@ -14,6 +14,8 @@ interface RefreshTokenRepository : JpaRepository<RefreshTokenEntity, UUID> {
 
     fun findByJti(jti: String): Optional<RefreshTokenEntity>
 
+    fun findByTokenHash(tokenHash: String): Optional<RefreshTokenEntity>
+
     fun findByUserId(userId: UUID): List<RefreshTokenEntity>
 
     @Query("SELECT rt FROM RefreshTokenEntity rt WHERE rt.userId = :userId AND rt.revokedAt IS NULL AND rt.expiresAt > :now")
