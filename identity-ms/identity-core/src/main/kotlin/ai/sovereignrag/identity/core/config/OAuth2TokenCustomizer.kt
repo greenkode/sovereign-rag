@@ -12,16 +12,19 @@ import ai.sovereignrag.identity.core.config.JwtClaimName.LAST_NAME
 import ai.sovereignrag.identity.core.config.JwtClaimName.MERCHANT_ENVIRONMENT_MODE
 import ai.sovereignrag.identity.core.config.JwtClaimName.MERCHANT_ID
 import ai.sovereignrag.identity.core.config.JwtClaimName.NAME
+import ai.sovereignrag.identity.core.config.JwtClaimName.ORGANIZATION_STATUS
 import ai.sovereignrag.identity.core.config.JwtClaimName.PHONE_NUMBER
 import ai.sovereignrag.identity.core.config.JwtClaimName.PHONE_NUMBER_VERIFIED
 import ai.sovereignrag.identity.core.config.JwtClaimName.PREFERRED_USERNAME
 import ai.sovereignrag.identity.core.config.JwtClaimName.REALM_ACCESS
 import ai.sovereignrag.identity.core.config.JwtClaimName.RESOURCE_ACCESS
 import ai.sovereignrag.identity.core.config.JwtClaimName.ROLES
+import ai.sovereignrag.identity.core.config.JwtClaimName.SETUP_COMPLETED
 import ai.sovereignrag.identity.core.config.JwtClaimName.TRUST_LEVEL
 import ai.sovereignrag.identity.core.config.JwtClaimName.TYPE
 import ai.sovereignrag.identity.core.config.JwtClaimName.VERIFICATION_STATUS
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
+import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -102,7 +105,7 @@ class OAuth2TokenCustomizerConfig {
             context.claims.subject(user.id.toString())
             log.info { "Set token subject to user ID: ${user.id}" }
 
-            val merchant = user.merchantId?.toString()?.let { clientRepository.findById(it).orElse(null) }
+            val merchant = user.merchantId?.toString()?.let { clientRepository.findByIdWithSettings(it).orElse(null) }
             val userEnvironmentPreference = user.environmentPreference
             val merchantEnvironmentMode = merchant?.environmentMode ?: EnvironmentMode.SANDBOX
             val effectiveEnvironment = merchantEnvironmentMode
@@ -127,6 +130,10 @@ class OAuth2TokenCustomizerConfig {
             )
 
             user.merchantId?.let { context.claims.claim(MERCHANT_ID.value, it.toString()) }
+
+            val setupCompleted = merchant?.getSetting(OAuthClientSettingName.SETUP_COMPLETED) == "true"
+            context.claims.claim(SETUP_COMPLETED.value, setupCompleted)
+            merchant?.status?.name?.let { context.claims.claim(ORGANIZATION_STATUS.value, it) }
 
             val environmentConfig = mapOf(
                 ENVIRONMENT.value to effectiveEnvironment.name,

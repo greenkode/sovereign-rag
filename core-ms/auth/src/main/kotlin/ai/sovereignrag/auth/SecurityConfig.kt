@@ -34,6 +34,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableMethodSecurity
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val organizationSetupFilter: OrganizationSetupFilter,
     @Lazy private val tenantAuthenticationProvider: TenantAuthenticationProvider
 ) {
 
@@ -97,6 +98,11 @@ class SecurityConfig(
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter::class.java
+            )
+            // Add organization setup filter after JWT filter
+            .addFilterAfter(
+                organizationSetupFilter,
+                JwtAuthenticationFilter::class.java
             )
 
         return http.build()

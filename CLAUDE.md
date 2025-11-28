@@ -35,3 +35,6 @@ libraries that are reused in multiple modules should be imported into the parent
 don't add inter module dependencies, rather create gateway interfaces in the commons and services in the modules that implement the gateway interfaces
 the gateways can be called from anywhere.
 Always use internationalization with any error or information messages going back to the frontend.
+Always create unit tests for command and query handlers.
+create integration tests for service methods using test containers.
+create end to end tests using playwright.

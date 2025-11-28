@@ -101,6 +101,23 @@ class GlobalExceptionHandler(private val messageService: MessageService) {
         return ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED).body(errorResponse)
     }
 
+    @ExceptionHandler(OrganizationNotSetupException::class)
+    fun handleOrganizationNotSetupException(
+        ex: OrganizationNotSetupException,
+        request: WebRequest
+    ): ResponseEntity<ErrorResponse> {
+        log.info { "Organization setup required: ${ex.message}" }
+
+        val errorResponse = ErrorResponse(
+            status = HttpStatus.PRECONDITION_REQUIRED.value(),
+            error = ex.status,
+            message = ex.message ?: messageService.getMessage("settings.error.setup_required"),
+            path = request.getDescription(false).removePrefix("uri=")
+        )
+
+        return ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED).body(errorResponse)
+    }
+
     @ExceptionHandler(org.springframework.security.authorization.AuthorizationDeniedException::class)
     fun handleAuthorizationDeniedException(
         ex: org.springframework.security.authorization.AuthorizationDeniedException,

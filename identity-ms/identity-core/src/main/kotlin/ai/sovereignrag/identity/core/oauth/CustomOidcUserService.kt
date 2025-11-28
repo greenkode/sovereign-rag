@@ -7,6 +7,7 @@ import ai.sovereignrag.identity.core.entity.OAuthProviderAccount
 import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient
 import ai.sovereignrag.identity.core.entity.OAuthTokenSettingName
 import ai.sovereignrag.identity.core.entity.OAuthUser
+import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import ai.sovereignrag.identity.core.entity.RegistrationSource
 import ai.sovereignrag.identity.core.entity.TrustLevel
 import ai.sovereignrag.identity.core.entity.UserType
@@ -123,6 +124,7 @@ class CustomOidcUserService(
             sandboxClientSecret = passwordEncoder.encode(sandboxSecret)
             productionClientSecret = passwordEncoder.encode(productionSecret)
             this.domain = domain
+            this.status = OrganizationStatus.PENDING
             failedAuthAttempts = 0
 
             addAuthenticationMethod(authMethodBasic)
@@ -137,6 +139,7 @@ class CustomOidcUserService(
             addSetting(OAuthClientSettingName.REQUIRE_AUTHORIZATION_CONSENT, "false")
             addSetting(OAuthClientSettingName.REQUIRE_PROOF_KEY, "false")
             addSetting(OAuthClientSettingName.EMAIL, adminEmail)
+            addSetting(OAuthClientSettingName.SETUP_COMPLETED, "false")
             addTokenSetting(OAuthTokenSettingName.ACCESS_TOKEN_TIME_TO_LIVE, "PT30M")
             addTokenSetting(OAuthTokenSettingName.REFRESH_TOKEN_TIME_TO_LIVE, "PT12H")
             addTokenSetting(OAuthTokenSettingName.REUSE_REFRESH_TOKENS, "false")

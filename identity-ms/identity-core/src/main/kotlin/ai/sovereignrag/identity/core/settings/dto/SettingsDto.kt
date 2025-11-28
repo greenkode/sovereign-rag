@@ -88,3 +88,31 @@ data class EnableProductionResponse(
     @Schema(description = "Response message", example = "Merchant enabled for production")
     val message: String
 )
+
+@Schema(description = "Complete organization setup request")
+data class CompleteOrganizationSetupRequest(
+    @Schema(description = "Company name", example = "Acme Corporation", required = true)
+    val companyName: String,
+    @Schema(description = "Goal with Generative AI", example = "CUSTOMER_SUPPORT", required = true)
+    val generativeAiGoal: String,
+    @Schema(description = "Company size", example = "11-50", required = true)
+    val companySize: String,
+    @Schema(description = "User's role in the company", example = "CTO", required = true)
+    val roleInCompany: String,
+    @Schema(description = "Country", example = "United States", required = true)
+    val country: String,
+    @Schema(description = "Phone number", example = "+1234567890", required = true)
+    val phoneNumber: String,
+    @Schema(description = "Whether terms and conditions are accepted", example = "true", required = true)
+    val termsAccepted: Boolean
+)
+
+@Schema(description = "Complete organization setup response")
+data class CompleteOrganizationSetupResponse(
+    @Schema(description = "Whether setup was successful", example = "true")
+    val success: Boolean,
+    @Schema(description = "Response message", example = "Organization setup completed successfully")
+    val message: String,
+    @Schema(description = "Merchant ID", example = "abc123")
+    val merchantId: String? = null
+)

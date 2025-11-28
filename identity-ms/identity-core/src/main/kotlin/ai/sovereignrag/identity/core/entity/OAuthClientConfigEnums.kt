@@ -6,7 +6,13 @@ enum class OAuthClientSettingName {
     EMAIL,
     PHONE_NUMBER,
     FAILURE_LIMIT,
-    LOW_BALANCE
+    LOW_BALANCE,
+    GENERATIVE_AI_GOAL,
+    COMPANY_SIZE,
+    ROLE_IN_COMPANY,
+    COUNTRY,
+    TERMS_ACCEPTED,
+    SETUP_COMPLETED
 }
 
 enum class OAuthTokenSettingName {

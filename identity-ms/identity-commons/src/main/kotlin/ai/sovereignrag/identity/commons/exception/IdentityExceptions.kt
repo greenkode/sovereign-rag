@@ -94,3 +94,10 @@ class InvalidCredentialsException(
     message: String = "Invalid username or password",
     cause: Throwable? = null
 ) : RuntimeException(message, cause)
+
+@ResponseStatus(HttpStatus.PRECONDITION_REQUIRED)
+class OrganizationNotSetupException(
+    val status: String = "ORGANIZATION_SETUP_REQUIRED",
+    message: String = "Organization setup is required before accessing this resource",
+    cause: Throwable? = null
+) : ClientException(message, cause)

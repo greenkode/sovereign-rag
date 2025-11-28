@@ -72,13 +72,35 @@ class JwtTokenProvider(
      * @return Tenant ID from token subject
      */
     fun getTenantId(token: String): String {
-        val claims: Claims = Jwts.parser()
+        return getClaims(token).subject
+    }
+
+    /**
+     * Check if organization setup is completed
+     *
+     * @param token The JWT token
+     * @return true if setup is completed, false otherwise
+     */
+    fun isSetupCompleted(token: String): Boolean {
+        return getClaims(token)["setup_completed"] as? Boolean ?: true
+    }
+
+    /**
+     * Get organization status from JWT token
+     *
+     * @param token The JWT token
+     * @return Organization status or null if not present
+     */
+    fun getOrganizationStatus(token: String): String? {
+        return getClaims(token)["organization_status"] as? String
+    }
+
+    private fun getClaims(token: String): Claims {
+        return Jwts.parser()
             .verifyWith(key)
             .build()
             .parseSignedClaims(token)
             .payload
-
-        return claims.subject
     }
 
     /**

@@ -1,17 +1,20 @@
 package ai.sovereignrag.identity.core.settings.controller
 
 import ai.sovereignrag.identity.commons.permissions.IsMerchantSuperAdmin
+import ai.sovereignrag.identity.core.settings.command.CompleteOrganizationSetupCommand
 import ai.sovereignrag.identity.core.settings.command.EnableProductionCommand
 import ai.sovereignrag.identity.core.settings.command.ResetKeysCommand
 import ai.sovereignrag.identity.core.settings.command.SwitchEnvironmentCommand
 import ai.sovereignrag.identity.core.settings.command.UpdateAlertsCommand
 import ai.sovereignrag.identity.core.settings.command.UpdateUserNameCommand
+import ai.sovereignrag.identity.core.settings.dto.CompleteOrganizationSetupRequest
+import ai.sovereignrag.identity.core.settings.dto.CompleteOrganizationSetupResponse
 import ai.sovereignrag.identity.core.settings.dto.EnableProductionRequest
 import ai.sovereignrag.identity.core.settings.dto.EnableProductionResponse
 import ai.sovereignrag.identity.core.settings.dto.EnvironmentStatusResponse
 import ai.sovereignrag.identity.core.settings.dto.ResetKeysRequest
-import ai.sovereignrag.identity.core.settings.dto.SwitchEnvironmentRequest
 import ai.sovereignrag.identity.core.settings.dto.ResetKeysResponse
+import ai.sovereignrag.identity.core.settings.dto.SwitchEnvironmentRequest
 import ai.sovereignrag.identity.core.settings.dto.UpdateAlertsRequest
 import ai.sovereignrag.identity.core.settings.dto.UpdateAlertsResponse
 import ai.sovereignrag.identity.core.settings.dto.UpdateUserNameRequest
@@ -180,6 +183,37 @@ class SettingsController(
             affectedUsers = result.affectedUsers,
             success = result.success,
             message = result.message
+        )
+    }
+
+    @PostMapping("/organization-setup")
+    @IsMerchantSuperAdmin
+    @Operation(summary = "Complete organization setup", description = "Complete the organization setup for a new merchant")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Organization setup completed successfully",
+            content = [Content(mediaType = "application/json",
+                schema = Schema(implementation = CompleteOrganizationSetupResponse::class))]),
+        ApiResponse(responseCode = "400", description = "Invalid request data or setup already completed"),
+        ApiResponse(responseCode = "404", description = "Merchant not found")
+    ])
+    @SecurityRequirement(name = "bearerAuth")
+    fun completeOrganizationSetup(@RequestBody request: CompleteOrganizationSetupRequest): CompleteOrganizationSetupResponse {
+        log.info { "Completing organization setup for company: ${request.companyName}" }
+
+        val result = pipeline.send(CompleteOrganizationSetupCommand(
+            companyName = request.companyName,
+            generativeAiGoal = request.generativeAiGoal,
+            companySize = request.companySize,
+            roleInCompany = request.roleInCompany,
+            country = request.country,
+            phoneNumber = request.phoneNumber,
+            termsAccepted = request.termsAccepted
+        ))
+
+        return CompleteOrganizationSetupResponse(
+            success = result.success,
+            message = result.message,
+            merchantId = result.merchantId
         )
     }
 }
