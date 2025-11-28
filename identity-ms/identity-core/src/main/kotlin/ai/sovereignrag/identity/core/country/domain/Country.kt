@@ -16,6 +16,7 @@ class Country(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int? = null,
 
+    @Column(name = "public_id")
     val publicId: UUID = UUID.randomUUID(),
 
     val name: String,
@@ -26,19 +27,25 @@ class Country(
     @Column(name = "iso3_code")
     val iso3Code: String,
 
+    @Column(name = "numeric_code")
     val numericCode: String,
 
+    @Column(name = "dial_code")
     val dialCode: String,
 
+    @Column(name = "flag_url")
     val flagUrl: String,
 
     val region: String = "",
 
+    @Column(name = "sub_region")
     val subRegion: String = "",
 
     val enabled: Boolean = false,
 
+    @Column(name = "created_at")
     val createdAt: Instant = Instant.now(),
 
+    @Column(name = "updated_at")
     var updatedAt: Instant = Instant.now()
 )

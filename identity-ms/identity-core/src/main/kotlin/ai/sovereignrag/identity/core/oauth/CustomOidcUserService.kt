@@ -193,6 +193,7 @@ class CustomOidcUserService(
     ): OAuthUser {
         val firstName = oidcUser.givenName ?: oidcUser.fullName?.split(" ")?.firstOrNull()
         val lastName = oidcUser.familyName ?: oidcUser.fullName?.split(" ")?.drop(1)?.joinToString(" ")?.takeIf { it.isNotBlank() }
+        val pictureUrl = oidcUser.picture
 
         val user = OAuthUser(
             username = email,
@@ -201,6 +202,7 @@ class CustomOidcUserService(
         ).apply {
             this.firstName = firstName
             this.lastName = lastName
+            this.pictureUrl = pictureUrl
             this.emailVerified = true
             this.enabled = true
             this.merchantId = merchantId

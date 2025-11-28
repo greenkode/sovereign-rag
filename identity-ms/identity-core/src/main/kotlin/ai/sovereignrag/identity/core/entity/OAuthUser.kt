@@ -52,6 +52,8 @@ class OAuthUser() : AuditableEntity() {
 
     var lastName: String? = null
 
+    var pictureUrl: String? = null
+
     var phoneNumber: String? = null
 
     var merchantId: UUID? = null

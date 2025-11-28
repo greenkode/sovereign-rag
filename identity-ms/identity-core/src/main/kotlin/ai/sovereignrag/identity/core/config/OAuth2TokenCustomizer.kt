@@ -15,6 +15,7 @@ import ai.sovereignrag.identity.core.config.JwtClaimName.NAME
 import ai.sovereignrag.identity.core.config.JwtClaimName.ORGANIZATION_STATUS
 import ai.sovereignrag.identity.core.config.JwtClaimName.PHONE_NUMBER
 import ai.sovereignrag.identity.core.config.JwtClaimName.PHONE_NUMBER_VERIFIED
+import ai.sovereignrag.identity.core.config.JwtClaimName.PICTURE
 import ai.sovereignrag.identity.core.config.JwtClaimName.PREFERRED_USERNAME
 import ai.sovereignrag.identity.core.config.JwtClaimName.REALM_ACCESS
 import ai.sovereignrag.identity.core.config.JwtClaimName.RESOURCE_ACCESS
@@ -154,6 +155,7 @@ class OAuth2TokenCustomizerConfig {
             context.claims.claim(EMAIL.value, user.email)
             context.claims.claim(PREFERRED_USERNAME.value, user.email)
             context.claims.claim(NAME.value, "${user.firstName.orEmpty()} ${user.lastName.orEmpty()}".trim().ifEmpty { user.email })
+            user.pictureUrl?.let { context.claims.claim(PICTURE.value, it) }
 
             user.userType?.name?.let { context.claims.claim(TYPE.value, it) }
             user.trustLevel?.name?.let { context.claims.claim(TRUST_LEVEL.value, it) }

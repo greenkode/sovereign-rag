@@ -135,5 +135,17 @@ data class OrganizationDetailsResponse(
     @Schema(description = "Current environment mode", example = "SANDBOX")
     val environmentMode: EnvironmentMode,
     @Schema(description = "Whether organization setup is completed", example = "true")
-    val setupCompleted: Boolean
+    val setupCompleted: Boolean,
+    @Schema(description = "Intended purpose for using the platform", example = "CUSTOMER_SUPPORT")
+    val intendedPurpose: IntendedPurpose?,
+    @Schema(description = "Company size", example = "SIZE_11_50")
+    val companySize: CompanySize?,
+    @Schema(description = "User's role in the company", example = "CTO")
+    val roleInCompany: CompanyRole?,
+    @Schema(description = "Country ISO2 code", example = "US")
+    val country: String?,
+    @Schema(description = "Phone number", example = "+1234567890")
+    val phoneNumber: String?,
+    @Schema(description = "Organization email", example = "admin@example.com")
+    val email: String?
 )

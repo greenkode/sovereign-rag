@@ -1,5 +1,8 @@
 package ai.sovereignrag.identity.core.settings.query
 
+import ai.sovereignrag.identity.core.entity.CompanyRole
+import ai.sovereignrag.identity.core.entity.CompanySize
+import ai.sovereignrag.identity.core.entity.IntendedPurpose
 import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.service.UserService
@@ -26,6 +29,15 @@ class GetOrganizationDetailsQueryHandler(
             .orElseThrow { IllegalStateException("Merchant not found: $merchantId") }
 
         val setupCompleted = client.getSetting(OAuthClientSettingName.SETUP_COMPLETED)?.toBoolean() ?: false
+        val intendedPurpose = client.getSetting(OAuthClientSettingName.INTENDED_PURPOSE)
+            ?.let { runCatching { IntendedPurpose.valueOf(it) }.getOrNull() }
+        val companySize = client.getSetting(OAuthClientSettingName.COMPANY_SIZE)
+            ?.let { runCatching { CompanySize.valueOf(it) }.getOrNull() }
+        val roleInCompany = client.getSetting(OAuthClientSettingName.ROLE_IN_COMPANY)
+            ?.let { runCatching { CompanyRole.valueOf(it) }.getOrNull() }
+        val country = client.getSetting(OAuthClientSettingName.COUNTRY)
+        val phoneNumber = client.getSetting(OAuthClientSettingName.PHONE_NUMBER)
+        val email = client.getSetting(OAuthClientSettingName.EMAIL)
 
         return GetOrganizationDetailsResult(
             id = client.id,
@@ -33,7 +45,13 @@ class GetOrganizationDetailsQueryHandler(
             plan = client.plan,
             status = client.status,
             environmentMode = client.environmentMode,
-            setupCompleted = setupCompleted
+            setupCompleted = setupCompleted,
+            intendedPurpose = intendedPurpose,
+            companySize = companySize,
+            roleInCompany = roleInCompany,
+            country = country,
+            phoneNumber = phoneNumber,
+            email = email
         )
     }
 }

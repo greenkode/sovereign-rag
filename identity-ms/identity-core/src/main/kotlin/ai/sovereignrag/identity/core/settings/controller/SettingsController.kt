@@ -85,7 +85,13 @@ class SettingsController(
             plan = result.plan,
             status = result.status,
             environmentMode = result.environmentMode,
-            setupCompleted = result.setupCompleted
+            setupCompleted = result.setupCompleted,
+            intendedPurpose = result.intendedPurpose,
+            companySize = result.companySize,
+            roleInCompany = result.roleInCompany,
+            country = result.country,
+            phoneNumber = result.phoneNumber,
+            email = result.email
         )
     }
 

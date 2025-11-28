@@ -20,6 +20,7 @@ enum class JwtClaimName(val value: String) {
     EMAIL("email"),
     PREFERRED_USERNAME("preferred_username"),
     NAME("name"),
+    PICTURE("picture"),
     TRUST_LEVEL("trust_level"),
     ROLES("roles"),
     SETUP_COMPLETED("setup_completed"),
