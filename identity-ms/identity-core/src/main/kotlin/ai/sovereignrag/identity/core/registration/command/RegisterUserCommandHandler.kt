@@ -83,6 +83,16 @@ class RegisterUserCommandHandler(
         val sandboxSecret = RandomStringUtils.secure().nextAlphanumeric(30)
         val productionSecret = RandomStringUtils.secure().nextAlphanumeric(30)
 
+        val authMethodBasic = oauthClientConfigService.getAuthenticationMethod("client_secret_basic")
+        val authMethodPost = oauthClientConfigService.getAuthenticationMethod("client_secret_post")
+        val grantTypeCredentials = oauthClientConfigService.getGrantType("client_credentials")
+        val grantTypeRefresh = oauthClientConfigService.getGrantType("refresh_token")
+        val scopeOpenid = oauthClientConfigService.getScope("openid")
+        val scopeProfile = oauthClientConfigService.getScope("profile")
+        val scopeEmail = oauthClientConfigService.getScope("email")
+        val scopeRead = oauthClientConfigService.getScope("read")
+        val scopeWrite = oauthClientConfigService.getScope("write")
+
         val oauthClient = OAuthRegisteredClient().apply {
             id = organizationId.toString()
             clientId = UUID.randomUUID().toString()
@@ -94,15 +104,15 @@ class RegisterUserCommandHandler(
             this.domain = domain
             failedAuthAttempts = 0
 
-            addAuthenticationMethod(oauthClientConfigService.findOrCreateAuthenticationMethod("client_secret_basic"))
-            addAuthenticationMethod(oauthClientConfigService.findOrCreateAuthenticationMethod("client_secret_post"))
-            addGrantType(oauthClientConfigService.findOrCreateGrantType("client_credentials"))
-            addGrantType(oauthClientConfigService.findOrCreateGrantType("refresh_token"))
-            addScope(oauthClientConfigService.findOrCreateScope("openid"))
-            addScope(oauthClientConfigService.findOrCreateScope("profile"))
-            addScope(oauthClientConfigService.findOrCreateScope("email"))
-            addScope(oauthClientConfigService.findOrCreateScope("read"))
-            addScope(oauthClientConfigService.findOrCreateScope("write"))
+            addAuthenticationMethod(authMethodBasic)
+            addAuthenticationMethod(authMethodPost)
+            addGrantType(grantTypeCredentials)
+            addGrantType(grantTypeRefresh)
+            addScope(scopeOpenid)
+            addScope(scopeProfile)
+            addScope(scopeEmail)
+            addScope(scopeRead)
+            addScope(scopeWrite)
             addSetting(OAuthClientSettingName.REQUIRE_AUTHORIZATION_CONSENT, "false")
             addSetting(OAuthClientSettingName.REQUIRE_PROOF_KEY, "false")
             addSetting(OAuthClientSettingName.EMAIL, adminEmail)

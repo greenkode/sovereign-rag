@@ -10,27 +10,21 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 class OAuthClientConfigService(
     private val scopeRepository: OAuthScopeRepository,
     private val authMethodRepository: OAuthAuthenticationMethodRepository,
     private val grantTypeRepository: OAuthGrantTypeRepository
 ) {
-    fun findOrCreateScope(name: String): OAuthScope =
-        scopeRepository.findByName(name) ?: scopeRepository.save(OAuthScope(name))
+    fun getScope(name: String): OAuthScope =
+        scopeRepository.findByName(name)
+            ?: throw IllegalStateException("OAuth scope '$name' not found. Ensure database migrations have run.")
 
-    fun findOrCreateAuthenticationMethod(name: String): OAuthAuthenticationMethod =
-        authMethodRepository.findByName(name) ?: authMethodRepository.save(OAuthAuthenticationMethod(name))
+    fun getAuthenticationMethod(name: String): OAuthAuthenticationMethod =
+        authMethodRepository.findByName(name)
+            ?: throw IllegalStateException("OAuth authentication method '$name' not found. Ensure database migrations have run.")
 
-    fun findOrCreateGrantType(name: String): OAuthGrantType =
-        grantTypeRepository.findByName(name) ?: grantTypeRepository.save(OAuthGrantType(name))
-
-    fun findOrCreateScopes(names: List<String>): Set<OAuthScope> =
-        names.map { findOrCreateScope(it) }.toSet()
-
-    fun findOrCreateAuthenticationMethods(names: List<String>): Set<OAuthAuthenticationMethod> =
-        names.map { findOrCreateAuthenticationMethod(it) }.toSet()
-
-    fun findOrCreateGrantTypes(names: List<String>): Set<OAuthGrantType> =
-        names.map { findOrCreateGrantType(it) }.toSet()
+    fun getGrantType(name: String): OAuthGrantType =
+        grantTypeRepository.findByName(name)
+            ?: throw IllegalStateException("OAuth grant type '$name' not found. Ensure database migrations have run.")
 }
