@@ -6,7 +6,7 @@ package ai.sovereignrag.commons.agent.memory
  * Implementations must handle:
  * - Adding messages (user and assistant)
  * - Retrieving conversation history
- * - Optional persistence (in-memory, Redis, database, etc.)
+ * - Optional persistence (in-memory, database, etc.)
  * - Optional message limits (window size)
  *
  * This interface is framework-agnostic and can be implemented with

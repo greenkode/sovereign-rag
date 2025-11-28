@@ -70,20 +70,15 @@ spring:
           identity-ms:
             token-uri: ${IDENTITY_MS_TOKEN_URI:http://localhost:9093/oauth2/token}
 
-  # Redis configuration for chat session storage
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-      database: ${REDIS_DATABASE:0}
-      timeout: 2000ms
-
-  # Cache configuration (redis or simple for in-memory)
+  # Cache configuration
   cache:
-    type: ${SPRING_CACHE_TYPE:redis}
-    redis:
-      time-to-live: 1800000  # 30 minutes in milliseconds
+    type: ${SPRING_CACHE_TYPE:hazelcast}
+
+hazelcast:
+  cluster:
+    name: core-cluster
+  port: 5701
+  members: ${HAZELCAST_MEMBERS:127.0.0.1:5701}
 
   jackson:
     serialization:

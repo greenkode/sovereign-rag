@@ -137,6 +137,12 @@
             <artifactId>kotlin-stdlib</artifactId>
         </dependency>
 
+        <!-- Hazelcast for distributed caching -->
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
