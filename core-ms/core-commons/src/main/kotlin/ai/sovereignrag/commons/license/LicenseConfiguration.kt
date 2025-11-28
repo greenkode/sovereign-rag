@@ -1,5 +1,6 @@
 package ai.sovereignrag.commons.license
 
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -111,14 +112,14 @@ class LicenseConfiguration(
             licenseKey = "trial",
             customerId = "trial",
             customerName = "Trial User",
-            tier = LicenseTier.TRIAL,
+            tier = SubscriptionTier.TRIAL,
             maxTokensPerMonth = 100_000,
             maxTenants = 1,
             features = setOf(LicenseFeature.MULTI_TENANT),
             issuedAt = java.time.Instant.now(),
-            expiresAt = java.time.Instant.now().plusSeconds(7 * 24 * 3600),
+            expiresAt = java.time.Instant.now().plusSeconds(30 * 24 * 3600),
             isValid = true,
-            validationMessage = "Trial license (7 days)"
+            validationMessage = "Trial license (30 days)"
         )
     }
 }

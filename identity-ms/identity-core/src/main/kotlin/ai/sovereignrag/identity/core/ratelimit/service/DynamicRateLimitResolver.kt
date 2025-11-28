@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.ratelimit.service
 
-import ai.sovereignrag.identity.core.entity.OrganizationPlan
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import ai.sovereignrag.identity.core.ratelimit.domain.RateLimitConfig
 import ai.sovereignrag.identity.core.ratelimit.domain.RateLimitScope
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
@@ -89,10 +89,10 @@ class DynamicRateLimitResolver(
         }
     }
 
-    private fun getMerchantSubscriptionTier(merchantId: String): OrganizationPlan {
+    private fun getMerchantSubscriptionTier(merchantId: String): SubscriptionTier {
         return oAuthRegisteredClientRepository.findById(merchantId)
             .map { it.plan }
-            .orElse(OrganizationPlan.TRIAL)
+            .orElse(SubscriptionTier.TRIAL)
     }
 
     private fun createBandwidth(config: RateLimitConfig): Bandwidth {

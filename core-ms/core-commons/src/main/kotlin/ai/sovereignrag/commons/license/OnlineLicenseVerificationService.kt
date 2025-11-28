@@ -1,9 +1,9 @@
 package ai.sovereignrag.commons.license
 
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -142,7 +142,7 @@ data class OnlineVerificationResponse(
     val message: String?,
     val customerId: String,
     val customerName: String,
-    val tier: LicenseTier,
+    val tier: SubscriptionTier,
     val maxTokensPerMonth: Long,
     val maxTenants: Int,
     val features: Set<LicenseFeature>,

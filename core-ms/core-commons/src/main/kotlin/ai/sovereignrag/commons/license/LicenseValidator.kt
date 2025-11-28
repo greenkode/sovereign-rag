@@ -1,5 +1,6 @@
 package ai.sovereignrag.commons.license
 
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -93,7 +94,7 @@ class LicenseValidator(
 
         val customerId = payloadMap["cid"] ?: throw IllegalArgumentException("Missing customer ID")
         val customerName = payloadMap["name"] ?: "Unknown"
-        val tier = LicenseTier.valueOf(payloadMap["tier"] ?: "TRIAL")
+        val tier = SubscriptionTier.valueOf(payloadMap["tier"] ?: "TRIAL")
         val maxTokens = payloadMap["tokens"]?.toLongOrNull() ?: 0L
         val maxTenants = payloadMap["tenants"]?.toIntOrNull() ?: 1
         val issuedAt = Instant.ofEpochSecond(payloadMap["iat"]?.toLongOrNull() ?: 0)
@@ -131,7 +132,7 @@ class LicenseValidator(
             licenseKey = licenseKey,
             customerId = "unknown",
             customerName = "Unknown",
-            tier = LicenseTier.TRIAL,
+            tier = SubscriptionTier.TRIAL,
             maxTokensPerMonth = 100_000,
             maxTenants = 1,
             features = emptySet(),

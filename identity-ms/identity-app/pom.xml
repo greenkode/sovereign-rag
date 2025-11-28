@@ -170,6 +170,11 @@
             <artifactId>spring-boot-starter-validation</artifactId>
             <version>${version.spring-boot}</version>
         </dependency>
+        <dependency>
+            <groupId>ai.sovereignrag</groupId>
+            <artifactId>adapter-file-upload</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.entity
 
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import ai.sovereignrag.identity.commons.AuditableEntity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
@@ -16,10 +17,6 @@ import java.time.Instant
 
 enum class OrganizationStatus {
     ACTIVE, SUSPENDED, PENDING
-}
-
-enum class OrganizationPlan {
-    TRIAL, STARTER, PROFESSIONAL, ENTERPRISE
 }
 
 @Entity
@@ -61,7 +58,7 @@ class OAuthRegisteredClient() : AuditableEntity() {
     var status: OrganizationStatus = OrganizationStatus.ACTIVE
 
     @Enumerated(EnumType.STRING)
-    var plan: OrganizationPlan = OrganizationPlan.TRIAL
+    var plan: SubscriptionTier = SubscriptionTier.TRIAL
 
     @OneToMany(mappedBy = "client", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     val redirectUris: MutableSet<OAuthClientRedirectUri> = mutableSetOf()

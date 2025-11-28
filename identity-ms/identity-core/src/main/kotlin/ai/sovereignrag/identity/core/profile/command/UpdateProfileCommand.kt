@@ -1,0 +1,15 @@
+package ai.sovereignrag.identity.core.profile.command
+
+import an.awesome.pipelinr.Command
+
+data class UpdateProfileCommand(
+    val firstName: String?,
+    val lastName: String?,
+    val phoneNumber: String?,
+    val locale: String?
+) : Command<UpdateProfileResult>
+
+data class UpdateProfileResult(
+    val success: Boolean,
+    val message: String
+)

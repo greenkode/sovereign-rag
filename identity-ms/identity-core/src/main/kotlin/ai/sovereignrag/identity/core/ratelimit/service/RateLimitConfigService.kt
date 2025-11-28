@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.ratelimit.service
 
-import ai.sovereignrag.identity.core.entity.OrganizationPlan
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import ai.sovereignrag.identity.core.ratelimit.domain.RateLimitConfig
 import ai.sovereignrag.identity.core.ratelimit.domain.RateLimitConfigRepository
 import ai.sovereignrag.identity.core.ratelimit.domain.RateLimitScope
@@ -14,7 +14,7 @@ class RateLimitConfigService(
     private val rateLimitConfigRepository: RateLimitConfigRepository
 ) {
 
-    fun getConfig(methodName: String, tier: OrganizationPlan, scope: RateLimitScope): RateLimitConfig? {
+    fun getConfig(methodName: String, tier: SubscriptionTier, scope: RateLimitScope): RateLimitConfig? {
         log.debug { "Getting rate limit config for method: $methodName, tier: $tier, scope: $scope" }
         return rateLimitConfigRepository.findByMethodNameAndSubscriptionTierAndScopeAndActiveTrue(methodName, tier, scope)
     }

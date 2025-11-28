@@ -47,6 +47,7 @@
         <module>audit-ms</module>
         <module>core-ms</module>
         <module>identity-ms</module>
+        <module>ingestion-ms</module>
         <module>license-ms</module>
         <module>notification-ms</module>
     </modules>

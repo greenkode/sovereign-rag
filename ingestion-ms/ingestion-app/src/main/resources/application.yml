@@ -1,0 +1,167 @@
+spring:
+  application:
+    name: ingestion-app
+
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master}
+    username: ${POSTGRES_USER:sovereignrag}
+    password: ${POSTGRES_PASSWORD:RespectTheHangover}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 3
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: ingestion-pool
+      schema: ingestion
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        stringtype: unspecified
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: ingestion
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    placeholder-replacement: false
+    schemas: [ingestion]
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:9093}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:9093/.well-known/jwks.json}
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:9084}
+
+storage:
+  type: ${STORAGE_TYPE:minio}
+  minio:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    bucket: ${MINIO_BUCKET:sovereign-rag}
+  s3:
+    region: ${AWS_REGION:us-east-1}
+    access-key: ${AWS_ACCESS_KEY:}
+    secret-key: ${AWS_SECRET_KEY:}
+    bucket: ${S3_BUCKET:sovereign-rag}
+
+ingestion:
+  limits:
+    max-file-size: ${INGESTION_MAX_FILE_SIZE:104857600}
+    max-concurrent-jobs-per-tenant: ${INGESTION_MAX_CONCURRENT_JOBS:5}
+    max-batch-size: ${INGESTION_MAX_BATCH_SIZE:50}
+    presigned-url-expiry-minutes: ${INGESTION_PRESIGNED_URL_EXPIRY:15}
+    scrape-rate-limit-per-minute: ${INGESTION_SCRAPE_RATE_LIMIT:10}
+    max-retries: ${INGESTION_MAX_RETRIES:3}
+    job-timeout-minutes: ${INGESTION_JOB_TIMEOUT:60}
+  storage:
+    raw-bucket: ${INGESTION_RAW_BUCKET:sovereign-rag-raw}
+    processed-bucket: ${INGESTION_PROCESSED_BUCKET:sovereign-rag-processed}
+    temp-prefix: temp/
+    uploads-prefix: uploads/
+  scraping:
+    user-agent: SovereignRAG-Bot/1.0
+    timeout-seconds: 30
+    max-content-length: 10485760
+    respect-robots-txt: true
+    delay-between-requests-ms: 1000
+  queue:
+    type: POSTGRES
+    poll-interval-ms: ${INGESTION_QUEUE_POLL_INTERVAL:1000}
+    batch-size: ${INGESTION_QUEUE_BATCH_SIZE:10}
+    lock-timeout-minutes: ${INGESTION_QUEUE_LOCK_TIMEOUT:30}
+    visibility-timeout-minutes: ${INGESTION_QUEUE_VISIBILITY_TIMEOUT:5}
+  tiers:
+    trial:
+      storage-quota-bytes: ${INGESTION_TIER_TRIAL_STORAGE:104857600}
+      max-concurrent-jobs: ${INGESTION_TIER_TRIAL_CONCURRENT:1}
+      max-file-size: ${INGESTION_TIER_TRIAL_FILE_SIZE:10485760}
+      priority: 0
+      monthly-job-limit: ${INGESTION_TIER_TRIAL_MONTHLY:50}
+    starter:
+      storage-quota-bytes: ${INGESTION_TIER_STARTER_STORAGE:1073741824}
+      max-concurrent-jobs: ${INGESTION_TIER_STARTER_CONCURRENT:3}
+      max-file-size: ${INGESTION_TIER_STARTER_FILE_SIZE:52428800}
+      priority: 1
+      monthly-job-limit: ${INGESTION_TIER_STARTER_MONTHLY:500}
+    professional:
+      storage-quota-bytes: ${INGESTION_TIER_PRO_STORAGE:10737418240}
+      max-concurrent-jobs: ${INGESTION_TIER_PRO_CONCURRENT:10}
+      max-file-size: ${INGESTION_TIER_PRO_FILE_SIZE:104857600}
+      priority: 2
+      monthly-job-limit: ${INGESTION_TIER_PRO_MONTHLY:5000}
+    enterprise:
+      storage-quota-bytes: ${INGESTION_TIER_ENTERPRISE_STORAGE:9223372036854775807}
+      max-concurrent-jobs: ${INGESTION_TIER_ENTERPRISE_CONCURRENT:50}
+      max-file-size: ${INGESTION_TIER_ENTERPRISE_FILE_SIZE:524288000}
+      priority: 3
+      monthly-job-limit: ${INGESTION_TIER_ENTERPRISE_MONTHLY:2147483647}
+  processing:
+    chunk-size: 1000
+    chunk-overlap: 200
+    supported-mime-types:
+      - application/pdf
+      - application/msword
+      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - application/vnd.ms-excel
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      - application/vnd.ms-powerpoint
+      - application/vnd.openxmlformats-officedocument.presentationml.presentation
+      - text/plain
+      - text/markdown
+      - text/csv
+      - text/html
+      - application/json
+      - application/xml
+
+sovereignrag:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+
+jwt:
+  public-key-path: "${jwt_public_key:-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGdh3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJni3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpfgvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEmxwIDAQAB-----END PUBLIC KEY-----}"
+  issuer: ${JWT_ISSUER:http://localhost:9093}
+  audience: ingestion-app
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    defaults:
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method

@@ -214,6 +214,15 @@ audit-ms:
 core-ms:
   base-url: ${CORE_MS_BASE_URL:http://localhost:9091}
 
+storage:
+  s3:
+    endpoint: ${S3_ENDPOINT:http://localhost:9000}
+    region: ${S3_REGION:us-east-1}
+    access-key: ${S3_ACCESS_KEY:minioadmin}
+    secret-key: ${S3_SECRET_KEY:minioadmin}
+    bucket: ${S3_BUCKET:sovereign-rag}
+    public-url: ${S3_PUBLIC_URL:}
+
 springdoc:
   api-docs:
     enabled: ${SPRINGDOC_ENABLED:true}

@@ -147,6 +147,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
         roleInCompany = roleInCompany,
         country = country,
         phoneNumber = phoneNumber,
-        termsAccepted = termsAccepted
+        termsAccepted = termsAccepted,
+        website = "https://www.acme.com"
     )
 }

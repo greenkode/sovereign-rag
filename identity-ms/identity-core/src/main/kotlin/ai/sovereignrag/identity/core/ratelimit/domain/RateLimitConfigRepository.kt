@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.ratelimit.domain
 
-import ai.sovereignrag.identity.core.entity.OrganizationPlan
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
@@ -12,7 +12,7 @@ interface RateLimitConfigRepository : JpaRepository<RateLimitConfig, UUID> {
     @Cacheable(cacheNames = ["rate-limit-config"], key = "'rl_' + #methodName + '_' + #tier.name() + '_' + #scope.name()")
     fun findByMethodNameAndSubscriptionTierAndScopeAndActiveTrue(
         methodName: String,
-        tier: OrganizationPlan,
+        tier: SubscriptionTier,
         scope: RateLimitScope
     ): RateLimitConfig?
 

@@ -1,12 +1,13 @@
 package ai.sovereignrag.commons.license
 
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import java.time.Instant
 
 data class LicenseInfo(
     val licenseKey: String,
     val customerId: String,
     val customerName: String,
-    val tier: LicenseTier,
+    val tier: SubscriptionTier,
     val maxTokensPerMonth: Long,
     val maxTenants: Int,
     val features: Set<LicenseFeature>,
@@ -16,7 +17,7 @@ data class LicenseInfo(
     val validationMessage: String? = null
 ) {
     fun isExpired(): Boolean {
-        return expiresAt?.let { it.isBefore(Instant.now()) } ?: false
+        return expiresAt?.isBefore(Instant.now()) ?: false
     }
 
     fun hasFeature(feature: LicenseFeature): Boolean {
@@ -24,16 +25,8 @@ data class LicenseInfo(
     }
 
     fun isTrial(): Boolean {
-        return tier == LicenseTier.TRIAL
+        return tier == SubscriptionTier.TRIAL
     }
-}
-
-enum class LicenseTier {
-    TRIAL,
-    STARTER,
-    PROFESSIONAL,
-    ENTERPRISE,
-    UNLIMITED
 }
 
 enum class LicenseFeature {

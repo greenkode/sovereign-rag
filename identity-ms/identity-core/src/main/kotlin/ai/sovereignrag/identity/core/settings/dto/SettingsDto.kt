@@ -1,10 +1,10 @@
 package ai.sovereignrag.identity.core.settings.dto
 
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import ai.sovereignrag.identity.core.entity.CompanyRole
 import ai.sovereignrag.identity.core.entity.CompanySize
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
 import ai.sovereignrag.identity.core.entity.IntendedPurpose
-import ai.sovereignrag.identity.core.entity.OrganizationPlan
 import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import io.swagger.v3.oas.annotations.media.Schema
 
@@ -131,7 +131,7 @@ data class OrganizationDetailsResponse(
     @Schema(description = "Organization name", example = "Acme Corporation")
     val name: String,
     @Schema(description = "Organization subscription plan", example = "PROFESSIONAL")
-    val plan: OrganizationPlan,
+    val plan: SubscriptionTier,
     @Schema(description = "Organization status", example = "ACTIVE")
     val status: OrganizationStatus,
     @Schema(description = "Current environment mode", example = "SANDBOX")

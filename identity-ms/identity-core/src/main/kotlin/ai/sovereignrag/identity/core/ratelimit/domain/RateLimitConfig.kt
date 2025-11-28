@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.ratelimit.domain
 
-import ai.sovereignrag.identity.core.entity.OrganizationPlan
+import ai.sovereignrag.commons.subscription.SubscriptionTier
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -22,7 +22,7 @@ class RateLimitConfig(
     val methodName: String,
 
     @Enumerated(EnumType.STRING)
-    val subscriptionTier: OrganizationPlan,
+    val subscriptionTier: SubscriptionTier,
 
     @Enumerated(EnumType.STRING)
     val scope: RateLimitScope = RateLimitScope.INDIVIDUAL,
