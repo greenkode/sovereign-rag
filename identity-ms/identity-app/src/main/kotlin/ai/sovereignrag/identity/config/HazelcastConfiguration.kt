@@ -102,18 +102,31 @@ class HazelcastConfiguration(private val environment: Environment) {
     }
 
     private fun configureRateLimitCache(config: Config) {
-        val rateLimitConfig = MapConfig("rate-limit-buckets")
-        rateLimitConfig.timeToLiveSeconds = 3600
-        rateLimitConfig.maxIdleSeconds = 1800
-        rateLimitConfig.isStatisticsEnabled = true
+        val rateLimitBucketsConfig = MapConfig("rate-limit-buckets")
+        rateLimitBucketsConfig.timeToLiveSeconds = 3600
+        rateLimitBucketsConfig.maxIdleSeconds = 1800
+        rateLimitBucketsConfig.isStatisticsEnabled = true
 
-        val evictionConfig = EvictionConfig()
-        evictionConfig.evictionPolicy = EvictionPolicy.LRU
-        evictionConfig.maxSizePolicy = MaxSizePolicy.PER_NODE
-        evictionConfig.size = 10000
-        rateLimitConfig.evictionConfig = evictionConfig
+        val bucketEvictionConfig = EvictionConfig()
+        bucketEvictionConfig.evictionPolicy = EvictionPolicy.LRU
+        bucketEvictionConfig.maxSizePolicy = MaxSizePolicy.PER_NODE
+        bucketEvictionConfig.size = 10000
+        rateLimitBucketsConfig.evictionConfig = bucketEvictionConfig
 
-        config.addMapConfig(rateLimitConfig)
+        config.addMapConfig(rateLimitBucketsConfig)
+
+        val rateLimitDbConfig = MapConfig("rate-limit-config")
+        rateLimitDbConfig.timeToLiveSeconds = 300
+        rateLimitDbConfig.maxIdleSeconds = 600
+        rateLimitDbConfig.isStatisticsEnabled = true
+
+        val configEvictionConfig = EvictionConfig()
+        configEvictionConfig.evictionPolicy = EvictionPolicy.LRU
+        configEvictionConfig.maxSizePolicy = MaxSizePolicy.PER_NODE
+        configEvictionConfig.size = 1000
+        rateLimitDbConfig.evictionConfig = configEvictionConfig
+
+        config.addMapConfig(rateLimitDbConfig)
     }
 
     private fun configureMapWithTtl(

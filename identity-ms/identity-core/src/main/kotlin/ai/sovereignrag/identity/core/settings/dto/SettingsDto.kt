@@ -1,6 +1,8 @@
 package ai.sovereignrag.identity.core.settings.dto
 
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
+import ai.sovereignrag.identity.core.entity.OrganizationPlan
+import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "User settings response")
@@ -115,4 +117,20 @@ data class CompleteOrganizationSetupResponse(
     val message: String,
     @Schema(description = "Merchant ID", example = "abc123")
     val merchantId: String? = null
+)
+
+@Schema(description = "Organization details response")
+data class OrganizationDetailsResponse(
+    @Schema(description = "Organization ID", example = "abc123")
+    val id: String,
+    @Schema(description = "Organization name", example = "Acme Corporation")
+    val name: String,
+    @Schema(description = "Organization subscription plan", example = "PROFESSIONAL")
+    val plan: OrganizationPlan,
+    @Schema(description = "Organization status", example = "ACTIVE")
+    val status: OrganizationStatus,
+    @Schema(description = "Current environment mode", example = "SANDBOX")
+    val environmentMode: EnvironmentMode,
+    @Schema(description = "Whether organization setup is completed", example = "true")
+    val setupCompleted: Boolean
 )

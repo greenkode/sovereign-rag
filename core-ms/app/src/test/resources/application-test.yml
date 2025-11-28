@@ -1,0 +1,29 @@
+spring:
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  cache:
+    type: simple
+  main:
+    allow-bean-definition-overriding: true
+
+sovereignrag:
+  dev-tenant:
+    enabled: false
+  ollama:
+    base-url: http://localhost:11434
+    model: llama3.2:3b
+    guardrail-model: llama3.2:1b
+    embedding-model: snowflake-arctic-embed2
+  cors:
+    allowed-origins: "*"
+
+logging:
+  level:
+    org.testcontainers: INFO
+    org.springframework.test: DEBUG

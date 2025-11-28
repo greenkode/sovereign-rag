@@ -12,6 +12,7 @@ import ai.sovereignrag.identity.core.settings.dto.CompleteOrganizationSetupRespo
 import ai.sovereignrag.identity.core.settings.dto.EnableProductionRequest
 import ai.sovereignrag.identity.core.settings.dto.EnableProductionResponse
 import ai.sovereignrag.identity.core.settings.dto.EnvironmentStatusResponse
+import ai.sovereignrag.identity.core.settings.dto.OrganizationDetailsResponse
 import ai.sovereignrag.identity.core.settings.dto.ResetKeysRequest
 import ai.sovereignrag.identity.core.settings.dto.ResetKeysResponse
 import ai.sovereignrag.identity.core.settings.dto.SwitchEnvironmentRequest
@@ -20,6 +21,7 @@ import ai.sovereignrag.identity.core.settings.dto.UpdateAlertsResponse
 import ai.sovereignrag.identity.core.settings.dto.UpdateUserNameRequest
 import ai.sovereignrag.identity.core.settings.dto.UpdateUserNameResponse
 import ai.sovereignrag.identity.core.settings.dto.UserSettingsResponse
+import ai.sovereignrag.identity.core.settings.query.GetOrganizationDetailsQuery
 import ai.sovereignrag.identity.core.settings.query.GetUserSettingsQuery
 import an.awesome.pipelinr.Pipeline
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -63,6 +65,27 @@ class SettingsController(
             email = result.email,
             roles = result.roles,
             merchantName = result.merchantName
+        )
+    }
+
+    @GetMapping("/organization")
+    @Operation(summary = "Get organization details", description = "Retrieve current organization/merchant details")
+    @ApiResponse(responseCode = "200", description = "Organization details retrieved",
+        content = [Content(mediaType = "application/json",
+            schema = Schema(implementation = OrganizationDetailsResponse::class))])
+    @SecurityRequirement(name = "bearerAuth")
+    fun getOrganizationDetails(): OrganizationDetailsResponse {
+        log.info { "Getting organization details" }
+
+        val result = pipeline.send(GetOrganizationDetailsQuery())
+
+        return OrganizationDetailsResponse(
+            id = result.id,
+            name = result.name,
+            plan = result.plan,
+            status = result.status,
+            environmentMode = result.environmentMode,
+            setupCompleted = result.setupCompleted
         )
     }
 
