@@ -1,5 +1,8 @@
 package ai.sovereignrag.identity.core.config
 
+import ai.sovereignrag.identity.core.oauth.CustomOidcUserService
+import ai.sovereignrag.identity.core.oauth.OAuth2AuthenticationFailureHandler
+import ai.sovereignrag.identity.core.oauth.OAuth2AuthenticationSuccessHandler
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
 import org.springframework.context.ApplicationEventPublisher
@@ -36,9 +39,6 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher
-import ai.sovereignrag.identity.core.oauth.CustomOidcUserService
-import ai.sovereignrag.identity.core.oauth.OAuth2AuthenticationSuccessHandler
-import ai.sovereignrag.identity.core.oauth.OAuth2AuthenticationFailureHandler
 
 @Configuration
 @EnableWebSecurity
@@ -201,4 +201,5 @@ class SecurityConfig(
             refreshTokenGenerator
         )
     }
+
 }

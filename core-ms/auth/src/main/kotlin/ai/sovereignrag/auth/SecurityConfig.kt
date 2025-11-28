@@ -1,9 +1,11 @@
 package ai.sovereignrag.auth
 
 import ai.sovereignrag.auth.authentication.TenantAuthenticationProvider
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -35,7 +37,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val organizationSetupFilter: OrganizationSetupFilter,
-    @Lazy private val tenantAuthenticationProvider: TenantAuthenticationProvider
+    @Lazy private val tenantAuthenticationProvider: TenantAuthenticationProvider,
+    @Value("\${sovereignrag.cors.allowed-origins}") private val allowedOrigins: String
 ) {
 
     /**
@@ -73,33 +76,28 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            // Disable CSRF (not needed for stateless JWT authentication)
             .csrf { it.disable() }
 
-            // Enable CORS with configuration
             .cors { it.configurationSource(corsConfigurationSource()) }
 
-            // Configure authorization rules
             .authorizeHttpRequests { auth ->
                 auth
-                    // Public endpoints (no authentication required)
-                    .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/actuator/health", "/actuator/info", "/api/admin/tenants/{tenantId}/request-reset",
-                        "/api/admin/tenants/{tenantId}/confirm-reset").permitAll()
+                    .requestMatchers(
+                        "/api/auth/**",
+                        "/actuator/health",
+                        "/actuator/info",
+                        "/api/admin/tenants/{tenantId}/request-reset",
+                        "/api/admin/tenants/{tenantId}/confirm-reset"
+                    ).permitAll()
                     .anyRequest().authenticated()
             }
-
-            // Stateless sessions (JWT doesn't need sessions)
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-
-            // Add JWT filter before Spring Security's authentication filter
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter::class.java
             )
-            // Add organization setup filter after JWT filter
             .addFilterAfter(
                 organizationSetupFilter,
                 JwtAuthenticationFilter::class.java
@@ -108,35 +106,27 @@ class SecurityConfig(
         return http.build()
     }
 
-    /**
-     * CORS Configuration
-     *
-     * Allows WordPress sites to make requests to the API from browser
-     * IMPORTANT: Configure allowedOriginPatterns properly for production
-     */
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
 
-        // PRODUCTION: Replace with specific WordPress domains
-        // Example: listOf("https://example.com", "https://www.example.com")
-        configuration.allowedOriginPatterns = listOf("*")
+        configuration.allowedOriginPatterns = allowedOrigins.split(",").map { it.trim() }
 
-        // Allow common HTTP methods
         configuration.allowedMethods = listOf(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+            HttpMethod.GET.name(),
+            HttpMethod.POST.name(),
+            HttpMethod.PUT.name(),
+            HttpMethod.DELETE.name(),
+            HttpMethod.OPTIONS.name(),
+            HttpMethod.PATCH.name()
         )
 
-        // Allow all headers (can be restricted in production)
         configuration.allowedHeaders = listOf("*")
 
-        // Allow credentials (cookies, authorization headers)
         configuration.allowCredentials = true
 
-        // Expose Authorization header to JavaScript
         configuration.exposedHeaders = listOf("Authorization")
 
-        // Cache preflight responses for 1 hour
         configuration.maxAge = 3600L
 
         val source = UrlBasedCorsConfigurationSource()
