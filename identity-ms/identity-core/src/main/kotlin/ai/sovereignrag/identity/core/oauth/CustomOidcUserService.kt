@@ -99,7 +99,7 @@ class CustomOidcUserService(
             ?: messageService.getMessage("oauth.error.admin_not_found")
 
     private fun createOAuthClient(domain: String, adminEmail: String): UUID {
-        val name = domain.substringBefore(".").replaceFirstChar { it.uppercase() }
+        val name = "-"
         val organizationId = UUID.randomUUID()
 
         val sandboxSecret = RandomStringUtils.secure().nextAlphanumeric(30)
@@ -212,7 +212,11 @@ class CustomOidcUserService(
                 OAuthProvider.GOOGLE -> RegistrationSource.OAUTH_GOOGLE
                 OAuthProvider.MICROSOFT -> RegistrationSource.OAUTH_MICROSOFT
             }
-            this.authorities = mutableSetOf("ROLE_USER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+            this.authorities = mutableSetOf(
+                "ROLE_MERCHANT_ADMIN",
+                "ROLE_MERCHANT_SUPER_ADMIN",
+                "ROLE_MERCHANT_USER"
+            )
         }
 
         val savedUser = userRepository.save(user)

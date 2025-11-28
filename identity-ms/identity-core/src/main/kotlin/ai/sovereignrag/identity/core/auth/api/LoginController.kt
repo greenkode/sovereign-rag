@@ -51,6 +51,7 @@ class LoginController(
 
     private fun LoginResult.toResponse() = TokenResponse(
         accessToken = accessToken,
+        refreshToken = refreshToken,
         expiresIn = expiresIn,
         user = UserSummary(
             username = username,

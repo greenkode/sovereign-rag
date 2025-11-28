@@ -108,6 +108,8 @@ data class CompleteOrganizationSetupRequest(
     val country: String,
     @Schema(description = "Phone number", example = "+1234567890", required = true)
     val phoneNumber: String,
+    @Schema(description = "Company website URL", example = "https://acme.com")
+    val website: String?,
     @Schema(description = "Whether terms and conditions are accepted", example = "true", required = true)
     val termsAccepted: Boolean
 )
@@ -146,6 +148,8 @@ data class OrganizationDetailsResponse(
     val country: String?,
     @Schema(description = "Phone number", example = "+1234567890")
     val phoneNumber: String?,
+    @Schema(description = "Company website URL", example = "https://acme.com")
+    val website: String?,
     @Schema(description = "Organization email", example = "admin@example.com")
     val email: String?
 )

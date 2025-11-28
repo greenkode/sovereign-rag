@@ -13,6 +13,7 @@ data class ErrorResponse(
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class TokenResponse(
     val accessToken: String,
+    val refreshToken: String? = null,
     val tokenType: String = "Bearer",
     val expiresIn: Long,
     val scope: String = "openid email phone profile",

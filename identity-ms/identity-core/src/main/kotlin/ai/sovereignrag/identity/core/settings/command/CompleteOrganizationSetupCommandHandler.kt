@@ -48,6 +48,9 @@ class CompleteOrganizationSetupCommandHandler(
         client.addSetting(OAuthClientSettingName.ROLE_IN_COMPANY, command.roleInCompany.name)
         client.addSetting(OAuthClientSettingName.COUNTRY, command.country)
         client.addSetting(OAuthClientSettingName.PHONE_NUMBER, command.phoneNumber)
+        command.website?.takeIf { it.isNotBlank() && it != "https://" }?.let {
+            client.addSetting(OAuthClientSettingName.WEBSITE, it)
+        }
         client.addSetting(OAuthClientSettingName.TERMS_ACCEPTED, "true")
         client.addSetting(OAuthClientSettingName.SETUP_COMPLETED, "true")
 

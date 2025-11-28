@@ -37,6 +37,7 @@ class GetOrganizationDetailsQueryHandler(
             ?.let { runCatching { CompanyRole.valueOf(it) }.getOrNull() }
         val country = client.getSetting(OAuthClientSettingName.COUNTRY)
         val phoneNumber = client.getSetting(OAuthClientSettingName.PHONE_NUMBER)
+        val website = client.getSetting(OAuthClientSettingName.WEBSITE)
         val email = client.getSetting(OAuthClientSettingName.EMAIL)
 
         return GetOrganizationDetailsResult(
@@ -51,6 +52,7 @@ class GetOrganizationDetailsQueryHandler(
             roleInCompany = roleInCompany,
             country = country,
             phoneNumber = phoneNumber,
+            website = website,
             email = email
         )
     }

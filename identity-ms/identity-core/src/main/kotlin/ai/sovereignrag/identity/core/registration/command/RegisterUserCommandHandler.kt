@@ -141,6 +141,9 @@ class RegisterUserCommandHandler(
             if (isFirstUser) {
                 add("ROLE_ADMIN")
                 add("ROLE_SUPER_ADMIN")
+                add("ROLE_MERCHANT_ADMIN")
+                add("ROLE_MERCHANT_SUPER_ADMIN")
+                add("ROLE_MERCHANT_USER")
             }
         }
 

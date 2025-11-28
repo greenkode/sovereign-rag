@@ -91,6 +91,7 @@ class SettingsController(
             roleInCompany = result.roleInCompany,
             country = result.country,
             phoneNumber = result.phoneNumber,
+            website = result.website,
             email = result.email
         )
     }
@@ -236,6 +237,7 @@ class SettingsController(
             roleInCompany = request.roleInCompany,
             country = request.country,
             phoneNumber = request.phoneNumber,
+            website = request.website,
             termsAccepted = request.termsAccepted
         ))
 

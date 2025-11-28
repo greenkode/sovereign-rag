@@ -22,5 +22,6 @@ data class GetOrganizationDetailsResult(
     val roleInCompany: CompanyRole?,
     val country: String?,
     val phoneNumber: String?,
+    val website: String?,
     val email: String?
 )

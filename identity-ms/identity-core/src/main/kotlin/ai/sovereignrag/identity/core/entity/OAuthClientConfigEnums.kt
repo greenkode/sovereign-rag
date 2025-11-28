@@ -11,6 +11,7 @@ enum class OAuthClientSettingName {
     COMPANY_SIZE,
     ROLE_IN_COMPANY,
     COUNTRY,
+    WEBSITE,
     TERMS_ACCEPTED,
     SETUP_COMPLETED
 }

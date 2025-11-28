@@ -10,6 +10,7 @@ data class LoginCommand(
 
 data class LoginResult(
     val accessToken: String,
+    val refreshToken: String,
     val expiresIn: Long,
     val tokenType: String = "Bearer",
     val username: String,

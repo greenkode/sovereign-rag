@@ -12,6 +12,7 @@ import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.InvalidCredentialsException
 import ai.sovereignrag.identity.core.auth.service.JwtTokenService
+import ai.sovereignrag.identity.core.refreshtoken.service.RefreshTokenService
 import ai.sovereignrag.identity.core.service.AccountLockedException
 import ai.sovereignrag.identity.core.service.AccountLockoutService
 import ai.sovereignrag.identity.core.service.CustomUserDetails
@@ -33,6 +34,7 @@ private val log = KotlinLogging.logger {}
 @Profile("local")
 class LoginCommandHandler(
     private val jwtTokenService: JwtTokenService,
+    private val refreshTokenService: RefreshTokenService,
     private val authenticationManager: AuthenticationManager,
     private val accountLockoutService: AccountLockoutService,
     private val applicationEventPublisher: ApplicationEventPublisher
@@ -48,8 +50,16 @@ class LoginCommandHandler(
                     publishSuccessfulLoginAudit(command, oauthUser)
                     log.info { "Login successful for user: ${command.username}" }
 
+                    val refreshToken = refreshTokenService.createRefreshToken(
+                        user = oauthUser,
+                        ipAddress = command.ipAddress,
+                        userAgent = null,
+                        deviceFingerprint = null
+                    )
+
                     LoginResult(
                         accessToken = token,
+                        refreshToken = refreshToken,
                         expiresIn = jwtTokenService.getTokenExpirySeconds(),
                         username = userDetails.username,
                         fullName = userDetails.getFullName(),
