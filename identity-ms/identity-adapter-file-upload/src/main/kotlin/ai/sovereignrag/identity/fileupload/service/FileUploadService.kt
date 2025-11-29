@@ -1,9 +1,9 @@
-package ai.sovereignrag.fileupload.service
+package ai.sovereignrag.identity.fileupload.service
 
-import ai.sovereignrag.fileupload.config.S3ConfigProperties
-import ai.sovereignrag.fileupload.domain.FileCategory
-import ai.sovereignrag.fileupload.domain.PresignedUrlResult
-import ai.sovereignrag.fileupload.domain.UploadResult
+import ai.sovereignrag.identity.fileupload.config.S3ConfigProperties
+import ai.sovereignrag.identity.fileupload.domain.FileCategory
+import ai.sovereignrag.identity.fileupload.domain.PresignedUrlResult
+import ai.sovereignrag.identity.fileupload.domain.UploadResult
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile

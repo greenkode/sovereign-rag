@@ -214,6 +214,10 @@ ingestion:
       - application/json
       - application/xml
 
+sovereignrag:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+
 springdoc:
   api-docs:
     path: /api-docs

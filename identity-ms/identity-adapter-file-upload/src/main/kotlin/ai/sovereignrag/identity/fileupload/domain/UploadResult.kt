@@ -1,4 +1,4 @@
-package ai.sovereignrag.fileupload.domain
+package ai.sovereignrag.identity.fileupload.domain
 
 data class UploadResult(
     val key: String,

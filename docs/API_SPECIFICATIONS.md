@@ -31,7 +31,7 @@ Authorization: Bearer {token}
       "zone": "europe-1",
       "status": "private",
       "created_at": "2025-01-15T10:30:00Z",
-      "updated_at": "2025-01-20T14:22:00Z"
+      "last_modified_at": "2025-01-20T14:22:00Z"
     }
   ],
   "total": 1

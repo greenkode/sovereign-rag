@@ -80,7 +80,7 @@ data class Tenant(
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     var updatedAt: Instant = Instant.now(),
 
     @Column(name = "last_active_at")

@@ -46,7 +46,6 @@
     </dependencyManagement>
 
     <modules>
-        <module>adapter-file-upload</module>
         <module>limits</module>
         <module>agent-core</module>
         <module>app</module>

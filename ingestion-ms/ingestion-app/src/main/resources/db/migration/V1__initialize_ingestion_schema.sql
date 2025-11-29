@@ -26,9 +26,10 @@ CREATE TABLE IF NOT EXISTS ingestion.ingestion_jobs (
     locked_by VARCHAR(255),
     visible_after TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_by VARCHAR(255),
-    updated_by VARCHAR(255)
+    last_modified_by VARCHAR(255),
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS ingestion.ingestion_job_items (
@@ -38,15 +39,16 @@ CREATE TABLE IF NOT EXISTS ingestion.ingestion_job_items (
     file_name VARCHAR(500) NOT NULL,
     file_size BIGINT,
     mime_type VARCHAR(100),
-    source_key VARCHAR(2000),
+    source_reference VARCHAR(2000),
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
     error_message VARCHAR(2000),
     chunks_created INTEGER NOT NULL DEFAULT 0,
     bytes_processed BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_by VARCHAR(255),
-    updated_by VARCHAR(255)
+    last_modified_by VARCHAR(255),
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS ingestion.tenant_quotas (
@@ -59,9 +61,10 @@ CREATE TABLE IF NOT EXISTS ingestion.tenant_quotas (
     current_period_start TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     last_job_completed_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_modified_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_by VARCHAR(255),
-    updated_by VARCHAR(255)
+    last_modified_by VARCHAR(255),
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_tenant_id ON ingestion.ingestion_jobs(tenant_id);

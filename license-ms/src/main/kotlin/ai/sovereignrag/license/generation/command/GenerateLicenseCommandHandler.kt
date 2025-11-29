@@ -58,7 +58,6 @@ class GenerateLicenseCommandHandler(
             maxTenants = command.maxTenants,
             features = command.features.toTypedArray(),
             expiresAt = command.expiresAt,
-            createdBy = "admin"
         )
 
         licenseRepository.save(license)

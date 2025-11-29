@@ -1,5 +1,6 @@
 package ai.sovereignrag.license.domain
 
+import ai.sovereignrag.commons.model.AuditableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -50,14 +51,10 @@ data class License(
     @Column(columnDefinition = "JSONB")
     val metadata: Map<String, Any>? = null,
 
-    val createdAt: Instant = Instant.now(),
+) : AuditableEntity() {
 
-    val updatedAt: Instant = Instant.now(),
+    fun createdAt() = createdAt ?: Instant.now()
 
-    val createdBy: String = "system",
-
-    val updatedBy: String = "system"
-) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.ratelimit.domain
 
+import ai.sovereignrag.commons.model.AuditableEntity
 import ai.sovereignrag.commons.subscription.SubscriptionTier
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -36,7 +37,4 @@ class RateLimitConfig(
 
     val active: Boolean = true,
 
-    val createdAt: Instant = Instant.now(),
-
-    var updatedAt: Instant = Instant.now()
-)
+) : AuditableEntity()

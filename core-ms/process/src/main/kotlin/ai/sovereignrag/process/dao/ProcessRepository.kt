@@ -81,7 +81,7 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
         LEFT JOIN FETCH r.stakeholders
         LEFT JOIN FETCH p.transitions
         WHERE p.type = :type AND p.state = :state
-        ORDER BY p.createdDate ASC
+        ORDER BY p.createdAt ASC
     """)
     fun findByTypeAndState(
         @Param("type") type: ProcessType,
@@ -128,7 +128,7 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
     @Cacheable(value = [CacheNames.PROCESS], key = "'basic_info_' + #publicId.toString()", unless = "#result == null")
     @Query("""
         SELECT new ai.sovereignrag.process.domain.model.ProcessBasicInfo(
-            p.id, p.publicId, p.type, p.state, p.channel, p.createdDate, p.externalReference
+            p.id, p.publicId, p.type, p.state, p.channel, p.createdAt, p.externalReference
         )
         FROM ProcessEntity p 
         WHERE p.publicId = :publicId
@@ -139,11 +139,11 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
     @Query(
         """
         SELECT new ai.sovereignrag.process.domain.model.ProcessTransitionInfo(
-            t.id, t.process.id, t.event, t.userId, t.oldState, t.newState, t.createdDate
+            t.id, t.process.id, t.event, t.userId, t.oldState, t.newState, t.createdAt
         )
         FROM ProcessEventTransitionEntity t
         WHERE t.process.publicId = :publicId
-        ORDER BY t.createdDate DESC
+        ORDER BY t.createdAt DESC
     """
     )
     fun findTransitionsByProcessId(@Param("publicId") publicId: UUID): List<ProcessTransitionInfo>
@@ -197,8 +197,8 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
         WHERE p.type = :processType 
         AND s.type = :stakeholderType 
         AND s.stakeholderId = :userId
-        AND p.createdDate >= :sinceDate
-        ORDER BY p.createdDate DESC
+        AND p.createdAt >= :sinceDate
+        ORDER BY p.createdAt DESC
     """)
     fun findRecentProcessesByTypeAndForUserId(
         @Param("processType") processType: ProcessType,
@@ -220,8 +220,8 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
             AND s2.type = :stakeholderType
             AND s2.stakeholderId = :userId
             AND p2.state = 'PENDING'
-            AND r2.createdDate > :inactivityThreshold
-            ORDER BY r2.createdDate DESC
+            AND r2.createdAt > :inactivityThreshold
+            ORDER BY r2.createdAt DESC
             LIMIT 1
         )
     """)

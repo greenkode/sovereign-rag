@@ -7,7 +7,7 @@
         <artifactId>core-ms</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>adapter-file-upload</artifactId>
+    <artifactId>identity-adapter-file-upload</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>adapter-file-upload</name>
     <description>File upload adapter with S3/MinIO support</description>

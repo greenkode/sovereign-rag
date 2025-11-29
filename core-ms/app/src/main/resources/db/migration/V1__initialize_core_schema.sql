@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS tenants
     features             JSONB        NOT NULL DEFAULT '{}',
     settings             JSONB        NOT NULL DEFAULT '{}',
     created_at           TIMESTAMP    NOT NULL DEFAULT NOW(),
-    updated_at           TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at           TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_active_at       TIMESTAMP,
     deleted_at           TIMESTAMP
 );
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS groups
     id                 SERIAL       NOT NULL PRIMARY KEY,
     name               VARCHAR(255) UNIQUE NOT NULL,
     description        VARCHAR(255) NOT NULL,
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
     created_by         VARCHAR(255) NOT NULL,
     last_modified_by   VARCHAR(255) NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS authority
     id                 SERIAL       NOT NULL PRIMARY KEY,
     name               VARCHAR(255) UNIQUE NOT NULL,
     description        VARCHAR(255) NOT NULL,
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
     created_by         VARCHAR(255) NOT NULL,
     last_modified_by   VARCHAR(255) NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS process
     external_reference    VARCHAR(255),
     integrator_reference  VARCHAR(1000) NULL,
     channel               VARCHAR(255) NOT NULL,
-    created_date          TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_at          TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_modified_date    TIMESTAMP    NOT NULL DEFAULT NOW(),
     created_by            VARCHAR(255) NOT NULL,
     last_modified_by      VARCHAR(255) NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS process_request
     type               VARCHAR(255) NOT NULL,
     state              VARCHAR(255) NOT NULL,
     channel            VARCHAR(255) NOT NULL,
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
     created_by         VARCHAR(255) NOT NULL,
     last_modified_by   VARCHAR(255) NOT NULL,
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS process_request_data
     process_request_id BIGINT       NOT NULL,
     name               VARCHAR(255) NOT NULL,
     value              TEXT         NOT NULL,
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
     created_by         VARCHAR(255) NOT NULL,
     last_modified_by   VARCHAR(255) NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS process_request_stakeholder
     process_request_id BIGINT       NOT NULL,
     stakeholder_id     VARCHAR(100) NOT NULL,
     type               VARCHAR(255) NOT NULL,
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
     created_by         VARCHAR(255) NOT NULL,
     last_modified_by   VARCHAR(255) NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS process_event_transition
     user_id            UUID         NOT NULL,
     old_state          VARCHAR(255),
     new_state          VARCHAR(255),
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
     created_by         VARCHAR(255) NOT NULL,
     last_modified_by   VARCHAR(255) NOT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS subscription_limit
     start               TIMESTAMP    NOT NULL,
     expiry              TIMESTAMP,
     created_by          VARCHAR(50)  NOT NULL DEFAULT 'system',
-    created_date        TIMESTAMP             DEFAULT NOW(),
+    created_at        TIMESTAMP             DEFAULT NOW(),
     last_modified_by    VARCHAR(50)           DEFAULT NOW(),
     last_modified_date  TIMESTAMP             DEFAULT NOW(),
     version             BIGINT       NOT NULL DEFAULT 0
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS access_token
     resource           VARCHAR(255) NOT NULL,
     institution        VARCHAR(255) NOT NULL,
     created_by         VARCHAR(50)  NOT NULL DEFAULT 'system',
-    created_date       TIMESTAMP             DEFAULT NOW(),
+    created_at       TIMESTAMP             DEFAULT NOW(),
     last_modified_by   VARCHAR(50)           DEFAULT NOW(),
     last_modified_date TIMESTAMP             DEFAULT NOW(),
     version            BIGINT       NOT NULL DEFAULT 0
@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS notification_device
     user_id              UUID        NOT NULL,
     notification_type    VARCHAR(50) NOT NULL,
     created_by           VARCHAR(50) NOT NULL default 'system',
-    created_date         TIMESTAMP            DEFAULT NOW(),
+    created_at         TIMESTAMP            DEFAULT NOW(),
     last_modified_by     VARCHAR(50)          DEFAULT NOW(),
     last_modified_date   TIMESTAMP            DEFAULT NOW(),
     version              BIGINT      NOT NULL DEFAULT 0,
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS system_property
     scope              VARCHAR(255) NOT NULL,
     value              TEXT         NOT NULL,
     created_by         VARCHAR(50)  NOT NULL,
-    created_date       TIMESTAMP,
+    created_at       TIMESTAMP,
     last_modified_by   VARCHAR(50),
     last_modified_date TIMESTAMP,
     version            BIGINT       NOT NULL DEFAULT 0,
@@ -220,7 +220,7 @@ CREATE TABLE IF NOT EXISTS users
     id                 BIGSERIAL PRIMARY KEY,
     public_id          UUID        NOT NULL UNIQUE,
     created_by         VARCHAR(50) NOT NULL,
-    created_date       TIMESTAMP,
+    created_at       TIMESTAMP,
     last_modified_by   VARCHAR(50),
     last_modified_date TIMESTAMP,
     version            BIGINT      NOT NULL DEFAULT 0
@@ -258,7 +258,7 @@ CREATE TABLE IF NOT EXISTS webhook_configuration
     retry_attempts     INTEGER      NOT NULL DEFAULT 3,
     timeout_seconds    INTEGER      NOT NULL DEFAULT 30,
     description        TEXT,
-    created_date       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by         VARCHAR(255)          DEFAULT 'system',
     last_modified_date TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_modified_by   VARCHAR(255)          DEFAULT 'system',
@@ -288,58 +288,15 @@ CREATE TABLE IF NOT EXISTS webhook_delivery_log
     total_duration_ms        BIGINT,
     error_message            TEXT,
     delivered_at             TIMESTAMP,
-    created_date             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_webhook_delivery_log_configuration FOREIGN KEY (webhook_configuration_id) REFERENCES webhook_configuration(id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_config_id ON webhook_delivery_log(webhook_configuration_id);
 CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_event_id ON webhook_delivery_log(event_id);
 CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_status ON webhook_delivery_log(delivery_status);
-CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_created_date ON webhook_delivery_log(created_date);
-CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_config_status_date ON webhook_delivery_log(webhook_configuration_id, delivery_status, created_date);
-
-CREATE TABLE IF NOT EXISTS message_template
-(
-    id                 BIGSERIAL    NOT NULL PRIMARY KEY,
-    channel            VARCHAR(255) NOT NULL,
-    content            TEXT         NOT NULL,
-    title              VARCHAR(255) NOT NULL,
-    name               VARCHAR(255) NOT NULL,
-    locale             VARCHAR(10)  NOT NULL,
-    external_id        VARCHAR(255),
-    active             BOOLEAN,
-    recipient_type     VARCHAR(100) NOT NULL,
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
-    version            BIGINT       NOT NULL DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS message
-(
-    id                 BIGSERIAL    NOT NULL PRIMARY KEY,
-    channel            VARCHAR(255) NOT NULL,
-    recipient          VARCHAR(255) NOT NULL,
-    template_id        BIGINT       NOT NULL,
-    delivery_status    VARCHAR(255),
-    request            TEXT         NOT NULL,
-    response           TEXT,
-    integrator         VARCHAR(100) NOT NULL,
-    priority           VARCHAR(20)  NOT NULL,
-    client_identifier  VARCHAR(255) NOT NULL UNIQUE,
-    locale             VARCHAR(10)  NOT NULL,
-    delivery_date      TIMESTAMP,
-    public_id          UUID         NOT NULL DEFAULT gen_random_uuid(),
-    status             VARCHAR(20)  NOT NULL,
-    sent_message_id    VARCHAR(25),
-    created_date       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
-    version            BIGINT       NOT NULL DEFAULT 0,
-    CONSTRAINT fk_message_template_message FOREIGN KEY (template_id) REFERENCES message_template (id)
-);
+CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_created_at ON webhook_delivery_log(created_at);
+CREATE INDEX IF NOT EXISTS idx_webhook_delivery_log_config_status_date ON webhook_delivery_log(webhook_configuration_id, delivery_status, created_at);
 
 CREATE TABLE IF NOT EXISTS QRTZ_JOB_DETAILS
 (

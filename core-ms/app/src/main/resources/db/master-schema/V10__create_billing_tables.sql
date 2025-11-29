@@ -38,7 +38,7 @@ CREATE TABLE subscription_plans (
     -- Lifecycle
     active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    last_modified_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE INDEX idx_subscription_plans_active ON subscription_plans(active);
@@ -76,7 +76,7 @@ CREATE TABLE tenant_subscriptions (
 
     -- Timestamps
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    last_modified_at TIMESTAMP DEFAULT NOW(),
 
     UNIQUE(tenant_id)  -- One active subscription per tenant
 );
@@ -174,7 +174,7 @@ CREATE TABLE invoices (
 
     -- Timestamps
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    last_modified_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE INDEX idx_invoices_tenant ON invoices(tenant_id, created_at DESC);
@@ -207,7 +207,7 @@ CREATE TABLE payment_methods (
 
     -- Timestamps
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    last_modified_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE INDEX idx_payment_methods_tenant ON payment_methods(tenant_id);
@@ -251,33 +251,33 @@ CREATE INDEX idx_billing_events_processed ON billing_events(processed, created_a
 -- ============================================
 -- Update Triggers
 -- ============================================
-CREATE OR REPLACE FUNCTION update_billing_updated_at()
+CREATE OR REPLACE FUNCTION update_billing_last_modified_at()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = NOW();
+    NEW.last_modified_at = NOW();
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_subscription_plans_updated_at
+CREATE TRIGGER update_subscription_plans_last_modified_at
     BEFORE UPDATE ON subscription_plans
     FOR EACH ROW
-    EXECUTE FUNCTION update_billing_updated_at();
+    EXECUTE FUNCTION update_billing_last_modified_at();
 
-CREATE TRIGGER update_tenant_subscriptions_updated_at
+CREATE TRIGGER update_tenant_subscriptions_last_modified_at
     BEFORE UPDATE ON tenant_subscriptions
     FOR EACH ROW
-    EXECUTE FUNCTION update_billing_updated_at();
+    EXECUTE FUNCTION update_billing_last_modified_at();
 
-CREATE TRIGGER update_invoices_updated_at
+CREATE TRIGGER update_invoices_last_modified_at
     BEFORE UPDATE ON invoices
     FOR EACH ROW
-    EXECUTE FUNCTION update_billing_updated_at();
+    EXECUTE FUNCTION update_billing_last_modified_at();
 
-CREATE TRIGGER update_payment_methods_updated_at
+CREATE TRIGGER update_payment_methods_last_modified_at
     BEFORE UPDATE ON payment_methods
     FOR EACH ROW
-    EXECUTE FUNCTION update_billing_updated_at();
+    EXECUTE FUNCTION update_billing_last_modified_at();
 
 -- ============================================
 -- Comments

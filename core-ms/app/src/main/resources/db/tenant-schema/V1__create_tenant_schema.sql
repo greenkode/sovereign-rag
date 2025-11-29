@@ -35,7 +35,7 @@ CREATE TABLE escalations (
 
     -- Timestamps
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    last_modified_at TIMESTAMP DEFAULT NOW(),
 
     -- Additional data
     metadata JSONB DEFAULT '{}'::jsonb
@@ -78,19 +78,19 @@ CREATE INDEX idx_unanswered_queries_status ON unanswered_queries(status);
 CREATE INDEX idx_unanswered_queries_created ON unanswered_queries(created_at DESC);
 
 -- Update triggers
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE OR REPLACE FUNCTION update_last_modified_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = NOW();
+    NEW.last_modified_at = NOW();
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS update_escalations_updated_at ON escalations;
-CREATE TRIGGER update_escalations_updated_at
+DROP TRIGGER IF EXISTS update_escalations_last_modified_at ON escalations;
+CREATE TRIGGER update_escalations_last_modified_at
     BEFORE UPDATE ON escalations
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+    EXECUTE FUNCTION update_last_modified_at_column();
 
 -- Comments for documentation
 COMMENT ON TABLE escalations IS 'Customer support escalation requests';

@@ -48,6 +48,7 @@
         <module>identity-core</module>
         <module>identity-app</module>
         <module>identity-process</module>
+        <module>identity-adapter-file-upload</module>
     </modules>
     
     <dependencies>

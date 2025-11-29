@@ -66,7 +66,7 @@ class VerifyLicenseQueryHandler(
             maxTokensPerMonth = license.maxTokensPerMonth,
             maxTenants = license.maxTenants,
             features = features,
-            issuedAt = license.createdAt,
+            issuedAt = license.createdAt(),
             expiresAt = license.expiresAt,
             revoked = isRevoked
         )

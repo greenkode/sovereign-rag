@@ -13,7 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>identity-app</name>
     <description>Identity Application Module</description>
-    
+
     <properties>
         <java.version>21</java.version>
         <version.java>21</version.java>
@@ -172,7 +172,7 @@
         </dependency>
         <dependency>
             <groupId>ai.sovereignrag</groupId>
-            <artifactId>adapter-file-upload</artifactId>
+            <artifactId>identity-adapter-file-upload</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>

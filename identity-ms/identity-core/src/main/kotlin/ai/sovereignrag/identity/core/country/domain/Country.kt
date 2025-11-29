@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.country.domain
 
+import ai.sovereignrag.commons.model.AuditableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -42,10 +43,4 @@ class Country(
     val subRegion: String = "",
 
     val enabled: Boolean = false,
-
-    @Column(name = "created_at")
-    val createdAt: Instant = Instant.now(),
-
-    @Column(name = "updated_at")
-    var updatedAt: Instant = Instant.now()
-)
+) : AuditableEntity()

@@ -1,4 +1,4 @@
-package ai.sovereignrag.fileupload.config
+package ai.sovereignrag.identity.fileupload.config
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean

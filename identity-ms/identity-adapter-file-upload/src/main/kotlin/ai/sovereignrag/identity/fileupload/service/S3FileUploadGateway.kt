@@ -1,9 +1,9 @@
-package ai.sovereignrag.fileupload.service
+package ai.sovereignrag.identity.fileupload.service
 
 import ai.sovereignrag.commons.fileupload.FileUploadGateway
 import ai.sovereignrag.commons.fileupload.FileUploadResult
 import ai.sovereignrag.commons.fileupload.PresignedUploadUrlResult
-import ai.sovereignrag.fileupload.config.S3ConfigProperties
+import ai.sovereignrag.identity.fileupload.config.S3ConfigProperties
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import software.amazon.awssdk.core.sync.RequestBody

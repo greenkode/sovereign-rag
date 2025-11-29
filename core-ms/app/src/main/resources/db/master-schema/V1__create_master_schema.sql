@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS tenants (
 
     -- Timestamps
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
+    last_modified_at TIMESTAMP DEFAULT NOW(),
     last_active_at TIMESTAMP,
 
     -- Soft delete
@@ -51,21 +51,21 @@ CREATE INDEX IF NOT EXISTS idx_tenants_status ON tenants(status);
 CREATE INDEX IF NOT EXISTS idx_tenants_database_name ON tenants(database_name);
 CREATE INDEX IF NOT EXISTS idx_tenants_created_at ON tenants(created_at);
 
--- Update trigger function for updated_at columns
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+-- Update trigger function for last_modified_at columns
+CREATE OR REPLACE FUNCTION update_last_modified_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = NOW();
+    NEW.last_modified_at = NOW();
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 -- Apply update trigger to tenants table
-DROP TRIGGER IF EXISTS update_tenants_updated_at ON tenants;
-CREATE TRIGGER update_tenants_updated_at
+DROP TRIGGER IF EXISTS update_tenants_last_modified_at ON tenants;
+CREATE TRIGGER update_tenants_last_modified_at
     BEFORE UPDATE ON tenants
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+    EXECUTE FUNCTION update_last_modified_at_column();
 
 -- Comments for documentation
 COMMENT ON TABLE tenants IS 'Registry of all tenants (WordPress sites) using Sovereign RAG';

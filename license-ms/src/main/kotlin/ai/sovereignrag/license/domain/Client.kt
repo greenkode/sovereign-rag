@@ -1,5 +1,6 @@
 package ai.sovereignrag.license.domain
 
+import ai.sovereignrag.commons.model.AuditableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Enumerated
@@ -34,15 +35,7 @@ data class Client(
 
     @Enumerated(EnumType.STRING)
     val status: ClientStatus = ClientStatus.ACTIVE,
-
-    val createdAt: Instant = Instant.now(),
-
-    val updatedAt: Instant = Instant.now(),
-
-    val createdBy: String = "system",
-
-    val updatedBy: String = "system"
-)
+) : AuditableEntity()
 
 enum class ClientStatus {
     ACTIVE,

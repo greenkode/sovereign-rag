@@ -23,8 +23,6 @@ interface IngestionJobRepository : JpaRepository<IngestionJob, UUID> {
 
     fun findByTenantIdAndKnowledgeBaseIdOrderByCreatedAtDesc(tenantId: UUID, knowledgeBaseId: UUID, pageable: Pageable): Page<IngestionJob>
 
-    fun findByTenantIdAndJobTypeOrderByCreatedAtDesc(tenantId: UUID, jobType: JobType, pageable: Pageable): Page<IngestionJob>
-
     @Query("SELECT j FROM IngestionJob j WHERE j.status = :status ORDER BY j.createdAt ASC")
     fun findPendingJobs(status: JobStatus, pageable: Pageable): Page<IngestionJob>
 
@@ -43,20 +41,20 @@ interface IngestionJobRepository : JpaRepository<IngestionJob, UUID> {
 
     @Modifying
     @Query("""
-        UPDATE IngestionJob j
-        SET j.status = 'PROCESSING',
-            j.lockedAt = :lockTime,
-            j.lockedBy = :workerId,
-            j.startedAt = :lockTime
-        WHERE j.id = (
-            SELECT j2.id FROM IngestionJob j2
-            WHERE j2.status = 'QUEUED'
-            AND (j2.visibleAfter IS NULL OR j2.visibleAfter <= :lockTime)
-            ORDER BY j2.priority DESC, j2.createdAt ASC
+        UPDATE ingestion.ingestion_jobs
+        SET status = 'PROCESSING',
+            locked_at = :lockTime,
+            locked_by = :workerId,
+            started_at = :lockTime
+        WHERE id = (
+            SELECT id FROM ingestion.ingestion_jobs
+            WHERE status = 'QUEUED'
+            AND (visible_after IS NULL OR visible_after <= :lockTime)
+            ORDER BY priority DESC, created_date ASC
             LIMIT 1
             FOR UPDATE SKIP LOCKED
         )
-    """)
+    """, nativeQuery = true)
     fun claimNextJob(lockTime: Instant, workerId: String): Int
 
     @Modifying

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS identity.country (
     sub_region VARCHAR(100) DEFAULT '',
     enabled BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(iso2_code),
     UNIQUE(iso3_code),
     UNIQUE(public_id)

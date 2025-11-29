@@ -44,7 +44,7 @@ data class KnowledgeBox(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     val updatedAt: Instant = Instant.now(),
 
     @Column(name = "owner_id", nullable = false)
@@ -109,7 +109,7 @@ data class Resource(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     val updatedAt: Instant = Instant.now()
 )
 
@@ -243,7 +243,7 @@ data class AIModelConfiguration(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     val updatedAt: Instant = Instant.now()
 )
 
@@ -387,7 +387,7 @@ data class SearchConfiguration(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     val updatedAt: Instant = Instant.now()
 )
 
@@ -465,7 +465,7 @@ data class Widget(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     val updatedAt: Instant = Instant.now()
 )
 
@@ -531,7 +531,7 @@ data class SyncConfiguration(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     val updatedAt: Instant = Instant.now()
 )
 
@@ -747,7 +747,7 @@ data class LabelSet(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     val updatedAt: Instant = Instant.now()
 )
 
@@ -813,7 +813,7 @@ data class User(
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false)
     val updatedAt: Instant = Instant.now()
 )
 ```
