@@ -241,21 +241,22 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
 
     @Query(
         """
-        SELECT DISTINCT p FROM ProcessEntity p 
-        LEFT JOIN FETCH p.requests r 
+        SELECT DISTINCT p FROM ProcessEntity p
+        LEFT JOIN FETCH p.requests r
         LEFT JOIN FETCH r.data
         LEFT JOIN FETCH r.stakeholders s
-        WHERE p.type = :processType 
-        AND s.type = :stakeholderType 
+        WHERE p.type = :processType
+        AND p.state = :state
+        AND s.type = :stakeholderType
         AND s.stakeholderId = :userId
-        AND p.createdAt >= :sinceDate
         ORDER BY p.createdAt DESC LIMIT 1
     """
     )
     fun findLatestPendingProcessByTypeAndForUserId(
         processType: ProcessType,
         stakeholderType: ProcessStakeholderType,
-        userId: String
+        userId: String,
+        state: ProcessState = ProcessState.PENDING
     ): ProcessEntity?
 
 }

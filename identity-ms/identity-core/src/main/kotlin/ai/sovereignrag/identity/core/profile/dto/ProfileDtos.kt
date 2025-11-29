@@ -14,7 +14,7 @@ data class UserProfileResponse(
     val firstName: String?,
     @Schema(description = "Last name")
     val lastName: String?,
-    @Schema(description = "Phone number")
+    @Schema(description = "Phone number in E.164 format")
     val phoneNumber: String?,
     @Schema(description = "Profile picture URL")
     val pictureUrl: String?,
@@ -30,8 +30,10 @@ data class UpdateProfileRequest(
     val firstName: String?,
     @Schema(description = "Last name")
     val lastName: String?,
-    @Schema(description = "Phone number")
+    @Schema(description = "Phone number value", example = "+12345678900")
     val phoneNumber: String?,
+    @Schema(description = "Country ISO2 code for phone validation", example = "US")
+    val countryCode: String?,
     @Schema(description = "Locale preference")
     val locale: String?
 )
@@ -56,10 +58,14 @@ data class UploadAvatarResponse(
 
 @Schema(description = "Generate avatar request")
 data class GenerateAvatarRequest(
-    @Schema(description = "Avatar style", example = "initials")
+    @Schema(description = "Avatar style", example = "INITIALS")
     val style: AvatarStyle = AvatarStyle.INITIALS,
     @Schema(description = "Background color (hex)", example = "#6366f1")
-    val backgroundColor: String? = null
+    val backgroundColor: String? = null,
+    @Schema(description = "Text description for AI avatar generation", example = "A professional looking person with glasses")
+    val prompt: String? = null,
+    @Schema(description = "Process ID for continuing an avatar generation session")
+    val processId: String? = null
 )
 
 @Schema(description = "Generate avatar response")
@@ -69,7 +75,11 @@ data class GenerateAvatarResponse(
     @Schema(description = "Response message")
     val message: String,
     @Schema(description = "URL of the generated avatar")
-    val pictureUrl: String?
+    val pictureUrl: String?,
+    @Schema(description = "Process ID for the avatar generation session")
+    val processId: String? = null,
+    @Schema(description = "Image key in storage")
+    val imageKey: String? = null
 )
 
 enum class AvatarStyle {
@@ -77,5 +87,6 @@ enum class AvatarStyle {
     DICEBEAR_AVATAAARS,
     DICEBEAR_BOTTTS,
     DICEBEAR_IDENTICON,
-    DICEBEAR_SHAPES
+    DICEBEAR_SHAPES,
+    AI_GENERATED
 }

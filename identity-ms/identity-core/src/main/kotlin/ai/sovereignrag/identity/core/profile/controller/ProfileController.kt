@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.profile.controller
 
+import ai.sovereignrag.commons.user.dto.PhoneNumber
 import ai.sovereignrag.identity.core.profile.command.GenerateAvatarCommand
 import ai.sovereignrag.identity.core.profile.command.UpdateProfileCommand
 import ai.sovereignrag.identity.core.profile.command.UploadAvatarCommand
@@ -28,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.util.Locale
+import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
@@ -84,11 +87,18 @@ class ProfileController(
     fun updateProfile(@RequestBody request: UpdateProfileRequest): UpdateProfileResponse {
         log.info { "Updating user profile" }
 
+        val phoneNumber = request.phoneNumber?.takeIf { it.isNotBlank() }?.let { number ->
+            request.countryCode?.takeIf { it.isNotBlank() }?.let { code ->
+                val locale = Locale.Builder().setRegion(code).build()
+                PhoneNumber(number, locale)
+            }
+        }
+
         val result = pipeline.send(
             UpdateProfileCommand(
                 firstName = request.firstName,
                 lastName = request.lastName,
-                phoneNumber = request.phoneNumber,
+                phoneNumber = phoneNumber,
                 locale = request.locale
             )
         )
@@ -134,7 +144,7 @@ class ProfileController(
     }
 
     @PostMapping("/avatar/generate")
-    @Operation(summary = "Generate avatar", description = "Generate an avatar using external services")
+    @Operation(summary = "Generate avatar", description = "Generate an avatar using AI or external services")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -148,19 +158,27 @@ class ProfileController(
     )
     @SecurityRequirement(name = "bearerAuth")
     fun generateAvatar(@RequestBody request: GenerateAvatarRequest): GenerateAvatarResponse {
-        log.info { "Generating avatar with style: ${request.style}" }
+        log.info { "Generating avatar with style: ${request.style}, processId: ${request.processId}" }
+
+        val processId = request.processId?.takeIf { it.isNotBlank() }?.let {
+            runCatching { UUID.fromString(it) }.getOrNull()
+        }
 
         val result = pipeline.send(
             GenerateAvatarCommand(
                 style = request.style,
-                backgroundColor = request.backgroundColor
+                backgroundColor = request.backgroundColor,
+                prompt = request.prompt,
+                processId = processId
             )
         )
 
         return GenerateAvatarResponse(
             success = result.success,
             message = result.message,
-            pictureUrl = result.pictureUrl
+            pictureUrl = result.pictureUrl,
+            processId = result.processId?.toString(),
+            imageKey = result.imageKey
         )
     }
 }

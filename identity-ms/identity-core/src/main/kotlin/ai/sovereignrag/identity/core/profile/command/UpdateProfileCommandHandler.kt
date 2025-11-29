@@ -27,7 +27,7 @@ class UpdateProfileCommandHandler(
 
         command.firstName?.let { user.firstName = it }
         command.lastName?.let { user.lastName = it }
-        command.phoneNumber?.let { user.phoneNumber = it }
+        command.phoneNumber?.let { user.phoneNumber = it.toInternationalFormat() }
         command.locale?.let { user.locale = it }
 
         userRepository.save(user)

@@ -3,6 +3,10 @@ spring:
     import: "optional:configtree:/run/secrets/"
   application:
     name: identity-ms
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   datasource:
     url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:sovereignrag_identity}?ApplicationName=${spring.application.name}"
     username: ${identity_db_user:sovereignrag}
@@ -222,6 +226,12 @@ storage:
     secret-key: ${S3_SECRET_KEY:minioadmin}
     bucket: ${S3_BUCKET:sovereign-rag}
     public-url: ${S3_PUBLIC_URL:}
+
+sovereignrag:
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    image-model: ${OPENAI_IMAGE_MODEL:dall-e-3}
+    image-size: ${OPENAI_IMAGE_SIZE:1024x1024}
 
 springdoc:
   api-docs:

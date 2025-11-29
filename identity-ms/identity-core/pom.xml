@@ -89,6 +89,16 @@
             <artifactId>adapter-file-upload</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>${version.langchain4j}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-open-ai</artifactId>
+            <version>${version.langchain4j}</version>
+        </dependency>
     </dependencies>
 
     <build>

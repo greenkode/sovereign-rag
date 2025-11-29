@@ -11,7 +11,9 @@ import com.microsoft.playwright.Playwright
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.net.URI
+import java.util.concurrent.locks.ReentrantLock
 import jakarta.annotation.PreDestroy
+import kotlin.concurrent.withLock
 
 private val log = KotlinLogging.logger {}
 
@@ -21,15 +23,48 @@ class WebScrapeProcessor(
     private val ingestionProperties: IngestionProperties,
     private val objectMapper: ObjectMapper
 ) {
-    private val playwright: Playwright = Playwright.create()
-    private val browser: Browser = playwright.chromium().launch(
-        BrowserType.LaunchOptions().setHeadless(true)
-    )
+    private val lock = ReentrantLock()
+    private var playwright: Playwright? = null
+    private var browser: Browser? = null
+
+    private fun getOrCreateBrowser(): Browser {
+        browser?.takeIf { it.isConnected }?.let { return it }
+
+        return lock.withLock {
+            browser?.takeIf { it.isConnected }?.let { return it }
+
+            cleanup()
+
+            log.info { "Initializing Playwright browser..." }
+            val pw = Playwright.create()
+            playwright = pw
+
+            val launchOptions = BrowserType.LaunchOptions()
+                .setHeadless(true)
+                .setArgs(listOf(
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu"
+                ))
+
+            val br = pw.chromium().launch(launchOptions)
+            browser = br
+            log.info { "Playwright browser initialized successfully" }
+            br
+        }
+    }
 
     @PreDestroy
     fun cleanup() {
-        browser.close()
-        playwright.close()
+        lock.withLock {
+            runCatching { browser?.close() }
+                .onFailure { log.warn { "Error closing browser: ${it.message}" } }
+            runCatching { playwright?.close() }
+                .onFailure { log.warn { "Error closing playwright: ${it.message}" } }
+            browser = null
+            playwright = null
+        }
     }
 
     fun process(job: IngestionJob) {
@@ -69,7 +104,7 @@ class WebScrapeProcessor(
     }
 
     private fun scrapeUrl(url: String): String {
-        val page = browser.newPage()
+        val page = getOrCreateBrowser().newPage()
         try {
             page.navigate(url)
             page.waitForLoadState()
@@ -90,7 +125,7 @@ class WebScrapeProcessor(
         val content = mutableListOf<String>()
         val baseHost = URI.create(startUrl).host
 
-        val page = browser.newPage()
+        val page = getOrCreateBrowser().newPage()
         try {
             while (toVisit.isNotEmpty() && content.size < maxPages) {
                 val (url, depth) = toVisit.removeFirst()

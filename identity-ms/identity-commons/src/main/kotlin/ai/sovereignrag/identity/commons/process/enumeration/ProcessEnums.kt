@@ -13,7 +13,8 @@ enum class ProcessType(val description: String, val timeInSeconds: Long, val str
     PASSWORD_RESET("Password Reset", 1200, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
     TWO_FACTOR_AUTH("Two Factor Authentication", 300, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
     EMAIL_VERIFICATION("Email Verification", 86400, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
-    USER_REGISTRATION("User Registration", 86400, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY);
+    USER_REGISTRATION("User Registration", 86400, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    AVATAR_GENERATION("Avatar Generation Session", 1800, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY);
 }
 
 enum class ProcessRequestType {
@@ -21,6 +22,8 @@ enum class ProcessRequestType {
     COMPLETE_PROCESS,
     FAIL_PROCESS,
     RESEND_AUTHENTICATION,
+    AVATAR_PROMPT,
+    AVATAR_REFINEMENT,
 }
 
 enum class ProcessRequestDataName(description: String) {
@@ -31,7 +34,10 @@ enum class ProcessRequestDataName(description: String) {
     DEVICE_FINGERPRINT("Device Fingerprint"),
     USER_EMAIL("User Email"),
     ORGANIZATION_ID("Organization ID"),
-    VERIFICATION_TOKEN("Verification Token");
+    VERIFICATION_TOKEN("Verification Token"),
+    AVATAR_PROMPT("Avatar Generation Prompt"),
+    AVATAR_REFINED_PROMPT("Avatar Refined Prompt"),
+    AVATAR_IMAGE_KEY("Avatar Image S3 Key");
 }
 
 enum class ProcessStakeholderType {
