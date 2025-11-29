@@ -32,10 +32,10 @@ CREATE TABLE IF NOT EXISTS groups
     id                 SERIAL       NOT NULL PRIMARY KEY,
     name               VARCHAR(255) UNIQUE NOT NULL,
     description        VARCHAR(255) NOT NULL,
-    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
     version            BIGINT       NOT NULL DEFAULT 0
 );
 
@@ -44,10 +44,10 @@ CREATE TABLE IF NOT EXISTS authority
     id                 SERIAL       NOT NULL PRIMARY KEY,
     name               VARCHAR(255) UNIQUE NOT NULL,
     description        VARCHAR(255) NOT NULL,
-    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
     version            BIGINT       NOT NULL DEFAULT 0
 );
 
@@ -80,11 +80,11 @@ CREATE TABLE IF NOT EXISTS process
     external_reference    VARCHAR(255),
     integrator_reference  VARCHAR(1000) NULL,
     channel               VARCHAR(255) NOT NULL,
-    created_at          TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date    TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by            VARCHAR(255) NOT NULL,
-    last_modified_by      VARCHAR(255) NOT NULL,
-    version               BIGINT       NOT NULL,
+    created_at            TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at      TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by            VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by      VARCHAR(255) NOT NULL DEFAULT 'system',
+    version               BIGINT       NOT NULL DEFAULT 0,
     CONSTRAINT unique_process_type_external_reference UNIQUE (type, external_reference)
 );
 
@@ -98,11 +98,11 @@ CREATE TABLE IF NOT EXISTS process_request
     type               VARCHAR(255) NOT NULL,
     state              VARCHAR(255) NOT NULL,
     channel            VARCHAR(255) NOT NULL,
-    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
-    version            BIGINT       NOT NULL,
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
+    version            BIGINT       NOT NULL DEFAULT 0,
     CONSTRAINT fk_process_request_process FOREIGN KEY (process_id) REFERENCES process (id)
 );
 
@@ -111,11 +111,11 @@ CREATE TABLE IF NOT EXISTS process_request_data
     process_request_id BIGINT       NOT NULL,
     name               VARCHAR(255) NOT NULL,
     value              TEXT         NOT NULL,
-    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
-    version            BIGINT       NOT NULL,
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
+    version            BIGINT       NOT NULL DEFAULT 0,
     PRIMARY KEY (process_request_id, name),
     CONSTRAINT fk_process_request_data FOREIGN KEY (process_request_id) REFERENCES process_request (id)
 );
@@ -126,11 +126,11 @@ CREATE TABLE IF NOT EXISTS process_request_stakeholder
     process_request_id BIGINT       NOT NULL,
     stakeholder_id     VARCHAR(100) NOT NULL,
     type               VARCHAR(255) NOT NULL,
-    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
-    version            BIGINT       NOT NULL,
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
+    version            BIGINT       NOT NULL DEFAULT 0,
     CONSTRAINT fk_process_request_stakeholder FOREIGN KEY (process_request_id) REFERENCES process_request (id)
 );
 
@@ -142,11 +142,11 @@ CREATE TABLE IF NOT EXISTS process_event_transition
     user_id            UUID         NOT NULL,
     old_state          VARCHAR(255),
     new_state          VARCHAR(255),
-    created_at       TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT NOW(),
-    created_by         VARCHAR(255) NOT NULL,
-    last_modified_by   VARCHAR(255) NOT NULL,
-    version            BIGINT       NOT NULL,
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
+    version            BIGINT       NOT NULL DEFAULT 0,
     CONSTRAINT fk_process_event_transition_process FOREIGN KEY (process_id) REFERENCES process (id)
 );
 
@@ -159,10 +159,10 @@ CREATE TABLE IF NOT EXISTS subscription_limit
     monthly_token_limit BIGINT       NOT NULL,
     start               TIMESTAMP    NOT NULL,
     expiry              TIMESTAMP,
-    created_by          VARCHAR(50)  NOT NULL DEFAULT 'system',
-    created_at        TIMESTAMP             DEFAULT NOW(),
-    last_modified_by    VARCHAR(50)           DEFAULT NOW(),
-    last_modified_date  TIMESTAMP             DEFAULT NOW(),
+    created_at          TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at    TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by          VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by    VARCHAR(255) NOT NULL DEFAULT 'system',
     version             BIGINT       NOT NULL DEFAULT 0
 );
 
@@ -178,26 +178,26 @@ CREATE TABLE IF NOT EXISTS access_token
     refresh_token      TEXT         NULL,
     resource           VARCHAR(255) NOT NULL,
     institution        VARCHAR(255) NOT NULL,
-    created_by         VARCHAR(50)  NOT NULL DEFAULT 'system',
-    created_at       TIMESTAMP             DEFAULT NOW(),
-    last_modified_by   VARCHAR(50)           DEFAULT NOW(),
-    last_modified_date TIMESTAMP             DEFAULT NOW(),
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
     version            BIGINT       NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS notification_device
 (
     id                   BIGSERIAL PRIMARY KEY,
-    public_id            UUID        NOT NULL,
-    notification_channel VARCHAR(50) NOT NULL,
-    value                TEXT        NOT NULL,
-    user_id              UUID        NOT NULL,
-    notification_type    VARCHAR(50) NOT NULL,
-    created_by           VARCHAR(50) NOT NULL default 'system',
-    created_at         TIMESTAMP            DEFAULT NOW(),
-    last_modified_by     VARCHAR(50)          DEFAULT NOW(),
-    last_modified_date   TIMESTAMP            DEFAULT NOW(),
-    version              BIGINT      NOT NULL DEFAULT 0,
+    public_id            UUID         NOT NULL,
+    notification_channel VARCHAR(50)  NOT NULL,
+    value                TEXT         NOT NULL,
+    user_id              UUID         NOT NULL,
+    notification_type    VARCHAR(50)  NOT NULL,
+    created_at           TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at     TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by           VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by     VARCHAR(255) NOT NULL DEFAULT 'system',
+    version              BIGINT       NOT NULL DEFAULT 0,
     UNIQUE (notification_type, notification_channel, user_id)
 );
 
@@ -207,10 +207,10 @@ CREATE TABLE IF NOT EXISTS system_property
     name               VARCHAR(100) NOT NULL,
     scope              VARCHAR(255) NOT NULL,
     value              TEXT         NOT NULL,
-    created_by         VARCHAR(50)  NOT NULL,
-    created_at       TIMESTAMP,
-    last_modified_by   VARCHAR(50),
-    last_modified_date TIMESTAMP,
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
     version            BIGINT       NOT NULL DEFAULT 0,
     CONSTRAINT system_property_unique_name_scope UNIQUE (name, scope)
 );
@@ -218,12 +218,12 @@ CREATE TABLE IF NOT EXISTS system_property
 CREATE TABLE IF NOT EXISTS users
 (
     id                 BIGSERIAL PRIMARY KEY,
-    public_id          UUID        NOT NULL UNIQUE,
-    created_by         VARCHAR(50) NOT NULL,
-    created_at       TIMESTAMP,
-    last_modified_by   VARCHAR(50),
-    last_modified_date TIMESTAMP,
-    version            BIGINT      NOT NULL DEFAULT 0
+    public_id          UUID         NOT NULL UNIQUE,
+    created_at         TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255) NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255) NOT NULL DEFAULT 'system',
+    version            BIGINT       NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS user_property
@@ -248,21 +248,21 @@ CREATE TABLE IF NOT EXISTS user_external_id
 CREATE TABLE IF NOT EXISTS webhook_configuration
 (
     id                 BIGSERIAL PRIMARY KEY,
-    public_id          UUID         NOT NULL UNIQUE,
-    merchant_id        UUID         NOT NULL,
+    public_id          UUID          NOT NULL UNIQUE,
+    merchant_id        UUID          NOT NULL,
     webhook_url        VARCHAR(2048) NOT NULL,
-    notification_type  VARCHAR(50)  NOT NULL,
-    is_active          BOOLEAN      NOT NULL DEFAULT TRUE,
+    notification_type  VARCHAR(50)   NOT NULL,
+    is_active          BOOLEAN       NOT NULL DEFAULT TRUE,
     secret_key         VARCHAR(512),
     custom_headers     TEXT,
-    retry_attempts     INTEGER      NOT NULL DEFAULT 3,
-    timeout_seconds    INTEGER      NOT NULL DEFAULT 30,
+    retry_attempts     INTEGER       NOT NULL DEFAULT 3,
+    timeout_seconds    INTEGER       NOT NULL DEFAULT 30,
     description        TEXT,
-    created_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by         VARCHAR(255)          DEFAULT 'system',
-    last_modified_date TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_modified_by   VARCHAR(255)          DEFAULT 'system',
-    version            BIGINT       NOT NULL DEFAULT 0
+    created_at         TIMESTAMP     NOT NULL DEFAULT NOW(),
+    last_modified_at   TIMESTAMP     NOT NULL DEFAULT NOW(),
+    created_by         VARCHAR(255)  NOT NULL DEFAULT 'system',
+    last_modified_by   VARCHAR(255)  NOT NULL DEFAULT 'system',
+    version            BIGINT        NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_webhook_configuration_merchant_id ON webhook_configuration(merchant_id);

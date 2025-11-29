@@ -1,3 +1,65 @@
+INSERT INTO identity.oauth_scopes (name) VALUES
+    ('openid'), ('profile'), ('email'), ('read'), ('write'), ('merchant'),
+    ('service:audit'), ('service:notification'), ('service:core')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO identity.oauth_authentication_methods (name) VALUES
+    ('client_secret_basic'), ('client_secret_post'), ('none')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO identity.oauth_grant_types (name) VALUES
+    ('authorization_code'), ('refresh_token'), ('client_credentials')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO identity.oauth_registered_clients (
+    id, client_id, client_id_issued_at, client_secret, client_name,
+    failed_auth_attempts, environment_mode, status, plan, version, created_at
+) VALUES (
+    'identity-ms-client', 'identity-ms-client', NOW(),
+    '$2a$10$UcQHI9SVJfyvt0UuuhnCteEuLSve1rq1vPQZc.hRCJKzgUH5lpoja',
+    'Identity MS Service Client', 0, 'SANDBOX', 'ACTIVE', 'TRIAL', 0, NOW()
+) ON CONFLICT (client_id) DO NOTHING;
+
+INSERT INTO identity.oauth_client_scopes (client_id, scope_id)
+SELECT 'identity-ms-client', id FROM identity.oauth_scopes WHERE name IN ('service:audit', 'service:notification', 'service:core')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO identity.oauth_client_authentication_methods (client_id, method_id)
+SELECT 'identity-ms-client', id FROM identity.oauth_authentication_methods WHERE name = 'client_secret_basic'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO identity.oauth_client_grant_types (client_id, grant_type_id)
+SELECT 'identity-ms-client', id FROM identity.oauth_grant_types WHERE name = 'client_credentials'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO identity.oauth_client_token_settings (client_id, setting_name, setting_value) VALUES
+    ('identity-ms-client', 'ACCESS_TOKEN_TIME_TO_LIVE', 'PT10M'),
+    ('identity-ms-client', 'REUSE_REFRESH_TOKENS', 'false')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO identity.rate_limit_config (method_name, subscription_tier, scope, capacity, time_value, time_unit) VALUES
+('login-attempts', 'TRIAL', 'INDIVIDUAL', 5, 1, 'MINUTES'),
+('2fa-resend', 'TRIAL', 'INDIVIDUAL', 1, 1, 'MINUTES'),
+('2fa-verify', 'TRIAL', 'INDIVIDUAL', 5, 1, 'MINUTES'),
+('password-reset', 'TRIAL', 'INDIVIDUAL', 2, 5, 'MINUTES'),
+('api-request', 'TRIAL', 'ORGANIZATION', 100, 1, 'HOURS'),
+('login-attempts', 'STARTER', 'INDIVIDUAL', 10, 1, 'MINUTES'),
+('2fa-resend', 'STARTER', 'INDIVIDUAL', 2, 1, 'MINUTES'),
+('2fa-verify', 'STARTER', 'INDIVIDUAL', 10, 1, 'MINUTES'),
+('password-reset', 'STARTER', 'INDIVIDUAL', 5, 5, 'MINUTES'),
+('api-request', 'STARTER', 'ORGANIZATION', 1000, 1, 'HOURS'),
+('login-attempts', 'PROFESSIONAL', 'INDIVIDUAL', 20, 1, 'MINUTES'),
+('2fa-resend', 'PROFESSIONAL', 'INDIVIDUAL', 3, 1, 'MINUTES'),
+('2fa-verify', 'PROFESSIONAL', 'INDIVIDUAL', 20, 1, 'MINUTES'),
+('password-reset', 'PROFESSIONAL', 'INDIVIDUAL', 10, 5, 'MINUTES'),
+('api-request', 'PROFESSIONAL', 'ORGANIZATION', 5000, 1, 'HOURS'),
+('login-attempts', 'ENTERPRISE', 'INDIVIDUAL', 50, 1, 'MINUTES'),
+('2fa-resend', 'ENTERPRISE', 'INDIVIDUAL', 5, 1, 'MINUTES'),
+('2fa-verify', 'ENTERPRISE', 'INDIVIDUAL', 50, 1, 'MINUTES'),
+('password-reset', 'ENTERPRISE', 'INDIVIDUAL', 20, 5, 'MINUTES'),
+('api-request', 'ENTERPRISE', 'ORGANIZATION', 50000, 1, 'HOURS')
+ON CONFLICT (method_name, subscription_tier, scope) DO NOTHING;
+
 INSERT INTO identity.country (name, iso2_code, iso3_code, numeric_code, dial_code, flag_url, region, sub_region, enabled) VALUES
 ('Afghanistan', 'AF', 'AFG', '004', '+93', 'https://flagcdn.com/af.svg', 'Asia', 'Southern Asia', false),
 ('Albania', 'AL', 'ALB', '008', '+355', 'https://flagcdn.com/al.svg', 'Europe', 'Southern Europe', false),
