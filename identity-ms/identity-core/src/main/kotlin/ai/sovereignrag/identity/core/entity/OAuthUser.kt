@@ -107,6 +107,8 @@ class OAuthUser() : AuditableEntity() {
     @Enumerated(EnumType.STRING)
     var registrationSource: RegistrationSource = RegistrationSource.INVITATION
 
+    var registrationComplete: Boolean = false
+
     constructor(username: String, password: String) : this() {
         this.username = username
         this.password = password

@@ -44,6 +44,7 @@ class VerifyEmailCommandHandler(
             .orElseThrow { UserNotFoundException(messageService.getMessage("registration.error.user_not_found")) }
 
         user.emailVerified = true
+        user.registrationComplete = true
         userRepository.save(user)
 
         val completeRequest = MakeProcessRequestPayload(

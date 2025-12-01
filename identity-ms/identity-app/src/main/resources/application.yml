@@ -198,6 +198,7 @@ app:
     frontend-callback-url: ${FRONTEND_URL:http://localhost:3000}/auth/oauth-callback
   registration:
     blocked-domains: gmail.com,yahoo.com,hotmail.com,outlook.com,live.com,aol.com,icloud.com,mail.com,protonmail.com,yandex.com
+    verification-base-url: ${MERCHANT_BASEURL:http://localhost:3000}/auth/verify-email
 
 identity-ms:
   base-url: ${IDENTITY_BASEURL:http://localhost:9083}
@@ -210,13 +211,13 @@ identity-ms:
     secret: ${identity_client_secret:RespectTheHangover}
 
 notification-ms:
-  base-url: ${NOTIFICATION_MS_BASE_URL:http://localhost:9092}
+  base-url: ${NOTIFICATION_MS_BASE_URL:http://localhost:9081}
 
 audit-ms:
   base-url: ${AUDIT_MS_BASE_URL:http://localhost:9080}
 
 core-ms:
-  base-url: ${CORE_MS_BASE_URL:http://localhost:9091}
+  base-url: ${CORE_MS_BASE_URL:http://localhost:9082}
 
 storage:
   s3:

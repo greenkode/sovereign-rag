@@ -1,5 +1,7 @@
 package ai.sovereignrag.identity.core.registration.command
 
+import ai.sovereignrag.commons.notification.dto.MessageRecipient
+import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.i18n.MessageService
@@ -12,11 +14,15 @@ import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.identity.core.entity.OAuthUser
+import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.util.Locale
 import java.util.UUID
 
 private val log = KotlinLogging.logger {}
@@ -26,7 +32,10 @@ private val log = KotlinLogging.logger {}
 class ResendVerificationCommandHandler(
     private val userRepository: OAuthUserRepository,
     private val processGateway: ProcessGateway,
-    private val messageService: MessageService
+    private val messageService: MessageService,
+    private val notificationClient: NotificationClient,
+    @Value("\${app.registration.verification-base-url}")
+    private val verificationBaseUrl: String
 ) : Command.Handler<ResendVerificationCommand, ResendVerificationResult> {
 
     override fun handle(command: ResendVerificationCommand): ResendVerificationResult {
@@ -75,11 +84,32 @@ class ResendVerificationCommandHandler(
         )
 
         processGateway.createProcess(processPayload)
-        log.info { "Verification email resent for user: ${user.id}" }
+        log.info { "Verification process created for user: ${user.id}" }
+
+        sendVerificationEmail(user, verificationToken)
 
         return ResendVerificationResult(
             success = true,
             message = messageService.getMessage("registration.success.verification_resent")
         )
+    }
+
+    private fun sendVerificationEmail(user: OAuthUser, token: String) {
+        val verificationLink = "$verificationBaseUrl?token=$token"
+        val expiryHours = ProcessType.EMAIL_VERIFICATION.timeInSeconds / 3600
+
+        notificationClient.sendNotification(
+            recipients = listOf(MessageRecipient(user.email, user.firstName)),
+            templateName = TemplateName.EMAIL_VERIFICATION,
+            parameters = mapOf(
+                "name" to (user.firstName ?: user.email),
+                "verification_link" to verificationLink,
+                "expiry_hours" to "$expiryHours"
+            ),
+            locale = Locale.ENGLISH,
+            clientIdentifier = UUID.randomUUID().toString()
+        )
+
+        log.info { "Verification email resent to: ${user.email}" }
     }
 }

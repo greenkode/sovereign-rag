@@ -172,6 +172,10 @@ class CustomOidcUserService(
 
     private fun findUserByEmailAndLinkProvider(email: String, provider: OAuthProvider, providerUserId: String): OAuthUser? {
         return userRepository.findByEmail(email)?.also { user ->
+            user.emailVerified = true
+            user.registrationComplete = true
+            userRepository.save(user)
+
             val providerAccount = OAuthProviderAccount(
                 user = user,
                 provider = provider,
@@ -204,6 +208,7 @@ class CustomOidcUserService(
             this.lastName = lastName
             this.pictureUrl = pictureUrl
             this.emailVerified = true
+            this.registrationComplete = true
             this.enabled = true
             this.merchantId = merchantId
             this.userType = UserType.BUSINESS

@@ -1,11 +1,16 @@
 package ai.sovereignrag.identity.core.registration.command
 
+import ai.sovereignrag.commons.notification.dto.MessageRecipient
+import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.identity.commons.process.MakeProcessRequestPayload
 import ai.sovereignrag.identity.commons.process.ProcessGateway
+import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
@@ -16,6 +21,7 @@ import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.entity.RegistrationSource
 import ai.sovereignrag.identity.core.entity.TrustLevel
 import ai.sovereignrag.identity.core.entity.UserType
+import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.BusinessEmailValidationService
@@ -23,10 +29,12 @@ import ai.sovereignrag.identity.core.service.OAuthClientConfigService
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.util.Locale
 import java.util.UUID
 
 private val log = KotlinLogging.logger {}
@@ -40,7 +48,10 @@ class RegisterUserCommandHandler(
     private val passwordEncoder: PasswordEncoder,
     private val processGateway: ProcessGateway,
     private val messageService: MessageService,
-    private val oauthClientConfigService: OAuthClientConfigService
+    private val oauthClientConfigService: OAuthClientConfigService,
+    private val notificationClient: NotificationClient,
+    @Value("\${app.registration.verification-base-url}")
+    private val verificationBaseUrl: String
 ) : Command.Handler<RegisterUserCommand, RegisterUserResult> {
 
     override fun handle(command: RegisterUserCommand): RegisterUserResult {
@@ -49,19 +60,26 @@ class RegisterUserCommandHandler(
         val normalizedEmail = command.email.trim().lowercase()
         businessEmailValidationService.validateBusinessEmail(normalizedEmail)
 
-        userRepository.findByEmail(normalizedEmail)?.let {
-            throw ClientException(messageService.getMessage("registration.error.email_exists"))
+        val existingUser = userRepository.findByEmail(normalizedEmail)
+        existingUser?.let { user ->
+            if (user.registrationComplete) {
+                throw ClientException(messageService.getMessage("registration.error.email_exists"))
+            }
+            log.info { "Found incomplete registration for email: $normalizedEmail, allowing re-registration" }
         }
 
         val domain = normalizedEmail.substringAfter("@")
         val existingClient = oauthClientRepository.findByDomain(domain)
-        val isNewOrganization = existingClient == null
+        val isNewOrganization = existingClient == null && existingUser == null
 
-        val organizationId = existingClient?.id?.let { UUID.fromString(it) }
+        val organizationId = existingUser?.merchantId
+            ?: existingClient?.id?.let { UUID.fromString(it) }
             ?: createOAuthClient(domain, command.organizationName, normalizedEmail)
 
-        val user = createUser(command, normalizedEmail, organizationId, isNewOrganization)
+        val user = existingUser?.let { updateExistingUser(it, command, organizationId) }
+            ?: createUser(command, normalizedEmail, organizationId, isNewOrganization)
 
+        cancelExistingVerificationProcess(user)
         createEmailVerificationProcess(user, normalizedEmail)
 
         log.info { "User registered successfully: ${user.id}, organization: $organizationId, isNewOrg: $isNewOrganization" }
@@ -165,6 +183,45 @@ class RegisterUserCommandHandler(
         return userRepository.save(user)
     }
 
+    private fun updateExistingUser(
+        existingUser: OAuthUser,
+        command: RegisterUserCommand,
+        organizationId: UUID
+    ): OAuthUser {
+        val nameParts = command.fullName.trim().split("\\s+".toRegex(), 2)
+        val firstName = nameParts[0]
+        val lastName = nameParts.getOrNull(1) ?: ""
+
+        existingUser.apply {
+            this.password = passwordEncoder.encode(command.password)
+            this.firstName = firstName
+            this.lastName = lastName
+            this.merchantId = organizationId
+            this.emailVerified = false
+            this.registrationComplete = false
+        }
+
+        log.info { "Updated existing user: ${existingUser.id} with new registration details" }
+        return userRepository.save(existingUser)
+    }
+
+    private fun cancelExistingVerificationProcess(user: OAuthUser) {
+        processGateway.findLatestPendingProcessesByTypeAndForUserId(
+            processType = ProcessType.EMAIL_VERIFICATION,
+            userId = user.id!!
+        )?.let { existingProcess ->
+            val cancelRequest = MakeProcessRequestPayload(
+                userId = user.id!!,
+                processPublicId = existingProcess.publicId,
+                eventType = ProcessEvent.PROCESS_FAILED,
+                requestType = ProcessRequestType.FAIL_PROCESS,
+                channel = Channel.BUSINESS_WEB
+            )
+            processGateway.makeRequest(cancelRequest)
+            log.info { "Cancelled existing verification process for user: ${user.id}" }
+        }
+    }
+
     private fun createEmailVerificationProcess(user: OAuthUser, email: String) {
         val verificationToken = UUID.randomUUID().toString()
         val processPayload = CreateNewProcessPayload(
@@ -188,5 +245,26 @@ class RegisterUserCommandHandler(
 
         processGateway.createProcess(processPayload)
         log.info { "Email verification process created for user: ${user.id}" }
+
+        sendVerificationEmail(user, verificationToken)
+    }
+
+    private fun sendVerificationEmail(user: OAuthUser, token: String) {
+        val verificationLink = "$verificationBaseUrl?token=$token"
+        val expiryHours = ProcessType.EMAIL_VERIFICATION.timeInSeconds / 3600
+
+        notificationClient.sendNotification(
+            recipients = listOf(MessageRecipient(user.email, user.firstName)),
+            templateName = TemplateName.EMAIL_VERIFICATION,
+            parameters = mapOf(
+                "name" to (user.firstName ?: user.email),
+                "verification_link" to verificationLink,
+                "expiry_hours" to "$expiryHours"
+            ),
+            locale = Locale.ENGLISH,
+            clientIdentifier = UUID.randomUUID().toString()
+        )
+
+        log.info { "Verification email sent to: ${user.email}" }
     }
 }
