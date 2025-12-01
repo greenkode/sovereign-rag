@@ -1,18 +1,108 @@
 spring:
   flyway:
     enabled: true
+    schemas: [identity]
   jpa:
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: identity
   cache:
     type: simple
   main:
     allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-google-client-id
+            client-secret: test-google-client-secret
+            scope: openid,email,profile
+          microsoft:
+            client-id: test-microsoft-client-id
+            client-secret: test-microsoft-client-secret
+            scope: openid,email,profile
+        provider:
+          microsoft:
+            authorization-uri: https://login.microsoftonline.com/common/oauth2/v2.0/authorize
+            token-uri: https://login.microsoftonline.com/common/oauth2/v2.0/token
+            jwk-set-uri: https://login.microsoftonline.com/common/discovery/v2.0/keys
+            user-info-uri: https://graph.microsoft.com/oidc/userinfo
+            user-name-attribute: sub
+
+jwt:
+  private-key-path: "-----BEGIN PRIVATE KEY-----MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDkMTjaXdE1WtgrKAAjMZ2HfOHKjMrpFEe+uyhAaiSFFmJ6CWpeaWYN95f3CkY3QfzN7WzXA1ivc6+lGJA9XGj1fYps4JNMa1vNR7gzUh110STahVtsm3PNTKCaxtWwmW818YZA1vnyk+ZGetQIwmeLfPiIV5dc5LSPhct074683rYhS+dDw2c8T4ROh5WndJTnuRGBa2kP3Gy29SDt7OXxD36+mX8DPaWxZGiBAPGe9bzLGuQfOteg/Vt10/0W9aAXeiX0D7xhWqQTfaluGl+C9n7VpzEumjZSWqCBmBC4iO4BX5oexiDibwWSatMkcYEgd0NDqaowVRMcbohJoSbHAgMBAAECggEAFfwQCCnFwCgyb2X5LWrYTHdhoYwS+IW1q9CIPjx7rD7N2ggSMWpiJLJX97sLrMM0wfo/5C80WiMBJxzIuMCwdAZWUcsJJfGp9IsWWgttPy6ZKFx0xG/tpjfduUuyxsLhjgbo8lJD3nUVWHD5AKcKJswxfaFCufZm1vUC9w8lZ1i2/HNJm8LAOet8JhK1R9+HGqD0f5mPhhK8KvyGjGLp+d4GQYJI+sTRxZmeF48EMeKYz9yj2g/wJTehTbNEwkOCHMW6udYb2ZaGG2xNVqBz0Pr8VDOlcG9GdoXPXeZ4gaPL/5YFYLlmLD/YJcRowigHm9S6uboluUH81BTdrYNykQKBgQD+vKQUdsn0e2le769lTq3rMVTKTaAOtOuL2QiRzPM3O2+awHRPT/IHB8bSN71bUwQPHtE8/Ql/iPsP1EC+Q2GFM+GrJPbaJwqzmV1GwhT854fQhlNXgNiUjsLhyrq7Tc+Hxan2WA4iQpK4ZBHwNgxGnAz/fLeSDOAeC8ws8G8UpQKBgQDlUuLF8i4Tciw0Y9ZZmQwd/Rl3wKUIeDQsSqMcWZkCR/3Jk5JQLLHaFZIVth9ZmuStAXQ8jaUht4V6NCl8ZHmSzyrd6woOmJq3ZGC9X6SglSfq6rJA0kyAhoVsVseqjnjyn9q9Xs+3r23XX6CMYrojkxQf/4LHzYN4BZ5P5j71+wKBgQDQqU8yIBfPtuOaS3V945QdCpys1iccxOAI/u/BFoPHo10JA0qCyTa0wY8AFX57dyXlCNZWQeNs35Tf43phH6qbROM+oJnAGqjuctrwIfy1KSacDdvo2ncOQV6rO7f3w4YSbjyJuJljQOsUNYxoGq21jRAsm0l3TiqrEfjeethSrQKBgGV9RTdtcs7QXJfjB14nyaEL/lVtQJx69jwT3BQT4w+LZNntIXeyEBQAL+LD8yPo1QNr/VE/LrG5Uq0+oI2YueUrIkGMX6sOBorbNaUZyvX2jO/+Zl0htRG8dxf3X+4vl39pF5lveGZGkUob3CXFG7Pax7FRl0NtxJ09f07FC2A5AoGBANGd7296YGCs7iro3w/GbZjVjXjUM2Tx6hWJnmF+9fqAb5cMof38l8SoqUeqdFimjOYE75BRTFsiGIs16Zt50ji31JMUX6+Ev2P2aaJS18yqovoLV9PRW8kXmGuQzS1NLiTcWqvdmlE08ms1sXULYKOrj7+aDRGTLydVjxxgjW7/-----END PRIVATE KEY-----"
+  public-key-path: "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGdh3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJni3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpfgvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEmxwIDAQAB-----END PUBLIC KEY-----"
+  issuer: http://localhost:9083
+  expiration: 3600
+  audience: "test-client"
+
+identity:
+  2fa:
+    token-length: 6
+    skip-for-trusted-devices: true
+  trusted-device:
+    enabled: true
+    max-devices-per-user: 5
+    default-duration-days: 30
+    cleanup-expired-cron: "0 0 2 * * *"
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+  password-reset:
+    base-url: http://localhost:3000/auth/reset-password
+  merchant:
+    invitation:
+      base-url: http://localhost:3000/auth/onboard
+  oauth:
+    frontend-callback-url: http://localhost:3000/auth/oauth-callback
+  registration:
+    blocked-domains: gmail.com,yahoo.com,hotmail.com,outlook.com
+    verification-base-url: http://localhost:3000/auth/verify-email
+
+identity-ms:
+  base-url: http://localhost:9083
+  token:
+    expiry: 600
+  refresh-token:
+    expiry: 86400
+  client:
+    id: test-client
+    secret: test-secret
+
+notification-ms:
+  base-url: http://localhost:9081
+
+audit-ms:
+  base-url: http://localhost:9080
+
+core-ms:
+  base-url: http://localhost:9082
+
+storage:
+  s3:
+    endpoint: http://localhost:9000
+    region: us-east-1
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket: test-bucket
+    public-url: http://localhost:9000
+
+sovereignrag:
+  openai:
+    api-key: test-api-key
+    image-model: dall-e-3
+    image-size: 1024x1024
+
+bucket4j:
+  enabled: false
 
 logging:
   level:
     org.testcontainers: INFO
     org.springframework.test: DEBUG
+    ai.sovereignrag: DEBUG
