@@ -57,8 +57,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URI:http://localhost:9093}
-          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:9093/.well-known/jwks.json}
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:9083}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:9083/oauth2/jwks}
       client:
         registration:
           identity-ms:
@@ -68,7 +68,7 @@ spring:
             scope: internal
         provider:
           identity-ms:
-            token-uri: ${IDENTITY_MS_TOKEN_URI:http://localhost:9093/oauth2/token}
+            token-uri: ${IDENTITY_MS_TOKEN_URI:http://localhost:9083/oauth2/token}
 
   # Cache configuration
   cache:
@@ -90,7 +90,7 @@ server:
 
 sovereignrag:
   identity-ms:
-    base-url: ${IDENTITY_MS_BASE_URL:http://localhost:9093}
+    base-url: ${IDENTITY_MS_BASE_URL:http://localhost:9083}
 
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
@@ -263,5 +263,5 @@ management:
 # JWT Configuration (Resource Server)
 jwt:
   public-key-path: "${jwt_public_key:-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGdh3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJni3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpfgvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEmxwIDAQAB-----END PUBLIC KEY-----}"
-  issuer: ${JWT_ISSUER:http://localhost:9093}
+  issuer: ${JWT_ISSUER:http://localhost:9083}
   audience: core-ms-client

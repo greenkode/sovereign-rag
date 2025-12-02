@@ -11,6 +11,8 @@ import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import ai.sovereignrag.identity.core.entity.RegistrationSource
 import ai.sovereignrag.identity.core.entity.TrustLevel
 import ai.sovereignrag.identity.core.entity.UserType
+import ai.sovereignrag.identity.core.organization.entity.Organization
+import ai.sovereignrag.identity.core.organization.repository.OrganizationRepository
 import ai.sovereignrag.identity.core.repository.OAuthProviderAccountRepository
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
@@ -36,6 +38,7 @@ class CustomOidcUserService(
     private val userRepository: OAuthUserRepository,
     private val providerAccountRepository: OAuthProviderAccountRepository,
     private val oauthClientRepository: OAuthRegisteredClientRepository,
+    private val organizationRepository: OrganizationRepository,
     private val oauthClientConfigService: OAuthClientConfigService,
     private val businessEmailValidationService: BusinessEmailValidationService,
     private val passwordEncoder: PasswordEncoder,
@@ -88,8 +91,8 @@ class CustomOidcUserService(
                 messageService.getMessage("oauth.error.domain_exists", superAdminEmail)
             )
         } ?: run {
-            val merchantId = createOAuthClient(domain, email)
-            createUserWithProviderAccount(provider, providerUserId, email, oidcUser, merchantId)
+            val (organization, oauthClient) = createOrganizationAndOAuthClient(domain, email)
+            createUserWithProviderAccount(provider, providerUserId, email, oidcUser, organization.id, UUID.fromString(oauthClient.id))
         }
     }
 
@@ -98,9 +101,34 @@ class CustomOidcUserService(
             .firstOrNull()?.email
             ?: messageService.getMessage("oauth.error.admin_not_found")
 
-    private fun createOAuthClient(domain: String, adminEmail: String): UUID {
-        val name = "-"
-        val organizationId = UUID.randomUUID()
+    private fun generateSlug(domain: String): String {
+        return domain.substringBefore(".")
+            .lowercase()
+            .replace(Regex("[^a-z0-9]"), "-")
+            .replace(Regex("-+"), "-")
+            .trim('-')
+    }
+
+    private fun generateUniqueSlug(baseSlug: String): String {
+        var slug = baseSlug
+        var counter = 1
+        while (organizationRepository.existsBySlug(slug)) {
+            slug = "$baseSlug-$counter"
+            counter++
+        }
+        return slug
+    }
+
+    private fun createOrganizationAndOAuthClient(domain: String, adminEmail: String): Pair<Organization, OAuthRegisteredClient> {
+        val slug = generateUniqueSlug(generateSlug(domain))
+
+        val organization = Organization(
+            name = "-",
+            slug = slug,
+            status = OrganizationStatus.PENDING
+        )
+        organizationRepository.save(organization)
+        log.info { "Created Organization via OIDC: ${organization.id} with slug: $slug" }
 
         val sandboxSecret = RandomStringUtils.secure().nextAlphanumeric(30)
         val productionSecret = RandomStringUtils.secure().nextAlphanumeric(30)
@@ -116,15 +144,14 @@ class CustomOidcUserService(
         val scopeWrite = oauthClientConfigService.getScope("write")
 
         val oauthClient = OAuthRegisteredClient().apply {
-            id = organizationId.toString()
+            id = organization.id.toString()
             clientId = UUID.randomUUID().toString()
-            clientName = name
+            clientName = organization.name
             clientIdIssuedAt = Instant.now()
             clientSecret = passwordEncoder.encode(sandboxSecret)
             sandboxClientSecret = passwordEncoder.encode(sandboxSecret)
             productionClientSecret = passwordEncoder.encode(productionSecret)
             this.domain = domain
-            this.status = OrganizationStatus.PENDING
             failedAuthAttempts = 0
 
             addAuthenticationMethod(authMethodBasic)
@@ -146,9 +173,9 @@ class CustomOidcUserService(
         }
 
         oauthClientRepository.save(oauthClient)
-        log.info { "Created OAuth client via OIDC for organization: $name with clientId: ${oauthClient.clientId}, domain: $domain" }
+        log.info { "Created OAuth client via OIDC for organization: ${organization.name} with clientId: ${oauthClient.clientId}, domain: $domain" }
 
-        return organizationId
+        return organization to oauthClient
     }
 
     private fun oauthError(errorCode: String, description: String): OAuth2AuthenticationException =
@@ -193,7 +220,8 @@ class CustomOidcUserService(
         providerUserId: String,
         email: String,
         oidcUser: OidcUser,
-        merchantId: UUID
+        organizationId: UUID,
+        oauthClientId: UUID
     ): OAuthUser {
         val firstName = oidcUser.givenName ?: oidcUser.fullName?.split(" ")?.firstOrNull()
         val lastName = oidcUser.familyName ?: oidcUser.fullName?.split(" ")?.drop(1)?.joinToString(" ")?.takeIf { it.isNotBlank() }
@@ -210,7 +238,8 @@ class CustomOidcUserService(
             this.emailVerified = true
             this.registrationComplete = true
             this.enabled = true
-            this.merchantId = merchantId
+            this.organizationId = organizationId
+            this.merchantId = oauthClientId
             this.userType = UserType.BUSINESS
             this.trustLevel = TrustLevel.TIER_THREE
             this.registrationSource = when (provider) {
@@ -235,7 +264,7 @@ class CustomOidcUserService(
         providerAccount.updateLastLogin()
         providerAccountRepository.save(providerAccount)
 
-        log.info { "Created new super admin user via $provider OIDC: $email for merchant: $merchantId" }
+        log.info { "Created new super admin user via $provider OIDC: $email for organization: $organizationId" }
         return savedUser
     }
 }

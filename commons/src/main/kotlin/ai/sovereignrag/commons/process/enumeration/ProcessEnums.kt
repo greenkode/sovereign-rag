@@ -9,7 +9,8 @@ object ProcessStrategyBeanNames {
 }
 
 enum class ProcessType(val description: String, val timeInSeconds: Long, val strategyBeanName: String? = null) {
-    DEFAULT("Default Process", -1, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY)
+    DEFAULT("Default Process", -1, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY),
+    KNOWLEDGE_BASE_CREATION("Knowledge Base Creation Process", 86400, ProcessStrategyBeanNames.DEFAULT_PROCESS_STRATEGY)
 }
 
 enum class ProcessRequestType {
@@ -35,6 +36,11 @@ enum class ProcessRequestDataName(description: String) {
     RECIPIENT_ACCOUNT_ADDRESS("Recipient Account Number"),
     ADDRESS_TYPE("Address Type"),
     INTEGRATOR_ID("Integrator Id"),
+    KNOWLEDGE_BASE_ID("Knowledge Base Id"),
+    KNOWLEDGE_BASE_NAME("Knowledge Base Name"),
+    ORGANIZATION_ID("Organization Id"),
+    TENANT_ID("Tenant Id"),
+    CLIENT_ID("Client Id"),
 }
 
 enum class ProcessStakeholderType {

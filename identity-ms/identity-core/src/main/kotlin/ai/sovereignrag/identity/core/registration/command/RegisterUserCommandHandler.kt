@@ -22,6 +22,8 @@ import ai.sovereignrag.identity.core.entity.RegistrationSource
 import ai.sovereignrag.identity.core.entity.TrustLevel
 import ai.sovereignrag.identity.core.entity.UserType
 import ai.sovereignrag.identity.core.integration.NotificationClient
+import ai.sovereignrag.identity.core.organization.entity.Organization
+import ai.sovereignrag.identity.core.organization.repository.OrganizationRepository
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.BusinessEmailValidationService
@@ -44,6 +46,7 @@ private val log = KotlinLogging.logger {}
 class RegisterUserCommandHandler(
     private val userRepository: OAuthUserRepository,
     private val oauthClientRepository: OAuthRegisteredClientRepository,
+    private val organizationRepository: OrganizationRepository,
     private val businessEmailValidationService: BusinessEmailValidationService,
     private val passwordEncoder: PasswordEncoder,
     private val processGateway: ProcessGateway,
@@ -72,12 +75,18 @@ class RegisterUserCommandHandler(
         val existingClient = oauthClientRepository.findByDomain(domain)
         val isNewOrganization = existingClient == null && existingUser == null
 
-        val organizationId = existingUser?.merchantId
-            ?: existingClient?.id?.let { UUID.fromString(it) }
-            ?: createOAuthClient(domain, command.organizationName, normalizedEmail)
+        val (organizationId, oauthClientId) = existingUser?.organizationId?.let { orgId ->
+            orgId to existingUser.merchantId
+        } ?: existingClient?.id?.let { clientId ->
+            val org = organizationRepository.findBySlug(generateSlug(domain))
+            (org?.id ?: UUID.fromString(clientId)) to UUID.fromString(clientId)
+        } ?: run {
+            val (org, client) = createOrganizationAndOAuthClient(domain, command.organizationName, normalizedEmail)
+            org.id to UUID.fromString(client.id)
+        }
 
-        val user = existingUser?.let { updateExistingUser(it, command, organizationId) }
-            ?: createUser(command, normalizedEmail, organizationId, isNewOrganization)
+        val user = existingUser?.let { updateExistingUser(it, command, organizationId, oauthClientId) }
+            ?: createUser(command, normalizedEmail, organizationId, oauthClientId, isNewOrganization)
 
         cancelExistingVerificationProcess(user)
         createEmailVerificationProcess(user, normalizedEmail)
@@ -94,10 +103,49 @@ class RegisterUserCommandHandler(
         )
     }
 
-    private fun createOAuthClient(domain: String, organizationName: String?, adminEmail: String): UUID {
-        val name = organizationName ?: domain.substringBefore(".").replaceFirstChar { it.uppercase() }
-        val organizationId = UUID.randomUUID()
+    private fun generateSlug(domain: String): String {
+        return domain.substringBefore(".")
+            .lowercase()
+            .replace(Regex("[^a-z0-9]"), "-")
+            .replace(Regex("-+"), "-")
+            .trim('-')
+    }
 
+    private fun createOrganizationAndOAuthClient(
+        domain: String,
+        organizationName: String?,
+        adminEmail: String
+    ): Pair<Organization, OAuthRegisteredClient> {
+        val name = organizationName ?: domain.substringBefore(".").replaceFirstChar { it.uppercase() }
+        val slug = generateUniqueSlug(generateSlug(domain))
+
+        val organization = Organization(
+            name = name,
+            slug = slug
+        )
+        organizationRepository.save(organization)
+        log.info { "Created Organization: ${organization.id} with name: $name, slug: $slug" }
+
+        val oauthClient = createOAuthClientForOrganization(organization, domain, adminEmail)
+
+        return organization to oauthClient
+    }
+
+    private fun generateUniqueSlug(baseSlug: String): String {
+        var slug = baseSlug
+        var counter = 1
+        while (organizationRepository.existsBySlug(slug)) {
+            slug = "$baseSlug-$counter"
+            counter++
+        }
+        return slug
+    }
+
+    private fun createOAuthClientForOrganization(
+        organization: Organization,
+        domain: String,
+        adminEmail: String
+    ): OAuthRegisteredClient {
         val sandboxSecret = RandomStringUtils.secure().nextAlphanumeric(30)
         val productionSecret = RandomStringUtils.secure().nextAlphanumeric(30)
 
@@ -112,9 +160,9 @@ class RegisterUserCommandHandler(
         val scopeWrite = oauthClientConfigService.getScope("write")
 
         val oauthClient = OAuthRegisteredClient().apply {
-            id = organizationId.toString()
+            id = organization.id.toString()
             clientId = UUID.randomUUID().toString()
-            clientName = name
+            clientName = organization.name
             clientIdIssuedAt = Instant.now()
             clientSecret = passwordEncoder.encode(sandboxSecret)
             sandboxClientSecret = passwordEncoder.encode(sandboxSecret)
@@ -140,15 +188,16 @@ class RegisterUserCommandHandler(
         }
 
         oauthClientRepository.save(oauthClient)
-        log.info { "Created OAuth client for organization: $name with clientId: ${oauthClient.clientId}, domain: $domain" }
+        log.info { "Created OAuth client for organization: ${organization.name} with clientId: ${oauthClient.clientId}, domain: $domain" }
 
-        return organizationId
+        return oauthClient
     }
 
     private fun createUser(
         command: RegisterUserCommand,
         normalizedEmail: String,
         organizationId: UUID,
+        oauthClientId: UUID?,
         isFirstUser: Boolean
     ): OAuthUser {
         val nameParts = command.fullName.trim().split("\\s+".toRegex(), 2)
@@ -171,7 +220,8 @@ class RegisterUserCommandHandler(
             this.password = passwordEncoder.encode(command.password)
             this.firstName = firstName
             this.lastName = lastName
-            this.merchantId = organizationId
+            this.organizationId = organizationId
+            this.merchantId = oauthClientId
             this.userType = UserType.BUSINESS
             this.trustLevel = TrustLevel.TIER_THREE
             this.registrationSource = RegistrationSource.SELF_REGISTRATION
@@ -186,7 +236,8 @@ class RegisterUserCommandHandler(
     private fun updateExistingUser(
         existingUser: OAuthUser,
         command: RegisterUserCommand,
-        organizationId: UUID
+        organizationId: UUID,
+        oauthClientId: UUID?
     ): OAuthUser {
         val nameParts = command.fullName.trim().split("\\s+".toRegex(), 2)
         val firstName = nameParts[0]
@@ -196,7 +247,8 @@ class RegisterUserCommandHandler(
             this.password = passwordEncoder.encode(command.password)
             this.firstName = firstName
             this.lastName = lastName
-            this.merchantId = organizationId
+            this.organizationId = organizationId
+            this.merchantId = oauthClientId
             this.emailVerified = false
             this.registrationComplete = false
         }

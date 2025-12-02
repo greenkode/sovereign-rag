@@ -11,6 +11,7 @@ import ai.sovereignrag.identity.core.config.JwtClaimName.FIRST_NAME
 import ai.sovereignrag.identity.core.config.JwtClaimName.LAST_NAME
 import ai.sovereignrag.identity.core.config.JwtClaimName.MERCHANT_ENVIRONMENT_MODE
 import ai.sovereignrag.identity.core.config.JwtClaimName.MERCHANT_ID
+import ai.sovereignrag.identity.core.config.JwtClaimName.ORGANIZATION_ID
 import ai.sovereignrag.identity.core.config.JwtClaimName.NAME
 import ai.sovereignrag.identity.core.config.JwtClaimName.ORGANIZATION_STATUS
 import ai.sovereignrag.identity.core.config.JwtClaimName.PHONE_NUMBER
@@ -26,6 +27,7 @@ import ai.sovereignrag.identity.core.config.JwtClaimName.TYPE
 import ai.sovereignrag.identity.core.config.JwtClaimName.VERIFICATION_STATUS
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
 import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
+import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -69,13 +71,22 @@ class OAuth2TokenCustomizerConfig {
         log.info { "Customizing client credentials token for client: $clientId" }
 
         runCatching {
-            clientId?.let { clientRepository.findByClientId(it) }
-                ?.let { client ->
-                    context.claims.claim(MERCHANT_ID.value, client.id)
-                    context.claims.claim(ENVIRONMENT.value, client.environmentMode.name)
-                    log.info { "Added merchant_id: ${client.id} and environment: ${client.environmentMode} for client: $clientId" }
-                }
-                ?: context.claims.claim(ENVIRONMENT.value, EnvironmentMode.SANDBOX.name)
+            val client = clientId?.let { clientRepository.findByClientId(it) }
+
+            if (client?.isKnowledgeBaseClient() == true) {
+                context.claims.claim("knowledge_base_id", client.knowledgeBaseId)
+                context.claims.claim("organization_id", client.organizationId.toString())
+                context.claims.claim(CLIENT_TYPE.value, "kb_api")
+                context.claims.claim(TYPE.value, "KB_API")
+                log.info { "Added KB claims for client: $clientId, kb: ${client.knowledgeBaseId}, org: ${client.organizationId}" }
+                return@runCatching
+            }
+
+            client?.let {
+                context.claims.claim(MERCHANT_ID.value, it.id)
+                context.claims.claim(ENVIRONMENT.value, it.environmentMode.name)
+                log.info { "Added merchant_id: ${it.id} and environment: ${it.environmentMode} for client: $clientId" }
+            } ?: context.claims.claim(ENVIRONMENT.value, EnvironmentMode.SANDBOX.name)
 
             context.claims.claim(TYPE.value, "BUSINESS")
             context.claims.claim(CLIENT_TYPE.value, "service")
@@ -131,6 +142,7 @@ class OAuth2TokenCustomizerConfig {
             )
 
             user.merchantId?.let { context.claims.claim(MERCHANT_ID.value, it.toString()) }
+            user.organizationId?.let { context.claims.claim(ORGANIZATION_ID.value, it.toString()) }
 
             val setupCompleted = merchant?.getSetting(OAuthClientSettingName.SETUP_COMPLETED) == "true"
             context.claims.claim(SETUP_COMPLETED.value, setupCompleted)

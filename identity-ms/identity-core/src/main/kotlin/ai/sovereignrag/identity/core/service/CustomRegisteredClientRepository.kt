@@ -42,15 +42,21 @@ class CustomRegisteredClientRepository(
     @Cacheable(value = [CacheNames.REGISTERED_CLIENT], key = "'clientId_' + #clientId", unless = "#result == null")
     override fun findByClientId(clientId: String): RegisteredClient? {
         log.info { "Finding registered client by clientId: $clientId" }
-        val client = clientRepository.findByClientId(clientId)
 
-        client?.takeIf { it.checkAndUnlockIfExpired() }?.let {
+        val client = clientRepository.findByClientId(clientId) ?: return null
+
+        if (client.isKnowledgeBaseClient()) {
+            log.info { "Found KB OAuth client: $clientId for KB: ${client.knowledgeBaseId}" }
+            return mapToRegisteredClient(client)
+        }
+
+        client.takeIf { it.checkAndUnlockIfExpired() }?.let {
             clientRepository.save(it)
             evictClientCache(it.id, it.clientId)
             log.info { "Lockout expired for client: ${it.clientId}, client unlocked" }
         }
 
-        return client?.let { mapToRegisteredClient(it) }
+        return mapToRegisteredClient(client)
     }
 
     @CacheEvict(value = [CacheNames.REGISTERED_CLIENT], allEntries = true)
@@ -66,6 +72,29 @@ class CustomRegisteredClientRepository(
 
         entity.clientSecret?.let { builder.clientSecret(it) }
         entity.clientSecretExpiresAt?.let { builder.clientSecretExpiresAt(it) }
+
+        if (entity.isKnowledgeBaseClient()) {
+            builder.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+            builder.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+            builder.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+            builder.scope("kb:read")
+            builder.scope("kb:write")
+            builder.scope("kb:query")
+
+            val kbClientSettings = ClientSettings.builder()
+                .requireAuthorizationConsent(false)
+                .requireProofKey(false)
+                .build()
+            builder.clientSettings(kbClientSettings)
+
+            val kbTokenSettings = TokenSettings.builder()
+                .accessTokenTimeToLive(Duration.ofHours(1))
+                .reuseRefreshTokens(false)
+                .build()
+            builder.tokenSettings(kbTokenSettings)
+
+            return builder.build()
+        }
 
         entity.authenticationMethods.forEach { authMethod ->
             builder.clientAuthenticationMethod(ClientAuthenticationMethod(authMethod.name.trim()))

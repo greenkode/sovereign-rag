@@ -14,9 +14,10 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.time.Instant
+import java.util.UUID
 
 enum class OrganizationStatus {
-    ACTIVE, SUSPENDED, PENDING
+    ACTIVE, SUSPENDED, PENDING, DELETED
 }
 
 @Entity
@@ -59,6 +60,10 @@ class OAuthRegisteredClient() : AuditableEntity() {
 
     @Enumerated(EnumType.STRING)
     var plan: SubscriptionTier = SubscriptionTier.TRIAL
+
+    var organizationId: UUID? = null
+
+    var knowledgeBaseId: String? = null
 
     @OneToMany(mappedBy = "client", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
     val redirectUris: MutableSet<OAuthClientRedirectUri> = mutableSetOf()
@@ -177,6 +182,8 @@ class OAuthRegisteredClient() : AuditableEntity() {
             EnvironmentMode.PRODUCTION -> productionClientSecretExpiresAt ?: clientSecretExpiresAt
         }
     }
+
+    fun isKnowledgeBaseClient(): Boolean = knowledgeBaseId != null
 
     companion object {
         const val MAX_FAILED_ATTEMPTS = 5

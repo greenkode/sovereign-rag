@@ -41,6 +41,21 @@ interface TenantRepository : JpaRepository<Tenant, String> {
     fun existsByDatabaseName(databaseName: String): Boolean
 
     /**
+     * Find all tenants by client ID (excluding soft-deleted)
+     */
+    fun findByClientIdAndDeletedAtIsNullOrderByCreatedAtDesc(clientId: String): List<Tenant>
+
+    /**
+     * Find all tenants by client ID and status (excluding soft-deleted)
+     */
+    fun findByClientIdAndStatusAndDeletedAtIsNullOrderByCreatedAtDesc(clientId: String, status: TenantStatus): List<Tenant>
+
+    /**
+     * Count tenants by client ID (excluding soft-deleted)
+     */
+    fun countByClientIdAndDeletedAtIsNull(clientId: String): Long
+
+    /**
      * Update last active timestamp
      */
     @Modifying

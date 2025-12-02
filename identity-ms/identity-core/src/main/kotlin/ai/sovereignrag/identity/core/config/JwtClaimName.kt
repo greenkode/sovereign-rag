@@ -2,6 +2,7 @@ package ai.sovereignrag.identity.core.config
 
 enum class JwtClaimName(val value: String) {
     MERCHANT_ID("merchant_id"),
+    ORGANIZATION_ID("organization_id"),
     ENVIRONMENT("environment"),
     TYPE("type"),
     CLIENT_TYPE("client_type"),

@@ -58,6 +58,8 @@ class OAuthUser() : AuditableEntity() {
 
     var merchantId: UUID? = null
 
+    var organizationId: UUID? = null
+
     @Enumerated(EnumType.STRING)
     var userType: UserType? = null
 

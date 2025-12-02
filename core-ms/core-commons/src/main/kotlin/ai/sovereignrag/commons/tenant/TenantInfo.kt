@@ -1,21 +1,21 @@
 package ai.sovereignrag.commons.tenant
 
-/**
- * Tenant information interface
- * Provides essential tenant data for authentication and resource routing
- */
-interface TenantInfo {
+interface KnowledgeBaseInfo {
     val id: String
-    val apiKeyHash: String
-    val status: TenantStatus
-    val databaseName: String  // For tenant-specific database routing
+    val organizationId: java.util.UUID
+    val schemaName: String
+    val status: KnowledgeBaseStatus
+    val oauthClientId: String?
 }
 
-/**
- * Tenant status
- */
-enum class TenantStatus {
+enum class KnowledgeBaseStatus {
     ACTIVE,
     SUSPENDED,
     DELETED
 }
+
+@Deprecated("Use KnowledgeBaseInfo instead", ReplaceWith("KnowledgeBaseInfo"))
+typealias TenantInfo = KnowledgeBaseInfo
+
+@Deprecated("Use KnowledgeBaseStatus instead", ReplaceWith("KnowledgeBaseStatus"))
+typealias TenantStatus = KnowledgeBaseStatus

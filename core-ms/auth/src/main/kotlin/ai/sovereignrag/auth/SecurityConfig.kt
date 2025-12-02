@@ -5,16 +5,21 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
+import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
@@ -37,6 +42,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val organizationSetupFilter: OrganizationSetupFilter,
+    private val knowledgeBaseContextFilter: KnowledgeBaseContextFilter,
     @Lazy private val tenantAuthenticationProvider: TenantAuthenticationProvider,
     @Value("\${sovereignrag.cors.allowed-origins}") private val allowedOrigins: String
 ) {
@@ -94,6 +100,11 @@ class SecurityConfig(
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { jwt ->
+                    jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                }
+            }
             .addFilterBefore(
                 jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter::class.java
@@ -102,8 +113,22 @@ class SecurityConfig(
                 organizationSetupFilter,
                 JwtAuthenticationFilter::class.java
             )
+            .addFilterAfter(
+                knowledgeBaseContextFilter,
+                OrganizationSetupFilter::class.java
+            )
 
         return http.build()
+    }
+
+    @Bean
+    fun jwtAuthenticationConverter(): Converter<Jwt, AbstractAuthenticationToken> {
+        val converter = JwtAuthenticationConverter()
+        converter.setJwtGrantedAuthoritiesConverter { jwt ->
+            val authorities = jwt.getClaimAsStringList("authorities") ?: emptyList()
+            authorities.map { SimpleGrantedAuthority(it) }
+        }
+        return converter
     }
 
     @Bean
