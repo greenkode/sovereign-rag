@@ -1,5 +1,20 @@
 CREATE SCHEMA IF NOT EXISTS identity;
 
+CREATE TABLE IF NOT EXISTS identity.organizations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
+    plan VARCHAR(50) NOT NULL DEFAULT 'TRIAL',
+    database_name VARCHAR(255) UNIQUE,
+    database_created BOOLEAN NOT NULL DEFAULT FALSE,
+    max_knowledge_bases INTEGER NOT NULL DEFAULT 5,
+    settings JSONB NOT NULL DEFAULT '{}',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    version BIGINT NOT NULL DEFAULT 0
+);
+
 CREATE TABLE IF NOT EXISTS identity.oauth_users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(100) NOT NULL UNIQUE,
@@ -10,11 +25,13 @@ CREATE TABLE IF NOT EXISTS identity.oauth_users (
     last_name VARCHAR(100),
     phone_number VARCHAR(20),
     merchant_id UUID,
+    organization_id UUID REFERENCES identity.organizations(id),
     user_type VARCHAR(20),
     trust_level VARCHAR(20),
     email_verified BOOLEAN NOT NULL DEFAULT false,
     phone_number_verified BOOLEAN NOT NULL DEFAULT false,
     invitation_status BOOLEAN NOT NULL DEFAULT false,
+    registration_complete BOOLEAN NOT NULL DEFAULT false,
     date_of_birth DATE,
     tax_identification_number VARCHAR(50),
     locale VARCHAR(10) NOT NULL DEFAULT 'en',
@@ -78,6 +95,8 @@ CREATE TABLE IF NOT EXISTS identity.oauth_registered_clients (
     domain VARCHAR(255),
     status VARCHAR(50) DEFAULT 'ACTIVE',
     plan VARCHAR(50) DEFAULT 'TRIAL',
+    organization_id UUID REFERENCES identity.organizations(id),
+    knowledge_base_id VARCHAR(255),
     version BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     created_by VARCHAR(255) DEFAULT 'system',
@@ -306,13 +325,19 @@ CREATE TABLE IF NOT EXISTS identity.country (
     UNIQUE(public_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_organizations_slug ON identity.organizations(slug);
+CREATE INDEX IF NOT EXISTS idx_organizations_status ON identity.organizations(status);
 CREATE INDEX IF NOT EXISTS idx_oauth_users_username ON identity.oauth_users(username);
 CREATE INDEX IF NOT EXISTS idx_oauth_users_lockout ON identity.oauth_users (username, locked_until, failed_login_attempts);
 CREATE INDEX IF NOT EXISTS idx_oauth_users_registration_source ON identity.oauth_users(registration_source);
+CREATE INDEX IF NOT EXISTS idx_oauth_users_organization_id ON identity.oauth_users(organization_id);
 CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_client_id ON identity.oauth_registered_clients(client_id);
 CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_lockout ON identity.oauth_registered_clients (client_id, locked_until, failed_auth_attempts);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_registered_clients_domain ON identity.oauth_registered_clients(domain);
 CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_status ON identity.oauth_registered_clients(status);
+CREATE INDEX IF NOT EXISTS idx_oauth_clients_org_id ON identity.oauth_registered_clients(organization_id);
+CREATE INDEX IF NOT EXISTS idx_oauth_clients_kb_id ON identity.oauth_registered_clients(knowledge_base_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_clients_kb_id_unique ON identity.oauth_registered_clients(knowledge_base_id) WHERE knowledge_base_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_oauth_provider_user_id ON identity.oauth_provider_accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_oauth_provider_email ON identity.oauth_provider_accounts(provider_email);
 CREATE INDEX IF NOT EXISTS idx_oauth_provider ON identity.oauth_provider_accounts(provider, provider_user_id);
