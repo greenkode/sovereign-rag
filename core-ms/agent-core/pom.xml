@@ -30,7 +30,6 @@
             <artifactId>guardrail</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <!-- Note: Uses TenantRegistry interface from commons, no direct dependency on tenant module -->
 
         <!-- Spring Framework (NOT Spring Boot) -->
         <dependency>
@@ -144,7 +143,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Flyway Core (for tenant database migrations) -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>

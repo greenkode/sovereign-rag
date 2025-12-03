@@ -8,8 +8,8 @@ import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.entity.SourceType
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.service.OrganizationQuotaService
 import ai.sovereignrag.ingestion.core.service.QuotaValidationResult
-import ai.sovereignrag.ingestion.core.service.TenantQuotaService
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.MessageSource
@@ -24,17 +24,17 @@ private val log = KotlinLogging.logger {}
 class CreatePresignedUploadCommandHandler(
     private val jobRepository: IngestionJobRepository,
     private val fileUploadGateway: FileUploadGateway,
-    private val tenantQuotaService: TenantQuotaService,
+    private val organizationQuotaService: OrganizationQuotaService,
     private val ingestionProperties: IngestionProperties,
     private val messageSource: MessageSource
 ) : Command.Handler<CreatePresignedUploadCommand, PresignedUploadResponse> {
 
     override fun handle(command: CreatePresignedUploadCommand): PresignedUploadResponse {
-        log.info { "Processing CreatePresignedUploadCommand for tenant ${command.tenantId}" }
+        log.info { "Processing CreatePresignedUploadCommand for organization ${command.organizationId}" }
 
         validateMimeType(command.contentType)
 
-        val validationResult = tenantQuotaService.validateUploadRequest(command.tenantId, command.fileSize)
+        val validationResult = organizationQuotaService.validateUploadRequest(command.organizationId, command.fileSize)
 
         when (validationResult) {
             is QuotaValidationResult.FileSizeExceeded -> throw IngestionQuotaException(
@@ -55,7 +55,7 @@ class CreatePresignedUploadCommandHandler(
         val priority = (validationResult as QuotaValidationResult.Valid).priority
 
         val job = IngestionJob(
-            tenantId = command.tenantId,
+            organizationId = command.organizationId,
             jobType = JobType.FILE_UPLOAD,
             knowledgeBaseId = command.knowledgeBaseId,
             priority = priority
@@ -73,14 +73,14 @@ class CreatePresignedUploadCommandHandler(
             fileName = command.fileName,
             contentType = command.contentType,
             category = ingestionProperties.storage.uploadsPrefix.trimEnd('/'),
-            tenantId = command.tenantId,
+            ownerId = command.organizationId,
             expirationMinutes = ingestionProperties.limits.presignedUrlExpiryMinutes
         )
 
         savedJob.sourceReference = presignedResult.key
         jobRepository.save(savedJob)
 
-        log.info { "Created presigned upload for tenant ${command.tenantId}, job ${savedJob.id}, priority $priority" }
+        log.info { "Created presigned upload for organization ${command.organizationId}, job ${savedJob.id}, priority $priority" }
 
         return PresignedUploadResponse(
             jobId = savedJob.id!!,

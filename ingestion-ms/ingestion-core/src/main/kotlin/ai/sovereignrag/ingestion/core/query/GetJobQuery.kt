@@ -5,6 +5,6 @@ import an.awesome.pipelinr.Command
 import java.util.UUID
 
 data class GetJobQuery(
-    val tenantId: UUID,
+    val organizationId: UUID,
     val jobId: UUID
 ) : Command<IngestionJobResponse>

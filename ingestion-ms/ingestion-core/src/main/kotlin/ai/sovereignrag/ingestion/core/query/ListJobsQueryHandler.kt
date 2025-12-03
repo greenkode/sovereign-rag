@@ -19,18 +19,18 @@ class ListJobsQueryHandler(
 ) : Command.Handler<ListJobsQuery, JobListResponse> {
 
     override fun handle(command: ListJobsQuery): JobListResponse {
-        log.info { "Processing ListJobsQuery for tenant ${command.tenantId}" }
+        log.info { "Processing ListJobsQuery for organization ${command.organizationId}" }
 
         val pageable = PageRequest.of(command.page, command.size)
 
         val jobs = when {
-            command.status != null -> jobRepository.findByTenantIdAndStatusOrderByCreatedAtDesc(
-                command.tenantId, command.status, pageable
+            command.status != null -> jobRepository.findByOrganizationIdAndStatusOrderByCreatedAtDesc(
+                command.organizationId, command.status, pageable
             )
-            command.knowledgeBaseId != null -> jobRepository.findByTenantIdAndKnowledgeBaseIdOrderByCreatedAtDesc(
-                command.tenantId, command.knowledgeBaseId, pageable
+            command.knowledgeBaseId != null -> jobRepository.findByOrganizationIdAndKnowledgeBaseIdOrderByCreatedAtDesc(
+                command.organizationId, command.knowledgeBaseId, pageable
             )
-            else -> jobRepository.findByTenantIdOrderByCreatedAtDesc(command.tenantId, pageable)
+            else -> jobRepository.findByOrganizationIdOrderByCreatedAtDesc(command.organizationId, pageable)
         }
 
         return JobListResponse(
@@ -45,7 +45,7 @@ class ListJobsQueryHandler(
     private fun mapToResponse(job: IngestionJob): IngestionJobResponse {
         return IngestionJobResponse(
             id = job.id!!,
-            tenantId = job.tenantId,
+            organizationId = job.organizationId,
             knowledgeBaseId = job.knowledgeBaseId,
             jobType = job.jobType,
             status = job.status,

@@ -28,7 +28,7 @@ data class License(
 
     val maxTokensPerMonth: Long,
 
-    val maxTenants: Int,
+    val maxKnowledgeBases: Int,
 
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(columnDefinition = "TEXT[]")
@@ -92,7 +92,7 @@ enum class LicenseStatus {
 }
 
 enum class LicenseFeature {
-    MULTI_TENANT,
+    MULTI_KNOWLEDGE_BASE,
     READ_REPLICAS,
     CUSTOM_MODELS,
     ADVANCED_GUARDRAILS,

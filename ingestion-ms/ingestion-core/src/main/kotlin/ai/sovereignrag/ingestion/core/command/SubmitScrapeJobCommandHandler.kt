@@ -7,8 +7,8 @@ import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.entity.SourceType
 import ai.sovereignrag.ingestion.commons.queue.JobQueue
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.service.OrganizationQuotaService
 import ai.sovereignrag.ingestion.core.service.QuotaValidationResult
-import ai.sovereignrag.ingestion.core.service.TenantQuotaService
 import an.awesome.pipelinr.Command
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -25,18 +25,18 @@ private val log = KotlinLogging.logger {}
 class SubmitScrapeJobCommandHandler(
     private val jobRepository: IngestionJobRepository,
     private val jobQueue: JobQueue,
-    private val tenantQuotaService: TenantQuotaService,
+    private val organizationQuotaService: OrganizationQuotaService,
     private val ingestionProperties: IngestionProperties,
     private val objectMapper: ObjectMapper,
     private val messageSource: MessageSource
 ) : Command.Handler<SubmitScrapeJobCommand, IngestionJobResponse> {
 
     override fun handle(command: SubmitScrapeJobCommand): IngestionJobResponse {
-        log.info { "Processing SubmitScrapeJobCommand for tenant ${command.tenantId}" }
+        log.info { "Processing SubmitScrapeJobCommand for organization ${command.organizationId}" }
 
         validateUrl(command.url)
 
-        val validationResult = tenantQuotaService.validateUploadRequest(command.tenantId, 0)
+        val validationResult = organizationQuotaService.validateUploadRequest(command.organizationId, 0)
 
         when (validationResult) {
             is QuotaValidationResult.MonthlyLimitExceeded -> throw IngestionQuotaException(
@@ -58,7 +58,7 @@ class SubmitScrapeJobCommandHandler(
         )
 
         val job = IngestionJob(
-            tenantId = command.tenantId,
+            organizationId = command.organizationId,
             jobType = JobType.WEB_SCRAPE,
             knowledgeBaseId = command.knowledgeBaseId,
             priority = priority
@@ -75,7 +75,7 @@ class SubmitScrapeJobCommandHandler(
 
         return IngestionJobResponse(
             id = savedJob.id!!,
-            tenantId = savedJob.tenantId,
+            organizationId = savedJob.organizationId,
             knowledgeBaseId = savedJob.knowledgeBaseId,
             jobType = savedJob.jobType,
             status = savedJob.status,

@@ -25,13 +25,13 @@ class ReportUsageCommandHandler(
             clientId = command.clientId,
             deploymentId = command.deploymentId,
             tokensUsed = command.tokensUsed,
-            activeTenants = command.activeTenants,
+            activeKnowledgeBases = command.activeKnowledgeBases,
             activeUsers = command.activeUsers,
             apiCalls = command.apiCalls,
             metadata = command.metadata
         )
 
-        log.info { "Usage reported for ${command.clientId}: tokens=${command.tokensUsed}, tenants=${command.activeTenants}" }
+        log.info { "Usage reported for ${command.clientId}: tokens=${command.tokensUsed}, knowledgeBases=${command.activeKnowledgeBases}" }
 
         return ReportUsageResult(
             success = true,

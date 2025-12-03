@@ -46,7 +46,7 @@ corems:
   env:
     SPRING_PROFILES_ACTIVE: "production"
     ADMIN_ENABLED: "true"
-    DEV_TENANT_ENABLED: "false"
+    DEV_KNOWLEDGE_BASE_ENABLED: "false"
     GUARDRAILS_ENABLED: "true"
     USE_RERANKING: "true"
 

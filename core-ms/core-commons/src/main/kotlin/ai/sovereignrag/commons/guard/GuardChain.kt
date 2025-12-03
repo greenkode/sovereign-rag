@@ -37,14 +37,14 @@ class GuardChain(
                 results.add(executionResult)
 
                 logger.debug {
-                    "[${context.tenantId}][${context.sessionId}] Guard ${guard.name}: ${result.javaClass.simpleName} (${executionTime}ms)"
+                    "[${context.knowledgeBaseId}][${context.sessionId}] Guard ${guard.name}: ${result.javaClass.simpleName} (${executionTime}ms)"
                 }
 
                 // Fail fast: if any guard denies or requires confirmation, stop execution
                 when (result) {
                     is GuardResult.Deny -> {
                         logger.warn {
-                            "[${context.tenantId}][${context.sessionId}] Guard ${guard.name} denied: ${result.reason}"
+                            "[${context.knowledgeBaseId}][${context.sessionId}] Guard ${guard.name} denied: ${result.reason}"
                         }
                         return GuardChainResult(
                             overallResult = result,
@@ -54,7 +54,7 @@ class GuardChain(
                     }
                     is GuardResult.RequireConfirmation -> {
                         logger.info {
-                            "[${context.tenantId}][${context.sessionId}] Guard ${guard.name} requires confirmation: ${result.message}"
+                            "[${context.knowledgeBaseId}][${context.sessionId}] Guard ${guard.name} requires confirmation: ${result.message}"
                         }
                         return GuardChainResult(
                             overallResult = result,
@@ -68,7 +68,7 @@ class GuardChain(
                 }
             } catch (e: Exception) {
                 logger.error(e) {
-                    "[${context.tenantId}][${context.sessionId}] Guard ${guard.name} threw exception"
+                    "[${context.knowledgeBaseId}][${context.sessionId}] Guard ${guard.name} threw exception"
                 }
 
                 // Treat exceptions as denials (fail-secure)

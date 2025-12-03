@@ -1,31 +1,29 @@
-CREATE TABLE IF NOT EXISTS tenants
+CREATE TABLE IF NOT EXISTS knowledge_bases
 (
     id                   VARCHAR(255) NOT NULL PRIMARY KEY,
     name                 VARCHAR(255) NOT NULL,
-    database_name        VARCHAR(255) NOT NULL UNIQUE,
-    api_key_hash         VARCHAR(512) NOT NULL,
+    description          TEXT,
+    organization_id      UUID         NOT NULL,
+    schema_name          VARCHAR(255) NOT NULL UNIQUE,
+    oauth_client_id      VARCHAR(100),
+    api_key_hash         VARCHAR(512),
     status               VARCHAR(50)  NOT NULL DEFAULT 'ACTIVE',
-    client_id            VARCHAR(100) NOT NULL,
     max_documents        INTEGER      NOT NULL DEFAULT 10000,
     max_embeddings       INTEGER      NOT NULL DEFAULT 50000,
     max_requests_per_day INTEGER      NOT NULL DEFAULT 10000,
     contact_email        VARCHAR(500),
     contact_name         VARCHAR(500),
-    admin_email          VARCHAR(255),
-    wordpress_url        VARCHAR(1000),
-    wordpress_version    VARCHAR(50),
-    plugin_version       VARCHAR(50),
     features             JSONB        NOT NULL DEFAULT '{}',
     settings             JSONB        NOT NULL DEFAULT '{}',
     created_at           TIMESTAMP    NOT NULL DEFAULT NOW(),
-    last_modified_at           TIMESTAMP    NOT NULL DEFAULT NOW(),
+    last_modified_at     TIMESTAMP    NOT NULL DEFAULT NOW(),
     last_active_at       TIMESTAMP,
     deleted_at           TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_tenants_status ON tenants(status);
-CREATE INDEX IF NOT EXISTS idx_tenants_client_id ON tenants(client_id);
-CREATE INDEX IF NOT EXISTS idx_tenants_database_name ON tenants(database_name);
+CREATE INDEX IF NOT EXISTS idx_knowledge_bases_status ON knowledge_bases(status);
+CREATE INDEX IF NOT EXISTS idx_knowledge_bases_organization_id ON knowledge_bases(organization_id);
+CREATE INDEX IF NOT EXISTS idx_knowledge_bases_schema_name ON knowledge_bases(schema_name);
 
 CREATE TABLE IF NOT EXISTS groups
 (
@@ -69,6 +67,7 @@ CREATE TABLE IF NOT EXISTS event_publication
     publication_date TIMESTAMP WITH TIME ZONE NOT NULL,
     completion_date  TIMESTAMP WITH TIME ZONE
 );
+
 CREATE TABLE IF NOT EXISTS process
 (
     id                    BIGSERIAL    NOT NULL PRIMARY KEY,
@@ -153,7 +152,7 @@ CREATE TABLE IF NOT EXISTS process_event_transition
 CREATE TABLE IF NOT EXISTS subscription_limit
 (
     id                  SERIAL       NOT NULL PRIMARY KEY,
-    tenant_id           UUID         NOT NULL,
+    organization_id     UUID         NOT NULL,
     subscription_tier   VARCHAR(50)  NOT NULL,
     daily_token_limit   BIGINT       NOT NULL,
     monthly_token_limit BIGINT       NOT NULL,
@@ -166,8 +165,8 @@ CREATE TABLE IF NOT EXISTS subscription_limit
     version             BIGINT       NOT NULL DEFAULT 0
 );
 
-CREATE INDEX IF NOT EXISTS idx_subscription_limit_tenant_id ON subscription_limit(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_subscription_limit_tenant_active ON subscription_limit(tenant_id, start, expiry);
+CREATE INDEX IF NOT EXISTS idx_subscription_limit_organization_id ON subscription_limit(organization_id);
+CREATE INDEX IF NOT EXISTS idx_subscription_limit_organization_active ON subscription_limit(organization_id, start, expiry);
 
 CREATE TABLE IF NOT EXISTS access_token
 (
@@ -288,7 +287,7 @@ CREATE TABLE IF NOT EXISTS webhook_delivery_log
     total_duration_ms        BIGINT,
     error_message            TEXT,
     delivered_at             TIMESTAMP,
-    created_at             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at               TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_webhook_delivery_log_configuration FOREIGN KEY (webhook_configuration_id) REFERENCES webhook_configuration(id) ON DELETE CASCADE
 );
 

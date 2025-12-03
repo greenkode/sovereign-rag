@@ -23,7 +23,7 @@ class SovereignRag_Chat_Widget {
     /**
      * Get JWT token from backend API (server-side authentication)
      *
-     * This method authenticates with the backend using tenant credentials
+     * This method authenticates with the backend using knowledge base credentials
      * and returns a JWT token. The token is cached for 90% of its lifetime
      * to minimize authentication requests while ensuring freshness.
      *
@@ -38,18 +38,18 @@ class SovereignRag_Chat_Widget {
 
         // Authenticate with backend to get new token
         $api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
-        $tenant_id = get_option('sovereignrag_ai_tenant_id', '');
+        $knowledge_base_id = get_option('sovereignrag_ai_knowledge_base_id', '');
         $api_key = get_option('sovereignrag_ai_api_key', '');
 
-        if (empty($tenant_id) || empty($api_key)) {
-            error_log('Sovereign RAG: Missing tenant credentials for JWT authentication');
+        if (empty($knowledge_base_id) || empty($api_key)) {
+            error_log('Sovereign RAG: Missing knowledge base credentials for JWT authentication');
             return null;
         }
 
         $response = wp_remote_post($api_url . '/api/auth/authenticate', array(
             'headers' => array('Content-Type' => 'application/json'),
             'body' => json_encode(array(
-                'tenantId' => $tenant_id,
+                'knowledgeBaseId' => $knowledge_base_id,
                 'apiKey' => $api_key
             )),
             'timeout' => 10

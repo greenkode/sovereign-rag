@@ -1,96 +1,61 @@
 package ai.sovereignrag.auth
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.Date
 import javax.crypto.SecretKey
 
-private val logger = KotlinLogging.logger {}
+private val log = KotlinLogging.logger {}
 
-/**
- * JWT Token Provider for creating and validating JSON Web Tokens
- *
- * Tokens contain the tenant ID as the subject and are signed with HMAC-SHA256
- */
 @Component
 class JwtTokenProvider(
     @Value("\${sovereignrag.jwt.secret}") private val secretKey: String,
-    @Value("\${sovereignrag.jwt.expiration:3600000}") private val validityInMs: Long // 1 hour default
+    @Value("\${sovereignrag.jwt.expiration:3600000}") private val validityInMs: Long
 ) {
 
     private val key: SecretKey by lazy {
         Keys.hmacShaKeyFor(secretKey.toByteArray())
     }
 
-    /**
-     * Create a JWT token for the specified tenant
-     *
-     * @param tenantId The tenant ID to encode in the token
-     * @return JWT token string
-     */
-    fun createToken(tenantId: String): String {
+    fun createToken(knowledgeBaseId: String): String {
         val now = Date()
         val validity = Date(now.time + validityInMs)
 
-        logger.debug { "Creating JWT token for tenant: $tenantId (expires in ${validityInMs}ms)" }
+        log.debug { "Creating JWT token for knowledge base: $knowledgeBaseId (expires in ${validityInMs}ms)" }
 
         return Jwts.builder()
-            .subject(tenantId)
+            .subject(knowledgeBaseId)
             .issuedAt(now)
             .expiration(validity)
             .signWith(key)
             .compact()
     }
 
-    /**
-     * Validate a JWT token
-     *
-     * @param token The JWT token to validate
-     * @return true if valid, false otherwise
-     */
     fun validateToken(token: String): Boolean {
-        return try {
+        return runCatching {
             Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
             true
-        } catch (e: Exception) {
-            logger.warn { "Invalid JWT token: ${e.message}" }
+        }.getOrElse { e ->
+            log.warn { "Invalid JWT token: ${e.message}" }
             false
         }
     }
 
-    /**
-     * Extract tenant ID from JWT token
-     *
-     * @param token The JWT token
-     * @return Tenant ID from token subject
-     */
-    fun getTenantId(token: String): String {
+    fun getKnowledgeBaseId(token: String): String {
         return getClaims(token).subject
     }
 
-    /**
-     * Check if organization setup is completed
-     *
-     * @param token The JWT token
-     * @return true if setup is completed, false otherwise
-     */
     fun isSetupCompleted(token: String): Boolean {
         return getClaims(token)["setup_completed"] as? Boolean ?: true
     }
 
-    /**
-     * Get organization status from JWT token
-     *
-     * @param token The JWT token
-     * @return Organization status or null if not present
-     */
     fun getOrganizationStatus(token: String): String? {
         return getClaims(token)["organization_status"] as? String
     }
@@ -103,11 +68,6 @@ class JwtTokenProvider(
             .payload
     }
 
-    /**
-     * Get token expiration time in seconds
-     *
-     * @return Expiration time in seconds
-     */
     fun getExpirationTimeInSeconds(): Long {
         return validityInMs / 1000
     }

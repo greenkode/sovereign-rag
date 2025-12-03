@@ -12,7 +12,7 @@ import java.util.concurrent.Executor
  * Async Security Configuration
  *
  * Enables automatic propagation of Spring SecurityContext to background threads.
- * This ensures that tenant information (stored as principal in SecurityContext)
+ * This ensures that knowledge base information (stored as principal in SecurityContext)
  * is available in @Async methods and CompletableFuture operations.
  *
  * How it works:
@@ -24,7 +24,7 @@ import java.util.concurrent.Executor
  *
  * Usage:
  * - @Async methods automatically get SecurityContext propagated
- * - TenantContext.getCurrentTenant() works in background threads
+ * - KnowledgeBaseContext.getKnowledgeBaseId() works in background threads
  * - No manual context management needed
  */
 @Configuration
@@ -35,7 +35,7 @@ class AsyncSecurityConfig {
      * Configure async task executor with SecurityContext propagation
      *
      * This executor is used by @Async methods and ensures SecurityContext
-     * (including tenant ID) is available in background threads.
+     * (including knowledge base ID) is available in background threads.
      */
     @Bean(name = ["taskExecutor"])
     fun taskExecutor(): Executor {

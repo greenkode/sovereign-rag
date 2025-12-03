@@ -10,7 +10,7 @@ interface FileUploadGateway {
         contentType: String,
         size: Long,
         category: String,
-        tenantId: UUID
+        ownerId: UUID
     ): FileUploadResult
 
     fun uploadUserFile(
@@ -27,14 +27,14 @@ interface FileUploadGateway {
         fileName: String,
         contentType: String,
         category: String,
-        tenantId: UUID
+        ownerId: UUID
     ): FileUploadResult
 
     fun generatePresignedUploadUrl(
         fileName: String,
         contentType: String,
         category: String,
-        tenantId: UUID,
+        ownerId: UUID,
         expirationMinutes: Long = 15
     ): PresignedUploadUrlResult
 

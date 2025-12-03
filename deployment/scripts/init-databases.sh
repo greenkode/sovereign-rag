@@ -4,7 +4,7 @@ set -e
 echo "Initializing SovereignRAG database schemas..."
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-    -- Create schemas for multi-tenant architecture
+    -- Create schemas for multi-knowledge-base architecture
     CREATE SCHEMA IF NOT EXISTS master;
     CREATE SCHEMA IF NOT EXISTS core;
     CREATE SCHEMA IF NOT EXISTS identity;
@@ -23,7 +23,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
     CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-    COMMENT ON SCHEMA master IS 'Master schema for tenant metadata and configuration';
+    COMMENT ON SCHEMA master IS 'Master schema for knowledge base metadata and configuration';
     COMMENT ON SCHEMA core IS 'Core RAG application schema';
     COMMENT ON SCHEMA identity IS 'Identity and authentication schema';
     COMMENT ON SCHEMA audit IS 'Audit logging schema';

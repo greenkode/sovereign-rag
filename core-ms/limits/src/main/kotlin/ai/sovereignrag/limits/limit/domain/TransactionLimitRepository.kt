@@ -11,9 +11,9 @@ import java.util.UUID
 @Repository
 interface SubscriptionLimitRepository : JpaRepository<SubscriptionLimitEntity, Int> {
 
-    @Cacheable(value = [CacheNames.ACCOUNT], key = "'subscription_limit_' + #tenantId.toString()", unless = "#result == null")
-    fun findByTenantIdAndStartBeforeAndExpiryIsNullOrExpiryAfter(
-        tenantId: UUID,
+    @Cacheable(value = [CacheNames.ACCOUNT], key = "'subscription_limit_' + #organizationId.toString()", unless = "#result == null")
+    fun findByOrganizationIdAndStartBeforeAndExpiryIsNullOrExpiryAfter(
+        organizationId: UUID,
         start: Instant,
         end: Instant
     ): SubscriptionLimitEntity?

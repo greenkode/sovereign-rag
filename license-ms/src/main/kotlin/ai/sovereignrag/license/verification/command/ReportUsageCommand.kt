@@ -5,7 +5,7 @@ data class ReportUsageCommand(
     val clientId: String,
     val deploymentId: String?,
     val tokensUsed: Long,
-    val activeTenants: Int,
+    val activeKnowledgeBases: Int,
     val activeUsers: Int,
     val apiCalls: Long,
     val metadata: Map<String, Any>?

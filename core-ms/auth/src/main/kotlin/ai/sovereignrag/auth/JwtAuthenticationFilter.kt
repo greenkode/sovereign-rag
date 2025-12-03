@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.util.Base64
 
-private val logger = KotlinLogging.logger {}
+private val log = KotlinLogging.logger {}
 
 @Component
 class JwtAuthenticationFilter(
@@ -25,13 +25,12 @@ class JwtAuthenticationFilter(
         val token = resolveToken(request)
 
         if (token != null && !isRsaSignedToken(token) && jwtTokenProvider.validateToken(token)) {
-            val tenantId = jwtTokenProvider.getTenantId(token)
-            val authentication = UsernamePasswordAuthenticationToken(tenantId, null, emptyList())
+            val knowledgeBaseId = jwtTokenProvider.getKnowledgeBaseId(token)
+            val authentication = UsernamePasswordAuthenticationToken(knowledgeBaseId, null, emptyList())
             SecurityContextHolder.getContext().authentication = authentication
-            logger.debug { "Tenant JWT authentication successful: $tenantId" }
+            log.debug { "Knowledge base JWT authentication successful: $knowledgeBaseId" }
         }
 
-        // Continue filter chain - Spring Security will handle SecurityContext cleanup
         filterChain.doFilter(request, response)
     }
 

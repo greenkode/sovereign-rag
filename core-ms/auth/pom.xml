@@ -28,7 +28,6 @@
             <artifactId>core-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Note: Uses TenantRegistry interface from commons, no direct dependency on tenant module -->
 
         <!-- Spring Security -->
         <dependency>

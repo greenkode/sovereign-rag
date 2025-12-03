@@ -43,7 +43,7 @@ class IngestionJob() : AuditableEntity() {
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID? = null
 
-    var tenantId: UUID = UUID.randomUUID()
+    var organizationId: UUID = UUID.randomUUID()
 
     var knowledgeBaseId: UUID? = null
 
@@ -98,12 +98,12 @@ class IngestionJob() : AuditableEntity() {
     var visibleAfter: Instant? = null
 
     constructor(
-        tenantId: UUID,
+        organizationId: UUID,
         jobType: JobType,
         knowledgeBaseId: UUID? = null,
         priority: Int = 0
     ) : this() {
-        this.tenantId = tenantId
+        this.organizationId = organizationId
         this.jobType = jobType
         this.knowledgeBaseId = knowledgeBaseId
         this.priority = priority

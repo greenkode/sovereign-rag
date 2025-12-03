@@ -81,7 +81,7 @@ class LicenseConfiguration(
             ${row("Customer:", licenseInfo.customerName)}
             ${row("Tier:", licenseInfo.tier.name)}
             ${row("Max Tokens:", formatNumber(licenseInfo.maxTokensPerMonth))}
-            ${row("Max Tenants:", licenseInfo.maxTenants.toString())}
+            ${row("Max KBs:", licenseInfo.maxKnowledgeBases.toString())}
             ${row("Status:", if (licenseInfo.isValid) "Valid" else "Invalid")}
             ${row("Expires:", formatExpiry(licenseInfo.expiresAt))}
             ${row("Features:", licenseInfo.features.size.toString())}
@@ -114,8 +114,8 @@ class LicenseConfiguration(
             customerName = "Trial User",
             tier = SubscriptionTier.TRIAL,
             maxTokensPerMonth = 100_000,
-            maxTenants = 1,
-            features = setOf(LicenseFeature.MULTI_TENANT),
+            maxKnowledgeBases = 1,
+            features = setOf(LicenseFeature.MULTI_KNOWLEDGE_BASE),
             issuedAt = java.time.Instant.now(),
             expiresAt = java.time.Instant.now().plusSeconds(30 * 24 * 3600),
             isValid = true,

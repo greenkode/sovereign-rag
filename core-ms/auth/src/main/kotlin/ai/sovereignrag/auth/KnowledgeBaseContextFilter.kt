@@ -1,8 +1,8 @@
 package ai.sovereignrag.auth
 
-import ai.sovereignrag.commons.tenant.KnowledgeBaseContext
-import ai.sovereignrag.commons.tenant.KnowledgeBaseContextData
-import ai.sovereignrag.commons.tenant.KnowledgeBaseRegistry
+import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseContext
+import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseContextData
+import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseRegistry
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest

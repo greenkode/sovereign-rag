@@ -39,8 +39,6 @@ enum class ProcessRequestDataName(description: String) {
     KNOWLEDGE_BASE_ID("Knowledge Base Id"),
     KNOWLEDGE_BASE_NAME("Knowledge Base Name"),
     ORGANIZATION_ID("Organization Id"),
-    TENANT_ID("Tenant Id"),
-    CLIENT_ID("Client Id"),
 }
 
 enum class ProcessStakeholderType {

@@ -5,7 +5,7 @@ import an.awesome.pipelinr.Command
 import java.util.UUID
 
 data class SubmitScrapeJobCommand(
-    val tenantId: UUID,
+    val organizationId: UUID,
     val url: String,
     val knowledgeBaseId: UUID?,
     val depth: Int = 1,

@@ -65,8 +65,8 @@ data class BatchImportRequest(
 data class IngestionJobResponse(
     @Schema(description = "Job ID")
     val id: UUID,
-    @Schema(description = "Tenant ID")
-    val tenantId: UUID,
+    @Schema(description = "Organization ID")
+    val organizationId: UUID,
     @Schema(description = "Knowledge base ID")
     val knowledgeBaseId: UUID?,
     @Schema(description = "Job type")
@@ -139,10 +139,10 @@ data class JobListResponse(
     val totalPages: Int
 )
 
-@Schema(description = "Tenant quota information")
-data class TenantQuotaResponse(
-    @Schema(description = "Tenant ID")
-    val tenantId: UUID,
+@Schema(description = "Organization quota information")
+data class OrganizationQuotaResponse(
+    @Schema(description = "Organization ID")
+    val organizationId: UUID,
     @Schema(description = "Maximum file size in bytes")
     val maxFileSize: Long,
     @Schema(description = "Maximum concurrent jobs")

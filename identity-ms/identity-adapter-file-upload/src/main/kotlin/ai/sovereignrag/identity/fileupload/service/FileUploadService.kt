@@ -32,11 +32,11 @@ class FileUploadService(
     fun uploadFile(
         file: MultipartFile,
         category: FileCategory,
-        tenantId: UUID,
+        knowledgeBaseId: UUID,
         customFileName: String? = null
     ): UploadResult {
         val fileName = customFileName ?: generateFileName(file.originalFilename ?: "file")
-        val key = buildKey(category, tenantId, fileName)
+        val key = buildKey(category, knowledgeBaseId, fileName)
         val contentType = file.contentType ?: "application/octet-stream"
 
         log.info { "Uploading file: $key to bucket: ${properties.bucket}" }
@@ -68,9 +68,9 @@ class FileUploadService(
         fileName: String,
         contentType: String,
         category: FileCategory,
-        tenantId: UUID
+        knowledgeBaseId: UUID
     ): UploadResult {
-        val key = buildKey(category, tenantId, fileName)
+        val key = buildKey(category, knowledgeBaseId, fileName)
 
         log.info { "Uploading bytes: $key to bucket: ${properties.bucket}" }
 
@@ -100,10 +100,10 @@ class FileUploadService(
         fileName: String,
         contentType: String,
         category: FileCategory,
-        tenantId: UUID,
+        knowledgeBaseId: UUID,
         expirationMinutes: Long = 15
     ): PresignedUrlResult {
-        val key = buildKey(category, tenantId, generateFileName(fileName))
+        val key = buildKey(category, knowledgeBaseId, generateFileName(fileName))
 
         val putObjectRequest = PutObjectRequest.builder()
             .bucket(properties.bucket)
@@ -179,8 +179,8 @@ class FileUploadService(
         }.getOrElse { false }
     }
 
-    private fun buildKey(category: FileCategory, tenantId: UUID, fileName: String): String {
-        return "${category.folder}/$tenantId/$fileName"
+    private fun buildKey(category: FileCategory, knowledgeBaseId: UUID, fileName: String): String {
+        return "${category.folder}/$knowledgeBaseId/$fileName"
     }
 
     private fun buildPublicUrl(key: String): String {

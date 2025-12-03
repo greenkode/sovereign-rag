@@ -24,16 +24,16 @@ private val log = KotlinLogging.logger {}
 class WebScrapeService(
     private val jobRepository: IngestionJobRepository,
     private val jobQueue: JobQueue,
-    private val tenantQuotaService: TenantQuotaService,
+    private val organizationQuotaService: OrganizationQuotaService,
     private val ingestionProperties: IngestionProperties,
     private val objectMapper: ObjectMapper,
     private val messageSource: MessageSource
 ) {
 
-    fun submitScrapeJob(tenantId: UUID, request: WebScrapeRequest): IngestionJobResponse {
+    fun submitScrapeJob(organizationId: UUID, request: WebScrapeRequest): IngestionJobResponse {
         validateUrl(request.url)
 
-        val validationResult = tenantQuotaService.validateUploadRequest(tenantId, 0)
+        val validationResult = organizationQuotaService.validateUploadRequest(organizationId, 0)
 
         when (validationResult) {
             is QuotaValidationResult.MonthlyLimitExceeded -> throw IngestionQuotaException(
@@ -55,7 +55,7 @@ class WebScrapeService(
         )
 
         val job = IngestionJob(
-            tenantId = tenantId,
+            organizationId = organizationId,
             jobType = JobType.WEB_SCRAPE,
             knowledgeBaseId = request.knowledgeBaseId,
             priority = priority
@@ -94,7 +94,7 @@ class WebScrapeService(
     private fun mapToResponse(job: IngestionJob): IngestionJobResponse {
         return IngestionJobResponse(
             id = job.id!!,
-            tenantId = job.tenantId,
+            organizationId = job.organizationId,
             knowledgeBaseId = job.knowledgeBaseId,
             jobType = job.jobType,
             status = job.status,

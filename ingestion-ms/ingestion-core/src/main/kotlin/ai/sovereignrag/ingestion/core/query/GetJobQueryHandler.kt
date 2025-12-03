@@ -24,13 +24,13 @@ class GetJobQueryHandler(
         val job = jobRepository.findById(command.jobId)
             .orElseThrow { IllegalArgumentException(getMessage("ingestion.error.job.not.found")) }
 
-        require(job.tenantId == command.tenantId) {
+        require(job.organizationId == command.organizationId) {
             getMessage("ingestion.error.job.not.owned")
         }
 
         return IngestionJobResponse(
             id = job.id!!,
-            tenantId = job.tenantId,
+            organizationId = job.organizationId,
             knowledgeBaseId = job.knowledgeBaseId,
             jobType = job.jobType,
             status = job.status,

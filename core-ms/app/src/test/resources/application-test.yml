@@ -13,8 +13,6 @@ spring:
     allow-bean-definition-overriding: true
 
 sovereignrag:
-  dev-tenant:
-    enabled: false
   ollama:
     base-url: http://localhost:11434
     model: llama3.2:3b

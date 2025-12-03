@@ -55,10 +55,9 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <!-- Tenant Module (multi-tenancy) -->
         <dependency>
             <groupId>ai.sovereignrag</groupId>
-            <artifactId>tenant</artifactId>
+            <artifactId>knowledge-base</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 

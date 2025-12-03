@@ -81,7 +81,7 @@ class SovereignRag_Plugin {
     public function activate() {
         // Set default options
         add_option('sovereignrag_ai_api_url', 'http://localhost:8000');
-        add_option('sovereignrag_ai_tenant_id', 'dev');  // Default development tenant
+        add_option('sovereignrag_ai_knowledge_base_id', 'dev');  // Default development knowledge base
         add_option('sovereignrag_ai_api_key', 'dev-api-key-12345');    // Default development API key
         add_option('sovereignrag_ai_min_confidence', 0.5);
         add_option('sovereignrag_ai_low_confidence_threshold', 0.5);
@@ -174,7 +174,7 @@ class SovereignRag_Plugin {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sovereign-rag-nonce'),
             'api_url' => get_option('sovereignrag_ai_api_url', 'http://localhost:8000'),
-            'tenantId' => get_option('sovereignrag_ai_tenant_id', ''),
+            'knowledgeBaseId' => get_option('sovereignrag_ai_knowledge_base_id', ''),
             'apiKey' => get_option('sovereignrag_ai_api_key', '')
         ));
     }
@@ -199,7 +199,7 @@ class SovereignRag_Plugin {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('sovereign-rag-nonce'),
             'api_url' => get_option('sovereignrag_ai_api_url', 'http://localhost:8000'),
-            'tenantId' => get_option('sovereignrag_ai_tenant_id', ''),
+            'knowledgeBaseId' => get_option('sovereignrag_ai_knowledge_base_id', ''),
             'apiKey' => get_option('sovereignrag_ai_api_key', '')
         ));
     }
@@ -276,7 +276,7 @@ class SovereignRag_Plugin {
 
     /**
      * AJAX handler to get JWT token for admin panel
-     * Authenticates with backend using tenant credentials (server-side)
+     * Authenticates with backend using knowledge base credentials (server-side)
      */
     public function ajax_get_jwt_token() {
         check_ajax_referer('sovereign-rag-nonce', 'nonce');
@@ -288,11 +288,11 @@ class SovereignRag_Plugin {
 
         // Get credentials from settings
         $api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
-        $tenant_id = get_option('sovereignrag_ai_tenant_id', '');
+        $knowledge_base_id = get_option('sovereignrag_ai_knowledge_base_id', '');
         $api_key = get_option('sovereignrag_ai_api_key', '');
 
-        if (empty($tenant_id) || empty($api_key)) {
-            wp_send_json_error(array('message' => 'Missing tenant credentials'));
+        if (empty($knowledge_base_id) || empty($api_key)) {
+            wp_send_json_error(array('message' => 'Missing knowledge base credentials'));
             return;
         }
 
@@ -300,7 +300,7 @@ class SovereignRag_Plugin {
         $response = wp_remote_post($api_url . '/api/auth/authenticate', array(
             'headers' => array('Content-Type' => 'application/json'),
             'body' => json_encode(array(
-                'tenantId' => $tenant_id,
+                'knowledgeBaseId' => $knowledge_base_id,
                 'apiKey' => $api_key
             )),
             'timeout' => 10
@@ -399,12 +399,12 @@ class SovereignRag_Plugin {
             'Content-Type' => 'application/json'
         );
 
-        // Add tenant authentication headers if configured
-        $tenant_id = get_option('sovereignrag_ai_tenant_id', '');
+        // Add knowledge base authentication headers if configured
+        $knowledge_base_id = get_option('sovereignrag_ai_knowledge_base_id', '');
         $api_key = get_option('sovereignrag_ai_api_key', '');
 
-        if (!empty($tenant_id)) {
-            $headers['X-Tenant-Id'] = $tenant_id;
+        if (!empty($knowledge_base_id)) {
+            $headers['X-Knowledge-Base-Id'] = $knowledge_base_id;
         }
 
         if (!empty($api_key)) {

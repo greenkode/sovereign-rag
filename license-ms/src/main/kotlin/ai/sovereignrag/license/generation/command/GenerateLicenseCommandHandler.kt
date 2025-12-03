@@ -42,7 +42,7 @@ class GenerateLicenseCommandHandler(
             clientName = client.clientName,
             tier = command.tier,
             maxTokensPerMonth = command.maxTokensPerMonth,
-            maxTenants = command.maxTenants,
+            maxKnowledgeBases = command.maxKnowledgeBases,
             features = command.features,
             expiresAt = command.expiresAt,
             privateKey = command.privateKey
@@ -55,7 +55,7 @@ class GenerateLicenseCommandHandler(
             clientId = command.clientId,
             tier = LicenseTier.valueOf(command.tier),
             maxTokensPerMonth = command.maxTokensPerMonth,
-            maxTenants = command.maxTenants,
+            maxKnowledgeBases = command.maxKnowledgeBases,
             features = command.features.toTypedArray(),
             expiresAt = command.expiresAt,
         )

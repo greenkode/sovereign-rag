@@ -245,26 +245,26 @@ msgstr "Verbinding"
 msgid "API Connection"
 msgstr "API Verbinding"
 
-msgid "Tenant Authentication"
-msgstr "Tenant Authenticatie"
+msgid "Knowledge Base Authentication"
+msgstr "Kennisbank Authenticatie"
 
 msgid "Development Mode:"
 msgstr "Ontwikkelingsmodus:"
 
-msgid "The default credentials connect to the auto-created development tenant."
-msgstr "De standaard inloggegevens verbinden met de automatisch aangemaakte ontwikkeling tenant."
+msgid "The default credentials connect to the auto-created development knowledge base."
+msgstr "De standaard inloggegevens verbinden met de automatisch aangemaakte ontwikkeling kennisbank."
 
 msgid "Production:"
 msgstr "Productie:"
 
-msgid "Replace these with your production tenant credentials from the SovereignRag AI backend startup logs."
-msgstr "Vervang deze met uw productie tenant inloggegevens uit de SovereignRag AI backend opstartlogs."
+msgid "Replace these with your production knowledge base credentials from the SovereignRag AI backend startup logs."
+msgstr "Vervang deze met uw productie kennisbank inloggegevens uit de SovereignRag AI backend opstartlogs."
 
-msgid "Tenant ID"
-msgstr "Tenant ID"
+msgid "Knowledge Base ID"
+msgstr "Kennisbank ID"
 
-msgid "Your unique tenant identifier provided by SovereignRag AI"
-msgstr "Uw unieke tenant identificatie verstrekt door SovereignRag AI"
+msgid "Your unique knowledge base identifier provided by SovereignRag AI"
+msgstr "Uw unieke kennisbank identificatie verstrekt door SovereignRag AI"
 
 msgid "API Key"
 msgstr "API Sleutel"

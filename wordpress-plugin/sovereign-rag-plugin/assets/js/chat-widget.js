@@ -43,7 +43,7 @@
      *
      * SECURITY: Uses JWT token instead of exposing API key to browser
      */
-    function getTenantHeaders() {
+    function getAuthHeaders() {
         const headers = {};
 
         if (typeof sovereignragChat !== 'undefined' && sovereignragChat.jwtToken) {
@@ -105,7 +105,7 @@
 
                 return refreshJwtToken().then(function() {
                     // Update headers with new token
-                    ajaxOptions.headers = getTenantHeaders();
+                    ajaxOptions.headers = getAuthHeaders();
                     // Retry the request once
                     return apiRequest(ajaxOptions, 1);
                 });
@@ -429,7 +429,7 @@
         apiRequest({
             url: apiUrl,
             method: 'GET',
-            headers: getTenantHeaders()
+            headers: getAuthHeaders()
         }).done(function(response) {
             if (response.success && response.suggestions.length > 0) {
                 showAutocomplete(response.suggestions);
@@ -683,7 +683,7 @@
             url: apiUrl,
             method: 'POST',
             contentType: 'application/json',
-            headers: getTenantHeaders(),
+            headers: getAuthHeaders(),
             data: JSON.stringify({
                 persona: sovereignragChat.ragPersona || 'customer_service',
                 language: responseLanguage
@@ -733,7 +733,7 @@
             url: apiUrl,
             method: 'POST',
             contentType: 'application/json',
-            headers: getTenantHeaders(),
+            headers: getAuthHeaders(),
             data: JSON.stringify({
                 message: message,
                 use_general_knowledge: sovereignragChat.enableGeneralKnowledge === true || sovereignragChat.enableGeneralKnowledge === 1 || sovereignragChat.enableGeneralKnowledge === '1',
@@ -887,7 +887,7 @@
             url: apiUrl,
             method: 'POST',
             contentType: 'application/json',
-            headers: getTenantHeaders(),
+            headers: getAuthHeaders(),
             data: JSON.stringify({
                 reason: 'User requested human support',
                 user_email: userEmail || null
@@ -911,7 +911,7 @@
             url: apiUrl,
             method: 'POST',
             contentType: 'application/json',
-            headers: getTenantHeaders(),
+            headers: getAuthHeaders(),
             data: JSON.stringify({
                 reason: 'User requested human support',
                 user_email: email
@@ -1011,7 +1011,7 @@
         apiRequest({
             url: apiUrl,
             method: 'POST',
-            headers: getTenantHeaders()
+            headers: getAuthHeaders()
         }).done(function() {
             // Clear session
             chatSessionId = null;
@@ -1097,7 +1097,7 @@
             url: apiUrl,
             method: 'POST',
             contentType: 'application/json',
-            headers: getTenantHeaders(),
+            headers: getAuthHeaders(),
             data: JSON.stringify(requestData)
         }).done(function(response) {
             $('#sovereignrag-typing').hide();
@@ -1189,7 +1189,7 @@
             url: apiUrl,
             method: 'POST',
             contentType: 'application/json',
-            headers: getTenantHeaders(),
+            headers: getAuthHeaders(),
             data: JSON.stringify({
                 query: currentSatisfactionPrompt.query,
                 is_accurate: isHelpful === 'yes',

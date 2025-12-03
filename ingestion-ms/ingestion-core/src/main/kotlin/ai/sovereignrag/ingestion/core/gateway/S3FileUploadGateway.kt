@@ -34,10 +34,10 @@ class S3FileUploadGateway(
         contentType: String,
         size: Long,
         category: String,
-        tenantId: UUID
+        ownerId: UUID
     ): FileUploadResult {
         val generatedFileName = generateFileName(fileName)
-        val key = buildKey(category, tenantId, generatedFileName)
+        val key = buildKey(category, ownerId, generatedFileName)
 
         log.info { "Uploading file: $key to bucket: $bucket" }
 
@@ -67,10 +67,10 @@ class S3FileUploadGateway(
         fileName: String,
         contentType: String,
         category: String,
-        tenantId: UUID
+        ownerId: UUID
     ): FileUploadResult {
         val generatedFileName = generateFileName(fileName)
-        val key = buildKey(category, tenantId, generatedFileName)
+        val key = buildKey(category, ownerId, generatedFileName)
 
         log.info { "Uploading bytes: $key to bucket: $bucket" }
 
@@ -99,11 +99,11 @@ class S3FileUploadGateway(
         fileName: String,
         contentType: String,
         category: String,
-        tenantId: UUID,
+        ownerId: UUID,
         expirationMinutes: Long
     ): PresignedUploadUrlResult {
         val generatedFileName = generateFileName(fileName)
-        val key = buildKey(category, tenantId, generatedFileName)
+        val key = buildKey(category, ownerId, generatedFileName)
 
         val putObjectRequest = PutObjectRequest.builder()
             .bucket(bucket)
@@ -213,8 +213,8 @@ class S3FileUploadGateway(
         log.info { "User file deleted successfully: $key" }
     }
 
-    private fun buildKey(category: String, tenantId: UUID, fileName: String): String {
-        return "$category/$tenantId/$fileName"
+    private fun buildKey(category: String, ownerId: UUID, fileName: String): String {
+        return "$category/$ownerId/$fileName"
     }
 
     private fun buildUserKey(category: String, userId: UUID, fileName: String): String {

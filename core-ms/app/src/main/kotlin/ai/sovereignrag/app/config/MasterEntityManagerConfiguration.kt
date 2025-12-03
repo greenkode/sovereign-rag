@@ -17,10 +17,9 @@ import javax.sql.DataSource
  * EntityManager configuration for MASTER database entities
  *
  * This EntityManager is ALWAYS connected to the master database and handles:
- * - Tenant metadata (ai.sovereignrag.tenant.domain)
  * - Prompt templates and personas (ai.sovereignrag.prompt.domain)
  *
- * These entities are shared across all tenants and stored in the master database.
+ * These entities are shared across all knowledge bases and stored in the master database.
  */
 @Configuration
 @EnableTransactionManagement
@@ -33,7 +32,6 @@ class MasterEntityManagerConfiguration {
 
     /**
      * EntityManagerFactory for master database
-     * Scans: ai.sovereignrag.tenant.domain, ai.sovereignrag.prompt.domain
      */
     @Bean
     fun masterEntityManagerFactory(

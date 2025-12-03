@@ -44,7 +44,7 @@ class LicenseGenerationService {
             append("&name=${request.clientName}")
             append("&tier=${request.tier}")
             append("&tokens=${request.maxTokensPerMonth}")
-            append("&tenants=${request.maxTenants}")
+            append("&knowledgeBases=${request.maxKnowledgeBases}")
 
             if (request.features.isNotEmpty()) {
                 append("&features=${request.features.joinToString(",")}")
@@ -127,7 +127,7 @@ data class LicenseGenerationRequest(
     val clientName: String,
     val tier: String,
     val maxTokensPerMonth: Long,
-    val maxTenants: Int,
+    val maxKnowledgeBases: Int,
     val features: List<String>,
     val expiresAt: Instant?,
     val privateKey: String

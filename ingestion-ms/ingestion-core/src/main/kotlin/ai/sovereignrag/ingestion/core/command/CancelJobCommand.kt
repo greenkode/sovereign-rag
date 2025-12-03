@@ -4,7 +4,7 @@ import an.awesome.pipelinr.Command
 import java.util.UUID
 
 data class CancelJobCommand(
-    val tenantId: UUID,
+    val organizationId: UUID,
     val jobId: UUID
 ) : Command<CancelJobResult>
 

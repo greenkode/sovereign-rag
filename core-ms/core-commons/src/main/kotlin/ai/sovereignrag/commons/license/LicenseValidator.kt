@@ -96,7 +96,7 @@ class LicenseValidator(
         val customerName = payloadMap["name"] ?: "Unknown"
         val tier = SubscriptionTier.valueOf(payloadMap["tier"] ?: "TRIAL")
         val maxTokens = payloadMap["tokens"]?.toLongOrNull() ?: 0L
-        val maxTenants = payloadMap["tenants"]?.toIntOrNull() ?: 1
+        val maxKnowledgeBases = payloadMap["knowledge_bases"]?.toIntOrNull() ?: 1
         val issuedAt = Instant.ofEpochSecond(payloadMap["iat"]?.toLongOrNull() ?: 0)
         val expiresAt = payloadMap["exp"]?.toLongOrNull()?.let { Instant.ofEpochSecond(it) }
 
@@ -117,7 +117,7 @@ class LicenseValidator(
             customerName = customerName,
             tier = tier,
             maxTokensPerMonth = maxTokens,
-            maxTenants = maxTenants,
+            maxKnowledgeBases = maxKnowledgeBases,
             features = features,
             issuedAt = issuedAt,
             expiresAt = expiresAt,
@@ -134,7 +134,7 @@ class LicenseValidator(
             customerName = "Unknown",
             tier = SubscriptionTier.TRIAL,
             maxTokensPerMonth = 100_000,
-            maxTenants = 1,
+            maxKnowledgeBases = 1,
             features = emptySet(),
             issuedAt = Instant.now(),
             expiresAt = Instant.now().plusSeconds(7 * 24 * 3600), // 7 days trial

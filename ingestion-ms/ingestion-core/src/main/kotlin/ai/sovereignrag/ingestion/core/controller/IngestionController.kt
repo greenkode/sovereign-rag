@@ -3,9 +3,9 @@ package ai.sovereignrag.ingestion.core.controller
 import ai.sovereignrag.ingestion.commons.dto.ConfirmUploadRequest
 import ai.sovereignrag.ingestion.commons.dto.IngestionJobResponse
 import ai.sovereignrag.ingestion.commons.dto.JobListResponse
+import ai.sovereignrag.ingestion.commons.dto.OrganizationQuotaResponse
 import ai.sovereignrag.ingestion.commons.dto.PresignedUploadRequest
 import ai.sovereignrag.ingestion.commons.dto.PresignedUploadResponse
-import ai.sovereignrag.ingestion.commons.dto.TenantQuotaResponse
 import ai.sovereignrag.ingestion.commons.dto.WebScrapeRequest
 import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.core.command.CancelJobCommand
@@ -14,7 +14,7 @@ import ai.sovereignrag.ingestion.core.command.CreatePresignedUploadCommand
 import ai.sovereignrag.ingestion.core.command.RetryJobCommand
 import ai.sovereignrag.ingestion.core.command.SubmitScrapeJobCommand
 import ai.sovereignrag.ingestion.core.query.GetJobQuery
-import ai.sovereignrag.ingestion.core.query.GetTenantQuotaQuery
+import ai.sovereignrag.ingestion.core.query.GetOrganizationQuotaQuery
 import ai.sovereignrag.ingestion.core.query.ListJobsQuery
 import ai.sovereignrag.ingestion.core.service.SecurityContextService
 import an.awesome.pipelinr.Pipeline
@@ -46,11 +46,11 @@ class IngestionController(
     @PostMapping("/upload/presigned")
     @Operation(summary = "Get presigned upload URL", description = "Generate a presigned URL for direct upload to S3")
     fun getPresignedUploadUrl(@RequestBody request: PresignedUploadRequest): PresignedUploadResponse {
-        val tenantId = getCurrentTenantId()
-        log.info { "Generating presigned URL for tenant $tenantId, file: ${request.fileName}" }
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Generating presigned URL for organization $organizationId, file: ${request.fileName}" }
         return pipeline.send(
             CreatePresignedUploadCommand(
-                tenantId = tenantId,
+                organizationId = organizationId,
                 fileName = request.fileName,
                 fileSize = request.fileSize,
                 contentType = request.contentType,
@@ -62,11 +62,11 @@ class IngestionController(
     @PostMapping("/upload/confirm")
     @Operation(summary = "Confirm upload completion", description = "Confirm that file upload is complete and start processing")
     fun confirmUpload(@RequestBody request: ConfirmUploadRequest): IngestionJobResponse {
-        val tenantId = getCurrentTenantId()
-        log.info { "Confirming upload for tenant $tenantId, job: ${request.jobId}" }
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Confirming upload for organization $organizationId, job: ${request.jobId}" }
         return pipeline.send(
             ConfirmUploadCommand(
-                tenantId = tenantId,
+                organizationId = organizationId,
                 jobId = request.jobId
             )
         )
@@ -75,11 +75,11 @@ class IngestionController(
     @PostMapping("/scrape")
     @Operation(summary = "Submit web scrape job", description = "Submit a URL for web scraping")
     fun submitScrapeJob(@RequestBody request: WebScrapeRequest): IngestionJobResponse {
-        val tenantId = getCurrentTenantId()
-        log.info { "Submitting scrape job for tenant $tenantId, url: ${request.url}" }
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Submitting scrape job for organization $organizationId, url: ${request.url}" }
         return pipeline.send(
             SubmitScrapeJobCommand(
-                tenantId = tenantId,
+                organizationId = organizationId,
                 url = request.url,
                 knowledgeBaseId = request.knowledgeBaseId,
                 depth = request.maxDepth,
@@ -89,17 +89,17 @@ class IngestionController(
     }
 
     @GetMapping("/jobs")
-    @Operation(summary = "List ingestion jobs", description = "List all ingestion jobs for the current tenant")
+    @Operation(summary = "List ingestion jobs", description = "List all ingestion jobs for the current organization")
     fun listJobs(
         @RequestParam(required = false) status: JobStatus?,
         @RequestParam(required = false) knowledgeBaseId: UUID?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int
     ): JobListResponse {
-        val tenantId = getCurrentTenantId()
+        val organizationId = getCurrentOrganizationId()
         return pipeline.send(
             ListJobsQuery(
-                tenantId = tenantId,
+                organizationId = organizationId,
                 status = status,
                 knowledgeBaseId = knowledgeBaseId,
                 page = page,
@@ -111,10 +111,10 @@ class IngestionController(
     @GetMapping("/jobs/{jobId}")
     @Operation(summary = "Get job status", description = "Get the status of a specific ingestion job")
     fun getJob(@PathVariable jobId: UUID): IngestionJobResponse {
-        val tenantId = getCurrentTenantId()
+        val organizationId = getCurrentOrganizationId()
         return pipeline.send(
             GetJobQuery(
-                tenantId = tenantId,
+                organizationId = organizationId,
                 jobId = jobId
             )
         )
@@ -123,10 +123,10 @@ class IngestionController(
     @DeleteMapping("/jobs/{jobId}")
     @Operation(summary = "Cancel job", description = "Cancel a pending or queued ingestion job")
     fun cancelJob(@PathVariable jobId: UUID): Map<String, Any> {
-        val tenantId = getCurrentTenantId()
+        val organizationId = getCurrentOrganizationId()
         val result = pipeline.send(
             CancelJobCommand(
-                tenantId = tenantId,
+                organizationId = organizationId,
                 jobId = jobId
             )
         )
@@ -136,23 +136,23 @@ class IngestionController(
     @PostMapping("/jobs/{jobId}/retry")
     @Operation(summary = "Retry failed job", description = "Retry a failed ingestion job")
     fun retryJob(@PathVariable jobId: UUID): IngestionJobResponse {
-        val tenantId = getCurrentTenantId()
+        val organizationId = getCurrentOrganizationId()
         return pipeline.send(
             RetryJobCommand(
-                tenantId = tenantId,
+                organizationId = organizationId,
                 jobId = jobId
             )
         )
     }
 
     @GetMapping("/quota")
-    @Operation(summary = "Get tenant quota", description = "Get quota and usage information for the current tenant")
-    fun getTenantQuota(): TenantQuotaResponse {
-        val tenantId = getCurrentTenantId()
+    @Operation(summary = "Get organization quota", description = "Get quota and usage information for the current organization")
+    fun getOrganizationQuota(): OrganizationQuotaResponse {
+        val organizationId = getCurrentOrganizationId()
         return pipeline.send(
-            GetTenantQuotaQuery(tenantId = tenantId)
+            GetOrganizationQuotaQuery(organizationId = organizationId)
         )
     }
 
-    private fun getCurrentTenantId(): UUID = securityContextService.getCurrentMerchantId()
+    private fun getCurrentOrganizationId(): UUID = securityContextService.getCurrentMerchantId()
 }

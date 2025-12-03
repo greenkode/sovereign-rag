@@ -24,7 +24,7 @@ class CancelJobCommandHandler(
         val job = jobRepository.findById(command.jobId)
             .orElseThrow { IllegalArgumentException(getMessage("ingestion.error.job.not.found")) }
 
-        require(job.tenantId == command.tenantId) {
+        require(job.organizationId == command.organizationId) {
             getMessage("ingestion.error.job.not.owned")
         }
 
@@ -35,7 +35,7 @@ class CancelJobCommandHandler(
         job.markCancelled()
         jobRepository.save(job)
 
-        log.info { "Cancelled job ${command.jobId} for tenant ${command.tenantId}" }
+        log.info { "Cancelled job ${command.jobId} for organization ${command.organizationId}" }
 
         return CancelJobResult(
             success = true,

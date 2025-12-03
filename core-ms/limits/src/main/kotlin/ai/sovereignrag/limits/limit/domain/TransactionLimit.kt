@@ -6,7 +6,7 @@ import java.util.UUID
 
 data class SubscriptionLimit(
     val id: Int,
-    val tenantId: UUID,
+    val organizationId: UUID,
     val subscriptionTier: SubscriptionTier,
     val dailyTokenLimit: Long,
     val monthlyTokenLimit: Long,

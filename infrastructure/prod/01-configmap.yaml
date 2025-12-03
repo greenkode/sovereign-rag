@@ -37,14 +37,8 @@ data:
   # Admin Configuration
   ADMIN_ENABLED: "true"
 
-  # Tenant Security
-  TENANT_SECURITY_ENABLED: "true"
-
   # JWT Configuration
   JWT_EXPIRATION: "3600000"
-
-  # Development Tenant (disable in production)
-  DEV_TENANT_ENABLED: "false"
 
   # Guardrails Configuration
   GUARDRAILS_ENABLED: "true"

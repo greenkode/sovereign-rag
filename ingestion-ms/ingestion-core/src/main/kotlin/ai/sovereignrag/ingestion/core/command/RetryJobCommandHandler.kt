@@ -26,7 +26,7 @@ class RetryJobCommandHandler(
         val job = jobRepository.findById(command.jobId)
             .orElseThrow { IllegalArgumentException(getMessage("ingestion.error.job.not.found")) }
 
-        require(job.tenantId == command.tenantId) {
+        require(job.organizationId == command.organizationId) {
             getMessage("ingestion.error.job.not.owned")
         }
 
@@ -38,11 +38,11 @@ class RetryJobCommandHandler(
 
         val updatedJob = jobRepository.findById(command.jobId).get()
 
-        log.info { "Retrying job ${command.jobId} for tenant ${command.tenantId}, attempt ${updatedJob.retryCount}" }
+        log.info { "Retrying job ${command.jobId} for organization ${command.organizationId}, attempt ${updatedJob.retryCount}" }
 
         return IngestionJobResponse(
             id = updatedJob.id!!,
-            tenantId = updatedJob.tenantId,
+            organizationId = updatedJob.organizationId,
             knowledgeBaseId = updatedJob.knowledgeBaseId,
             jobType = updatedJob.jobType,
             status = updatedJob.status,

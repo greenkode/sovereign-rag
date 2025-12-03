@@ -39,11 +39,11 @@ class SovereignRag_Content_Sync {
      * Caches the token until it expires, then automatically refreshes
      */
     private function get_auth_token() {
-        $tenant_id = get_option('sovereignrag_ai_tenant_id', '');
+        $knowledge_base_id = get_option('sovereignrag_ai_knowledge_base_id', '');
         $api_key = get_option('sovereignrag_ai_api_key', '');
 
-        if (empty($tenant_id) || empty($api_key)) {
-            error_log('SovereignRag: Missing tenant ID or API key configuration');
+        if (empty($knowledge_base_id) || empty($api_key)) {
+            error_log('SovereignRag: Missing knowledge base ID or API key configuration');
             return null;
         }
 
@@ -68,7 +68,7 @@ class SovereignRag_Content_Sync {
         $response = wp_remote_post($api_url . '/api/auth/authenticate', array(
             'headers' => array('Content-Type' => 'application/json'),
             'body' => json_encode(array(
-                'tenantId' => $tenant_id,
+                'knowledgeBaseId' => $knowledge_base_id,
                 'apiKey' => $api_key
             )),
             'timeout' => 30

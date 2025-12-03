@@ -148,7 +148,7 @@ storage:
 ingestion:
   limits:
     max-file-size: ${INGESTION_MAX_FILE_SIZE:104857600}
-    max-concurrent-jobs-per-tenant: ${INGESTION_MAX_CONCURRENT_JOBS:5}
+    max-concurrent-jobs-per-organization: ${INGESTION_MAX_CONCURRENT_JOBS:5}
     max-batch-size: ${INGESTION_MAX_BATCH_SIZE:50}
     presigned-url-expiry-minutes: ${INGESTION_PRESIGNED_URL_EXPIRY:15}
     scrape-rate-limit-per-minute: ${INGESTION_SCRAPE_RATE_LIMIT:10}

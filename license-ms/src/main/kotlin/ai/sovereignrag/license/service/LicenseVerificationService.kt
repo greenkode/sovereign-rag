@@ -71,7 +71,7 @@ class LicenseVerificationService(
             clientId = request.clientId,
             deploymentId = request.deploymentId,
             tokensUsed = request.tokensUsed,
-            activeTenants = request.activeTenants,
+            activeKnowledgeBases = request.activeKnowledgeBases,
             activeUsers = request.activeUsers,
             apiCalls = request.apiCalls,
             metadata = request.metadata
@@ -103,7 +103,7 @@ class LicenseVerificationService(
             clientName = null,
             tier = license.tier.name,
             maxTokensPerMonth = license.maxTokensPerMonth,
-            maxTenants = license.maxTenants,
+            maxKnowledgeBases = license.maxKnowledgeBases,
             features = license.features.toList(),
             expiresAt = license.expiresAt,
             message = "License is valid"
@@ -155,7 +155,7 @@ data class VerificationResponse(
     val clientName: String? = null,
     val tier: String? = null,
     val maxTokensPerMonth: Long? = null,
-    val maxTenants: Int? = null,
+    val maxKnowledgeBases: Int? = null,
     val features: List<String>? = null,
     val expiresAt: Instant? = null,
     val message: String
@@ -166,7 +166,7 @@ data class UsageReportRequest(
     val clientId: String,
     val deploymentId: String?,
     val tokensUsed: Long,
-    val activeTenants: Int,
+    val activeKnowledgeBases: Int,
     val activeUsers: Int,
     val apiCalls: Long,
     val metadata: Map<String, Any>?

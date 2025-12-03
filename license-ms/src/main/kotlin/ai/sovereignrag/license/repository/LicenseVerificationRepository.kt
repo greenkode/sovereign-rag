@@ -50,7 +50,7 @@ class LicenseVerificationRepository(
         clientId: String,
         deploymentId: String?,
         tokensUsed: Long,
-        activeTenants: Int,
+        activeKnowledgeBases: Int,
         activeUsers: Int,
         apiCalls: Long,
         metadata: Map<String, Any>?
@@ -58,12 +58,12 @@ class LicenseVerificationRepository(
         val sql = """
             INSERT INTO license.license_usage
             (license_key_hash, customer_id, deployment_id, report_date,
-             tokens_used, active_tenants, active_users, api_calls, metadata)
+             tokens_used, active_knowledge_bases, active_users, api_calls, metadata)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)
             ON CONFLICT (license_key_hash, deployment_id, report_date)
             DO UPDATE SET
                 tokens_used = license.license_usage.tokens_used + EXCLUDED.tokens_used,
-                active_tenants = GREATEST(license.license_usage.active_tenants, EXCLUDED.active_tenants),
+                active_knowledge_bases = GREATEST(license.license_usage.active_knowledge_bases, EXCLUDED.active_knowledge_bases),
                 active_users = GREATEST(license.license_usage.active_users, EXCLUDED.active_users),
                 api_calls = license.license_usage.api_calls + EXCLUDED.api_calls,
                 metadata = EXCLUDED.metadata
@@ -75,7 +75,7 @@ class LicenseVerificationRepository(
             .setParameter(3, deploymentId)
             .setParameter(4, LocalDate.now())
             .setParameter(5, tokensUsed)
-            .setParameter(6, activeTenants)
+            .setParameter(6, activeKnowledgeBases)
             .setParameter(7, activeUsers)
             .setParameter(8, apiCalls)
             .setParameter(9, metadata?.let { mapToJson(it) })

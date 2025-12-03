@@ -6,7 +6,7 @@ data class GenerateLicenseCommand(
     val clientId: String,
     val tier: String,
     val maxTokensPerMonth: Long,
-    val maxTenants: Int,
+    val maxKnowledgeBases: Int,
     val features: List<String>,
     val expiresAt: Instant?,
     val privateKey: String

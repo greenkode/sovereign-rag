@@ -196,10 +196,10 @@
     $('#regenerate-api-key').on('click', function() {
         var $button = $(this);
         var $result = $('#api-key-result');
-        var tenantId = sovereignRAG.tenantId || $('#tenant_id').val();
+        var knowledgeBaseId = sovereignRAG.knowledgeBaseId || $('#knowledge_base_id').val();
 
-        if (!tenantId) {
-            $result.html('<div class="notice notice-error"><p>Please enter a Tenant ID first.</p></div>');
+        if (!knowledgeBaseId) {
+            $result.html('<div class="notice notice-error"><p>Please enter a Knowledge Base ID first.</p></div>');
             return;
         }
 
@@ -209,7 +209,7 @@
             'A 6-digit verification code will be sent to your admin email. Do you want to proceed?',
             function() {
                 // User confirmed - proceed with reset request
-                proceedWithApiKeyReset($button, $result, tenantId);
+                proceedWithApiKeyReset($button, $result, knowledgeBaseId);
             }
         );
     });
@@ -277,13 +277,13 @@
     }
 
     // Extracted function to proceed with API key reset
-    function proceedWithApiKeyReset($button, $result, tenantId) {
+    function proceedWithApiKeyReset($button, $result, knowledgeBaseId) {
         $button.prop('disabled', true).text('Sending code...');
         $result.html('<p>Requesting verification code...</p>');
 
         // Step 1: Request reset - No authentication required (public endpoint secured by email)
         $.ajax({
-            url: sovereignRAG.api_url + '/api/admin/tenants/' + encodeURIComponent(tenantId) + '/request-reset',
+            url: sovereignRAG.api_url + '/api/admin/knowledge-bases/' + encodeURIComponent(knowledgeBaseId) + '/request-reset',
             method: 'POST',
             contentType: 'application/json',
             dataType: 'json'
@@ -318,7 +318,7 @@
 
                     // Step 2: Confirm reset with token - No authentication required
                     $.ajax({
-                        url: sovereignRAG.api_url + '/api/admin/tenants/' + encodeURIComponent(tenantId) + '/confirm-reset',
+                        url: sovereignRAG.api_url + '/api/admin/knowledge-bases/' + encodeURIComponent(knowledgeBaseId) + '/confirm-reset',
                         method: 'POST',
                         contentType: 'application/json',
                         data: JSON.stringify({ token: token }),

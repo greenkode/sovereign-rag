@@ -9,7 +9,7 @@ data class LicenseInfo(
     val customerName: String,
     val tier: SubscriptionTier,
     val maxTokensPerMonth: Long,
-    val maxTenants: Int,
+    val maxKnowledgeBases: Int,
     val features: Set<LicenseFeature>,
     val issuedAt: Instant,
     val expiresAt: Instant?,
@@ -30,7 +30,7 @@ data class LicenseInfo(
 }
 
 enum class LicenseFeature {
-    MULTI_TENANT,
+    MULTI_KNOWLEDGE_BASE,
     READ_REPLICAS,
     CUSTOM_MODELS,
     ADVANCED_GUARDRAILS,

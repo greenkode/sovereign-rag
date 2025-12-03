@@ -16,7 +16,7 @@ import java.util.UUID
 @Table(name = "subscription_limit")
 class SubscriptionLimitEntity(
 
-    val tenantId: UUID,
+    val organizationId: UUID,
 
     @Enumerated(EnumType.STRING)
     val subscriptionTier: SubscriptionTier,
@@ -36,7 +36,7 @@ class SubscriptionLimitEntity(
 
     fun toDomain() = SubscriptionLimit(
         id!!,
-        tenantId,
+        organizationId,
         subscriptionTier,
         dailyTokenLimit,
         monthlyTokenLimit,

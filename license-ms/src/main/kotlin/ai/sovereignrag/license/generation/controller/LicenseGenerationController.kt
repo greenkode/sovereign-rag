@@ -29,7 +29,7 @@ class LicenseGenerationController(
             clientId = request.clientId,
             tier = request.tier,
             maxTokensPerMonth = request.maxTokensPerMonth,
-            maxTenants = request.maxTenants,
+            maxKnowledgeBases = request.maxKnowledgeBases,
             features = request.features,
             expiresAt = request.expiresAt,
             privateKey = request.privateKey
@@ -77,7 +77,7 @@ data class GenerateLicenseApiRequest(
     val clientId: String,
     val tier: String,
     val maxTokensPerMonth: Long,
-    val maxTenants: Int,
+    val maxKnowledgeBases: Int,
     val features: List<String>,
     val expiresAt: Instant?,
     val privateKey: String

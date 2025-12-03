@@ -20,7 +20,7 @@ data class VerifyLicenseResult(
     val clientName: String,
     val tier: LicenseTier,
     val maxTokensPerMonth: Long,
-    val maxTenants: Int,
+    val maxKnowledgeBases: Int,
     val features: Set<LicenseFeature>,
     val issuedAt: Instant,
     val expiresAt: Instant?,

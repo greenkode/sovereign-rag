@@ -5,7 +5,7 @@ import an.awesome.pipelinr.Command
 import java.util.UUID
 
 data class CreatePresignedUploadCommand(
-    val tenantId: UUID,
+    val organizationId: UUID,
     val fileName: String,
     val fileSize: Long,
     val contentType: String,

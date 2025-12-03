@@ -9,7 +9,7 @@ COPY pom.xml .
 COPY core-ms/pom.xml core-ms/
 COPY core-ms/commons/pom.xml core-ms/commons/
 COPY core-ms/auth/pom.xml core-ms/auth/
-COPY core-ms/tenant/pom.xml core-ms/tenant/
+COPY core-ms/knowledge-base/pom.xml core-ms/knowledge-base/
 COPY core-ms/guardrail/pom.xml core-ms/guardrail/
 COPY core-ms/agent-core/pom.xml core-ms/agent-core/
 COPY core-ms/client/pom.xml core-ms/client/

@@ -96,11 +96,11 @@ Once deployed, services are available at:
 - **Swagger UI:** http://localhost:9093/swagger-ui.html
 - **Audit API:** http://localhost:9080
 
-### 5. Create First Tenant
+### 5. Create First Knowledge Base
 
 ```bash
 # Using the API
-curl -X POST http://localhost:9093/api/tenants \
+curl -X POST http://localhost:9093/api/knowledge-bases \
   -H "Content-Type: application/json" \
   -d '{
     "id": "acme",
@@ -249,7 +249,7 @@ kubectl get ingress -n sovereignrag
 | `ADMIN_ENABLED` | Enable admin features | `true` |
 | `GUARDRAILS_ENABLED` | Enable guardrails | `true` |
 | `USE_RERANKING` | Enable result re-ranking | `true` |
-| `DEV_TENANT_ENABLED` | Auto-create dev tenant | `false` |
+| `DEV_KNOWLEDGE_BASE_ENABLED` | Auto-create dev knowledge base | `false` |
 
 ### Read Replica Configuration
 

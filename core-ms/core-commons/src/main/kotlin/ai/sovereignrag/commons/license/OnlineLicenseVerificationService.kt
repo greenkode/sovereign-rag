@@ -76,7 +76,7 @@ class OnlineLicenseVerificationService(
         licenseKey: String,
         customerId: String,
         tokensUsed: Long,
-        activeTenants: Int,
+        activeKnowledgeBases: Int,
         activeUsers: Int,
         apiCalls: Long
     ) {
@@ -86,7 +86,7 @@ class OnlineLicenseVerificationService(
                 customerId = customerId,
                 deploymentId = onlineLicenseProperties.deploymentId,
                 tokensUsed = tokensUsed,
-                activeTenants = activeTenants,
+                activeKnowledgeBases = activeKnowledgeBases,
                 activeUsers = activeUsers,
                 apiCalls = apiCalls,
                 metadata = null
@@ -119,7 +119,7 @@ class OnlineLicenseVerificationService(
             customerName = response.customerName,
             tier = response.tier,
             maxTokensPerMonth = response.maxTokensPerMonth,
-            maxTenants = response.maxTenants,
+            maxKnowledgeBases = response.maxKnowledgeBases,
             features = response.features,
             issuedAt = response.issuedAt,
             expiresAt = response.expiresAt,
@@ -144,7 +144,7 @@ data class OnlineVerificationResponse(
     val customerName: String,
     val tier: SubscriptionTier,
     val maxTokensPerMonth: Long,
-    val maxTenants: Int,
+    val maxKnowledgeBases: Int,
     val features: Set<LicenseFeature>,
     val issuedAt: Instant,
     val expiresAt: Instant?,
@@ -156,7 +156,7 @@ data class UsageReportRequest(
     val customerId: String,
     val deploymentId: String?,
     val tokensUsed: Long,
-    val activeTenants: Int,
+    val activeKnowledgeBases: Int,
     val activeUsers: Int,
     val apiCalls: Long,
     val metadata: Map<String, Any>?

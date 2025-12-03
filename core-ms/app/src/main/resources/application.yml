@@ -2,7 +2,6 @@ spring:
   application:
     name: sovereignrag-ai
 
-  # PostgreSQL configuration for multi-tenant architecture
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/sovereignrag_master}
     username: ${POSTGRES_USER:sovereignrag}
@@ -135,13 +134,6 @@ sovereignrag:
 
   admin:
     enabled: ${ADMIN_ENABLED:true}
-    # Add authentication config later if needed
-    # jwt-secret: ${ADMIN_JWT_SECRET:}
-
-  # Tenant security configuration
-  tenant:
-    security:
-      enabled: ${TENANT_SECURITY_ENABLED:true}  # Enabled by default
 
   # JWT authentication configuration
   jwt:
@@ -149,13 +141,6 @@ sovereignrag:
     # Generate with: openssl rand -base64 32
     secret: ${JWT_SECRET:please-change-this-secret-key-in-production-min-256-bits-required-for-security}
     expiration: ${JWT_EXPIRATION:3600000}  # Token lifetime in milliseconds (default: 1 hour)
-
-  # Development tenant auto-creation
-  dev-tenant:
-    enabled: ${DEV_TENANT_ENABLED:true}  # Auto-create dev tenant on startup
-    id: ${DEV_TENANT_ID:dev}
-    name: ${DEV_TENANT_NAME:Development Tenant}
-    api-key: ${DEV_TENANT_API_KEY:dev-api-key-12345}
   license:
     key: ${SOVEREIGNRAG_LICENSE_KEY:}
     strict: ${SOVEREIGNRAG_LICENSE_STRICT:false}

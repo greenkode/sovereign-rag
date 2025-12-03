@@ -2,7 +2,7 @@ CREATE SCHEMA IF NOT EXISTS ingestion;
 
 CREATE TABLE IF NOT EXISTS ingestion.ingestion_jobs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id UUID NOT NULL,
+    organization_id UUID NOT NULL,
     knowledge_base_id UUID,
     job_type VARCHAR(50) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS ingestion.ingestion_job_items (
     version BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS ingestion.tenant_quotas (
-    tenant_id UUID PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS ingestion.organization_quotas (
+    organization_id UUID PRIMARY KEY,
     tier VARCHAR(50) NOT NULL DEFAULT 'FREE',
     storage_used_bytes BIGINT NOT NULL DEFAULT 0,
     storage_quota_bytes BIGINT NOT NULL DEFAULT 104857600,
@@ -67,9 +67,9 @@ CREATE TABLE IF NOT EXISTS ingestion.tenant_quotas (
     version BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_tenant_id ON ingestion.ingestion_jobs(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_organization_id ON ingestion.ingestion_jobs(organization_id);
 CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_status ON ingestion.ingestion_jobs(status);
-CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_tenant_status ON ingestion.ingestion_jobs(tenant_id, status);
+CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_organization_status ON ingestion.ingestion_jobs(organization_id, status);
 CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_knowledge_base ON ingestion.ingestion_jobs(knowledge_base_id);
 CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_created_at ON ingestion.ingestion_jobs(created_at DESC);
 

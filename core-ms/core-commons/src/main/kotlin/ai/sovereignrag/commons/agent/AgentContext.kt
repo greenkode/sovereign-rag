@@ -12,7 +12,7 @@ import java.time.Instant
  * - Session/conversation metadata
  * - Chat memory (conversation history)
  * - Persona (behavioral configuration)
- * - Optional tenant/user identification
+ * - Optional knowledge base/user identification
  *
  * This is designed to be immutable and lightweight.
  */
@@ -44,9 +44,9 @@ data class AgentContext(
     val userId: String? = null,
 
     /**
-     * Optional tenant ID for multi-tenancy
+     * Optional knowledge base ID for multi-tenancy
      */
-    val tenantId: String? = null,
+    val knowledgeBaseId: String? = null,
 
     /**
      * Optional language preference (e.g., "en", "nl", "de")

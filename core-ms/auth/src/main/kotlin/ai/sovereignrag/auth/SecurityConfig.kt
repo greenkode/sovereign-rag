@@ -1,6 +1,6 @@
 package ai.sovereignrag.auth
 
-import ai.sovereignrag.auth.authentication.TenantAuthenticationProvider
+import ai.sovereignrag.auth.authentication.KnowledgeBaseAuthenticationProvider
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,7 +30,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
  * Spring Security Configuration for JWT-based authentication
  *
  * Security Features:
- * - Custom TenantAuthenticationProvider for BCrypt-based API key validation
+ * - Custom KnowledgeBaseAuthenticationProvider for BCrypt-based API key validation
  * - JWT token authentication via Authorization Bearer header
  * - Stateless sessions (no server-side session storage)
  * - CORS enabled for WordPress frontend
@@ -43,19 +43,19 @@ class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
     private val organizationSetupFilter: OrganizationSetupFilter,
     private val knowledgeBaseContextFilter: KnowledgeBaseContextFilter,
-    @Lazy private val tenantAuthenticationProvider: TenantAuthenticationProvider,
+    @Lazy private val knowledgeBaseAuthenticationProvider: KnowledgeBaseAuthenticationProvider,
     @Value("\${sovereignrag.cors.allowed-origins}") private val allowedOrigins: String
 ) {
 
     /**
-     * AuthenticationManager with custom TenantAuthenticationProvider
+     * AuthenticationManager with custom KnowledgeBaseAuthenticationProvider
      *
      * This authentication manager uses BCrypt for secure API key verification
      * and provides constant-time comparison to prevent timing attacks
      */
     @Bean
     fun authenticationManager(): AuthenticationManager {
-        return ProviderManager(listOf(tenantAuthenticationProvider))
+        return ProviderManager(listOf(knowledgeBaseAuthenticationProvider))
     }
 
     /**
@@ -92,8 +92,8 @@ class SecurityConfig(
                         "/api/auth/**",
                         "/actuator/health",
                         "/actuator/info",
-                        "/api/admin/tenants/{tenantId}/request-reset",
-                        "/api/admin/tenants/{tenantId}/confirm-reset"
+                        "/api/admin/knowledge-bases/{kbId}/request-reset",
+                        "/api/admin/knowledge-bases/{kbId}/confirm-reset"
                     ).permitAll()
                     .anyRequest().authenticated()
             }

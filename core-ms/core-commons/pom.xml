@@ -41,7 +41,7 @@
             <version>${langchain4j.version}</version>
         </dependency>
 
-        <!-- Spring Security (for SecurityContextHolder in TenantContext) -->
+        <!-- Spring Security (for SecurityContextHolder in KnowledgeBaseContext) -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>

@@ -28,15 +28,15 @@ class IngestionJobService(
     private val jobRepository: IngestionJobRepository,
     private val fileUploadGateway: FileUploadGateway,
     private val jobQueue: JobQueue,
-    private val tenantQuotaService: TenantQuotaService,
+    private val organizationQuotaService: OrganizationQuotaService,
     private val ingestionProperties: IngestionProperties,
     private val messageSource: MessageSource
 ) {
 
-    fun createPresignedUpload(tenantId: UUID, request: PresignedUploadRequest): PresignedUploadResponse {
+    fun createPresignedUpload(organizationId: UUID, request: PresignedUploadRequest): PresignedUploadResponse {
         validateMimeType(request.contentType)
 
-        val validationResult = tenantQuotaService.validateUploadRequest(tenantId, request.fileSize)
+        val validationResult = organizationQuotaService.validateUploadRequest(organizationId, request.fileSize)
 
         when (validationResult) {
             is QuotaValidationResult.FileSizeExceeded -> throw IngestionQuotaException(
@@ -57,7 +57,7 @@ class IngestionJobService(
         val priority = (validationResult as QuotaValidationResult.Valid).priority
 
         val job = IngestionJob(
-            tenantId = tenantId,
+            organizationId = organizationId,
             jobType = JobType.FILE_UPLOAD,
             knowledgeBaseId = request.knowledgeBaseId,
             priority = priority
@@ -75,14 +75,14 @@ class IngestionJobService(
             fileName = request.fileName,
             contentType = request.contentType,
             category = ingestionProperties.storage.uploadsPrefix.trimEnd('/'),
-            tenantId = tenantId,
+            ownerId = organizationId,
             expirationMinutes = ingestionProperties.limits.presignedUrlExpiryMinutes
         )
 
         savedJob.sourceReference = presignedResult.key
         jobRepository.save(savedJob)
 
-        log.info { "Created presigned upload for tenant $tenantId, job ${savedJob.id}, priority $priority" }
+        log.info { "Created presigned upload for organization $organizationId, job ${savedJob.id}, priority $priority" }
 
         return PresignedUploadResponse(
             jobId = savedJob.id!!,
@@ -92,8 +92,8 @@ class IngestionJobService(
         )
     }
 
-    fun confirmUpload(tenantId: UUID, jobId: UUID) {
-        val job = getJobForTenant(tenantId, jobId)
+    fun confirmUpload(organizationId: UUID, jobId: UUID) {
+        val job = getJobForOrganization(organizationId, jobId)
 
         require(job.status == JobStatus.UPLOADING) {
             getMessage("ingestion.error.job.not.uploading")
@@ -104,13 +104,13 @@ class IngestionJobService(
         log.info { "Confirmed upload and queued job ${job.id} for processing" }
     }
 
-    fun getJob(tenantId: UUID, jobId: UUID): IngestionJobResponse {
-        val job = getJobForTenant(tenantId, jobId)
+    fun getJob(organizationId: UUID, jobId: UUID): IngestionJobResponse {
+        val job = getJobForOrganization(organizationId, jobId)
         return mapToResponse(job)
     }
 
     fun listJobs(
-        tenantId: UUID,
+        organizationId: UUID,
         status: JobStatus? = null,
         knowledgeBaseId: UUID? = null,
         page: Int = 0,
@@ -119,16 +119,16 @@ class IngestionJobService(
         val pageable = PageRequest.of(page, size)
 
         val jobs = when {
-            status != null -> jobRepository.findByTenantIdAndStatusOrderByCreatedAtDesc(tenantId, status, pageable)
-            knowledgeBaseId != null -> jobRepository.findByTenantIdAndKnowledgeBaseIdOrderByCreatedAtDesc(tenantId, knowledgeBaseId, pageable)
-            else -> jobRepository.findByTenantIdOrderByCreatedAtDesc(tenantId, pageable)
+            status != null -> jobRepository.findByOrganizationIdAndStatusOrderByCreatedAtDesc(organizationId, status, pageable)
+            knowledgeBaseId != null -> jobRepository.findByOrganizationIdAndKnowledgeBaseIdOrderByCreatedAtDesc(organizationId, knowledgeBaseId, pageable)
+            else -> jobRepository.findByOrganizationIdOrderByCreatedAtDesc(organizationId, pageable)
         }
 
         return jobs.map { mapToResponse(it) }
     }
 
-    fun cancelJob(tenantId: UUID, jobId: UUID) {
-        val job = getJobForTenant(tenantId, jobId)
+    fun cancelJob(organizationId: UUID, jobId: UUID) {
+        val job = getJobForOrganization(organizationId, jobId)
 
         require(job.status in listOf(JobStatus.PENDING, JobStatus.UPLOADING, JobStatus.QUEUED)) {
             getMessage("ingestion.error.cannot.cancel", job.status.name)
@@ -137,11 +137,11 @@ class IngestionJobService(
         job.markCancelled()
         jobRepository.save(job)
 
-        log.info { "Cancelled job $jobId for tenant $tenantId" }
+        log.info { "Cancelled job $jobId for organization $organizationId" }
     }
 
-    fun retryJob(tenantId: UUID, jobId: UUID) {
-        val job = getJobForTenant(tenantId, jobId)
+    fun retryJob(organizationId: UUID, jobId: UUID) {
+        val job = getJobForOrganization(organizationId, jobId)
 
         require(job.canRetry()) {
             getMessage("ingestion.error.cannot.retry")
@@ -149,21 +149,21 @@ class IngestionJobService(
 
         jobQueue.retry(jobId)
 
-        log.info { "Retrying job $jobId for tenant $tenantId, attempt ${job.retryCount + 1}" }
+        log.info { "Retrying job $jobId for organization $organizationId, attempt ${job.retryCount + 1}" }
     }
 
-    fun getActiveJobsCount(tenantId: UUID): Long {
-        return jobRepository.countActiveJobsForTenant(
-            tenantId,
+    fun getActiveJobsCount(organizationId: UUID): Long {
+        return jobRepository.countActiveJobsForOrganization(
+            organizationId,
             listOf(JobStatus.PENDING, JobStatus.UPLOADING, JobStatus.QUEUED, JobStatus.PROCESSING)
         )
     }
 
-    private fun getJobForTenant(tenantId: UUID, jobId: UUID): IngestionJob {
+    private fun getJobForOrganization(organizationId: UUID, jobId: UUID): IngestionJob {
         val job = jobRepository.findById(jobId)
             .orElseThrow { IllegalArgumentException(getMessage("ingestion.error.job.not.found")) }
 
-        require(job.tenantId == tenantId) {
+        require(job.organizationId == organizationId) {
             getMessage("ingestion.error.job.not.owned")
         }
 
@@ -183,7 +183,7 @@ class IngestionJobService(
     private fun mapToResponse(job: IngestionJob): IngestionJobResponse {
         return IngestionJobResponse(
             id = job.id!!,
-            tenantId = job.tenantId,
+            organizationId = job.organizationId,
             knowledgeBaseId = job.knowledgeBaseId,
             jobType = job.jobType,
             status = job.status,

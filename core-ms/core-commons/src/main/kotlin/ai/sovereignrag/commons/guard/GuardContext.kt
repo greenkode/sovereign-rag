@@ -8,7 +8,7 @@ import java.time.Instant
  */
 data class GuardContext(
     // Identity
-    val tenantId: String,
+    val knowledgeBaseId: String,
     val sessionId: String,
     val userId: String? = null,
 

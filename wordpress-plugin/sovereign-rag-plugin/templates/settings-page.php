@@ -9,7 +9,7 @@ if (isset($_POST['sovereignrag_ai_save_settings'])) {
     check_admin_referer('sovereignrag_ai_settings');
 
     update_option('sovereignrag_ai_api_url', esc_url_raw($_POST['api_url']));
-    update_option('sovereignrag_ai_tenant_id', sanitize_text_field($_POST['tenant_id']));
+    update_option('sovereignrag_ai_knowledge_base_id', sanitize_text_field($_POST['knowledge_base_id']));
     // Note: API key is NOT saved here - it's only updated via the "Regenerate API Key" button
     update_option('sovereignrag_ai_min_confidence', floatval($_POST['min_confidence']));
     update_option('sovereignrag_enable_chat_widget', isset($_POST['enable_chat_widget']) ? 1 : 0);
@@ -42,7 +42,7 @@ if (isset($_POST['sovereignrag_ai_save_settings'])) {
 }
 
 $api_url = get_option('sovereignrag_ai_api_url', 'http://localhost:8000');
-$tenant_id = get_option('sovereignrag_ai_tenant_id', 'dev');
+$knowledge_base_id = get_option('sovereignrag_ai_knowledge_base_id', 'dev');
 $api_key = get_option('sovereignrag_ai_api_key', 'Cea88tZgz7U8ri5mqH3LF2MiD3hidTp_IaY-7_dwH4M');
 $min_confidence = get_option('sovereignrag_ai_min_confidence', 0.5);
 $enable_chat_widget = get_option('sovereignrag_enable_chat_widget', true);
@@ -104,26 +104,26 @@ $chat_greeting_hint = get_option('sovereignrag_chat_greeting_hint', 'Begin met t
                 </tr>
             </table>
 
-            <h2><?php echo esc_html__('Tenant Authentication', 'sovereign-rag'); ?></h2>
+            <h2><?php echo esc_html__('Knowledge Base Authentication', 'sovereign-rag'); ?></h2>
             <table class="form-table">
                 <tr>
                     <td colspan="2">
                         <div class="notice notice-info inline">
                             <p>
-                                <strong><?php echo esc_html__('Development Mode:', 'sovereign-rag'); ?></strong> <?php echo esc_html__('The default credentials connect to the auto-created development tenant.', 'sovereign-rag'); ?><br>
-                                <strong><?php echo esc_html__('Production:', 'sovereign-rag'); ?></strong> <?php echo esc_html__('Replace these with your production tenant credentials from the Sovereign RAG backend startup logs.', 'sovereign-rag'); ?>
+                                <strong><?php echo esc_html__('Development Mode:', 'sovereign-rag'); ?></strong> <?php echo esc_html__('The default credentials connect to the auto-created development knowledge base.', 'sovereign-rag'); ?><br>
+                                <strong><?php echo esc_html__('Production:', 'sovereign-rag'); ?></strong> <?php echo esc_html__('Replace these with your production knowledge base credentials from the Sovereign RAG backend startup logs.', 'sovereign-rag'); ?>
                             </p>
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="tenant_id"><?php echo esc_html__('Tenant ID', 'sovereign-rag'); ?></label>
+                        <label for="knowledge_base_id"><?php echo esc_html__('Knowledge Base ID', 'sovereign-rag'); ?></label>
                     </th>
                     <td>
-                        <input type="text" id="tenant_id" name="tenant_id" value="<?php echo esc_attr($tenant_id); ?>" class="regular-text" required>
+                        <input type="text" id="knowledge_base_id" name="knowledge_base_id" value="<?php echo esc_attr($knowledge_base_id); ?>" class="regular-text" required>
                         <p class="description">
-                            <?php echo esc_html__('Your unique tenant identifier provided by Sovereign RAG', 'sovereign-rag'); ?>
+                            <?php echo esc_html__('Your unique knowledge base identifier provided by Sovereign RAG', 'sovereign-rag'); ?>
                         </p>
                     </td>
                 </tr>

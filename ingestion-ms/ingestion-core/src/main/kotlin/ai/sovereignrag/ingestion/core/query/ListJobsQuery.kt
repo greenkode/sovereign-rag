@@ -6,7 +6,7 @@ import an.awesome.pipelinr.Command
 import java.util.UUID
 
 data class ListJobsQuery(
-    val tenantId: UUID,
+    val organizationId: UUID,
     val status: JobStatus? = null,
     val knowledgeBaseId: UUID? = null,
     val page: Int = 0,

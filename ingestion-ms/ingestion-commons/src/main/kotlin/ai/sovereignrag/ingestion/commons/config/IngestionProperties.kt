@@ -14,7 +14,7 @@ data class IngestionProperties(
 
 data class LimitsProperties(
     val maxFileSize: Long = 100 * 1024 * 1024,
-    val maxConcurrentJobsPerTenant: Int = 5,
+    val maxConcurrentJobsPerOrganization: Int = 5,
     val maxBatchSize: Int = 50,
     val presignedUrlExpiryMinutes: Long = 15,
     val scrapeRateLimitPerMinute: Int = 10,

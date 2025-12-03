@@ -54,7 +54,7 @@
         <module>guardrail</module>
         <module>process</module>
         <module>scheduler</module>
-        <module>tenant</module>
+        <module>knowledge-base</module>
     </modules>
 
     <dependencies>
