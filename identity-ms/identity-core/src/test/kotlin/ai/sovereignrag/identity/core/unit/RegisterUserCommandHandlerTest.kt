@@ -12,6 +12,8 @@ import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.integration.NotificationClient
+import ai.sovereignrag.identity.core.organization.entity.Organization
+import ai.sovereignrag.identity.core.organization.repository.OrganizationRepository
 import ai.sovereignrag.identity.core.registration.command.RegisterUserCommand
 import ai.sovereignrag.identity.core.registration.command.RegisterUserCommandHandler
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
@@ -38,6 +40,7 @@ class RegisterUserCommandHandlerTest {
 
     private val userRepository: OAuthUserRepository = mockk()
     private val oauthClientRepository: OAuthRegisteredClientRepository = mockk()
+    private val organizationRepository: OrganizationRepository = mockk()
     private val businessEmailValidationService: BusinessEmailValidationService = mockk()
     private val passwordEncoder: PasswordEncoder = mockk()
     private val processGateway: ProcessGateway = mockk()
@@ -52,6 +55,7 @@ class RegisterUserCommandHandlerTest {
         handler = RegisterUserCommandHandler(
             userRepository,
             oauthClientRepository,
+            organizationRepository,
             businessEmailValidationService,
             passwordEncoder,
             processGateway,
@@ -99,12 +103,14 @@ class RegisterUserCommandHandlerTest {
         val command = createCommand()
         val existingClient = mockk<OAuthRegisteredClient>()
         val organizationId = UUID.randomUUID()
+        val existingOrg = Organization(id = organizationId, name = "Acme", slug = "acme")
         val userSlot = slot<OAuthUser>()
 
         every { businessEmailValidationService.validateBusinessEmail(any()) } just runs
         every { userRepository.findByEmail("john.doe@acme.com") } returns null
         every { oauthClientRepository.findByDomain("acme.com") } returns existingClient
         every { existingClient.id } returns organizationId.toString()
+        every { organizationRepository.findBySlug("acme") } returns existingOrg
         every { passwordEncoder.encode(any()) } returns "encoded_password"
         every { userRepository.save(capture(userSlot)) } answers { userSlot.captured.apply { id = UUID.randomUUID() } }
         every { processGateway.findLatestPendingProcessesByTypeAndForUserId(any(), any()) } returns null
@@ -146,10 +152,12 @@ class RegisterUserCommandHandlerTest {
     fun `should allow re-registration when registration is incomplete`() {
         val command = createCommand()
         val existingUserId = UUID.randomUUID()
+        val organizationId = UUID.randomUUID()
         val merchantId = UUID.randomUUID()
         val existingUser = OAuthUser().apply {
             id = existingUserId
             email = "john.doe@acme.com"
+            this.organizationId = organizationId
             this.merchantId = merchantId
             registrationComplete = false
             emailVerified = false
@@ -170,7 +178,7 @@ class RegisterUserCommandHandlerTest {
 
         assertTrue(result.success)
         assertEquals(existingUserId, result.userId)
-        assertEquals(merchantId, result.organizationId)
+        assertEquals(organizationId, result.organizationId)
         assertEquals(false, result.isNewOrganization)
 
         val savedUser = userSlot.captured
@@ -260,6 +268,8 @@ class RegisterUserCommandHandlerTest {
         every { passwordEncoder.encode(any()) } returns "encoded_password"
         every { oauthClientRepository.save(any()) } answers { firstArg() }
         every { processGateway.findLatestPendingProcessesByTypeAndForUserId(any(), any()) } returns null
+        every { organizationRepository.existsBySlug(any()) } returns false
+        every { organizationRepository.save(any()) } answers { firstArg<Organization>() }
 
         every { oauthClientConfigService.getAuthenticationMethod("client_secret_basic") } returns mockk(relaxed = true)
         every { oauthClientConfigService.getAuthenticationMethod("client_secret_post") } returns mockk(relaxed = true)

@@ -12,6 +12,8 @@ import ai.sovereignrag.identity.core.fixtures.ProviderAccountBuilder
 import ai.sovereignrag.identity.core.fixtures.UserBuilder
 import ai.sovereignrag.identity.core.oauth.CustomOidcUserService
 import ai.sovereignrag.identity.core.oauth.OAuth2UserPrincipal
+import ai.sovereignrag.identity.core.organization.entity.Organization
+import ai.sovereignrag.identity.core.organization.repository.OrganizationRepository
 import ai.sovereignrag.identity.core.repository.OAuthProviderAccountRepository
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
@@ -45,6 +47,7 @@ class CustomOidcUserServiceTest {
     private val userRepository: OAuthUserRepository = mockk()
     private val providerAccountRepository: OAuthProviderAccountRepository = mockk()
     private val oauthClientRepository: OAuthRegisteredClientRepository = mockk()
+    private val organizationRepository: OrganizationRepository = mockk()
     private val oauthClientConfigService: OAuthClientConfigService = mockk()
     private val businessEmailValidationService: BusinessEmailValidationService = mockk()
     private val passwordEncoder: PasswordEncoder = mockk()
@@ -58,6 +61,7 @@ class CustomOidcUserServiceTest {
             userRepository,
             providerAccountRepository,
             oauthClientRepository,
+            organizationRepository,
             oauthClientConfigService,
             businessEmailValidationService,
             passwordEncoder,
@@ -341,6 +345,8 @@ class CustomOidcUserServiceTest {
     private fun setupMocksForNewOrganization() {
         every { businessEmailValidationService.validateBusinessEmail(any()) } just runs
         every { passwordEncoder.encode(any()) } returns "encoded_password"
+        every { organizationRepository.existsBySlug(any()) } returns false
+        every { organizationRepository.save(any()) } answers { firstArg<Organization>() }
         every { oauthClientConfigService.getAuthenticationMethod("client_secret_basic") } returns mockk(relaxed = true)
         every { oauthClientConfigService.getAuthenticationMethod("client_secret_post") } returns mockk(relaxed = true)
         every { oauthClientConfigService.getGrantType("client_credentials") } returns mockk(relaxed = true)
@@ -405,6 +411,7 @@ class CustomOidcUserServiceTest {
         private val testUserRepository: OAuthUserRepository,
         private val testProviderAccountRepository: OAuthProviderAccountRepository,
         private val testOauthClientRepository: OAuthRegisteredClientRepository,
+        private val testOrganizationRepository: OrganizationRepository,
         private val testOauthClientConfigService: OAuthClientConfigService,
         private val testBusinessEmailValidationService: BusinessEmailValidationService,
         private val testPasswordEncoder: PasswordEncoder,
@@ -413,6 +420,7 @@ class CustomOidcUserServiceTest {
         testUserRepository,
         testProviderAccountRepository,
         testOauthClientRepository,
+        testOrganizationRepository,
         testOauthClientConfigService,
         testBusinessEmailValidationService,
         testPasswordEncoder,
@@ -505,8 +513,8 @@ class CustomOidcUserServiceTest {
                     testMessageService.getMessage("oauth.error.domain_exists", superAdminEmail)
                 )
             } ?: run {
-                val merchantId = createOAuthClientInternal(domain, email)
-                createUserWithProviderAccountInternal(provider, providerUserId, email, oidcUser, merchantId)
+                val (organizationId, oauthClientId) = createOAuthClientInternal(domain, email)
+                createUserWithProviderAccountInternal(provider, providerUserId, email, oidcUser, organizationId, oauthClientId)
             }
         }
 
@@ -515,8 +523,18 @@ class CustomOidcUserServiceTest {
                 .firstOrNull()?.email
                 ?: testMessageService.getMessage("oauth.error.admin_not_found")
 
-        private fun createOAuthClientInternal(domain: String, adminEmail: String): UUID {
-            val organizationId = UUID.randomUUID()
+        private fun createOAuthClientInternal(domain: String, adminEmail: String): Pair<UUID, UUID> {
+            val slug = domain.substringBefore(".")
+                .lowercase()
+                .replace(Regex("[^a-z0-9]"), "-")
+                .replace(Regex("-+"), "-")
+                .trim('-')
+
+            val organization = Organization(
+                name = "-",
+                slug = slug
+            )
+            val savedOrg = testOrganizationRepository.save(organization)
 
             val sandboxSecret = "test_sandbox_secret"
             val productionSecret = "test_production_secret"
@@ -532,7 +550,7 @@ class CustomOidcUserServiceTest {
             val scopeWrite = testOauthClientConfigService.getScope("write")
 
             val oauthClient = OAuthRegisteredClient().apply {
-                id = organizationId.toString()
+                id = savedOrg.id.toString()
                 clientId = UUID.randomUUID().toString()
                 clientName = "-"
                 clientIdIssuedAt = Instant.now()
@@ -554,7 +572,7 @@ class CustomOidcUserServiceTest {
             }
 
             testOauthClientRepository.save(oauthClient)
-            return organizationId
+            return savedOrg.id to UUID.fromString(oauthClient.id)
         }
 
         private fun createUserWithProviderAccountInternal(
@@ -562,7 +580,8 @@ class CustomOidcUserServiceTest {
             providerUserId: String,
             email: String,
             oidcUser: OidcUser,
-            merchantId: UUID
+            organizationId: UUID,
+            oauthClientId: UUID
         ): OAuthUser {
             val firstName = oidcUser.givenName ?: oidcUser.fullName?.split(" ")?.firstOrNull()
             val lastName = oidcUser.familyName ?: oidcUser.fullName?.split(" ")?.drop(1)?.joinToString(" ")?.takeIf { it.isNotBlank() }
@@ -579,7 +598,8 @@ class CustomOidcUserServiceTest {
                 this.emailVerified = true
                 this.registrationComplete = true
                 this.enabled = true
-                this.merchantId = merchantId
+                this.organizationId = organizationId
+                this.merchantId = oauthClientId
                 this.registrationSource = when (provider) {
                     OAuthProvider.GOOGLE -> RegistrationSource.OAUTH_GOOGLE
                     OAuthProvider.MICROSOFT -> RegistrationSource.OAUTH_MICROSOFT
