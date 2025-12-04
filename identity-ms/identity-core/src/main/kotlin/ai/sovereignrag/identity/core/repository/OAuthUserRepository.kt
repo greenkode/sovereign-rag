@@ -11,6 +11,7 @@ interface OAuthUserRepository : JpaRepository<OAuthUser, UUID> {
     fun findByUsername(username: String): OAuthUser?
     fun findByEmail(email: String): OAuthUser?
     fun findByMerchantId(merchantId: UUID): List<OAuthUser>
+    fun findByOrganizationId(organizationId: UUID): List<OAuthUser>
     fun existsByEmail(email: String): Boolean
 
     @Query("SELECT u FROM OAuthUser u JOIN u.authorities a WHERE u.merchantId = :merchantId AND a = 'ROLE_SUPER_ADMIN'")

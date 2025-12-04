@@ -84,7 +84,22 @@ class CreateKnowledgeBaseCommandHandler(
         log.info { "Knowledge base created successfully: ${knowledgeBase.id}" }
 
         return CreateKnowledgeBaseResult(
-            knowledgeBase = KnowledgeBaseDto.from(knowledgeBase),
+            knowledgeBase = KnowledgeBaseDto(
+                id = knowledgeBase.id,
+                name = knowledgeBase.name,
+                description = knowledgeBase.description,
+                organizationId = knowledgeBase.organizationId,
+                status = knowledgeBase.status,
+                documentCount = 0,
+                embeddingCount = 0,
+                queryCount = 0,
+                maxDocuments = knowledgeBase.maxDocuments,
+                maxEmbeddings = knowledgeBase.maxEmbeddings,
+                maxRequestsPerDay = knowledgeBase.maxRequestsPerDay,
+                createdAt = knowledgeBase.createdAt,
+                updatedAt = knowledgeBase.updatedAt,
+                lastActiveAt = knowledgeBase.lastActiveAt
+            ),
             clientId = credentials.clientId,
             clientSecret = credentials.clientSecret
         )

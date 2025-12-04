@@ -1,5 +1,6 @@
 package ai.sovereignrag.knowledgebase.configuration.domain
 
+import ai.sovereignrag.knowledgebase.configuration.dto.RegionDto
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import java.io.Serializable
@@ -20,4 +21,15 @@ data class Region(
     val sortOrder: Int = 0,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
-) : Serializable
+) : Serializable {
+    fun toDto() = RegionDto(
+        code = code,
+        name = name,
+        continent = continent,
+        city = city,
+        country = country,
+        countryCode = countryCode,
+        flag = flag,
+        enabled = enabled
+    )
+}

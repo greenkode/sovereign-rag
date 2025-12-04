@@ -1,5 +1,6 @@
 package ai.sovereignrag.knowledgebase.configuration.domain
 
+import ai.sovereignrag.knowledgebase.configuration.dto.LanguageDto
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import java.io.Serializable
@@ -15,4 +16,11 @@ data class Language(
     val sortOrder: Int = 0,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
-) : Serializable
+) : Serializable {
+    fun toDto() = LanguageDto(
+        code = code,
+        name = name,
+        nativeName = nativeName,
+        enabled = enabled
+    )
+}

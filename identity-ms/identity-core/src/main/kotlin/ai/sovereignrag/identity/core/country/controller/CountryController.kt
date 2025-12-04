@@ -18,6 +18,6 @@ class CountryController(
         val countries = enabled?.let {
             countryRepository.findAllByEnabledTrueOrderByNameAsc()
         } ?: countryRepository.findAllByOrderByNameAsc()
-        return countries.map { CountryResponse.from(it) }
+        return countries.map { it.toDto() }
     }
 }

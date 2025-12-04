@@ -22,7 +22,16 @@ class GetKnowledgeBasesQueryHandler(
         )
 
         return knowledgeBases.map { kb ->
-            KnowledgeBaseSummaryDto.from(kb)
+            KnowledgeBaseSummaryDto(
+                id = kb.id,
+                name = kb.name,
+                description = kb.description,
+                organizationId = kb.organizationId,
+                status = kb.status,
+                documentCount = 0,
+                lastActiveAt = kb.lastActiveAt,
+                createdAt = kb.createdAt
+            )
         }
     }
 }

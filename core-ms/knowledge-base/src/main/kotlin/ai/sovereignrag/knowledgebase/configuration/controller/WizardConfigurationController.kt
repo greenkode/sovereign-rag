@@ -11,10 +11,10 @@ import ai.sovereignrag.knowledgebase.configuration.query.GetLanguagesQuery
 import ai.sovereignrag.knowledgebase.configuration.query.GetRegionsQuery
 import ai.sovereignrag.knowledgebase.configuration.query.GetWizardConfigurationQuery
 import ai.sovereignrag.knowledgebase.configuration.query.RecommendEmbeddingModelQuery
+import ai.sovereignrag.commons.security.IsMerchant
 import an.awesome.pipelinr.Pipeline
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -31,7 +31,7 @@ class WizardConfigurationController(
 ) {
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('MERCHANT_SUPER_ADMIN', 'MERCHANT_ADMIN', 'MERCHANT_USER')")
+    @IsMerchant
     fun getWizardConfiguration(): ResponseEntity<WizardConfigurationResponse> {
         log.info { "Fetching wizard configuration" }
 
@@ -47,7 +47,7 @@ class WizardConfigurationController(
     }
 
     @GetMapping("/regions")
-    @PreAuthorize("hasAnyRole('MERCHANT_SUPER_ADMIN', 'MERCHANT_ADMIN', 'MERCHANT_USER')")
+    @IsMerchant
     fun getRegions(): ResponseEntity<List<RegionDto>> {
         log.info { "Fetching regions" }
         val result = pipeline.send(GetRegionsQuery())
@@ -55,7 +55,7 @@ class WizardConfigurationController(
     }
 
     @GetMapping("/languages")
-    @PreAuthorize("hasAnyRole('MERCHANT_SUPER_ADMIN', 'MERCHANT_ADMIN', 'MERCHANT_USER')")
+    @IsMerchant
     fun getLanguages(): ResponseEntity<List<LanguageDto>> {
         log.info { "Fetching languages" }
         val result = pipeline.send(GetLanguagesQuery())
@@ -63,7 +63,7 @@ class WizardConfigurationController(
     }
 
     @GetMapping("/embedding-models")
-    @PreAuthorize("hasAnyRole('MERCHANT_SUPER_ADMIN', 'MERCHANT_ADMIN', 'MERCHANT_USER')")
+    @IsMerchant
     fun getEmbeddingModels(
         @RequestParam(required = false) languages: Set<String>?
     ): ResponseEntity<List<EmbeddingModelDto>> {
@@ -73,7 +73,7 @@ class WizardConfigurationController(
     }
 
     @PostMapping("/embedding-models/recommend")
-    @PreAuthorize("hasAnyRole('MERCHANT_SUPER_ADMIN', 'MERCHANT_ADMIN', 'MERCHANT_USER')")
+    @IsMerchant
     fun recommendEmbeddingModel(
         @RequestBody request: EmbeddingModelRecommendationRequest
     ): ResponseEntity<EmbeddingModelRecommendationResponse> {

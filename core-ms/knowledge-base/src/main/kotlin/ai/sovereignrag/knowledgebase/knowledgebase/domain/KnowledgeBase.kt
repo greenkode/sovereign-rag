@@ -2,6 +2,9 @@ package ai.sovereignrag.knowledgebase.knowledgebase.domain
 
 import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseInfo
 import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseStatus
+import ai.sovereignrag.knowledgebase.knowledgebase.dto.KnowledgeBaseDto
+import ai.sovereignrag.knowledgebase.knowledgebase.dto.KnowledgeBaseStats
+import ai.sovereignrag.knowledgebase.knowledgebase.dto.KnowledgeBaseSummaryDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType

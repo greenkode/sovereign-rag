@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.settings.controller
 
-import ai.sovereignrag.identity.commons.permissions.IsMerchantSuperAdmin
+import ai.sovereignrag.commons.security.IsMerchantSuperAdmin
 import ai.sovereignrag.identity.core.settings.command.CompleteOrganizationSetupCommand
 import ai.sovereignrag.identity.core.settings.command.EnableProductionCommand
 import ai.sovereignrag.identity.core.settings.command.ResetKeysCommand

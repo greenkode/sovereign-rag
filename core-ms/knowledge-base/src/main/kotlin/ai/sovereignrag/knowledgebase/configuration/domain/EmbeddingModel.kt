@@ -1,5 +1,6 @@
 package ai.sovereignrag.knowledgebase.configuration.domain
 
+import ai.sovereignrag.knowledgebase.configuration.dto.EmbeddingModelDto
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
@@ -40,4 +41,17 @@ data class EmbeddingModel(
     )
     @Column(name = "language_code")
     val optimizedFor: Set<String> = emptySet()
-) : Serializable
+) : Serializable {
+    fun toDto() = EmbeddingModelDto(
+        id = id,
+        name = name,
+        modelId = modelId,
+        description = description,
+        provider = provider,
+        dimensions = dimensions,
+        maxTokens = maxTokens,
+        supportedLanguages = supportedLanguages,
+        optimizedFor = optimizedFor,
+        enabled = enabled
+    )
+}

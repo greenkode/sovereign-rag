@@ -22,4 +22,6 @@ interface OAuthRegisteredClientRepository : JpaRepository<OAuthRegisteredClient,
     fun findByClientIdAndKnowledgeBaseIdIsNotNullAndStatus(clientId: String, status: OrganizationStatus): OAuthRegisteredClient?
 
     fun findByOrganizationIdAndKnowledgeBaseIdIsNotNull(organizationId: UUID): List<OAuthRegisteredClient>
+
+    fun findByOrganizationId(organizationId: UUID): List<OAuthRegisteredClient>
 }

@@ -21,30 +21,30 @@ class WizardConfigurationService(
     fun getEnabledRegions(): List<RegionDto> {
         log.debug { "Fetching enabled regions" }
         return regionRepository.findByEnabledTrueOrderBySortOrder()
-            .map { RegionDto.from(it) }
+            .map { it.toDto() }
     }
 
     fun getEnabledLanguages(): List<LanguageDto> {
         log.debug { "Fetching enabled languages" }
         return languageRepository.findByEnabledTrueOrderBySortOrder()
-            .map { LanguageDto.from(it) }
+            .map { it.toDto() }
     }
 
     fun getEnabledEmbeddingModels(): List<EmbeddingModelDto> {
         log.debug { "Fetching enabled embedding models" }
         return embeddingModelRepository.findByEnabledTrueOrderBySortOrder()
-            .map { EmbeddingModelDto.from(it) }
+            .map { it.toDto() }
     }
 
     fun getEmbeddingModelsByLanguages(languageCodes: Set<String>): List<EmbeddingModelDto> {
         log.debug { "Fetching embedding models for languages: $languageCodes" }
         return embeddingModelRepository.findByLanguagesSupported(languageCodes)
-            .map { EmbeddingModelDto.from(it) }
+            .map { it.toDto() }
     }
 
     fun getOptimizedEmbeddingModels(languageCodes: Set<String>): List<EmbeddingModelDto> {
         log.debug { "Fetching optimized embedding models for languages: $languageCodes" }
         return embeddingModelRepository.findByLanguagesOptimized(languageCodes)
-            .map { EmbeddingModelDto.from(it) }
+            .map { it.toDto() }
     }
 }

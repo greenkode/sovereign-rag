@@ -7,11 +7,12 @@ import ai.sovereignrag.knowledgebase.knowledgebase.dto.KnowledgeBaseDto
 import ai.sovereignrag.knowledgebase.knowledgebase.dto.KnowledgeBaseSummaryDto
 import ai.sovereignrag.knowledgebase.knowledgebase.query.GetKnowledgeBaseQuery
 import ai.sovereignrag.knowledgebase.knowledgebase.query.GetKnowledgeBasesQuery
+import ai.sovereignrag.commons.security.IsMerchant
+import ai.sovereignrag.commons.security.IsMerchantAdmin
 import an.awesome.pipelinr.Pipeline
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.annotation.GetMapping
@@ -33,7 +34,7 @@ class KnowledgeBaseController(
 ) {
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_MERCHANT_SUPER_ADMIN', 'ROLE_MERCHANT_ADMIN')")
+    @IsMerchantAdmin
     fun createKnowledgeBase(@RequestBody request: CreateKnowledgeBaseRequest): ResponseEntity<CreateKnowledgeBaseResponse> {
         val userId = userGateway.getLoggedInUserId()?.toString()
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -66,7 +67,7 @@ class KnowledgeBaseController(
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_MERCHANT_SUPER_ADMIN', 'ROLE_MERCHANT_ADMIN', 'ROLE_MERCHANT_USER')")
+    @IsMerchant
     fun listKnowledgeBases(
         @RequestParam(required = false) status: KnowledgeBaseStatus?
     ): ResponseEntity<List<KnowledgeBaseSummaryDto>> {
@@ -85,7 +86,7 @@ class KnowledgeBaseController(
     }
 
     @GetMapping("/{knowledgeBaseId}")
-    @PreAuthorize("hasAnyAuthority('ROLE_MERCHANT_SUPER_ADMIN', 'ROLE_MERCHANT_ADMIN', 'ROLE_MERCHANT_USER')")
+    @IsMerchant
     fun getKnowledgeBase(@PathVariable knowledgeBaseId: String): ResponseEntity<KnowledgeBaseDto> {
         val organizationId = getOrganizationIdFromToken()
             ?: return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()

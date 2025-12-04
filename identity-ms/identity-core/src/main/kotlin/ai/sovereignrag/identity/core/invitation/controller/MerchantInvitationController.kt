@@ -3,7 +3,7 @@ package ai.sovereignrag.identity.core.invitation.controller
 import ai.sovereignrag.identity.commons.PhoneNumber
 import ai.sovereignrag.identity.commons.RoleEnum
 import ai.sovereignrag.identity.commons.exception.NotFoundException
-import ai.sovereignrag.identity.commons.permissions.IsMerchantSuperAdmin
+import ai.sovereignrag.commons.security.IsMerchantSuperAdmin
 import ai.sovereignrag.identity.core.invitation.command.CompleteInvitationCommand
 import ai.sovereignrag.identity.core.invitation.command.CompleteInvitationResult
 import ai.sovereignrag.identity.core.invitation.command.ValidateInvitationCommand
