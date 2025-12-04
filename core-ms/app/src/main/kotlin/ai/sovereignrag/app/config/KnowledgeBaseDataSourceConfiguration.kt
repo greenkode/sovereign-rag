@@ -2,7 +2,7 @@ package ai.sovereignrag.app.config
 
 import ai.sovereignrag.commons.datasource.ReadWriteRoutingDataSource
 import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseRegistry
-import ai.sovereignrag.kb.config.KnowledgeBaseDataSourceRouter
+import ai.sovereignrag.knowledgebase.config.KnowledgeBaseDataSourceRouter
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -29,7 +29,7 @@ private val log = KotlinLogging.logger {}
 @EnableTransactionManagement
 @EnableJpaRepositories(
     basePackages = [
-        "ai.sovereignrag.kb.repository"
+        "ai.sovereignrag.knowledgebase.repository"
     ],
     entityManagerFactoryRef = "knowledgeBaseEntityManagerFactory",
     transactionManagerRef = "knowledgeBaseTransactionManager"
