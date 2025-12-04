@@ -11,6 +11,7 @@ import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
+import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.CacheEvictionService
 import ai.sovereignrag.identity.core.service.UserService
 import ai.sovereignrag.identity.core.settings.command.CompleteOrganizationSetupCommand
@@ -31,6 +32,7 @@ import kotlin.test.assertTrue
 class CompleteOrganizationSetupCommandHandlerTest {
 
     private val userService: UserService = mockk()
+    private val userRepository: OAuthUserRepository = mockk()
     private val oAuthRegisteredClientRepository: OAuthRegisteredClientRepository = mockk()
     private val cacheEvictionService: CacheEvictionService = mockk()
     private val messageService: MessageService = mockk()
@@ -43,6 +45,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
     fun setup() {
         handler = CompleteOrganizationSetupCommandHandler(
             userService,
+            userRepository,
             oAuthRegisteredClientRepository,
             cacheEvictionService,
             messageService
@@ -51,16 +54,18 @@ class CompleteOrganizationSetupCommandHandlerTest {
 
     @Test
     fun `should complete organization setup successfully`() {
-        val user = mockk<OAuthUser>()
+        val user = mockk<OAuthUser>(relaxed = true)
         val client = mockk<OAuthRegisteredClient>(relaxed = true)
         val command = createCommand()
 
         every { userService.getCurrentUser() } returns user
         every { user.merchantId } returns merchantId
+        every { user.id } returns UUID.randomUUID()
         every { oAuthRegisteredClientRepository.findById(merchantId.toString()) } returns Optional.of(client)
         every { client.getSetting(OAuthClientSettingName.SETUP_COMPLETED) } returns null
         every { client.clientId } returns "test-client-id"
         every { oAuthRegisteredClientRepository.save(any()) } returns client
+        every { userRepository.save(any()) } returns user
         every { cacheEvictionService.evictMerchantCaches(any()) } just runs
         every { messageService.getMessage("settings.success.setup_completed") } returns "Setup completed"
 
@@ -75,6 +80,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
         verify { client.addSetting(OAuthClientSettingName.INTENDED_PURPOSE, "CUSTOMER_SUPPORT") }
         verify { client.addSetting(OAuthClientSettingName.SETUP_COMPLETED, "true") }
         verify { oAuthRegisteredClientRepository.save(client) }
+        verify { userRepository.save(user) }
         verify { cacheEvictionService.evictMerchantCaches(merchantId.toString()) }
     }
 
@@ -138,7 +144,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
         companySize: CompanySize = CompanySize.SIZE_11_50,
         roleInCompany: CompanyRole = CompanyRole.CTO,
         country: String = "US",
-        phoneNumber: String = "+1234567890",
+        phoneNumber: String = "+12025551234",
         termsAccepted: Boolean = true
     ) = CompleteOrganizationSetupCommand(
         companyName = companyName,

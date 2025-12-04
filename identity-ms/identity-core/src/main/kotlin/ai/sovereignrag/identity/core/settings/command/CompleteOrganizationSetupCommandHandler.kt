@@ -1,17 +1,20 @@
 package ai.sovereignrag.identity.core.settings.command
 
+import ai.sovereignrag.commons.user.dto.PhoneNumber
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.exception.NotFoundException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
+import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.CacheEvictionService
 import ai.sovereignrag.identity.core.service.UserService
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.util.Locale
 
 private val log = KotlinLogging.logger {}
 
@@ -19,6 +22,7 @@ private val log = KotlinLogging.logger {}
 @Transactional
 class CompleteOrganizationSetupCommandHandler(
     private val userService: UserService,
+    private val userRepository: OAuthUserRepository,
     private val oAuthRegisteredClientRepository: OAuthRegisteredClientRepository,
     private val cacheEvictionService: CacheEvictionService,
     private val messageService: MessageService
@@ -55,6 +59,18 @@ class CompleteOrganizationSetupCommandHandler(
         client.addSetting(OAuthClientSettingName.SETUP_COMPLETED, "true")
 
         oAuthRegisteredClientRepository.save(client)
+
+        command.phoneNumber.takeIf { it.isNotBlank() }?.let { phoneNumber ->
+            runCatching {
+                val locale = Locale.Builder().setRegion(command.country).build()
+                val formattedPhone = PhoneNumber(phoneNumber, locale).toInternationalFormat()
+                user.phoneNumber = formattedPhone
+                userRepository.save(user)
+                log.info { "Phone number saved to user profile: ${user.id}" }
+            }.onFailure { e ->
+                log.warn(e) { "Failed to save phone number to user profile, continuing with setup" }
+            }
+        }
 
         log.info { "Organization setup completed for merchant: ${client.clientId}, name: ${command.companyName}" }
 
