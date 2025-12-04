@@ -7,6 +7,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.S3Configuration
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import java.net.URI
 
@@ -38,10 +39,15 @@ class S3ClientConfig(
             properties.secretKey
         )
 
+        val serviceConfig = S3Configuration.builder()
+            .pathStyleAccessEnabled(true)
+            .build()
+
         return S3Presigner.builder()
             .endpointOverride(URI.create(properties.endpoint))
             .region(Region.of(properties.region))
             .credentialsProvider(StaticCredentialsProvider.create(credentials))
+            .serviceConfiguration(serviceConfig)
             .build()
     }
 }

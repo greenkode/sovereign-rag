@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.config
 
+import ai.sovereignrag.commons.fileupload.FileUploadGateway
 import ai.sovereignrag.identity.core.config.JwtClaimName.AUTHORITIES
 import ai.sovereignrag.identity.core.config.JwtClaimName.CLIENT_TYPE
 import ai.sovereignrag.identity.core.config.JwtClaimName.EMAIL
@@ -27,7 +28,6 @@ import ai.sovereignrag.identity.core.config.JwtClaimName.TYPE
 import ai.sovereignrag.identity.core.config.JwtClaimName.VERIFICATION_STATUS
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
 import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
-import ai.sovereignrag.identity.core.entity.OrganizationStatus
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -43,10 +43,15 @@ private val log = KotlinLogging.logger {}
 @Configuration
 class OAuth2TokenCustomizerConfig {
 
+    companion object {
+        private const val PRESIGNED_URL_EXPIRATION_MINUTES = 60L
+    }
+
     @Bean
     fun jwtTokenCustomizer(
         clientRepository: OAuthRegisteredClientRepository,
-        userRepository: OAuthUserRepository
+        userRepository: OAuthUserRepository,
+        fileUploadGateway: FileUploadGateway
     ): OAuth2TokenCustomizer<JwtEncodingContext> {
         return OAuth2TokenCustomizer { context ->
             log.info { "Customizing token for grant type: ${context.authorizationGrantType?.value}" }
@@ -57,7 +62,7 @@ class OAuth2TokenCustomizerConfig {
                 }
 
                 context.tokenType == OAuth2TokenType.ACCESS_TOKEN -> {
-                    customizeUserAccessToken(context, userRepository, clientRepository)
+                    customizeUserAccessToken(context, userRepository, clientRepository, fileUploadGateway)
                 }
             }
         }
@@ -99,7 +104,8 @@ class OAuth2TokenCustomizerConfig {
     private fun customizeUserAccessToken(
         context: JwtEncodingContext,
         userRepository: OAuthUserRepository,
-        clientRepository: OAuthRegisteredClientRepository
+        clientRepository: OAuthRegisteredClientRepository,
+        fileUploadGateway: FileUploadGateway
     ) {
         val principal = context.getPrincipal<org.springframework.security.core.Authentication>()
         val username = principal?.name
@@ -167,7 +173,10 @@ class OAuth2TokenCustomizerConfig {
             context.claims.claim(EMAIL.value, user.email)
             context.claims.claim(PREFERRED_USERNAME.value, user.email)
             context.claims.claim(NAME.value, "${user.firstName.orEmpty()} ${user.lastName.orEmpty()}".trim().ifEmpty { user.email })
-            user.pictureUrl?.let { context.claims.claim(PICTURE.value, it) }
+            user.pictureUrl?.let { pictureUrl ->
+                val resolvedUrl = resolveAvatarUrl(pictureUrl, fileUploadGateway)
+                context.claims.claim(PICTURE.value, resolvedUrl)
+            }
 
             user.userType?.name?.let { context.claims.claim(TYPE.value, it) }
             user.trustLevel?.name?.let { context.claims.claim(TRUST_LEVEL.value, it) }
@@ -178,4 +187,15 @@ class OAuth2TokenCustomizerConfig {
     }
 
     private fun Boolean.toVerificationStatus(): String = if (this) "VERIFIED" else "PENDING"
+
+    private fun resolveAvatarUrl(storedValue: String, fileUploadGateway: FileUploadGateway): String {
+        return when {
+            storedValue.startsWith("http") -> storedValue
+            storedValue.startsWith("avatars/") -> fileUploadGateway.generatePresignedDownloadUrl(
+                storedValue,
+                PRESIGNED_URL_EXPIRATION_MINUTES
+            )
+            else -> storedValue
+        }
+    }
 }

@@ -68,10 +68,10 @@ class AuthController(
     private val clientIpExtractionService: ClientIpExtractionService,
     @Value("\${identity-ms.base-url}") private val identityBaseUrl: String,
     @Value("\${identity-ms.token.expiry:600}") private val tokenExpiry: Long,
+    @Value("\${jwt.audience:core-ms-client}") private val jwtAudience: String
 ) {
 
     companion object {
-        private const val DEFAULT_RESOURCE_CLIENT_ID = "akupay-payment-gateway"
         private val DEFAULT_REALM_ROLES = listOf("offline_access", "uma_authorization", "default-roles-akuid")
         private val DEFAULT_ACCOUNT_ROLES = listOf("manage-account", "manage-account-links", "view-profile")
         private const val DEFAULT_SCOPE = "openid email phone profile"
@@ -150,7 +150,7 @@ class AuthController(
             .claim("auth_time", authTime.epochSecond)
             .claim("jti", jti)
             .claim("typ", "Bearer")
-            .claim("azp", DEFAULT_RESOURCE_CLIENT_ID)
+            .claim("azp", jwtAudience)
             .claim("sid", sid)
             .claim("acr", "1")
             .claim("allowed-origins", listOf("https://oauth.pstmn.io"))

@@ -50,7 +50,8 @@ class SecurityConfig(
     private val jwtAuthenticationConverter: CustomJwtAuthenticationConverter,
     @Lazy private val customOidcUserService: CustomOidcUserService,
     @Lazy private val oAuth2AuthenticationSuccessHandler: OAuth2AuthenticationSuccessHandler,
-    @Lazy private val oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler
+    @Lazy private val oAuth2AuthenticationFailureHandler: OAuth2AuthenticationFailureHandler,
+    @org.springframework.beans.factory.annotation.Value("\${jwt.issuer:http://localhost:9083}") private val jwtIssuer: String
 ) {
     @Bean
     @Order(1)
@@ -160,7 +161,9 @@ class SecurityConfig(
 
     @Bean
     fun authorizationServerSettings(): AuthorizationServerSettings {
-        return AuthorizationServerSettings.builder().build()
+        return AuthorizationServerSettings.builder()
+            .issuer(jwtIssuer)
+            .build()
     }
 
     @Bean

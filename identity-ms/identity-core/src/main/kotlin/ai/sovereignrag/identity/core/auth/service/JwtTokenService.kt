@@ -22,7 +22,8 @@ class JwtTokenService(
     private val tokenGenerator: OAuth2TokenGenerator<*>,
     private val authorizationServerSettings: AuthorizationServerSettings,
     @Value("\${identity-ms.token.expiry:600}") private val tokenExpiry: Long,
-    @Value("\${identity-ms.refresh-token.expiry:86400}") private val refreshTokenExpiry: Long
+    @Value("\${identity-ms.refresh-token.expiry:86400}") private val refreshTokenExpiry: Long,
+    @Value("\${jwt.audience:core-ms-client}") private val jwtAudience: String
 ) {
 
     fun generateToken(user: OAuthUser, userDetails: CustomUserDetails): String {
@@ -33,7 +34,7 @@ class JwtTokenService(
         )
 
         val registeredClient = RegisteredClient.withId("direct-login-client")
-            .clientId("akupay-payment-gateway")
+            .clientId(jwtAudience)
             .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
             .authorizationGrantType(AuthorizationGrantType("direct_login"))
             .tokenSettings(
@@ -74,7 +75,7 @@ class JwtTokenService(
         )
 
         val registeredClient = RegisteredClient.withId("direct-login-client")
-            .clientId("akupay-payment-gateway")
+            .clientId(jwtAudience)
             .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
             .authorizationGrantType(AuthorizationGrantType("direct_login"))
             .tokenSettings(
