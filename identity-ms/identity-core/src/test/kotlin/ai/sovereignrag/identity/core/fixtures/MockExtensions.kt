@@ -1,9 +1,9 @@
 package ai.sovereignrag.identity.core.fixtures
 
 import ai.sovereignrag.identity.commons.i18n.MessageService
-import ai.sovereignrag.identity.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.entity.OAuthAuthenticationMethod
 import ai.sovereignrag.identity.core.entity.OAuthGrantType
 import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient

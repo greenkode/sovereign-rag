@@ -1,14 +1,14 @@
 package ai.sovereignrag.identity.core.unit
 
-import ai.sovereignrag.identity.commons.Channel
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.i18n.MessageService
-import ai.sovereignrag.identity.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.ProcessRequestDto
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.ProcessRequestDto
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.entity.OAuthRegisteredClient
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.integration.NotificationClient
@@ -288,7 +288,7 @@ class RegisterUserCommandHandlerTest {
             publicId = UUID.randomUUID(),
             state = ProcessState.PENDING,
             type = ProcessType.EMAIL_VERIFICATION,
-            channel = Channel.BUSINESS_WEB,
+            channel = ProcessChannel.BUSINESS_WEB,
             createdDate = Instant.now(),
             requests = listOf(
                 ProcessRequestDto(

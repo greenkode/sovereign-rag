@@ -2,8 +2,8 @@ package ai.sovereignrag.identity.core.invitation.command
 
 import ai.sovereignrag.identity.commons.exception.NotFoundException
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component

@@ -1,9 +1,9 @@
 package ai.sovereignrag.identity.process.strategy
 
-import ai.sovereignrag.identity.commons.process.ProcessDto
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStrategyBeanNames
+import ai.sovereignrag.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessStrategyBeanNames
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 

@@ -1,7 +1,6 @@
 package ai.sovereignrag.identity.core.password.command
 
 
-import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.PROCESS_ID
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.REFERENCE
@@ -12,11 +11,12 @@ import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.exception.UserNotFoundException
-import ai.sovereignrag.identity.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -68,7 +68,7 @@ class CompletePasswordResetCommandHandler(
             processPublicId = processId,
             eventType = ProcessEvent.PROCESS_COMPLETED,
             requestType = ProcessRequestType.COMPLETE_PROCESS,
-            channel = Channel.BUSINESS_WEB
+            channel = ProcessChannel.BUSINESS_WEB
         )
         
         processGateway.makeRequest(completeRequest)

@@ -1,13 +1,13 @@
 package ai.sovereignrag.identity.core.fixtures
 
-import ai.sovereignrag.identity.commons.Channel
-import ai.sovereignrag.identity.commons.process.ProcessDto
-import ai.sovereignrag.identity.commons.process.ProcessRequestDto
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.ProcessChannel
+import ai.sovereignrag.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.ProcessRequestDto
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
 import ai.sovereignrag.identity.core.entity.OAuthAuthenticationMethod
 import ai.sovereignrag.identity.core.entity.OAuthGrantType
@@ -206,7 +206,7 @@ object ProcessBuilder {
         userEmail: String = "test@example.com",
         verificationToken: String = UUID.randomUUID().toString(),
         state: ProcessState = ProcessState.PENDING,
-        channel: Channel = Channel.BUSINESS_WEB
+        channel: ProcessChannel = ProcessChannel.BUSINESS_WEB
     ): ProcessDto = ProcessDto(
         id = id,
         publicId = publicId,
@@ -236,7 +236,7 @@ object ProcessBuilder {
         id: Long = 1L,
         publicId: UUID = UUID.randomUUID(),
         processType: ProcessType = ProcessType.EMAIL_VERIFICATION,
-        channel: Channel = Channel.BUSINESS_WEB
+        channel: ProcessChannel = ProcessChannel.BUSINESS_WEB
     ): ProcessDto = ProcessDto(
         id = id,
         publicId = publicId,

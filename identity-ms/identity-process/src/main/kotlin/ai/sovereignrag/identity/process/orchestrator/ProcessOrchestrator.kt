@@ -2,10 +2,10 @@ package ai.sovereignrag.identity.process.orchestrator
 
 
 import ai.sovereignrag.identity.commons.exception.ServerException
-import ai.sovereignrag.identity.commons.process.ProcessDto
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.process.domain.ProcessEntity
 import ai.sovereignrag.identity.process.domain.ProcessRepository
 import ai.sovereignrag.identity.process.domain.model.ProcessStateChangedEvent

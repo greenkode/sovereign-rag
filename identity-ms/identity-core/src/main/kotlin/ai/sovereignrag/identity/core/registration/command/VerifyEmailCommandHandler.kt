@@ -1,15 +1,15 @@
 package ai.sovereignrag.identity.core.registration.command
 
-import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.exception.UserNotFoundException
 import ai.sovereignrag.identity.commons.i18n.MessageService
-import ai.sovereignrag.identity.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -52,7 +52,7 @@ class VerifyEmailCommandHandler(
             processPublicId = process.publicId,
             eventType = ProcessEvent.PROCESS_COMPLETED,
             requestType = ProcessRequestType.COMPLETE_PROCESS,
-            channel = Channel.BUSINESS_WEB
+            channel = ProcessChannel.BUSINESS_WEB
         )
 
         processGateway.makeRequest(completeRequest)

@@ -1,8 +1,8 @@
 package ai.sovereignrag.identity.process.strategy
 
-import ai.sovereignrag.identity.commons.process.ProcessDto
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessState
 
 
 /**

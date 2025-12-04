@@ -1,6 +1,5 @@
 package ai.sovereignrag.identity.core.invitation.command
 
-import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.RoleEnum
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
@@ -9,12 +8,13 @@ import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.exception.NotFoundException
 import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
-import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.entity.TrustLevel
 import ai.sovereignrag.identity.core.entity.UserType
@@ -98,7 +98,7 @@ class InviteUserCommandHandler(
                 description = "User invitation for ${newUser.email} to join ${merchant.clientName}",
                 initialState = ProcessState.PENDING,
                 requestState = ProcessState.COMPLETE,
-                channel = Channel.SYSTEM,
+                channel = ProcessChannel.SYSTEM,
                 externalReference = token,
                 data = mapOf(
                     ProcessRequestDataName.USER_IDENTIFIER to newUser.id.toString(),

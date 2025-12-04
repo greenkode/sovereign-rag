@@ -1,7 +1,12 @@
 package ai.sovereignrag.identity.commons.process
 
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+
+import ai.sovereignrag.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.ProcessTransitionDto
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import java.time.Instant
 import java.util.UUID
 

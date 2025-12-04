@@ -1,16 +1,16 @@
 package ai.sovereignrag.identity.core.profile.service
 
 import ai.sovereignrag.commons.fileupload.FileUploadGateway
-import ai.sovereignrag.identity.commons.Channel
-import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
-import ai.sovereignrag.identity.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessChannel
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import java.io.ByteArrayInputStream
@@ -81,7 +81,7 @@ class AvatarGenerationProcessService(
                 description = "Avatar Generation Session",
                 initialState = ProcessState.PENDING,
                 requestState = ProcessState.PENDING,
-                channel = Channel.BUSINESS_WEB,
+                channel = ProcessChannel.BUSINESS_WEB,
                 userId = userId,
                 stakeholders = mapOf(ProcessStakeholderType.FOR_USER to userId.toString()),
                 data = emptyMap()
@@ -96,7 +96,7 @@ class AvatarGenerationProcessService(
         )
     }
 
-    fun generateAvatar(userId: UUID, prompt: String, processId: UUID?): AvatarGenerationProcessResult {
+    fun generateAvatar(userId: UUID, prompt: String, processId: UUID?, previousPictureUrl: String? = null): AvatarGenerationProcessResult {
         val session = processId?.let { getSessionByProcessId(it, userId) }
             ?: getOrCreateSession(userId)
 
@@ -140,20 +140,25 @@ class AvatarGenerationProcessService(
         val requestType = session.prompts.isEmpty()
             .let { if (it) ProcessRequestType.AVATAR_PROMPT else ProcessRequestType.AVATAR_REFINEMENT }
 
+        val requestData = mutableMapOf(
+            ProcessRequestDataName.AVATAR_PROMPT to prompt,
+            ProcessRequestDataName.AVATAR_REFINED_PROMPT to refinedPrompt,
+            ProcessRequestDataName.AVATAR_IMAGE_KEY to uploadResult.key
+        )
+        previousPictureUrl?.takeIf { it.isNotBlank() }?.let {
+            requestData[ProcessRequestDataName.AVATAR_PREVIOUS_IMAGE_KEY] = it
+        }
+
         processGateway.makeRequest(
             MakeProcessRequestPayload(
                 processPublicId = session.processId,
                 userId = userId,
                 requestType = requestType,
                 state = ProcessState.COMPLETE,
-                channel = Channel.BUSINESS_WEB,
+                channel = ProcessChannel.BUSINESS_WEB,
                 eventType = ProcessEvent.PENDING_TRANSACTION_STATUS_VERIFIED,
                 stakeholders = emptyMap(),
-                data = mapOf(
-                    ProcessRequestDataName.AVATAR_PROMPT to prompt,
-                    ProcessRequestDataName.AVATAR_REFINED_PROMPT to refinedPrompt,
-                    ProcessRequestDataName.AVATAR_IMAGE_KEY to uploadResult.key
-                )
+                data = requestData
             )
         )
 
@@ -175,7 +180,7 @@ class AvatarGenerationProcessService(
                 userId = userId,
                 requestType = ProcessRequestType.COMPLETE_PROCESS,
                 state = ProcessState.COMPLETE,
-                channel = Channel.BUSINESS_WEB,
+                channel = ProcessChannel.BUSINESS_WEB,
                 eventType = ProcessEvent.PROCESS_COMPLETED,
                 stakeholders = emptyMap(),
                 data = mapOf(ProcessRequestDataName.AVATAR_IMAGE_KEY to selectedImageKey)

@@ -104,7 +104,8 @@ class GenerateAvatarCommandHandlerTest {
 
     @Test
     fun `should generate AI avatar successfully`() {
-        val user = createMockUser()
+        val previousPictureUrl = "avatars/old-avatar.png"
+        val user = createMockUser(previousPictureUrl)
         val imageUrl = "https://s3.example.com/avatars/user-123.png"
         val imageKey = "avatars/user-123.png"
 
@@ -115,13 +116,16 @@ class GenerateAvatarCommandHandlerTest {
         )
 
         every { userService.getCurrentUser() } returns user
-        every { avatarGenerationProcessService.generateAvatar(userId, "A professional business person", null) } returns AvatarGenerationProcessResult(
+        every { avatarGenerationProcessService.generateAvatar(userId, "A professional business person", null, previousPictureUrl) } returns AvatarGenerationProcessResult(
             success = true,
             message = null,
             imageKey = imageKey,
             imageUrl = imageUrl,
             processId = processId
         )
+        every { userRepository.save(any()) } returns user
+        every { cacheEvictionService.evictUserCaches(any()) } just runs
+        every { cacheEvictionService.evictUserDetailsCaches(any()) } just runs
         every { messageService.getMessage("profile.avatar.generate.success") } returns "Avatar generated successfully"
 
         val result = handler.handle(command)
@@ -132,7 +136,11 @@ class GenerateAvatarCommandHandlerTest {
         assertEquals(processId, result.processId)
         assertEquals(imageKey, result.imageKey)
 
-        verify { avatarGenerationProcessService.generateAvatar(userId, "A professional business person", null) }
+        verify { avatarGenerationProcessService.generateAvatar(userId, "A professional business person", null, previousPictureUrl) }
+        verify { user.pictureUrl = imageKey }
+        verify { userRepository.save(user) }
+        verify { cacheEvictionService.evictUserCaches(userId.toString()) }
+        verify { cacheEvictionService.evictUserDetailsCaches(userId.toString()) }
     }
 
     @Test
@@ -150,13 +158,16 @@ class GenerateAvatarCommandHandlerTest {
         )
 
         every { userService.getCurrentUser() } returns user
-        every { avatarGenerationProcessService.generateAvatar(userId, "Make the hair longer", existingProcessId) } returns AvatarGenerationProcessResult(
+        every { avatarGenerationProcessService.generateAvatar(userId, "Make the hair longer", existingProcessId, null) } returns AvatarGenerationProcessResult(
             success = true,
             message = null,
             imageKey = imageKey,
             imageUrl = imageUrl,
             processId = existingProcessId
         )
+        every { userRepository.save(any()) } returns user
+        every { cacheEvictionService.evictUserCaches(any()) } just runs
+        every { cacheEvictionService.evictUserDetailsCaches(any()) } just runs
         every { messageService.getMessage("profile.avatar.generate.success") } returns "Avatar generated successfully"
 
         val result = handler.handle(command)
@@ -164,7 +175,9 @@ class GenerateAvatarCommandHandlerTest {
         assertTrue(result.success)
         assertEquals(existingProcessId, result.processId)
 
-        verify { avatarGenerationProcessService.generateAvatar(userId, "Make the hair longer", existingProcessId) }
+        verify { avatarGenerationProcessService.generateAvatar(userId, "Make the hair longer", existingProcessId, null) }
+        verify { user.pictureUrl = imageKey }
+        verify { userRepository.save(user) }
     }
 
     @Test
@@ -213,7 +226,7 @@ class GenerateAvatarCommandHandlerTest {
         )
 
         every { userService.getCurrentUser() } returns user
-        every { avatarGenerationProcessService.generateAvatar(userId, "A professional person", null) } returns AvatarGenerationProcessResult(
+        every { avatarGenerationProcessService.generateAvatar(userId, "A professional person", null, null) } returns AvatarGenerationProcessResult(
             success = false,
             message = "AI avatar generation is not configured",
             imageKey = null,

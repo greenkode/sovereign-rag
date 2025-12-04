@@ -1,9 +1,9 @@
 package ai.sovereignrag.identity.process.domain
 
 import ai.sovereignrag.commons.cache.CacheNames
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.process.domain.model.ProcessBasicInfo
 import ai.sovereignrag.identity.process.domain.model.ProcessTransitionInfo
 import org.springframework.cache.annotation.CacheEvict

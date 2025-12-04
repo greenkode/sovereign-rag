@@ -1,14 +1,14 @@
 package ai.sovereignrag.identity.process.domain.model
 
-import ai.sovereignrag.identity.commons.Channel
-import ai.sovereignrag.identity.commons.process.ProcessDto
-import ai.sovereignrag.identity.commons.process.ProcessRequestDto
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.ProcessChannel
+import ai.sovereignrag.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.ProcessRequestDto
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import java.time.Instant
 import java.util.UUID
 
@@ -18,7 +18,7 @@ data class SrProcess(
     val description: String,
     val state: ProcessState,
     val id: Long,
-    val channel: Channel,
+    val channel: ProcessChannel,
     val createdAt: Instant,
     val requests: Set<ProcessRequest>,
     val transitions: Set<ProcessEventTransition>,
@@ -45,7 +45,7 @@ data class ProcessRequest(
     val stakeholderId: UUID,
     val type: ProcessRequestType,
     val state: ProcessState,
-    val channel: Channel,
+    val channel: ProcessChannel,
     val id: Long,
     val data: Set<ProcessRequestData>,
     val stakeholders: Set<ProcessStakeholder>

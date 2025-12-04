@@ -1,18 +1,18 @@
 package ai.sovereignrag.identity.core.auth.command
 
-import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.TwoFactorSessionInvalidException
-import ai.sovereignrag.identity.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.TokenGenerationUtility
 import ai.sovereignrag.identity.core.auth.service.TwoFactorEmailService
@@ -64,7 +64,7 @@ class ResendTwoFactorCommandHandler(
                 process.publicId,
                 ProcessEvent.AUTH_TOKEN_RESEND,
                 ProcessRequestType.RESEND_AUTHENTICATION,
-                Channel.API,
+                ProcessChannel.BUSINESS_WEB,
                 data = mapOf(ProcessRequestDataName.AUTHENTICATION_REFERENCE to newCode)
             )
         )

@@ -1,9 +1,9 @@
 package ai.sovereignrag.identity.process.domain.model
 
-import ai.sovereignrag.identity.commons.Channel
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.ProcessChannel
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import java.io.Serializable
 import java.time.Instant
 import java.util.UUID
@@ -17,7 +17,7 @@ data class ProcessBasicInfo(
     val publicId: UUID,
     val type: ProcessType,
     val state: ProcessState,
-    val channel: Channel,
+    val channel: ProcessChannel,
     val createdAt: Instant,
     val externalReference: String?
 ) : Serializable

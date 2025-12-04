@@ -2,18 +2,18 @@ package ai.sovereignrag.identity.core.registration.command
 
 import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
-import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.i18n.MessageService
-import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
-import ai.sovereignrag.identity.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.entity.OAuthUser
 import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
@@ -58,7 +58,7 @@ class ResendVerificationCommandHandler(
                 processPublicId = existingProcess.publicId,
                 eventType = ProcessEvent.PROCESS_FAILED,
                 requestType = ProcessRequestType.FAIL_PROCESS,
-                channel = Channel.BUSINESS_WEB
+                channel = ProcessChannel.BUSINESS_WEB
             )
             processGateway.makeRequest(cancelRequest)
         }
@@ -71,7 +71,7 @@ class ResendVerificationCommandHandler(
             description = "Email verification resend for ${user.email}",
             initialState = ProcessState.PENDING,
             requestState = ProcessState.PENDING,
-            channel = Channel.BUSINESS_WEB,
+            channel = ProcessChannel.BUSINESS_WEB,
             data = mapOf(
                 ProcessRequestDataName.USER_EMAIL to normalizedEmail,
                 ProcessRequestDataName.USER_IDENTIFIER to user.id.toString(),

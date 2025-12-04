@@ -1,6 +1,5 @@
 package ai.sovereignrag.identity.core.auth.command
 
-import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.CODE
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.PROCESS_ID
@@ -12,12 +11,13 @@ import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.identity.commons.exception.TwoFactorCodeInvalidException
 import ai.sovereignrag.identity.commons.exception.TwoFactorMaxAttemptsException
 import ai.sovereignrag.identity.commons.exception.TwoFactorSessionInvalidException
-import ai.sovereignrag.identity.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.refreshtoken.service.RefreshTokenService
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import ai.sovereignrag.identity.core.service.CustomUserDetails
@@ -81,7 +81,7 @@ class VerifyTwoFactorCommandHandler(
                     processPublicId = process.publicId,
                     eventType = ProcessEvent.PROCESS_FAILED,
                     requestType = ProcessRequestType.FAIL_PROCESS,
-                    channel = Channel.BUSINESS_WEB
+                    channel = ProcessChannel.BUSINESS_WEB
                 )
             )
             

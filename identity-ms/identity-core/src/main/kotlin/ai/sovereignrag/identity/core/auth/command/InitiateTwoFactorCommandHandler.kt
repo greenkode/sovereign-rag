@@ -1,6 +1,5 @@
 package ai.sovereignrag.identity.core.auth.command
 
-import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.IP_ADDRESS
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.SESSION_ID
@@ -13,12 +12,13 @@ import ai.sovereignrag.identity.commons.exception.ClientException
 import ai.sovereignrag.identity.commons.exception.EmailNotVerifiedException
 import ai.sovereignrag.identity.commons.exception.ServerException
 import ai.sovereignrag.identity.commons.exception.TwoFactorAuthenticationRequiredException
-import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.auth.dto.DirectLoginResult
 import ai.sovereignrag.identity.core.auth.service.JwtTokenService
 import ai.sovereignrag.identity.core.auth.service.TwoFactorEmailService
@@ -146,7 +146,7 @@ class InitiateTwoFactorCommandHandler(
                         description = "Two Factor Authentication for ${oauthUser.email}",
                         initialState = ProcessState.PENDING,
                         requestState = ProcessState.COMPLETE,
-                        channel = Channel.BUSINESS_WEB,
+                        channel = ProcessChannel.BUSINESS_WEB,
                         externalReference = sessionId,
                         data = mapOf(
                             ProcessRequestDataName.USER_IDENTIFIER to userId.toString(),

@@ -1,18 +1,18 @@
 package ai.sovereignrag.identity.core.password.command
 
-import ai.sovereignrag.identity.commons.Channel
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.commons.exception.NotFoundException
-import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
 import an.awesome.pipelinr.Command
@@ -71,7 +71,7 @@ class InitiatePasswordResetCommandHandler(
                 description = "Password reset for ${user.email}",
                 initialState = ProcessState.PENDING,
                 requestState = ProcessState.COMPLETE,
-                channel = Channel.BUSINESS_WEB,
+                channel = ProcessChannel.BUSINESS_WEB,
                 externalReference = token,
                 data = mapOf(
                     ProcessRequestDataName.USER_IDENTIFIER to user.id.toString(),

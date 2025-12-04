@@ -73,7 +73,20 @@ class GenerateAvatarCommandHandler(
                 pictureUrl = null
             )
 
-        val result = avatarGenerationProcessService.generateAvatar(userId, prompt, command.processId)
+        val user = userService.getCurrentUser()
+        val previousPictureUrl = user.pictureUrl
+
+        val result = avatarGenerationProcessService.generateAvatar(userId, prompt, command.processId, previousPictureUrl)
+
+        result.imageKey?.takeIf { result.success }?.let { imageKey ->
+            user.pictureUrl = imageKey
+            userRepository.save(user)
+
+            log.info { "AI avatar saved to user profile: $userId, key: $imageKey, previous: $previousPictureUrl" }
+
+            cacheEvictionService.evictUserCaches(userId.toString())
+            cacheEvictionService.evictUserDetailsCaches(userId.toString())
+        }
 
         return GenerateAvatarResult(
             success = result.success,

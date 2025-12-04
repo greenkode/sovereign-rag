@@ -2,13 +2,13 @@ package ai.sovereignrag.identity.process.domain
 
 
 import ai.sovereignrag.commons.model.AuditableEntity
-import ai.sovereignrag.identity.commons.Channel
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestDataName
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.ProcessChannel
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.process.domain.model.ProcessEventTransition
 import ai.sovereignrag.identity.process.domain.model.ProcessRequest
 import ai.sovereignrag.identity.process.domain.model.ProcessRequestData
@@ -42,7 +42,7 @@ class ProcessEntity(
     @Enumerated(EnumType.STRING) var state: ProcessState,
 
     @Enumerated(EnumType.STRING)
-    private val channel: Channel,
+    private val channel: ProcessChannel,
 
     val expiry: Instant,
 
@@ -115,7 +115,7 @@ class ProcessRequestEntity(
     var state: ProcessState,
 
     @Enumerated(EnumType.STRING)
-    val channel: Channel,
+    val channel: ProcessChannel,
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,16 +2,16 @@ package ai.sovereignrag.identity.process.spi
 
 
 import ai.sovereignrag.identity.commons.exception.ServerException
-import ai.sovereignrag.identity.commons.process.CreateNewProcessPayload
-import ai.sovereignrag.identity.commons.process.MakeProcessRequestPayload
-import ai.sovereignrag.identity.commons.process.ProcessDto
+import ai.sovereignrag.commons.process.CreateNewProcessPayload
+import ai.sovereignrag.commons.process.MakeProcessRequestPayload
+import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.ProcessTransitionDto
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessEvent
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessRequestType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessStakeholderType
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.ProcessTransitionDto
+import ai.sovereignrag.commons.process.enumeration.ProcessEvent
+import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
+import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.process.domain.ProcessEntity
 import ai.sovereignrag.identity.process.domain.ProcessRepository
 import ai.sovereignrag.identity.process.domain.ProcessRequestEntity

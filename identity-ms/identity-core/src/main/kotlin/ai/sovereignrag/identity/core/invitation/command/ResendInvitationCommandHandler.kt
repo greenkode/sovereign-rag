@@ -4,7 +4,7 @@ import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.identity.commons.exception.NotFoundException
 import ai.sovereignrag.identity.commons.process.ProcessGateway
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.integration.NotificationClient
 import ai.sovereignrag.identity.core.invitation.dto.ResendInvitationCommand
 import ai.sovereignrag.identity.core.invitation.dto.ResendInvitationResult

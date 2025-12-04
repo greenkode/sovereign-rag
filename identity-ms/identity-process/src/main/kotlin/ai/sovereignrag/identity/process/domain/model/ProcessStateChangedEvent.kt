@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.process.domain.model
 
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessState
-import ai.sovereignrag.identity.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.process.enumeration.ProcessState
+import ai.sovereignrag.commons.process.enumeration.ProcessType
 import java.util.UUID
 
 /**
