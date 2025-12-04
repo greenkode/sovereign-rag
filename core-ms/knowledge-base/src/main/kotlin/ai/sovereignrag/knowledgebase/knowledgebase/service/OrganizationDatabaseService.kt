@@ -86,14 +86,23 @@ class OrganizationDatabaseService(
         DriverManager.getConnection(serverUrl, dbUsername, dbPassword).use { conn ->
             conn.autoCommit = true
             conn.createStatement().use { stmt ->
-                stmt.execute("""
-                    CREATE DATABASE $databaseName
-                    WITH OWNER = $dbUsername
-                         ENCODING = 'UTF8'
-                         LC_COLLATE = 'en_US.UTF-8'
-                         LC_CTYPE = 'en_US.UTF-8'
-                         TEMPLATE = template0
-                """)
+                val exists = stmt.executeQuery(
+                    "SELECT 1 FROM pg_database WHERE datname = '$databaseName'"
+                ).use { rs -> rs.next() }
+
+                if (!exists) {
+                    stmt.execute("""
+                        CREATE DATABASE $databaseName
+                        WITH OWNER = $dbUsername
+                             ENCODING = 'UTF8'
+                             LC_COLLATE = 'en_US.UTF-8'
+                             LC_CTYPE = 'en_US.UTF-8'
+                             TEMPLATE = template0
+                    """)
+                    log.info { "Database created: $databaseName" }
+                } else {
+                    log.info { "Database already exists: $databaseName" }
+                }
             }
         }
 
@@ -106,7 +115,7 @@ class OrganizationDatabaseService(
             }
         }
 
-        log.info { "Database created with extensions: $databaseName" }
+        log.info { "Database ready with extensions: $databaseName" }
     }
 
     private fun applySchemaToDatabase(databaseName: String, schemaName: String) {

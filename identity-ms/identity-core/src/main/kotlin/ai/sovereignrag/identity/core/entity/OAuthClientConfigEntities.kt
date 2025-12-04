@@ -2,6 +2,7 @@ package ai.sovereignrag.identity.core.entity
 
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
+import jakarta.persistence.Table
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -10,11 +11,10 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
 import java.io.Serializable
 
 @Entity
-@Table(name = "oauth_scopes", schema = "identity")
+@Table(name = "oauth_scope")
 class OAuthScope(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ class OAuthScope(
 }
 
 @Entity
-@Table(name = "oauth_authentication_methods", schema = "identity")
+@Table(name = "oauth_authentication_method")
 class OAuthAuthenticationMethod(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,7 +60,7 @@ class OAuthAuthenticationMethod(
 }
 
 @Entity
-@Table(name = "oauth_grant_types", schema = "identity")
+@Table(name = "oauth_grant_type")
 class OAuthGrantType(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -83,7 +83,7 @@ class OAuthGrantType(
 }
 
 @Entity
-@Table(name = "oauth_client_redirect_uris", schema = "identity")
+@Table(name = "oauth_client_redirect_uri")
 class OAuthClientRedirectUri(
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
@@ -95,7 +95,7 @@ class OAuthClientRedirectUri(
 ) : Serializable
 
 @Entity
-@Table(name = "oauth_client_post_logout_redirect_uris", schema = "identity")
+@Table(name = "oauth_client_post_logout_redirect_uri")
 class OAuthClientPostLogoutRedirectUri(
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
@@ -107,7 +107,7 @@ class OAuthClientPostLogoutRedirectUri(
 ) : Serializable
 
 @Entity
-@Table(name = "oauth_client_settings", schema = "identity")
+@Table(name = "oauth_client_setting")
 class OAuthClientSetting(
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
@@ -122,7 +122,7 @@ class OAuthClientSetting(
 ) : Serializable
 
 @Entity
-@Table(name = "oauth_client_token_settings", schema = "identity")
+@Table(name = "oauth_client_token_setting")
 class OAuthClientTokenSetting(
     @Id
     @ManyToOne(fetch = FetchType.LAZY)

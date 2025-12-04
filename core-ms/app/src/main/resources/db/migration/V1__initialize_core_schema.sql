@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS knowledge_bases
+CREATE TABLE IF NOT EXISTS knowledge_base
 (
     id                   VARCHAR(255) NOT NULL PRIMARY KEY,
     name                 VARCHAR(255) NOT NULL,
@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS knowledge_bases
     deleted_at           TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_knowledge_bases_status ON knowledge_bases(status);
-CREATE INDEX IF NOT EXISTS idx_knowledge_bases_organization_id ON knowledge_bases(organization_id);
-CREATE INDEX IF NOT EXISTS idx_knowledge_bases_schema_name ON knowledge_bases(schema_name);
+CREATE INDEX IF NOT EXISTS idx_knowledge_base_status ON knowledge_base(status);
+CREATE INDEX IF NOT EXISTS idx_knowledge_base_organization_id ON knowledge_base(organization_id);
+CREATE INDEX IF NOT EXISTS idx_knowledge_base_schema_name ON knowledge_base(schema_name);
 
 CREATE TABLE IF NOT EXISTS groups
 (
@@ -49,13 +49,13 @@ CREATE TABLE IF NOT EXISTS authority
     version            BIGINT       NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS group_authorities
+CREATE TABLE IF NOT EXISTS group_authority
 (
     group_id     INTEGER NOT NULL,
     authority_id INTEGER NOT NULL,
     PRIMARY KEY (group_id, authority_id),
-    CONSTRAINT fk_group_authorities_group_id FOREIGN KEY (group_id) REFERENCES groups (id),
-    CONSTRAINT fk_group_authorities_authority_id FOREIGN KEY (authority_id) REFERENCES authority (id)
+    CONSTRAINT fk_group_authority_group_id FOREIGN KEY (group_id) REFERENCES groups (id),
+    CONSTRAINT fk_group_authority_authority_id FOREIGN KEY (authority_id) REFERENCES authority (id)
 );
 
 CREATE TABLE IF NOT EXISTS event_publication

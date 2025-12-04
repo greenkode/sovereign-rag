@@ -1,17 +1,17 @@
-INSERT INTO identity.oauth_scopes (name) VALUES
+INSERT INTO oauth_scope (name) VALUES
     ('openid'), ('profile'), ('email'), ('read'), ('write'), ('merchant'),
     ('service:audit'), ('service:notification'), ('service:core')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO identity.oauth_authentication_methods (name) VALUES
+INSERT INTO oauth_authentication_method (name) VALUES
     ('client_secret_basic'), ('client_secret_post'), ('none')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO identity.oauth_grant_types (name) VALUES
+INSERT INTO oauth_grant_type (name) VALUES
     ('authorization_code'), ('refresh_token'), ('client_credentials')
 ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO identity.oauth_registered_clients (
+INSERT INTO oauth_registered_client (
     id, client_id, client_id_issued_at, client_secret, client_name,
     failed_auth_attempts, environment_mode, status, plan, version, created_at
 ) VALUES (
@@ -20,24 +20,24 @@ INSERT INTO identity.oauth_registered_clients (
     'Identity MS Service Client', 0, 'SANDBOX', 'ACTIVE', 'TRIAL', 0, NOW()
 ) ON CONFLICT (client_id) DO NOTHING;
 
-INSERT INTO identity.oauth_client_scopes (client_id, scope_id)
-SELECT 'identity-ms-client', id FROM identity.oauth_scopes WHERE name IN ('service:audit', 'service:notification', 'service:core')
+INSERT INTO oauth_client_scope (client_id, scope_id)
+SELECT 'identity-ms-client', id FROM oauth_scope WHERE name IN ('service:audit', 'service:notification', 'service:core')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO identity.oauth_client_authentication_methods (client_id, method_id)
-SELECT 'identity-ms-client', id FROM identity.oauth_authentication_methods WHERE name = 'client_secret_basic'
+INSERT INTO oauth_client_authentication_method (client_id, method_id)
+SELECT 'identity-ms-client', id FROM oauth_authentication_method WHERE name = 'client_secret_basic'
 ON CONFLICT DO NOTHING;
 
-INSERT INTO identity.oauth_client_grant_types (client_id, grant_type_id)
-SELECT 'identity-ms-client', id FROM identity.oauth_grant_types WHERE name = 'client_credentials'
+INSERT INTO oauth_client_grant_type (client_id, grant_type_id)
+SELECT 'identity-ms-client', id FROM oauth_grant_type WHERE name = 'client_credentials'
 ON CONFLICT DO NOTHING;
 
-INSERT INTO identity.oauth_client_token_settings (client_id, setting_name, setting_value) VALUES
+INSERT INTO oauth_client_token_setting (client_id, setting_name, setting_value) VALUES
     ('identity-ms-client', 'ACCESS_TOKEN_TIME_TO_LIVE', 'PT10M'),
     ('identity-ms-client', 'REUSE_REFRESH_TOKENS', 'false')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO identity.rate_limit_config (method_name, subscription_tier, scope, capacity, time_value, time_unit) VALUES
+INSERT INTO rate_limit_config (method_name, subscription_tier, scope, capacity, time_value, time_unit) VALUES
 ('login-attempts', 'TRIAL', 'INDIVIDUAL', 5, 1, 'MINUTES'),
 ('2fa-resend', 'TRIAL', 'INDIVIDUAL', 1, 1, 'MINUTES'),
 ('2fa-verify', 'TRIAL', 'INDIVIDUAL', 5, 1, 'MINUTES'),
@@ -60,7 +60,7 @@ INSERT INTO identity.rate_limit_config (method_name, subscription_tier, scope, c
 ('api-request', 'ENTERPRISE', 'ORGANIZATION', 50000, 1, 'HOURS')
 ON CONFLICT (method_name, subscription_tier, scope) DO NOTHING;
 
-INSERT INTO identity.country (name, iso2_code, iso3_code, numeric_code, dial_code, flag_url, region, sub_region, enabled) VALUES
+INSERT INTO country (name, iso2_code, iso3_code, numeric_code, dial_code, flag_url, region, sub_region, enabled) VALUES
 ('Afghanistan', 'AF', 'AFG', '004', '+93', 'https://flagcdn.com/af.svg', 'Asia', 'Southern Asia', false),
 ('Albania', 'AL', 'ALB', '008', '+355', 'https://flagcdn.com/al.svg', 'Europe', 'Southern Europe', false),
 ('Algeria', 'DZ', 'DZA', '012', '+213', 'https://flagcdn.com/dz.svg', 'Africa', 'Northern Africa', false),

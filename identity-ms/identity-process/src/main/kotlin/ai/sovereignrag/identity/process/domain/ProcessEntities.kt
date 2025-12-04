@@ -24,13 +24,11 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
-import jakarta.persistence.Table
 import java.io.Serializable
 import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(name = "process")
 class ProcessEntity(
     val publicId: UUID,
 
@@ -100,7 +98,6 @@ class ProcessEntity(
 }
 
 @Entity
-@Table(name = "process_request")
 class ProcessRequestEntity(
 
     @ManyToOne
@@ -157,7 +154,6 @@ class ProcessRequestEntity(
 }
 
 @Entity
-@Table(name = "process_request_data")
 data class ProcessRequestDataEntity(
 
     @Id
@@ -193,7 +189,6 @@ class ProcessRequestStakeholder(
 }
 
 @Entity
-@Table(name = "process_event_transition")
 class ProcessEventTransitionEntity(
 
     @ManyToOne

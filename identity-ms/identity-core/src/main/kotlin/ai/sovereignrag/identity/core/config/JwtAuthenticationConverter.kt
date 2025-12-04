@@ -1,5 +1,6 @@
 package ai.sovereignrag.identity.core.config
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -8,6 +9,8 @@ import org.springframework.security.oauth2.core.OAuth2Error
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.stereotype.Component
+
+private val log = KotlinLogging.logger {}
 
 @Component
 class CustomJwtAuthenticationConverter : Converter<Jwt, JwtAuthenticationToken> {
@@ -23,30 +26,29 @@ class CustomJwtAuthenticationConverter : Converter<Jwt, JwtAuthenticationToken> 
         }
 
         val authorities = extractAuthorities(jwt)
+        log.debug { "JWT subject: ${jwt.subject}, extracted authorities: $authorities" }
         return JwtAuthenticationToken(jwt, authorities)
     }
 
     private fun extractAuthorities(jwt: Jwt): Collection<GrantedAuthority> {
         val authorities = mutableSetOf<GrantedAuthority>()
-        
-        // Extract from direct 'authorities' claim
+
+        jwt.getClaimAsString("scope")?.split(" ")?.forEach { scope ->
+            authorities.add(SimpleGrantedAuthority("SCOPE_$scope"))
+        }
+
         jwt.getClaimAsStringList("authorities")?.forEach { authority ->
             authorities.add(SimpleGrantedAuthority(authority))
         }
-        
-        // Extract from 'realm_access.roles' claim
+
         val realmAccess = jwt.getClaim<Map<String, Any>>("realm_access")
-        if (realmAccess != null) {
-            val roles = realmAccess["roles"] as? List<*>
-            roles?.forEach { role ->
-                if (role is String) {
-                    // Add roles with ROLE_ prefix if they don't already have it
-                    val authority = if (role.startsWith("ROLE_")) role else "ROLE_$role"
-                    authorities.add(SimpleGrantedAuthority(authority))
-                }
+        realmAccess?.let {
+            (it["roles"] as? List<*>)?.filterIsInstance<String>()?.forEach { role ->
+                val authority = role.takeIf { r -> r.startsWith("ROLE_") } ?: "ROLE_$role"
+                authorities.add(SimpleGrantedAuthority(authority))
             }
         }
-        
+
         return authorities
     }
 }

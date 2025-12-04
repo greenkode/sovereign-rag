@@ -12,8 +12,7 @@ import java.util.UUID
 
 @Entity
 @Table(
-    name = "refresh_tokens",
-    schema = "identity",
+    name = "refresh_token",
     indexes = [
         Index(name = "idx_refresh_token_jti", columnList = "jti"),
         Index(name = "idx_refresh_token_user_id", columnList = "user_id")

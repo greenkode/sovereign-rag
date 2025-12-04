@@ -50,8 +50,8 @@ class DefaultOrganizationDatabaseRegistry(
     }
 
     private fun generateDatabaseName(organizationId: UUID, slug: String): String {
-        val sanitizedSlug = slug.replace("-", "_").take(20)
-        return "sovereignrag_org_${sanitizedSlug}_${organizationId.toString().take(8)}"
+        val uuidWithoutDashes = organizationId.toString().replace("-", "")
+        return "sovereignrag_$uuidWithoutDashes"
     }
 
     private data class CachedOrganizationInfo(

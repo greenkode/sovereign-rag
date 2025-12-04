@@ -11,10 +11,8 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.Table
 
 @Entity
-@Table(name = "system_property")
 data class SystemPropertyEntity(
 
     @Enumerated(EnumType.STRING)

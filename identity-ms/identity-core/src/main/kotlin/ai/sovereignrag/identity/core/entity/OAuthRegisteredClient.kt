@@ -5,6 +5,7 @@ import ai.sovereignrag.commons.subscription.SubscriptionTier
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
+import jakarta.persistence.Table
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
@@ -12,7 +13,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
-import jakarta.persistence.Table
 import java.time.Instant
 import java.util.UUID
 
@@ -21,7 +21,7 @@ enum class OrganizationStatus {
 }
 
 @Entity
-@Table(name = "oauth_registered_clients", schema = "identity")
+@Table(name = "oauth_registered_client")
 class OAuthRegisteredClient() : AuditableEntity() {
     @Id
     var id: String = ""
@@ -73,8 +73,7 @@ class OAuthRegisteredClient() : AuditableEntity() {
 
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.LAZY)
     @JoinTable(
-        name = "oauth_client_scopes",
-        schema = "identity",
+        name = "oauth_client_scope",
         joinColumns = [JoinColumn(name = "client_id")],
         inverseJoinColumns = [JoinColumn(name = "scope_id")]
     )
@@ -82,8 +81,7 @@ class OAuthRegisteredClient() : AuditableEntity() {
 
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.LAZY)
     @JoinTable(
-        name = "oauth_client_authentication_methods",
-        schema = "identity",
+        name = "oauth_client_authentication_method",
         joinColumns = [JoinColumn(name = "client_id")],
         inverseJoinColumns = [JoinColumn(name = "method_id")]
     )
@@ -91,8 +89,7 @@ class OAuthRegisteredClient() : AuditableEntity() {
 
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE], fetch = FetchType.LAZY)
     @JoinTable(
-        name = "oauth_client_grant_types",
-        schema = "identity",
+        name = "oauth_client_grant_type",
         joinColumns = [JoinColumn(name = "client_id")],
         inverseJoinColumns = [JoinColumn(name = "grant_type_id")]
     )

@@ -1,6 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS identity;
-
-CREATE TABLE IF NOT EXISTS identity.organizations (
+CREATE TABLE IF NOT EXISTS organization (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(100) NOT NULL UNIQUE,
@@ -18,7 +16,7 @@ CREATE TABLE IF NOT EXISTS identity.organizations (
     last_modified_by VARCHAR(255) DEFAULT 'system'
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_users (
+CREATE TABLE IF NOT EXISTS oauth_user (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -28,7 +26,7 @@ CREATE TABLE IF NOT EXISTS identity.oauth_users (
     last_name VARCHAR(100),
     phone_number VARCHAR(20),
     merchant_id UUID,
-    organization_id UUID REFERENCES identity.organizations(id),
+    organization_id UUID REFERENCES organization(id),
     user_type VARCHAR(20),
     trust_level VARCHAR(20),
     email_verified BOOLEAN NOT NULL DEFAULT false,
@@ -56,14 +54,14 @@ CREATE TABLE IF NOT EXISTS identity.oauth_users (
     last_modified_by VARCHAR(255) DEFAULT 'system'
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_user_authorities (
+CREATE TABLE IF NOT EXISTS oauth_user_authority (
     user_id UUID NOT NULL,
     authority VARCHAR(100) NOT NULL,
     PRIMARY KEY (user_id, authority),
-    CONSTRAINT fk_user_authorities_user FOREIGN KEY (user_id) REFERENCES identity.oauth_users(id) ON DELETE CASCADE
+    CONSTRAINT fk_user_authorities_user FOREIGN KEY (user_id) REFERENCES oauth_user(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_provider_accounts (
+CREATE TABLE IF NOT EXISTS oauth_provider_account (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     provider VARCHAR(50) NOT NULL,
@@ -76,11 +74,11 @@ CREATE TABLE IF NOT EXISTS identity.oauth_provider_accounts (
     created_by VARCHAR(255) DEFAULT 'system',
     last_modified_at TIMESTAMPTZ DEFAULT NOW(),
     last_modified_by VARCHAR(255) DEFAULT 'system',
-    CONSTRAINT fk_oauth_provider_user FOREIGN KEY (user_id) REFERENCES identity.oauth_users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_oauth_provider_user FOREIGN KEY (user_id) REFERENCES oauth_user(id) ON DELETE CASCADE,
     CONSTRAINT uk_provider_user UNIQUE (provider, provider_user_id)
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_registered_clients (
+CREATE TABLE IF NOT EXISTS oauth_registered_client (
     id VARCHAR(100) PRIMARY KEY,
     client_id VARCHAR(100) NOT NULL UNIQUE,
     client_id_issued_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -98,7 +96,7 @@ CREATE TABLE IF NOT EXISTS identity.oauth_registered_clients (
     domain VARCHAR(255),
     status VARCHAR(50) DEFAULT 'ACTIVE',
     plan VARCHAR(50) DEFAULT 'TRIAL',
-    organization_id UUID REFERENCES identity.organizations(id),
+    organization_id UUID REFERENCES organization(id),
     knowledge_base_id VARCHAR(255),
     version BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -107,76 +105,76 @@ CREATE TABLE IF NOT EXISTS identity.oauth_registered_clients (
     last_modified_by VARCHAR(255) DEFAULT 'system'
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_scopes (
+CREATE TABLE IF NOT EXISTS oauth_scope (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_authentication_methods (
+CREATE TABLE IF NOT EXISTS oauth_authentication_method (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_grant_types (
+CREATE TABLE IF NOT EXISTS oauth_grant_type (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_client_scopes (
+CREATE TABLE IF NOT EXISTS oauth_client_scope (
     client_id VARCHAR(100) NOT NULL,
     scope_id INT NOT NULL,
     PRIMARY KEY (client_id, scope_id),
-    CONSTRAINT fk_client_scope_client FOREIGN KEY (client_id) REFERENCES identity.oauth_registered_clients(id) ON DELETE CASCADE,
-    CONSTRAINT fk_client_scope_scope FOREIGN KEY (scope_id) REFERENCES identity.oauth_scopes(id) ON DELETE CASCADE
+    CONSTRAINT fk_client_scope_client FOREIGN KEY (client_id) REFERENCES oauth_registered_client(id) ON DELETE CASCADE,
+    CONSTRAINT fk_client_scope_scope FOREIGN KEY (scope_id) REFERENCES oauth_scope(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_client_authentication_methods (
+CREATE TABLE IF NOT EXISTS oauth_client_authentication_method (
     client_id VARCHAR(100) NOT NULL,
     method_id INT NOT NULL,
     PRIMARY KEY (client_id, method_id),
-    CONSTRAINT fk_client_method_client FOREIGN KEY (client_id) REFERENCES identity.oauth_registered_clients(id) ON DELETE CASCADE,
-    CONSTRAINT fk_client_method_method FOREIGN KEY (method_id) REFERENCES identity.oauth_authentication_methods(id) ON DELETE CASCADE
+    CONSTRAINT fk_client_method_client FOREIGN KEY (client_id) REFERENCES oauth_registered_client(id) ON DELETE CASCADE,
+    CONSTRAINT fk_client_method_method FOREIGN KEY (method_id) REFERENCES oauth_authentication_method(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_client_grant_types (
+CREATE TABLE IF NOT EXISTS oauth_client_grant_type (
     client_id VARCHAR(100) NOT NULL,
     grant_type_id INT NOT NULL,
     PRIMARY KEY (client_id, grant_type_id),
-    CONSTRAINT fk_client_grant_client FOREIGN KEY (client_id) REFERENCES identity.oauth_registered_clients(id) ON DELETE CASCADE,
-    CONSTRAINT fk_client_grant_type FOREIGN KEY (grant_type_id) REFERENCES identity.oauth_grant_types(id) ON DELETE CASCADE
+    CONSTRAINT fk_client_grant_client FOREIGN KEY (client_id) REFERENCES oauth_registered_client(id) ON DELETE CASCADE,
+    CONSTRAINT fk_client_grant_type FOREIGN KEY (grant_type_id) REFERENCES oauth_grant_type(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_client_redirect_uris (
+CREATE TABLE IF NOT EXISTS oauth_client_redirect_uri (
     client_id VARCHAR(100) NOT NULL,
     uri VARCHAR(2000) NOT NULL,
     PRIMARY KEY (client_id, uri),
-    CONSTRAINT fk_redirect_uri_client FOREIGN KEY (client_id) REFERENCES identity.oauth_registered_clients(id) ON DELETE CASCADE
+    CONSTRAINT fk_redirect_uri_client FOREIGN KEY (client_id) REFERENCES oauth_registered_client(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_client_post_logout_redirect_uris (
+CREATE TABLE IF NOT EXISTS oauth_client_post_logout_redirect_uri (
     client_id VARCHAR(100) NOT NULL,
     uri VARCHAR(2000) NOT NULL,
     PRIMARY KEY (client_id, uri),
-    CONSTRAINT fk_post_logout_uri_client FOREIGN KEY (client_id) REFERENCES identity.oauth_registered_clients(id) ON DELETE CASCADE
+    CONSTRAINT fk_post_logout_uri_client FOREIGN KEY (client_id) REFERENCES oauth_registered_client(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_client_settings (
+CREATE TABLE IF NOT EXISTS oauth_client_setting (
     client_id VARCHAR(100) NOT NULL,
     setting_name VARCHAR(100) NOT NULL,
     setting_value TEXT NOT NULL,
     PRIMARY KEY (client_id, setting_name),
-    CONSTRAINT fk_client_setting_client FOREIGN KEY (client_id) REFERENCES identity.oauth_registered_clients(id) ON DELETE CASCADE
+    CONSTRAINT fk_client_setting_client FOREIGN KEY (client_id) REFERENCES oauth_registered_client(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.oauth_client_token_settings (
+CREATE TABLE IF NOT EXISTS oauth_client_token_setting (
     client_id VARCHAR(100) NOT NULL,
     setting_name VARCHAR(100) NOT NULL,
     setting_value TEXT NOT NULL,
     PRIMARY KEY (client_id, setting_name),
-    CONSTRAINT fk_token_setting_client FOREIGN KEY (client_id) REFERENCES identity.oauth_registered_clients(id) ON DELETE CASCADE
+    CONSTRAINT fk_token_setting_client FOREIGN KEY (client_id) REFERENCES oauth_registered_client(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.refresh_tokens (
+CREATE TABLE IF NOT EXISTS refresh_token (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     jti VARCHAR(255) NOT NULL UNIQUE,
     user_id UUID NOT NULL,
@@ -193,10 +191,10 @@ CREATE TABLE IF NOT EXISTS identity.refresh_tokens (
     created_by VARCHAR(255) DEFAULT 'system',
     last_modified_at TIMESTAMPTZ DEFAULT NOW(),
     last_modified_by VARCHAR(255) DEFAULT 'system',
-    CONSTRAINT fk_refresh_tokens_user_id FOREIGN KEY (user_id) REFERENCES identity.oauth_users(id) ON DELETE CASCADE
+    CONSTRAINT fk_refresh_token_user_id FOREIGN KEY (user_id) REFERENCES oauth_user(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.trusted_devices (
+CREATE TABLE IF NOT EXISTS trusted_device (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     device_fingerprint VARCHAR(255) NOT NULL,
@@ -213,10 +211,10 @@ CREATE TABLE IF NOT EXISTS identity.trusted_devices (
     created_by VARCHAR(255) DEFAULT 'system',
     last_modified_at TIMESTAMPTZ DEFAULT NOW(),
     last_modified_by VARCHAR(255) DEFAULT 'system',
-    CONSTRAINT fk_trusted_device_user FOREIGN KEY (user_id) REFERENCES identity.oauth_users(id) ON DELETE CASCADE
+    CONSTRAINT fk_trusted_device_user FOREIGN KEY (user_id) REFERENCES oauth_user(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS identity.process (
+CREATE TABLE IF NOT EXISTS process_entity (
     id BIGSERIAL PRIMARY KEY,
     type VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
@@ -233,7 +231,7 @@ CREATE TABLE IF NOT EXISTS identity.process (
     CONSTRAINT unique_process_type_external_reference UNIQUE (type, external_reference)
 );
 
-CREATE TABLE IF NOT EXISTS identity.process_request (
+CREATE TABLE IF NOT EXISTS process_request_entity (
     id BIGSERIAL PRIMARY KEY,
     process_id BIGINT NOT NULL,
     user_id UUID NOT NULL,
@@ -245,10 +243,10 @@ CREATE TABLE IF NOT EXISTS identity.process_request (
     created_by VARCHAR(255) DEFAULT 'system',
     last_modified_at TIMESTAMPTZ DEFAULT NOW(),
     last_modified_by VARCHAR(255) DEFAULT 'system',
-    CONSTRAINT fk_process_request_process FOREIGN KEY (process_id) REFERENCES identity.process (id)
+    CONSTRAINT fk_process_request_process FOREIGN KEY (process_id) REFERENCES process_entity (id)
 );
 
-CREATE TABLE IF NOT EXISTS identity.process_request_data (
+CREATE TABLE IF NOT EXISTS process_request_data_entity (
     process_request_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,
     value TEXT NOT NULL,
@@ -258,10 +256,10 @@ CREATE TABLE IF NOT EXISTS identity.process_request_data (
     last_modified_at TIMESTAMPTZ DEFAULT NOW(),
     last_modified_by VARCHAR(255) DEFAULT 'system',
     PRIMARY KEY (process_request_id, name),
-    CONSTRAINT fk_process_request_data FOREIGN KEY (process_request_id) REFERENCES identity.process_request (id)
+    CONSTRAINT fk_process_request_data FOREIGN KEY (process_request_id) REFERENCES process_request_entity (id)
 );
 
-CREATE TABLE IF NOT EXISTS identity.process_request_stakeholder (
+CREATE TABLE IF NOT EXISTS process_request_stakeholder (
     id BIGSERIAL PRIMARY KEY,
     process_request_id BIGINT NOT NULL,
     stakeholder_id VARCHAR(255) NOT NULL,
@@ -271,10 +269,10 @@ CREATE TABLE IF NOT EXISTS identity.process_request_stakeholder (
     created_by VARCHAR(255) DEFAULT 'system',
     last_modified_at TIMESTAMPTZ DEFAULT NOW(),
     last_modified_by VARCHAR(255) DEFAULT 'system',
-    CONSTRAINT fk_process_request_stakeholder FOREIGN KEY (process_request_id) REFERENCES identity.process_request (id)
+    CONSTRAINT fk_process_request_stakeholder FOREIGN KEY (process_request_id) REFERENCES process_request_entity (id)
 );
 
-CREATE TABLE IF NOT EXISTS identity.process_event_transition (
+CREATE TABLE IF NOT EXISTS process_event_transition_entity (
     id BIGSERIAL PRIMARY KEY,
     process_id BIGINT NOT NULL,
     event VARCHAR(255) NOT NULL,
@@ -286,10 +284,10 @@ CREATE TABLE IF NOT EXISTS identity.process_event_transition (
     created_by VARCHAR(255) DEFAULT 'system',
     last_modified_at TIMESTAMPTZ DEFAULT NOW(),
     last_modified_by VARCHAR(255) DEFAULT 'system',
-    CONSTRAINT fk_process_event_transition FOREIGN KEY (process_id) REFERENCES identity.process (id)
+    CONSTRAINT fk_process_event_transition FOREIGN KEY (process_id) REFERENCES process_entity (id)
 );
 
-CREATE TABLE IF NOT EXISTS identity.rate_limit_config (
+CREATE TABLE IF NOT EXISTS rate_limit_config (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     method_name VARCHAR(100) NOT NULL,
     subscription_tier VARCHAR(50) NOT NULL,
@@ -306,7 +304,7 @@ CREATE TABLE IF NOT EXISTS identity.rate_limit_config (
     CONSTRAINT rate_limit_config_method_tier_scope_key UNIQUE (method_name, subscription_tier, scope)
 );
 
-CREATE TABLE IF NOT EXISTS identity.country (
+CREATE TABLE IF NOT EXISTS country (
     id SERIAL PRIMARY KEY,
     public_id UUID NOT NULL DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
@@ -328,30 +326,30 @@ CREATE TABLE IF NOT EXISTS identity.country (
     UNIQUE(public_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_organizations_slug ON identity.organizations(slug);
-CREATE INDEX IF NOT EXISTS idx_organizations_status ON identity.organizations(status);
-CREATE INDEX IF NOT EXISTS idx_oauth_users_username ON identity.oauth_users(username);
-CREATE INDEX IF NOT EXISTS idx_oauth_users_lockout ON identity.oauth_users (username, locked_until, failed_login_attempts);
-CREATE INDEX IF NOT EXISTS idx_oauth_users_registration_source ON identity.oauth_users(registration_source);
-CREATE INDEX IF NOT EXISTS idx_oauth_users_organization_id ON identity.oauth_users(organization_id);
-CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_client_id ON identity.oauth_registered_clients(client_id);
-CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_lockout ON identity.oauth_registered_clients (client_id, locked_until, failed_auth_attempts);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_registered_clients_domain ON identity.oauth_registered_clients(domain);
-CREATE INDEX IF NOT EXISTS idx_oauth_registered_clients_status ON identity.oauth_registered_clients(status);
-CREATE INDEX IF NOT EXISTS idx_oauth_clients_org_id ON identity.oauth_registered_clients(organization_id);
-CREATE INDEX IF NOT EXISTS idx_oauth_clients_kb_id ON identity.oauth_registered_clients(knowledge_base_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_clients_kb_id_unique ON identity.oauth_registered_clients(knowledge_base_id) WHERE knowledge_base_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_oauth_provider_user_id ON identity.oauth_provider_accounts(user_id);
-CREATE INDEX IF NOT EXISTS idx_oauth_provider_email ON identity.oauth_provider_accounts(provider_email);
-CREATE INDEX IF NOT EXISTS idx_oauth_provider ON identity.oauth_provider_accounts(provider, provider_user_id);
-CREATE INDEX IF NOT EXISTS idx_refresh_token_jti ON identity.refresh_tokens(jti);
-CREATE INDEX IF NOT EXISTS idx_refresh_token_user_id ON identity.refresh_tokens(user_id);
-CREATE INDEX IF NOT EXISTS idx_refresh_token_expires_at ON identity.refresh_tokens(expires_at);
-CREATE INDEX IF NOT EXISTS idx_trusted_devices_user_id ON identity.trusted_devices(user_id);
-CREATE INDEX IF NOT EXISTS idx_trusted_devices_fingerprint_hash ON identity.trusted_devices(device_fingerprint_hash);
-CREATE INDEX IF NOT EXISTS idx_trusted_devices_expires_at ON identity.trusted_devices(expires_at);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_trusted_devices_user_fingerprint ON identity.trusted_devices(user_id, device_fingerprint_hash);
-CREATE INDEX IF NOT EXISTS idx_rate_limit_method_tier_scope ON identity.rate_limit_config(method_name, subscription_tier, scope, active);
-CREATE INDEX IF NOT EXISTS idx_country_enabled ON identity.country(enabled);
-CREATE INDEX IF NOT EXISTS idx_country_iso2_code ON identity.country(iso2_code);
-CREATE INDEX IF NOT EXISTS idx_country_name ON identity.country(name);
+CREATE INDEX IF NOT EXISTS idx_organization_slug ON organization(slug);
+CREATE INDEX IF NOT EXISTS idx_organization_status ON organization(status);
+CREATE INDEX IF NOT EXISTS idx_oauth_user_username ON oauth_user(username);
+CREATE INDEX IF NOT EXISTS idx_oauth_user_lockout ON oauth_user (username, locked_until, failed_login_attempts);
+CREATE INDEX IF NOT EXISTS idx_oauth_user_registration_source ON oauth_user(registration_source);
+CREATE INDEX IF NOT EXISTS idx_oauth_user_organization_id ON oauth_user(organization_id);
+CREATE INDEX IF NOT EXISTS idx_oauth_registered_client_client_id ON oauth_registered_client(client_id);
+CREATE INDEX IF NOT EXISTS idx_oauth_registered_client_lockout ON oauth_registered_client (client_id, locked_until, failed_auth_attempts);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_registered_client_domain ON oauth_registered_client(domain);
+CREATE INDEX IF NOT EXISTS idx_oauth_registered_client_status ON oauth_registered_client(status);
+CREATE INDEX IF NOT EXISTS idx_oauth_client_org_id ON oauth_registered_client(organization_id);
+CREATE INDEX IF NOT EXISTS idx_oauth_client_kb_id ON oauth_registered_client(knowledge_base_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_client_kb_id_unique ON oauth_registered_client(knowledge_base_id) WHERE knowledge_base_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_oauth_provider_user_id ON oauth_provider_account(user_id);
+CREATE INDEX IF NOT EXISTS idx_oauth_provider_email ON oauth_provider_account(provider_email);
+CREATE INDEX IF NOT EXISTS idx_oauth_provider ON oauth_provider_account(provider, provider_user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_token_jti ON refresh_token(jti);
+CREATE INDEX IF NOT EXISTS idx_refresh_token_user_id ON refresh_token(user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_token_expires_at ON refresh_token(expires_at);
+CREATE INDEX IF NOT EXISTS idx_trusted_device_user_id ON trusted_device(user_id);
+CREATE INDEX IF NOT EXISTS idx_trusted_device_fingerprint_hash ON trusted_device(device_fingerprint_hash);
+CREATE INDEX IF NOT EXISTS idx_trusted_device_expires_at ON trusted_device(expires_at);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trusted_device_user_fingerprint ON trusted_device(user_id, device_fingerprint_hash);
+CREATE INDEX IF NOT EXISTS idx_rate_limit_method_tier_scope ON rate_limit_config(method_name, subscription_tier, scope, active);
+CREATE INDEX IF NOT EXISTS idx_country_enabled ON country(enabled);
+CREATE INDEX IF NOT EXISTS idx_country_iso2_code ON country(iso2_code);
+CREATE INDEX IF NOT EXISTS idx_country_name ON country(name);

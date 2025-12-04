@@ -12,9 +12,9 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
-import jakarta.persistence.Table
 import java.time.Instant
 import java.time.LocalDate
+import jakarta.persistence.Table
 import java.util.UUID
 
 enum class UserType {
@@ -34,7 +34,7 @@ enum class OAuthProvider {
 }
 
 @Entity
-@Table(name = "oauth_users", schema = "identity")
+@Table(name = "oauth_user")
 class OAuthUser() : AuditableEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -88,8 +88,7 @@ class OAuthUser() : AuditableEntity() {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-        name = "oauth_user_authorities",
-        schema = "identity",
+        name = "oauth_user_authority",
         joinColumns = [JoinColumn(name = "user_id")]
     )
     @Column(name = "authority")

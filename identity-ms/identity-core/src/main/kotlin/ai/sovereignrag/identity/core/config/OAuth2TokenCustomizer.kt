@@ -56,6 +56,8 @@ class OAuth2TokenCustomizerConfig {
         return OAuth2TokenCustomizer { context ->
             log.info { "Customizing token for grant type: ${context.authorizationGrantType?.value}" }
 
+            normalizeScopes(context)
+
             when {
                 context.authorizationGrantType == AuthorizationGrantType.CLIENT_CREDENTIALS -> {
                     customizeClientCredentialsToken(context, clientRepository)
@@ -65,6 +67,13 @@ class OAuth2TokenCustomizerConfig {
                     customizeUserAccessToken(context, userRepository, clientRepository, fileUploadGateway)
                 }
             }
+        }
+    }
+
+    private fun normalizeScopes(context: JwtEncodingContext) {
+        val scopes = context.authorizedScopes
+        scopes.takeIf { it.isNotEmpty() }?.let {
+            context.claims.claim("scope", it.joinToString(" "))
         }
     }
 
