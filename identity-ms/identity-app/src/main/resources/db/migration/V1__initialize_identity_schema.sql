@@ -10,9 +10,12 @@ CREATE TABLE IF NOT EXISTS identity.organizations (
     database_created BOOLEAN NOT NULL DEFAULT FALSE,
     max_knowledge_bases INTEGER NOT NULL DEFAULT 5,
     settings JSONB NOT NULL DEFAULT '{}',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    version BIGINT NOT NULL DEFAULT 0
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by VARCHAR(255) DEFAULT 'system',
+    last_modified_at TIMESTAMPTZ DEFAULT NOW(),
+    last_modified_by VARCHAR(255) DEFAULT 'system'
 );
 
 CREATE TABLE IF NOT EXISTS identity.oauth_users (
