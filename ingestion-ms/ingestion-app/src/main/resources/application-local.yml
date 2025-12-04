@@ -2,5 +2,5 @@ SERVER_PORT: 9086
 
 DB_HOST: localhost
 READ_REPLICA_DB_HOST: localhost
-DATABASE_NAME: sovereignrag_ingestion
-READ_REPLICA_DATABASE_NAME: sovereignrag_ingestion
+DATABASE_NAME: sovereignrag_master
+READ_REPLICA_DATABASE_NAME: sovereignrag_master
