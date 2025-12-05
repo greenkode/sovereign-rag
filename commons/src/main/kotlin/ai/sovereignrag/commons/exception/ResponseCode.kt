@@ -46,6 +46,25 @@ enum class ResponseCode(
     SUSPECTED_FRAUD("6001", TransactionFollowUpAction.RE_CHECK, "Suspected fraudulent activity", HttpStatus.FORBIDDEN),
     INCORRECT_PIN("6002", TransactionFollowUpAction.REVERSE, "Incorrect PIN entered", HttpStatus.FORBIDDEN),
 
+    // Identity and Authentication Codes (8000-8099)
+    USER_NOT_FOUND("8000", TransactionFollowUpAction.REVERSE, "User not found", HttpStatus.NOT_FOUND),
+    ORGANIZATION_NOT_FOUND("8001", TransactionFollowUpAction.REVERSE, "Organization not found", HttpStatus.NOT_FOUND),
+    INVALID_CREDENTIALS("8002", TransactionFollowUpAction.REVERSE, "Invalid credentials", HttpStatus.UNAUTHORIZED),
+    INVALID_INVITATION("8003", TransactionFollowUpAction.REVERSE, "Invalid invitation", HttpStatus.BAD_REQUEST),
+    INVITATION_PROCESSING_ERROR("8004", TransactionFollowUpAction.RE_CHECK, "Error processing invitation", HttpStatus.INTERNAL_SERVER_ERROR),
+    TWO_FACTOR_SESSION_INVALID("8005", TransactionFollowUpAction.REVERSE, "Invalid 2FA session", HttpStatus.BAD_REQUEST),
+    TWO_FACTOR_CODE_INVALID("8006", TransactionFollowUpAction.REVERSE, "Invalid verification code", HttpStatus.BAD_REQUEST),
+    TWO_FACTOR_CODE_EXPIRED("8007", TransactionFollowUpAction.REVERSE, "Verification code expired", HttpStatus.BAD_REQUEST),
+    TWO_FACTOR_MAX_ATTEMPTS("8008", TransactionFollowUpAction.REVERSE, "Maximum 2FA attempts exceeded", HttpStatus.TOO_MANY_REQUESTS),
+    TWO_FACTOR_RESEND_RATE_LIMIT("8009", TransactionFollowUpAction.REVERSE, "2FA resend rate limit exceeded", HttpStatus.TOO_MANY_REQUESTS),
+    TWO_FACTOR_REQUIRED("8010", TransactionFollowUpAction.RE_CHECK, "Two-factor authentication required", HttpStatus.PRECONDITION_REQUIRED),
+    EMAIL_NOT_VERIFIED("8011", TransactionFollowUpAction.REVERSE, "Email not verified", HttpStatus.FORBIDDEN),
+    PHONE_NOT_VERIFIED("8012", TransactionFollowUpAction.REVERSE, "Phone number not verified", HttpStatus.FORBIDDEN),
+    ORGANIZATION_SETUP_REQUIRED("8013", TransactionFollowUpAction.RE_CHECK, "Organization setup required", HttpStatus.PRECONDITION_REQUIRED),
+    RECORD_NOT_FOUND("8014", TransactionFollowUpAction.REVERSE, "Record not found", HttpStatus.NOT_FOUND),
+    CLIENT_ERROR("8015", TransactionFollowUpAction.REVERSE, "Client error", HttpStatus.BAD_REQUEST),
+    SERVER_ERROR("8016", TransactionFollowUpAction.RE_CHECK, "Server error", HttpStatus.INTERNAL_SERVER_ERROR),
+
     // Integration and External Service Codes (7000-7099)
     EXTERNAL_SERVICE_ERROR("7000", TransactionFollowUpAction.RE_CHECK, "External service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
     RESPONSE_RECEIVED_TOO_LATE("7001", TransactionFollowUpAction.RE_CHECK, "Response timeout from external service", HttpStatus.GATEWAY_TIMEOUT),

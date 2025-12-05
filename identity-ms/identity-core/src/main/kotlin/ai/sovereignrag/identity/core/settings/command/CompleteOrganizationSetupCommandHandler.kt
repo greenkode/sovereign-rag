@@ -1,8 +1,8 @@
 package ai.sovereignrag.identity.core.settings.command
 
 import ai.sovereignrag.commons.user.dto.PhoneNumber
-import ai.sovereignrag.identity.commons.exception.ClientException
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.InvalidRequestException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.entity.OrganizationStatus
@@ -32,17 +32,17 @@ class CompleteOrganizationSetupCommandHandler(
         val user = userService.getCurrentUser()
 
         val merchantId = user.merchantId
-            ?: throw NotFoundException(messageService.getMessage("settings.error.no_merchant"))
+            ?: throw RecordNotFoundException(messageService.getMessage("settings.error.no_merchant"))
 
         val client = oAuthRegisteredClientRepository.findById(merchantId.toString())
-            .orElseThrow { NotFoundException(messageService.getMessage("settings.error.merchant_not_found")) }
+            .orElseThrow { RecordNotFoundException(messageService.getMessage("settings.error.merchant_not_found")) }
 
         if (client.getSetting(OAuthClientSettingName.SETUP_COMPLETED) == "true") {
-            throw ClientException(messageService.getMessage("settings.error.setup_already_completed"))
+            throw InvalidRequestException(messageService.getMessage("settings.error.setup_already_completed"))
         }
 
         if (!command.termsAccepted) {
-            throw ClientException(messageService.getMessage("settings.error.terms_required"))
+            throw InvalidRequestException(messageService.getMessage("settings.error.terms_required"))
         }
 
         client.clientName = command.companyName

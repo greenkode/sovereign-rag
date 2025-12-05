@@ -10,7 +10,8 @@ import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.exception.InvalidCredentialsException
+import ai.sovereignrag.commons.exception.InvalidCredentialsException
+import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.core.auth.service.JwtTokenService
 import ai.sovereignrag.identity.core.refreshtoken.service.RefreshTokenService
 import ai.sovereignrag.identity.core.service.AccountLockedException
@@ -37,7 +38,8 @@ class LoginCommandHandler(
     private val refreshTokenService: RefreshTokenService,
     private val authenticationManager: AuthenticationManager,
     private val accountLockoutService: AccountLockoutService,
-    private val applicationEventPublisher: ApplicationEventPublisher
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val messageService: MessageService
 ) : Command.Handler<LoginCommand, LoginResult> {
 
     override fun handle(command: LoginCommand): LoginResult {
@@ -100,12 +102,12 @@ class LoginCommandHandler(
                 log.warn { "Invalid credentials for user: ${command.username}" }
                 accountLockoutService.handleFailedLogin(command.username)
                 publishFailedLoginAudit(command)
-                throw InvalidCredentialsException()
+                throw InvalidCredentialsException(messageService.getMessage("auth.error.invalid_credentials"))
             }
             else -> {
                 log.error(e) { "Login failed for user: ${command.username}" }
                 accountLockoutService.handleFailedLogin(command.username)
-                throw InvalidCredentialsException()
+                throw InvalidCredentialsException(messageService.getMessage("auth.error.invalid_credentials"))
             }
         }
     }

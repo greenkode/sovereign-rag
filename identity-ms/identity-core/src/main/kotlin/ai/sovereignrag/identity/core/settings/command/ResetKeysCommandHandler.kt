@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.settings.command
 
-import ai.sovereignrag.identity.commons.exception.ClientException
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.InvalidRequestException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.core.entity.EnvironmentMode
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.service.UserService
@@ -27,19 +27,19 @@ class ResetKeysCommandHandler(
 
         val user = userService.getCurrentUser()
         val merchantId = user.merchantId
-            ?: throw NotFoundException("User is not associated with a merchant")
+            ?: throw RecordNotFoundException("User is not associated with a merchant")
 
         val client = oAuthRegisteredClientRepository.findById(merchantId.toString())
-            .orElseThrow { NotFoundException("Merchant client not found") }
+            .orElseThrow { RecordNotFoundException("Merchant client not found") }
 
         val targetEnvironment = command.environment ?: user.environmentPreference
 
         if (client.environmentMode == EnvironmentMode.SANDBOX && targetEnvironment == EnvironmentMode.PRODUCTION) {
-            throw ClientException("Cannot reset production keys for a merchant in sandbox mode")
+            throw InvalidRequestException("Cannot reset production keys for a merchant in sandbox mode")
         }
 
         if (user.environmentPreference == EnvironmentMode.SANDBOX && targetEnvironment == EnvironmentMode.PRODUCTION) {
-            throw ClientException("Cannot reset production keys while in sandbox environment")
+            throw InvalidRequestException("Cannot reset production keys while in sandbox environment")
         }
 
         val newClientSecret = RandomStringUtils.secure().nextAlphanumeric(30)

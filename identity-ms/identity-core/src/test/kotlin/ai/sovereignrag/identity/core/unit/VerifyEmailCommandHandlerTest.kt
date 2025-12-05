@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.unit
 
 import ai.sovereignrag.commons.process.ProcessChannel
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.identity.commons.process.ProcessGateway
@@ -78,7 +78,7 @@ class VerifyEmailCommandHandlerTest {
         every { processGateway.findPendingProcessByTypeAndExternalReference(ProcessType.EMAIL_VERIFICATION, "invalid-token") } returns null
         every { messageService.getMessage("registration.error.invalid_verification_token") } returns "Invalid token"
 
-        val exception = assertThrows<ClientException> {
+        val exception = assertThrows<InvalidRequestException> {
             handler.handle(command)
         }
 
@@ -93,7 +93,7 @@ class VerifyEmailCommandHandlerTest {
         every { processGateway.findPendingProcessByTypeAndExternalReference(ProcessType.EMAIL_VERIFICATION, token) } returns process
         every { messageService.getMessage("registration.error.user_not_found") } returns "User not found"
 
-        val exception = assertThrows<ClientException> {
+        val exception = assertThrows<InvalidRequestException> {
             handler.handle(command)
         }
 

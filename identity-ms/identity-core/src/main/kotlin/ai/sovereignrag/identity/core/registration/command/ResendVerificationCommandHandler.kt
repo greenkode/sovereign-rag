@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.registration.command
 
 import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
@@ -43,10 +43,10 @@ class ResendVerificationCommandHandler(
         log.info { "Resending verification email to: $normalizedEmail" }
 
         val user = userRepository.findByEmail(normalizedEmail)
-            ?: throw ClientException(messageService.getMessage("registration.error.user_not_found"))
+            ?: throw InvalidRequestException(messageService.getMessage("registration.error.user_not_found"))
 
         if (user.emailVerified) {
-            throw ClientException(messageService.getMessage("registration.error.email_already_verified"))
+            throw InvalidRequestException(messageService.getMessage("registration.error.email_already_verified"))
         }
 
         processGateway.findPendingProcessByTypeAndExternalReference(

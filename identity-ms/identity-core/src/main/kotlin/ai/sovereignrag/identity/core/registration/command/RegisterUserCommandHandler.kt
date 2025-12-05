@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.registration.command
 
 import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
@@ -66,7 +66,7 @@ class RegisterUserCommandHandler(
         val existingUser = userRepository.findByEmail(normalizedEmail)
         existingUser?.let { user ->
             if (user.registrationComplete) {
-                throw ClientException(messageService.getMessage("registration.error.email_exists"))
+                throw InvalidRequestException(messageService.getMessage("registration.error.email_exists"))
             }
             log.info { "Found incomplete registration for email: $normalizedEmail, allowing re-registration" }
         }

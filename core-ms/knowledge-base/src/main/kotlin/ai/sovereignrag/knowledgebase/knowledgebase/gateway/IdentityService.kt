@@ -1,5 +1,13 @@
 package ai.sovereignrag.knowledgebase.knowledgebase.gateway
 
+import ai.sovereignrag.commons.exception.ProcessServiceException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
+import ai.sovereignrag.commons.internal.CreateKBOAuthClientRequest
+import ai.sovereignrag.commons.internal.CreateKBOAuthClientResponse
+import ai.sovereignrag.commons.internal.OrganizationResponse
+import ai.sovereignrag.commons.internal.RevokeKBOAuthClientResponse
+import ai.sovereignrag.commons.internal.RotateSecretResponse
+import ai.sovereignrag.commons.internal.UpdateOrganizationDatabaseRequest
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
@@ -29,17 +37,17 @@ class IdentityService(
             .body(request)
             .retrieve()
             .body(CreateKBOAuthClientResponse::class.java)
-            ?: throw KBOAuthClientCreationException("Failed to create KB OAuth client: empty response")
+            ?: throw ProcessServiceException("Failed to create KB OAuth client: empty response")
 
         if (!response.success) {
-            throw KBOAuthClientCreationException("Failed to create KB OAuth client: ${response.message}")
+            throw ProcessServiceException("Failed to create KB OAuth client: ${response.message}")
         }
 
         log.info { "KB OAuth client created successfully: ${response.clientId}" }
 
         return KBOAuthCredentials(
-            clientId = response.clientId ?: throw KBOAuthClientCreationException("Missing clientId in response"),
-            clientSecret = response.clientSecret ?: throw KBOAuthClientCreationException("Missing clientSecret in response"),
+            clientId = response.clientId ?: throw ProcessServiceException("Missing clientId in response"),
+            clientSecret = response.clientSecret ?: throw ProcessServiceException("Missing clientSecret in response"),
             knowledgeBaseId = response.knowledgeBaseId ?: knowledgeBaseId
         )
     }
@@ -50,11 +58,11 @@ class IdentityService(
         val response = restClient.delete()
             .uri("/internal/kb-oauth-clients/{knowledgeBaseId}", knowledgeBaseId)
             .retrieve()
-            .body(RevokeResponse::class.java)
-            ?: throw KBOAuthClientCreationException("Failed to revoke KB OAuth client: empty response")
+            .body(RevokeKBOAuthClientResponse::class.java)
+            ?: throw ProcessServiceException("Failed to revoke KB OAuth client: empty response")
 
         if (!response.success) {
-            throw KBOAuthClientCreationException("Failed to revoke KB OAuth client: ${response.message}")
+            throw ProcessServiceException("Failed to revoke KB OAuth client: ${response.message}")
         }
 
         log.info { "KB OAuth client revoked successfully for KB: $knowledgeBaseId" }
@@ -67,17 +75,17 @@ class IdentityService(
             .uri("/internal/kb-oauth-clients/{knowledgeBaseId}/rotate-secret", knowledgeBaseId)
             .retrieve()
             .body(RotateSecretResponse::class.java)
-            ?: throw KBOAuthClientCreationException("Failed to rotate KB OAuth client secret: empty response")
+            ?: throw ProcessServiceException("Failed to rotate KB OAuth client secret: empty response")
 
         if (!response.success) {
-            throw KBOAuthClientCreationException("Failed to rotate KB OAuth client secret: ${response.message}")
+            throw ProcessServiceException("Failed to rotate KB OAuth client secret: ${response.message}")
         }
 
         log.info { "KB OAuth client secret rotated successfully: ${response.clientId}" }
 
         return KBOAuthCredentials(
-            clientId = response.clientId ?: throw KBOAuthClientCreationException("Missing clientId in response"),
-            clientSecret = response.clientSecret ?: throw KBOAuthClientCreationException("Missing clientSecret in response"),
+            clientId = response.clientId ?: throw ProcessServiceException("Missing clientId in response"),
+            clientSecret = response.clientSecret ?: throw ProcessServiceException("Missing clientSecret in response"),
             knowledgeBaseId = knowledgeBaseId
         )
     }
@@ -89,7 +97,7 @@ class IdentityService(
             .uri("/internal/organizations/{organizationId}", organizationId)
             .retrieve()
             .body(OrganizationResponse::class.java)
-            ?: throw OrganizationNotFoundException("Organization not found: $organizationId")
+            ?: throw RecordNotFoundException("Organization not found: $organizationId")
 
         return OrganizationInfo(
             id = response.id,
@@ -114,46 +122,3 @@ class IdentityService(
         log.info { "Organization database updated successfully" }
     }
 }
-
-data class CreateKBOAuthClientRequest(
-    val organizationId: UUID,
-    val knowledgeBaseId: String,
-    val name: String
-)
-
-data class CreateKBOAuthClientResponse(
-    val success: Boolean,
-    val clientId: String? = null,
-    val clientSecret: String? = null,
-    val knowledgeBaseId: String? = null,
-    val message: String? = null
-)
-
-data class RevokeResponse(
-    val success: Boolean,
-    val message: String? = null
-)
-
-data class RotateSecretResponse(
-    val success: Boolean,
-    val clientId: String? = null,
-    val clientSecret: String? = null,
-    val message: String? = null
-)
-
-data class OrganizationResponse(
-    val id: UUID,
-    val name: String,
-    val slug: String,
-    val databaseName: String?,
-    val databaseCreated: Boolean,
-    val maxKnowledgeBases: Int
-)
-
-data class UpdateOrganizationDatabaseRequest(
-    val databaseName: String
-)
-
-class KBOAuthClientCreationException(message: String) : RuntimeException(message)
-
-class OrganizationNotFoundException(message: String) : RuntimeException(message)

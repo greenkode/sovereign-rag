@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.unit
 
 import ai.sovereignrag.commons.process.ProcessChannel
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.identity.commons.process.ProcessGateway
@@ -141,7 +141,7 @@ class RegisterUserCommandHandlerTest {
         every { userRepository.findByEmail("john.doe@acme.com") } returns existingUser
         every { messageService.getMessage("registration.error.email_exists") } returns "Email already exists"
 
-        val exception = assertThrows<ClientException> {
+        val exception = assertThrows<InvalidRequestException> {
             handler.handle(command)
         }
 

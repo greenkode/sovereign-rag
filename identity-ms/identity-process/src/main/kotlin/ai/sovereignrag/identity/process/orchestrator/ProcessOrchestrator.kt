@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.process.orchestrator
 
 
-import ai.sovereignrag.identity.commons.exception.ServerException
+import ai.sovereignrag.commons.exception.ProcessServiceException
 import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.commons.process.enumeration.ProcessEvent
 import ai.sovereignrag.commons.process.enumeration.ProcessState
@@ -36,7 +36,7 @@ class ProcessOrchestrator(
         log.info { "Processing event $event for process $processId" }
         
         val process = processRepository.findByPublicId(processId)
-            ?: throw ServerException("Process not found: $processId")
+            ?: throw ProcessServiceException("Process not found: $processId")
         
         processEventInternal(process, event, userId)
     }
@@ -52,7 +52,7 @@ class ProcessOrchestrator(
         }
         
         val strategy = findStrategyForProcess(processDto.type)
-            ?: throw ServerException("No strategy found for process type: ${processDto.type}")
+            ?: throw ProcessServiceException("No strategy found for process type: ${processDto.type}")
         
         val oldState = process.state
         
@@ -60,7 +60,7 @@ class ProcessOrchestrator(
 
             val expectedNewState = strategy.calculateExpectedState(oldState, event)
             if (!strategy.isValidTransition(oldState, event, expectedNewState)) {
-                throw ServerException("Invalid state transition: $oldState -> $event -> $expectedNewState")
+                throw ProcessServiceException("Invalid state transition: $oldState -> $event -> $expectedNewState")
             }
 
             val newState = strategy.processEvent(processDto, event)

@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.password.command
 
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.commons.process.ProcessGateway
 import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
 import an.awesome.pipelinr.Command
@@ -23,15 +23,15 @@ class ValidatePasswordResetCommandHandler(
 
         val process = processGateway.findPendingProcessByExternalReference(
             externalReference = command.token
-        ) ?: throw NotFoundException("Invalid or expired password reset token")
+        ) ?: throw RecordNotFoundException("Invalid or expired password reset token")
 
         val initialRequest = process.getInitialRequest()
 
         initialRequest.getDataValueOrNull(ProcessRequestDataName.USER_IDENTIFIER)
-            ?: throw NotFoundException("User identifier not found in process")
+            ?: throw RecordNotFoundException("User identifier not found in process")
 
         val userId = initialRequest.getDataValueOrNull(ProcessRequestDataName.USER_IDENTIFIER)?.let { UUID.fromString(it) }
-            ?: throw NotFoundException("User ID not found in process")
+            ?: throw RecordNotFoundException("User ID not found in process")
 
         return ValidatePasswordResetResult(
             success = true,

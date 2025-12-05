@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.invitation.command
 
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.commons.process.ProcessGateway
 import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
 import ai.sovereignrag.commons.process.enumeration.ProcessType
@@ -22,7 +22,7 @@ class ValidateInvitationCommandHandler(
         val process = processGateway.findPendingProcessByTypeAndExternalReference(
             type = ProcessType.MERCHANT_USER_INVITATION,
             externalReference = command.token
-        ) ?: throw NotFoundException("Invalid or expired invitation token")
+        ) ?: throw RecordNotFoundException("Invalid or expired invitation token")
 
         val initialRequest = process.getInitialRequest()
         

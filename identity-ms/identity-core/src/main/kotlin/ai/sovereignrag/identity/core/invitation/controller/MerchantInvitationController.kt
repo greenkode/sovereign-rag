@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.invitation.controller
 
 import ai.sovereignrag.identity.commons.PhoneNumber
 import ai.sovereignrag.identity.commons.RoleEnum
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.commons.security.IsMerchantSuperAdmin
 import ai.sovereignrag.identity.core.invitation.command.CompleteInvitationCommand
 import ai.sovereignrag.identity.core.invitation.command.CompleteInvitationResult
@@ -121,10 +121,10 @@ class MerchantInvitationController(
         log.info { "Received request to invite user: ${request.userEmail}" }
 
         val currentUsername = jwt.subject
-            ?: throw NotFoundException("Invalid authentication token")
+            ?: throw RecordNotFoundException("Invalid authentication token")
 
         val currentUser = userRepository.findById(UUID.fromString(currentUsername))
-            .orElseThrow { NotFoundException("User not found") }
+            .orElseThrow { RecordNotFoundException("User not found") }
 
         val result = pipeline.send(
             InviteUserCommand(
@@ -163,10 +163,10 @@ class MerchantInvitationController(
         log.info { "Received request to resend invitation to: ${request.userEmail}" }
 
         val currentUsername = jwt.subject
-            ?: throw NotFoundException("Invalid authentication token")
+            ?: throw RecordNotFoundException("Invalid authentication token")
 
         val currentUser = userRepository.findById(UUID.fromString(currentUsername))
-            .orElseThrow { NotFoundException("User not found") }
+            .orElseThrow { RecordNotFoundException("User not found") }
 
         val result = pipeline.send(
             ResendInvitationCommand(

@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.admin.command
 
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.core.service.AccountLockoutService
 import ai.sovereignrag.identity.core.service.ClientLockoutService
 import an.awesome.pipelinr.Command
@@ -36,6 +36,6 @@ class UnlockAccountCommandHandler(
                     isUser = command.isUser
                 )
             }
-            ?: throw NotFoundException("${entityType.replaceFirstChar { it.uppercase() }} not found or was not locked: ${command.identifier}")
+            ?: throw RecordNotFoundException("${entityType.replaceFirstChar { it.uppercase() }} not found or was not locked: ${command.identifier}")
     }
 }

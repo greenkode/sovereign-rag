@@ -2,7 +2,7 @@ package ai.sovereignrag.identity.core.invitation.command
 
 import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.commons.process.ProcessGateway
 import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.identity.core.integration.NotificationClient
@@ -39,22 +39,22 @@ class ResendInvitationCommandHandler(
         log.info { "Processing resend invitation for email: ${command.userEmail}" }
 
         val resendingUser = userRepository.findById(UUID.fromString(command.resendByUserId))
-            .orElseThrow { NotFoundException("Resending user not found") }
+            .orElseThrow { RecordNotFoundException("Resending user not found") }
 
         val targetUser = userRepository.findByUsername(command.userEmail)
-            ?: throw NotFoundException("User with email ${command.userEmail} not found")
+            ?: throw RecordNotFoundException("User with email ${command.userEmail} not found")
 
         if (targetUser.emailVerified == true) {
             throw IllegalStateException("User has already completed the invitation process")
         }
 
         val merchant = clientRepository.findById(targetUser.merchantId.toString())
-            .orElseThrow { NotFoundException("Merchant not found") }
+            .orElseThrow { RecordNotFoundException("Merchant not found") }
 
         val existingProcess = processGateway.findLatestPendingProcessesByTypeAndForUserId(
             userId = targetUser.id!!,
             processType = ProcessType.MERCHANT_USER_INVITATION
-        ) ?: throw NotFoundException("No pending invitation found for user")
+        ) ?: throw RecordNotFoundException("No pending invitation found for user")
 
         val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 

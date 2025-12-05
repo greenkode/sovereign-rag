@@ -4,8 +4,8 @@ import ai.sovereignrag.identity.commons.RoleEnum
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.exception.ClientException
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.InvalidRequestException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
 import ai.sovereignrag.commons.process.CreateNewProcessPayload
@@ -58,15 +58,15 @@ class InviteUserCommandHandler(
         log.info { "Processing user invitation for email: ${command.userEmail}" }
 
         val invitingUser = userRepository.findById(UUID.fromString(command.invitedByUserId))
-            .orElseThrow { NotFoundException("Inviting user not found") }
+            .orElseThrow { RecordNotFoundException("Inviting user not found") }
 
         val merchant = clientRepository.findById(invitingUser.merchantId.toString())
-            .orElseThrow { NotFoundException("Merchant not found") }
+            .orElseThrow { RecordNotFoundException("Merchant not found") }
 
-        userRepository.findByUsername(command.userEmail)?.let { user -> throw ClientException("User already exists") }
+        userRepository.findByUsername(command.userEmail)?.let { user -> throw InvalidRequestException("User already exists") }
 
         if(command.role == RoleEnum.ROLE_MERCHANT_SUPER_ADMIN) {
-            throw ClientException("Only business owner can be super admins")
+            throw InvalidRequestException("Only business owner can be super admins")
         }
 
         val newUser = userRepository.save(

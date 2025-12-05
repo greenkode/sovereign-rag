@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.unit
 
-import ai.sovereignrag.identity.commons.exception.ClientException
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.InvalidRequestException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.core.entity.CompanyRole
 import ai.sovereignrag.identity.core.entity.CompanySize
@@ -93,7 +93,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
         every { user.merchantId } returns null
         every { messageService.getMessage("settings.error.no_merchant") } returns "No merchant associated"
 
-        val exception = assertThrows<NotFoundException> {
+        val exception = assertThrows<RecordNotFoundException> {
             handler.handle(command)
         }
 
@@ -112,7 +112,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
         every { client.getSetting(OAuthClientSettingName.SETUP_COMPLETED) } returns "true"
         every { messageService.getMessage("settings.error.setup_already_completed") } returns "Setup already completed"
 
-        val exception = assertThrows<ClientException> {
+        val exception = assertThrows<InvalidRequestException> {
             handler.handle(command)
         }
 
@@ -131,7 +131,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
         every { client.getSetting(OAuthClientSettingName.SETUP_COMPLETED) } returns null
         every { messageService.getMessage("settings.error.terms_required") } returns "Terms must be accepted"
 
-        val exception = assertThrows<ClientException> {
+        val exception = assertThrows<InvalidRequestException> {
             handler.handle(command)
         }
 

@@ -3,8 +3,8 @@ package ai.sovereignrag.identity.core.invitation.command
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.exception.ClientException
-import ai.sovereignrag.identity.commons.exception.UserNotFoundException
+import ai.sovereignrag.commons.exception.InvalidRequestException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
 import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
@@ -39,21 +39,21 @@ class CompleteInvitationCommandHandler(
         val process = processGateway.findPendingProcessByTypeAndExternalReference(
             type = ProcessType.MERCHANT_USER_INVITATION,
             externalReference = command.token
-        ) ?: throw ClientException("Invalid or expired invitation token")
+        ) ?: throw InvalidRequestException("Invalid or expired invitation token")
 
         val initialRequest = process.getInitialRequest()
         val authReference = initialRequest.getDataValueOrNull(ProcessRequestDataName.AUTHENTICATION_REFERENCE)
 
         if (authReference != command.reference) {
-            throw ClientException("Invalid invitation reference")
+            throw InvalidRequestException("Invalid invitation reference")
         }
 
         val userId = initialRequest.getDataValueOrNull(ProcessRequestDataName.USER_IDENTIFIER)
             ?.let { UUID.fromString(it) }
-            ?: throw ClientException("User ID not found in invitation")
+            ?: throw InvalidRequestException("User ID not found in invitation")
 
         val user = userRepository.findById(userId)
-            .orElseThrow { UserNotFoundException("User not found with ID: $userId") }
+            .orElseThrow { RecordNotFoundException("User not found with ID: $userId") }
 
         val nameParts = command.fullName.trim().split("\\s+".toRegex(), 2)
         user.firstName = nameParts[0]

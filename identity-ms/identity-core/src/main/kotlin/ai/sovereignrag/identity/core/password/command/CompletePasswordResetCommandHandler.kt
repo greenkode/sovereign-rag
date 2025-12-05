@@ -9,8 +9,8 @@ import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.exception.ClientException
-import ai.sovereignrag.identity.commons.exception.UserNotFoundException
+import ai.sovereignrag.commons.exception.InvalidRequestException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
 import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
@@ -45,19 +45,19 @@ class CompletePasswordResetCommandHandler(
         
         val process = processGateway.findPendingProcessByPublicId(
             id = processId
-        ) ?: throw ClientException("Invalid or expired password reset reference")
+        ) ?: throw InvalidRequestException("Invalid or expired password reset reference")
 
         if (process.externalReference != command.token) {
-            throw ClientException("Invalid password reset token")
+            throw InvalidRequestException("Invalid password reset token")
         }
 
         val initialRequest = process.getInitialRequest()
         
         val userId = initialRequest.getDataValueOrNull(ProcessRequestDataName.USER_IDENTIFIER)?.let { UUID.fromString(it) }
-            ?: throw ClientException("User ID not found in process")
+            ?: throw InvalidRequestException("User ID not found in process")
 
         val user = userRepository.findById(userId).orElse(null)
-            ?: throw UserNotFoundException("User not found with ID: $userId")
+            ?: throw RecordNotFoundException("User not found with ID: $userId")
 
         user.password = passwordEncoder.encode(command.newPassword)
         user.resetFailedLoginAttempts()

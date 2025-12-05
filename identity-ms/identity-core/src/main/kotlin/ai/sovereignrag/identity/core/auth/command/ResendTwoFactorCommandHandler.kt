@@ -3,7 +3,7 @@ package ai.sovereignrag.identity.core.auth.command
 import ai.sovereignrag.identity.commons.audit.AuditEvent
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.exception.TwoFactorSessionInvalidException
+import ai.sovereignrag.commons.exception.TwoFactorSessionInvalidException
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
 import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway

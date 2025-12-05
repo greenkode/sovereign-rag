@@ -32,7 +32,7 @@ class TransactionRecordNotFoundException(message: String, vararg parameters: Str
 class DuplicateRecordException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.DUPLICATE_TRANSACTION_REF) :
     SrServiceException(message, parameters, responseCode)
 
-class InvalidRequestException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.INVALID_TRANSACTION) : 
+class InvalidRequestException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.INVALID_TRANSACTION) :
     SrServiceException(message, parameters, responseCode)
 
 class PricingServiceException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.PRICING_ERROR) :
@@ -58,4 +58,39 @@ class FundingSourceAuthorizationRequiredException(
     vararg parameters: String,
     responseCode: ResponseCode = ResponseCode.TRANSACTION_NOT_PERMITTED
 ) :
+    SrServiceException(message, parameters, responseCode)
+
+class InvalidCredentialsException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.INVALID_CREDENTIALS) :
+    SrServiceException(message, parameters, responseCode)
+
+class TwoFactorSessionInvalidException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.TWO_FACTOR_SESSION_INVALID) :
+    SrServiceException(message, parameters, responseCode)
+
+class TwoFactorCodeInvalidException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.TWO_FACTOR_CODE_INVALID) :
+    SrServiceException(message, parameters, responseCode)
+
+class TwoFactorCodeExpiredException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.TWO_FACTOR_CODE_EXPIRED) :
+    SrServiceException(message, parameters, responseCode)
+
+class TwoFactorMaxAttemptsException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.TWO_FACTOR_MAX_ATTEMPTS) :
+    SrServiceException(message, parameters, responseCode)
+
+class TwoFactorResendRateLimitException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.TWO_FACTOR_RESEND_RATE_LIMIT) :
+    SrServiceException(message, parameters, responseCode)
+
+class TwoFactorAuthenticationRequiredException(
+    val sessionId: String,
+    message: String,
+    vararg parameters: String,
+    responseCode: ResponseCode = ResponseCode.TWO_FACTOR_REQUIRED
+) :
+    SrServiceException(message, parameters, responseCode)
+
+class EmailNotVerifiedException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.EMAIL_NOT_VERIFIED) :
+    SrServiceException(message, parameters, responseCode)
+
+class PhoneNumberNotVerifiedException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.PHONE_NOT_VERIFIED) :
+    SrServiceException(message, parameters, responseCode)
+
+class OrganizationNotSetupException(message: String, vararg parameters: String, responseCode: ResponseCode = ResponseCode.ORGANIZATION_SETUP_REQUIRED) :
     SrServiceException(message, parameters, responseCode)

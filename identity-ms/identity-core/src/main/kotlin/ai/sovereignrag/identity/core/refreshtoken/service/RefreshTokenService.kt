@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.refreshtoken.service
 
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.core.auth.service.JwtTokenService
 import ai.sovereignrag.identity.core.entity.OAuthUser
@@ -59,23 +59,23 @@ class RefreshTokenService(
 
     fun validateAndGetRefreshToken(token: String, jti: String): RefreshTokenEntity {
         val refreshToken = refreshTokenRepository.findByJti(jti)
-            .orElseThrow { ClientException(messageService.getMessage("auth.error.invalid_refresh_token")) }
+            .orElseThrow { InvalidRequestException(messageService.getMessage("auth.error.invalid_refresh_token")) }
 
         if (!refreshToken.isValid()) {
             if (refreshToken.isRevoked()) {
                 log.warn { "Attempt to use revoked refresh token: $jti" }
-                throw ClientException(messageService.getMessage("auth.error.refresh_token_revoked"))
+                throw InvalidRequestException(messageService.getMessage("auth.error.refresh_token_revoked"))
             }
             if (refreshToken.isExpired()) {
                 log.warn { "Attempt to use expired refresh token: $jti" }
-                throw ClientException(messageService.getMessage("auth.error.refresh_token_expired"))
+                throw InvalidRequestException(messageService.getMessage("auth.error.refresh_token_expired"))
             }
         }
 
         val computedHash = hashToken(token)
         if (computedHash != refreshToken.tokenHash) {
             log.warn { "Invalid refresh token hash for jti: $jti" }
-            throw ClientException(messageService.getMessage("auth.error.invalid_refresh_token"))
+            throw InvalidRequestException(messageService.getMessage("auth.error.invalid_refresh_token"))
         }
 
         return refreshToken
@@ -84,16 +84,16 @@ class RefreshTokenService(
     fun validateAndGetRefreshTokenByHash(token: String): RefreshTokenEntity {
         val tokenHash = hashToken(token)
         val refreshToken = refreshTokenRepository.findByTokenHash(tokenHash)
-            .orElseThrow { ClientException(messageService.getMessage("auth.error.invalid_refresh_token")) }
+            .orElseThrow { InvalidRequestException(messageService.getMessage("auth.error.invalid_refresh_token")) }
 
         if (refreshToken.isRevoked()) {
             log.warn { "Attempt to use revoked refresh token: ${refreshToken.jti}" }
-            throw ClientException(messageService.getMessage("auth.error.refresh_token_revoked"))
+            throw InvalidRequestException(messageService.getMessage("auth.error.refresh_token_revoked"))
         }
 
         if (refreshToken.isExpired()) {
             log.warn { "Attempt to use expired refresh token: ${refreshToken.jti}" }
-            throw ClientException(messageService.getMessage("auth.error.refresh_token_expired"))
+            throw InvalidRequestException(messageService.getMessage("auth.error.refresh_token_expired"))
         }
 
         return refreshToken
@@ -132,7 +132,7 @@ class RefreshTokenService(
 
     fun revokeToken(jti: String) {
         val refreshToken = refreshTokenRepository.findByJti(jti)
-            .orElseThrow { ClientException(messageService.getMessage("auth.error.refresh_token_not_found")) }
+            .orElseThrow { InvalidRequestException(messageService.getMessage("auth.error.refresh_token_not_found")) }
 
         refreshToken.revoke()
         refreshTokenRepository.save(refreshToken)

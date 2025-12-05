@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.registration.command
 
-import ai.sovereignrag.identity.commons.exception.ClientException
-import ai.sovereignrag.identity.commons.exception.UserNotFoundException
+import ai.sovereignrag.commons.exception.InvalidRequestException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
 import ai.sovereignrag.commons.process.ProcessChannel
@@ -33,15 +33,15 @@ class VerifyEmailCommandHandler(
         val process = processGateway.findPendingProcessByTypeAndExternalReference(
             type = ProcessType.EMAIL_VERIFICATION,
             externalReference = command.token
-        ) ?: throw ClientException(messageService.getMessage("registration.error.invalid_verification_token"))
+        ) ?: throw InvalidRequestException(messageService.getMessage("registration.error.invalid_verification_token"))
 
         val initialRequest = process.getInitialRequest()
         val userId = initialRequest.getDataValueOrNull(ProcessRequestDataName.USER_IDENTIFIER)
             ?.let { UUID.fromString(it) }
-            ?: throw ClientException(messageService.getMessage("registration.error.user_not_found"))
+            ?: throw InvalidRequestException(messageService.getMessage("registration.error.user_not_found"))
 
         val user = userRepository.findById(userId)
-            .orElseThrow { UserNotFoundException(messageService.getMessage("registration.error.user_not_found")) }
+            .orElseThrow { RecordNotFoundException(messageService.getMessage("registration.error.user_not_found")) }
 
         user.emailVerified = true
         user.registrationComplete = true

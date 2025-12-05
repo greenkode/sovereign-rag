@@ -5,7 +5,7 @@ import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
 import ai.sovereignrag.commons.notification.dto.MessageRecipient
 import ai.sovereignrag.commons.notification.enumeration.TemplateName
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
@@ -47,7 +47,7 @@ class InitiatePasswordResetCommandHandler(
         log.info { "Initiating password reset for email: ${command.email}" }
 
         val user = userRepository.findByUsername(command.email)
-            ?: throw NotFoundException("User not found with email: ${command.email}")
+            ?: throw RecordNotFoundException("User not found with email: ${command.email}")
 
         val processId = UUID.randomUUID()
         val token = RandomStringUtils.secure().nextAlphanumeric(100)

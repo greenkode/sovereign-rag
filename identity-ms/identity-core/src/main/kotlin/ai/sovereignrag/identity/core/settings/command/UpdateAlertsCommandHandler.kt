@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.settings.command
 
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.core.entity.OAuthClientSettingName
 import ai.sovereignrag.identity.core.repository.OAuthRegisteredClientRepository
 import ai.sovereignrag.identity.core.service.CacheEvictionService
@@ -25,10 +25,10 @@ class UpdateAlertsCommandHandler(
         val user = userService.getCurrentUser()
 
         val merchantId = user.merchantId
-            ?: throw NotFoundException("User is not associated with a merchant")
+            ?: throw RecordNotFoundException("User is not associated with a merchant")
 
         val client = oAuthRegisteredClientRepository.findById(merchantId.toString())
-            .orElseThrow { NotFoundException("Merchant client not found") }
+            .orElseThrow { RecordNotFoundException("Merchant client not found") }
 
         client.addSetting(OAuthClientSettingName.FAILURE_LIMIT, command.failureLimit.toString())
         client.addSetting(OAuthClientSettingName.LOW_BALANCE, command.lowBalance.toString())

@@ -38,3 +38,4 @@ Always use internationalization with any error or information messages going bac
 Always create unit tests for command and query handlers.
 create integration tests for service methods using test containers.
 create end to end tests using playwright.
+CRITICAL: Never use ResponseEntity to wrap responses. return objects with jackson json annotations. if you need to return a response with a custom status code use the @ResponseStatus annotation.

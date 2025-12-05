@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.unit
 
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.core.entity.OAuthProvider
 import ai.sovereignrag.identity.core.entity.OAuthProviderAccount
@@ -247,9 +247,9 @@ class CustomOidcUserServiceTest {
         val userRequest = createOidcUserRequest("google")
 
         every { businessEmailValidationService.validateBusinessEmail("user@gmail.com") } throws
-                ClientException("Personal email domains are not allowed")
+                InvalidRequestException("Personal email domains are not allowed")
 
-        val exception = assertThrows<ClientException> {
+        val exception = assertThrows<InvalidRequestException> {
             service.loadUser(userRequest)
         }
 

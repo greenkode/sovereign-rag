@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.settings.command
 
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.core.service.MerchantService
 import ai.sovereignrag.identity.core.service.UserService
 import an.awesome.pipelinr.Command
@@ -23,7 +23,7 @@ class EnableProductionCommandHandler(
         val user = userService.getCurrentUser()
 
         val merchantId = user.merchantId
-            ?: throw NotFoundException("User is not associated with a merchant")
+            ?: throw RecordNotFoundException("User is not associated with a merchant")
 
         val result = merchantService.updateMerchantEnvironment(
             merchantId = merchantId.toString(),

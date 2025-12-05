@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.invitation.query
 
 import ai.sovereignrag.identity.commons.RoleEnum
-import ai.sovereignrag.identity.commons.exception.NotFoundException
+import ai.sovereignrag.commons.exception.RecordNotFoundException
 import ai.sovereignrag.identity.core.invitation.dto.UserListItem
 import ai.sovereignrag.identity.core.invitation.dto.UserStatus
 import ai.sovereignrag.identity.core.repository.OAuthUserRepository
@@ -24,7 +24,7 @@ class GetUsersQueryHandler(
 
         val currentUser = userService.getCurrentUser()
         val merchantId = currentUser.merchantId
-            ?: throw NotFoundException("User is not associated with a merchant")
+            ?: throw RecordNotFoundException("User is not associated with a merchant")
 
         val users = userRepository.findByMerchantId(merchantId).map { user ->
             val userRoles =

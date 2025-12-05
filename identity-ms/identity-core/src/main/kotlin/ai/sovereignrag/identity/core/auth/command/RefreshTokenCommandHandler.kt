@@ -6,7 +6,7 @@ import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import ai.sovereignrag.identity.core.auth.service.JwtTokenService
 import ai.sovereignrag.identity.core.refreshtoken.service.RefreshTokenService
@@ -38,10 +38,10 @@ class RefreshTokenCommandHandler(
             val storedToken = refreshTokenService.validateAndGetRefreshTokenByHash(command.refreshToken)
 
             val user = userRepository.findById(storedToken.userId)
-                .orElseThrow { ClientException(messageService.getMessage("auth.error.user_not_found")) }
+                .orElseThrow { InvalidRequestException(messageService.getMessage("auth.error.user_not_found")) }
 
             if (!user.emailVerified) {
-                throw ClientException(messageService.getMessage("auth.error.email_not_verified"))
+                throw InvalidRequestException(messageService.getMessage("auth.error.email_not_verified"))
             }
 
             val userDetails = CustomUserDetails(user)
@@ -75,10 +75,10 @@ class RefreshTokenCommandHandler(
             )
         }.getOrElse { e ->
             when (e) {
-                is ClientException -> throw e
+                is InvalidRequestException -> throw e
                 else -> {
                     log.error(e) { "Error during token refresh" }
-                    throw ClientException(messageService.getMessage("auth.error.invalid_or_expired_refresh_token"))
+                    throw InvalidRequestException(messageService.getMessage("auth.error.invalid_or_expired_refresh_token"))
                 }
             }
         }

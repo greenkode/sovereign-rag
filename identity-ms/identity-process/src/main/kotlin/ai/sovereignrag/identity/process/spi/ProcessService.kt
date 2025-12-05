@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.process.spi
 
 
-import ai.sovereignrag.identity.commons.exception.ServerException
+import ai.sovereignrag.commons.exception.ProcessServiceException
 import ai.sovereignrag.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
 import ai.sovereignrag.commons.process.ProcessDto
@@ -108,7 +108,7 @@ class ProcessService(
     override fun makeRequest(payload: MakeProcessRequestPayload) {
 
         val process = processRepository.findByPublicId(payload.processPublicId)
-            ?: throw ServerException("Unable to proceed with this process, please try again later")
+            ?: throw ProcessServiceException("Unable to proceed with this process, please try again later")
 
         val request = ProcessRequestEntity(
             process,

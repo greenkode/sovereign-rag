@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.UUID
 
@@ -160,24 +161,26 @@ interface ProcessRepository : JpaRepository<ProcessEntity, Long> {
     // ========== DIRECT UPDATE QUERIES ==========
     
     @Modifying
+    @Transactional
     @Query("""
-        UPDATE ProcessEntity p 
-        SET p.state = :newState 
-        WHERE p.publicId = :publicId 
+        UPDATE ProcessEntity p
+        SET p.state = :newState
+        WHERE p.publicId = :publicId
         AND p.state = :currentState
     """)
     @CacheEvict(value = [CacheNames.PROCESS], allEntries = true)
     fun updateStateIfInState(
-        @Param("publicId") publicId: UUID, 
+        @Param("publicId") publicId: UUID,
         @Param("newState") newState: ProcessState,
         @Param("currentState") currentState: ProcessState
     ): Int
-    
+
     @Modifying
+    @Transactional
     @Query("""
-        UPDATE ProcessRequestEntity r 
-        SET r.state = :newState 
-        WHERE r.id = :requestId 
+        UPDATE ProcessRequestEntity r
+        SET r.state = :newState
+        WHERE r.id = :requestId
         AND r.process.publicId = :processId
         AND r.process.state = :processState
     """)

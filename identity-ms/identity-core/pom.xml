@@ -86,7 +86,7 @@
         </dependency>
         <dependency>
             <groupId>ai.sovereignrag</groupId>
-            <artifactId>adapter-file-upload</artifactId>
+            <artifactId>identity-adapter-file-upload</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

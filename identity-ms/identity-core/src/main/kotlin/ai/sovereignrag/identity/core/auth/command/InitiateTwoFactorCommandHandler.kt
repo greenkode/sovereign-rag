@@ -8,10 +8,10 @@ import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.exception.ClientException
-import ai.sovereignrag.identity.commons.exception.EmailNotVerifiedException
-import ai.sovereignrag.identity.commons.exception.ServerException
-import ai.sovereignrag.identity.commons.exception.TwoFactorAuthenticationRequiredException
+import ai.sovereignrag.commons.exception.InvalidRequestException
+import ai.sovereignrag.commons.exception.EmailNotVerifiedException
+import ai.sovereignrag.commons.exception.ProcessServiceException
+import ai.sovereignrag.commons.exception.TwoFactorAuthenticationRequiredException
 import ai.sovereignrag.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
@@ -71,7 +71,7 @@ class InitiateTwoFactorCommandHandler(
             accountLockoutService.handleSuccessfulLogin(command.username)
 
             if (!oauthUser.emailVerified)
-                throw EmailNotVerifiedException()
+                throw EmailNotVerifiedException("Email not verified. Please verify your email before logging in.")
 
             // Generate device fingerprint
             val deviceFingerprint = if (command.httpRequest != null) {
@@ -191,15 +191,17 @@ class InitiateTwoFactorCommandHandler(
 
         } catch (e: TwoFactorAuthenticationRequiredException) {
             throw e
-        } catch (e: ClientException) {
+        } catch (e: InvalidRequestException) {
+            throw e
+        } catch (e: EmailNotVerifiedException) {
             throw e
         } catch (e: AuthenticationException) {
             log.error(e) { "Failed 2FA login attempt for user: ${command.username}" }
             accountLockoutService.handleFailedLogin(command.username)
-            throw ClientException("Invalid credentials")
+            throw InvalidRequestException("Invalid credentials")
         } catch (e: Exception) {
             log.error(e) { "Error during 2FA login for user: ${command.username}" }
-            throw ServerException("An error occurred during login", e)
+            throw ProcessServiceException("An error occurred during login")
         }
     }
 

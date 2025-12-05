@@ -1,7 +1,7 @@
 package ai.sovereignrag.identity.core.unit
 
 import ai.sovereignrag.commons.process.ProcessChannel
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.commons.process.ProcessDto
 import ai.sovereignrag.commons.process.ProcessRequestDto
 import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
@@ -95,7 +95,7 @@ class ResendVerificationCommandHandlerTest {
         every { userRepository.findByEmail("nonexistent@example.com") } returns null
         every { messageService.getMessage("registration.error.user_not_found") } returns "User not found"
 
-        val exception = assertThrows<ClientException> {
+        val exception = assertThrows<InvalidRequestException> {
             handler.handle(command)
         }
 
@@ -110,7 +110,7 @@ class ResendVerificationCommandHandlerTest {
         every { userRepository.findByEmail("test@example.com") } returns user
         every { messageService.getMessage("registration.error.email_already_verified") } returns "Email already verified"
 
-        val exception = assertThrows<ClientException> {
+        val exception = assertThrows<InvalidRequestException> {
             handler.handle(command)
         }
 

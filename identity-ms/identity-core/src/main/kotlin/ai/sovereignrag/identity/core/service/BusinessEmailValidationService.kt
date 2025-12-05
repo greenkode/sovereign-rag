@@ -1,6 +1,6 @@
 package ai.sovereignrag.identity.core.service
 
-import ai.sovereignrag.identity.commons.exception.ClientException
+import ai.sovereignrag.commons.exception.InvalidRequestException
 import ai.sovereignrag.identity.commons.i18n.MessageService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -24,14 +24,14 @@ class BusinessEmailValidationService(
         val normalizedEmail = email.trim().lowercase()
 
         if (!emailRegex.matches(normalizedEmail)) {
-            throw ClientException(messageService.getMessage("oauth.error.invalid_email"))
+            throw InvalidRequestException(messageService.getMessage("oauth.error.invalid_email"))
         }
 
         val domain = normalizedEmail.substringAfter("@")
 
         if (blockedDomains.contains(domain)) {
             log.info { "Blocked personal email domain: $domain" }
-            throw ClientException(messageService.getMessage("oauth.error.business_email_required"))
+            throw InvalidRequestException(messageService.getMessage("oauth.error.business_email_required"))
         }
     }
 

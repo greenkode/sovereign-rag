@@ -8,9 +8,9 @@ import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USERNAME
 import ai.sovereignrag.identity.commons.audit.AuditPayloadKey.USER_ID
 import ai.sovereignrag.identity.commons.audit.AuditResource
 import ai.sovereignrag.identity.commons.audit.IdentityType
-import ai.sovereignrag.identity.commons.exception.TwoFactorCodeInvalidException
-import ai.sovereignrag.identity.commons.exception.TwoFactorMaxAttemptsException
-import ai.sovereignrag.identity.commons.exception.TwoFactorSessionInvalidException
+import ai.sovereignrag.commons.exception.TwoFactorCodeInvalidException
+import ai.sovereignrag.commons.exception.TwoFactorMaxAttemptsException
+import ai.sovereignrag.commons.exception.TwoFactorSessionInvalidException
 import ai.sovereignrag.commons.process.MakeProcessRequestPayload
 import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.identity.commons.process.ProcessGateway
