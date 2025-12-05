@@ -4,5 +4,5 @@ data class DashboardStatsResponse(
     val knowledgeBasesCount: Int,
     val aiAgentsCount: Int,
     val apiRequestsCount: Long,
-    val documentsCount: Long
+    val knowledgeSourcesCount: Long
 )

@@ -24,7 +24,7 @@ class DashboardController(
             knowledgeBasesCount = result.knowledgeBasesCount,
             aiAgentsCount = result.aiAgentsCount,
             apiRequestsCount = result.apiRequestsCount,
-            documentsCount = result.documentsCount
+            knowledgeSourcesCount = result.knowledgeSourcesCount
         )
     }
 }

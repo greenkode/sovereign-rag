@@ -10,10 +10,10 @@ data class KnowledgeBaseDto(
     val description: String?,
     val organizationId: UUID,
     val status: KnowledgeBaseStatus,
-    val documentCount: Int,
+    val knowledgeSourceCount: Int,
     val embeddingCount: Int,
     val queryCount: Int,
-    val maxDocuments: Int,
+    val maxKnowledgeSources: Int,
     val maxEmbeddings: Int,
     val maxRequestsPerDay: Int,
     val createdAt: Instant,
@@ -22,7 +22,7 @@ data class KnowledgeBaseDto(
 )
 
 data class KnowledgeBaseStats(
-    val documentCount: Int = 0,
+    val knowledgeSourceCount: Int = 0,
     val embeddingCount: Int = 0,
     val queryCount: Int = 0
 )
@@ -33,7 +33,7 @@ data class KnowledgeBaseSummaryDto(
     val description: String?,
     val organizationId: UUID,
     val status: KnowledgeBaseStatus,
-    val documentCount: Int,
+    val knowledgeSourceCount: Int,
     val lastActiveAt: Instant?,
     val createdAt: Instant
 )

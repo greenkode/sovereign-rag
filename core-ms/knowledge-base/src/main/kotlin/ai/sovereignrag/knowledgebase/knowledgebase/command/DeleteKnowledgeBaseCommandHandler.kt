@@ -4,9 +4,11 @@ import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseNotFoundException
 import ai.sovereignrag.knowledgebase.knowledgebase.gateway.IdentityServiceGateway
 import ai.sovereignrag.knowledgebase.knowledgebase.repository.KnowledgeBaseRepository
 import ai.sovereignrag.knowledgebase.knowledgebase.service.KnowledgeBaseRegistryService
+import ai.sovereignrag.knowledgebase.knowledgebase.service.OrganizationDatabaseService
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
 
 private val log = KotlinLogging.logger {}
 
@@ -14,7 +16,8 @@ private val log = KotlinLogging.logger {}
 class DeleteKnowledgeBaseCommandHandler(
     private val knowledgeBaseRepository: KnowledgeBaseRepository,
     private val knowledgeBaseRegistryService: KnowledgeBaseRegistryService,
-    private val identityServiceGateway: IdentityServiceGateway
+    private val identityServiceGateway: IdentityServiceGateway,
+    private val organizationDatabaseService: OrganizationDatabaseService
 ) : Command.Handler<DeleteKnowledgeBaseCommand, DeleteKnowledgeBaseResult> {
 
     override fun handle(command: DeleteKnowledgeBaseCommand): DeleteKnowledgeBaseResult {
@@ -27,8 +30,26 @@ class DeleteKnowledgeBaseCommandHandler(
             throw KnowledgeBaseNotFoundException("Knowledge base not found: ${command.knowledgeBaseId}")
         }
 
-        identityServiceGateway.revokeKBOAuthClient(command.knowledgeBaseId)
-            .also { log.debug { "OAuth client revoked for knowledge base: ${command.knowledgeBaseId}" } }
+        runCatching { identityServiceGateway.revokeKBOAuthClient(command.knowledgeBaseId) }
+            .onSuccess { log.debug { "OAuth client revoked for knowledge base: ${command.knowledgeBaseId}" } }
+            .onFailure { e ->
+                when {
+                    e is HttpClientErrorException.NotFound ->
+                        log.warn { "OAuth client not found for knowledge base: ${command.knowledgeBaseId}, continuing with deletion" }
+                    else -> throw e
+                }
+            }
+
+        runCatching {
+            organizationDatabaseService.dropKnowledgeBaseSchema(
+                knowledgeBase.organizationId,
+                knowledgeBase.schemaName
+            )
+        }.onSuccess {
+            log.info { "Schema dropped for knowledge base: ${command.knowledgeBaseId}" }
+        }.onFailure { e ->
+            log.error(e) { "Failed to drop schema for knowledge base: ${command.knowledgeBaseId}, continuing with deletion" }
+        }
 
         knowledgeBaseRegistryService.deleteKnowledgeBase(command.knowledgeBaseId)
 

@@ -16,7 +16,7 @@ class GetDashboardStatsQueryHandler : Command.Handler<GetDashboardStatsQuery, Ge
             knowledgeBasesCount = 0,
             aiAgentsCount = 0,
             apiRequestsCount = 0L,
-            documentsCount = 0L
+            knowledgeSourcesCount = 0L
         )
     }
 }

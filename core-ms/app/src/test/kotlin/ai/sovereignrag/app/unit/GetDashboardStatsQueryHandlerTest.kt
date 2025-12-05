@@ -24,6 +24,6 @@ class GetDashboardStatsQueryHandlerTest {
         assertEquals(0, result.knowledgeBasesCount)
         assertEquals(0, result.aiAgentsCount)
         assertEquals(0L, result.apiRequestsCount)
-        assertEquals(0L, result.documentsCount)
+        assertEquals(0L, result.knowledgeSourcesCount)
     }
 }

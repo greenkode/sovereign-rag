@@ -85,7 +85,7 @@ class GetKnowledgeBaseQueryHandlerTest {
             organizationId = organizationId
         )
         val knowledgeBase = createMockKnowledgeBase("Full Details KB", organizationId).copy(
-            maxDocuments = 5000,
+            maxKnowledgeSources = 5000,
             maxEmbeddings = 50000,
             maxRequestsPerDay = 500,
             lastActiveAt = Instant.now().minusSeconds(3600)
@@ -99,7 +99,7 @@ class GetKnowledgeBaseQueryHandlerTest {
         assertEquals(knowledgeBase.id, result.id)
         assertEquals("Full Details KB", result.name)
         assertEquals(KnowledgeBaseStatus.ACTIVE, result.status)
-        assertEquals(5000, result.maxDocuments)
+        assertEquals(5000, result.maxKnowledgeSources)
         assertEquals(50000, result.maxEmbeddings)
         assertEquals(500, result.maxRequestsPerDay)
         assertNotNull(result.lastActiveAt)
@@ -112,7 +112,7 @@ class GetKnowledgeBaseQueryHandlerTest {
             organizationId = orgId,
             schemaName = "kb_${knowledgeBaseId.replace("-", "_").take(32)}",
             status = KnowledgeBaseStatus.ACTIVE,
-            maxDocuments = 10000,
+            maxKnowledgeSources = 10000,
             maxEmbeddings = 100000,
             maxRequestsPerDay = 1000,
             createdAt = Instant.now(),

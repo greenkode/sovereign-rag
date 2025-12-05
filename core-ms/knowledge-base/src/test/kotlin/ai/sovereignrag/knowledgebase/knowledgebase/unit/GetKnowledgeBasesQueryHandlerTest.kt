@@ -97,7 +97,7 @@ class GetKnowledgeBasesQueryHandlerTest {
             organizationId = organizationId,
             schemaName = "kb_${kbId.replace("-", "_").take(32)}",
             status = status,
-            maxDocuments = 10000,
+            maxKnowledgeSources = 10000,
             maxEmbeddings = 100000,
             maxRequestsPerDay = 1000,
             createdAt = Instant.now(),

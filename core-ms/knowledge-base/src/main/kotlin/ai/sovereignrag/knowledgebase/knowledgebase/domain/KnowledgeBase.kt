@@ -44,8 +44,8 @@ data class KnowledgeBase(
     @Column(name = "status", nullable = false, length = 50)
     override val status: KnowledgeBaseStatus = KnowledgeBaseStatus.ACTIVE,
 
-    @Column(name = "max_documents", nullable = false)
-    val maxDocuments: Int = 10000,
+    @Column(name = "max_knowledge_sources", nullable = false)
+    val maxKnowledgeSources: Int = 10000,
 
     @Column(name = "max_embeddings", nullable = false)
     val maxEmbeddings: Int = 50000,
