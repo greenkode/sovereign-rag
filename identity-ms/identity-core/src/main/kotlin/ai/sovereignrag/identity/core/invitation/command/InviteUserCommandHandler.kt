@@ -60,7 +60,10 @@ class InviteUserCommandHandler(
         val invitingUser = userRepository.findById(UUID.fromString(command.invitedByUserId))
             .orElseThrow { RecordNotFoundException("Inviting user not found") }
 
-        val merchant = clientRepository.findById(invitingUser.merchantId.toString())
+        val merchantId = invitingUser.merchantId
+            ?: throw RecordNotFoundException("Inviting user is not associated with a merchant")
+
+        val merchant = clientRepository.findById(merchantId)
             .orElseThrow { RecordNotFoundException("Merchant not found") }
 
         userRepository.findByUsername(command.userEmail)?.let { user -> throw InvalidRequestException("User already exists") }
@@ -80,7 +83,7 @@ class InviteUserCommandHandler(
                 userType = UserType.BUSINESS
                 trustLevel = TrustLevel.TIER_THREE
                 emailVerified = false
-                merchantId = invitingUser.merchantId
+                this.merchantId = merchantId
             }
         )
 
@@ -102,7 +105,7 @@ class InviteUserCommandHandler(
                 externalReference = token,
                 data = mapOf(
                     ProcessRequestDataName.USER_IDENTIFIER to newUser.id.toString(),
-                    ProcessRequestDataName.MERCHANT_ID to merchant.id,
+                    ProcessRequestDataName.MERCHANT_ID to merchant.id.toString(),
                     ProcessRequestDataName.AUTHENTICATION_REFERENCE to authReference
                 ),
                 stakeholders = mapOf(

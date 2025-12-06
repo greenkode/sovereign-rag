@@ -48,7 +48,10 @@ class ResendInvitationCommandHandler(
             throw IllegalStateException("User has already completed the invitation process")
         }
 
-        val merchant = clientRepository.findById(targetUser.merchantId.toString())
+        val merchantId = targetUser.merchantId
+            ?: throw RecordNotFoundException("User is not associated with a merchant")
+
+        val merchant = clientRepository.findById(merchantId)
             .orElseThrow { RecordNotFoundException("Merchant not found") }
 
         val existingProcess = processGateway.findLatestPendingProcessesByTypeAndForUserId(

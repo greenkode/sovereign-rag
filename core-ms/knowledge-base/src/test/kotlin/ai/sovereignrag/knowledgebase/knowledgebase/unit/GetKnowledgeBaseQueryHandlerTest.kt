@@ -84,7 +84,9 @@ class GetKnowledgeBaseQueryHandlerTest {
             knowledgeBaseId = knowledgeBaseId,
             organizationId = organizationId
         )
+        val oauthClientId = "kb_${knowledgeBaseId.replace("-", "").take(16)}_abc12345"
         val knowledgeBase = createMockKnowledgeBase("Full Details KB", organizationId).copy(
+            oauthClientId = oauthClientId,
             maxKnowledgeSources = 5000,
             maxEmbeddings = 50000,
             maxRequestsPerDay = 500,
@@ -98,6 +100,7 @@ class GetKnowledgeBaseQueryHandlerTest {
         assertNotNull(result)
         assertEquals(knowledgeBase.id, result.id)
         assertEquals("Full Details KB", result.name)
+        assertEquals(oauthClientId, result.oauthClientId)
         assertEquals(KnowledgeBaseStatus.ACTIVE, result.status)
         assertEquals(5000, result.maxKnowledgeSources)
         assertEquals(50000, result.maxEmbeddings)

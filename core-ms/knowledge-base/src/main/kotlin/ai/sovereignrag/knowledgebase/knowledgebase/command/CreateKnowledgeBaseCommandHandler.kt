@@ -89,6 +89,7 @@ class CreateKnowledgeBaseCommandHandler(
                 name = knowledgeBase.name,
                 description = knowledgeBase.description,
                 organizationId = knowledgeBase.organizationId,
+                oauthClientId = credentials.clientId,
                 status = knowledgeBase.status,
                 knowledgeSourceCount = 0,
                 embeddingCount = 0,

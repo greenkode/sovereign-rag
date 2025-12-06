@@ -27,7 +27,7 @@ class UpdateAlertsCommandHandler(
         val merchantId = user.merchantId
             ?: throw RecordNotFoundException("User is not associated with a merchant")
 
-        val client = oAuthRegisteredClientRepository.findById(merchantId.toString())
+        val client = oAuthRegisteredClientRepository.findById(merchantId)
             .orElseThrow { RecordNotFoundException("Merchant client not found") }
 
         client.addSetting(OAuthClientSettingName.FAILURE_LIMIT, command.failureLimit.toString())

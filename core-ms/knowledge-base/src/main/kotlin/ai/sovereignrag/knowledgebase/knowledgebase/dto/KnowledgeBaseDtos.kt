@@ -9,6 +9,7 @@ data class KnowledgeBaseDto(
     val name: String,
     val description: String?,
     val organizationId: UUID,
+    val oauthClientId: String?,
     val status: KnowledgeBaseStatus,
     val knowledgeSourceCount: Int,
     val embeddingCount: Int,

@@ -20,7 +20,7 @@ class GetEnvironmentStatusQueryHandler(
         val user = userService.getCurrentUser()
         log.info { "Getting environment status for user: ${user.id}" }
 
-        val merchant = user.merchantId?.toString()?.let { clientRepository.findById(it).orElse(null) }
+        val merchant = user.merchantId?.let { clientRepository.findById(it).orElse(null) }
 
         val environmentPreference = user.environmentPreference
         val merchantEnvironmentMode = merchant?.environmentMode ?: EnvironmentMode.SANDBOX

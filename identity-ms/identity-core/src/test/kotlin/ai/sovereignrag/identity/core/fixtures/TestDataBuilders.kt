@@ -118,7 +118,7 @@ object UserBuilder {
 
 object OAuthClientBuilder {
     fun default(
-        id: String = UUID.randomUUID().toString(),
+        id: UUID = UUID.randomUUID(),
         clientId: String = UUID.randomUUID().toString(),
         clientName: String = "Test Organization",
         domain: String = "example.com",
@@ -142,7 +142,7 @@ object OAuthClientBuilder {
     }
 
     fun pendingOrganization(
-        id: String = UUID.randomUUID().toString(),
+        id: UUID = UUID.randomUUID(),
         domain: String = "pending.com"
     ): OAuthRegisteredClient = default(
         id = id,
@@ -151,7 +151,7 @@ object OAuthClientBuilder {
     )
 
     fun suspendedOrganization(
-        id: String = UUID.randomUUID().toString(),
+        id: UUID = UUID.randomUUID(),
         domain: String = "suspended.com"
     ): OAuthRegisteredClient = default(
         id = id,

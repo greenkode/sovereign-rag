@@ -9,6 +9,7 @@ import ai.sovereignrag.identity.core.service.UserService
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
@@ -22,7 +23,7 @@ class GetOrganizationDetailsQueryHandler(
         log.info { "Processing GetOrganizationDetailsQuery" }
 
         val user = userService.getCurrentUser()
-        val merchantId = user.merchantId?.toString()
+        val merchantId = user.merchantId
             ?: throw IllegalStateException("User is not associated with a merchant")
 
         val client = oAuthRegisteredClientRepository.findByIdWithSettings(merchantId)
@@ -41,7 +42,7 @@ class GetOrganizationDetailsQueryHandler(
         val email = client.getSetting(OAuthClientSettingName.EMAIL)
 
         return GetOrganizationDetailsResult(
-            id = client.id,
+            id = client.id.toString(),
             name = client.clientName,
             plan = client.plan,
             status = client.status,

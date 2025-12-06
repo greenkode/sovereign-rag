@@ -140,7 +140,7 @@ class ClientLockoutAuthenticationProvider(
     }
 
     private fun mapToRegisteredClient(entity: OAuthRegisteredClient): RegisteredClient {
-        val builder = RegisteredClient.withId(entity.id)
+        val builder = RegisteredClient.withId(entity.id.toString())
             .clientId(entity.clientId)
             .clientIdIssuedAt(entity.clientIdIssuedAt)
             .clientName(entity.clientName)

@@ -315,10 +315,12 @@ class AuthController(
     }
 
     private fun findMerchantById(merchantId: String, requestedBy: String?, isAuthenticated: Boolean): Any {
-        return oAuthRegisteredClientRepository.findById(merchantId)
+        val uuid = runCatching { java.util.UUID.fromString(merchantId) }.getOrNull()
+            ?: return ErrorResponse(error = "invalid_merchant_id", message = "Invalid merchant ID format")
+        return oAuthRegisteredClientRepository.findById(uuid)
             .map<Any> { merchant ->
                 MerchantInfoResponse(
-                    merchantId = merchant.id,
+                    merchantId = merchant.id.toString(),
                     name = merchant.clientName,
                     email = merchant.getSetting(OAuthClientSettingName.EMAIL),
                     phone = merchant.getSetting(OAuthClientSettingName.PHONE_NUMBER),

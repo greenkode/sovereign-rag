@@ -84,6 +84,7 @@ class CreateKnowledgeBaseCommandHandlerTest {
 
         assertNotNull(result)
         assertEquals("Test Knowledge Base", result.knowledgeBase.name)
+        assertEquals("kb_test123", result.knowledgeBase.oauthClientId)
         assertEquals("kb_test123", result.clientId)
         assertEquals("secret123", result.clientSecret)
 

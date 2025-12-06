@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
@@ -24,7 +25,7 @@ class MerchantService(
     private val userRepository: OAuthUserRepository
 ) {
 
-    fun updateMerchantEnvironment(merchantId: String, environmentMode: EnvironmentMode): UpdateMerchantEnvironmentResult {
+    fun updateMerchantEnvironment(merchantId: UUID, environmentMode: EnvironmentMode): UpdateMerchantEnvironmentResult {
 
         log.info { "Updating merchant environment mode for merchant: $merchantId to: $environmentMode" }
 
@@ -37,7 +38,7 @@ class MerchantService(
         log.info { "Successfully updated merchant $merchantId to $environmentMode mode" }
 
         val affectedUsers = if (environmentMode == EnvironmentMode.SANDBOX) {
-            val users = userRepository.findByMerchantId(java.util.UUID.fromString(merchantId))
+            val users = userRepository.findByMerchantId(merchantId)
             val productionUsers = users.filter { it.environmentPreference == EnvironmentMode.PRODUCTION }
 
             val now = Instant.now()
@@ -58,7 +59,7 @@ class MerchantService(
         }
 
         return UpdateMerchantEnvironmentResult(
-            merchantId = merchantId,
+            merchantId = merchantId.toString(),
             environmentMode = environmentMode,
             lastModifiedAt = Instant.now(),
             affectedUsers = affectedUsers

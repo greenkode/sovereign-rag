@@ -79,10 +79,10 @@ class RegisterUserCommandHandler(
             orgId to existingUser.merchantId
         } ?: existingClient?.id?.let { clientId ->
             val org = organizationRepository.findBySlug(generateSlug(domain))
-            (org?.id ?: UUID.fromString(clientId)) to UUID.fromString(clientId)
+            (org?.id ?: clientId) to clientId
         } ?: run {
             val (org, client) = createOrganizationAndOAuthClient(domain, command.organizationName, normalizedEmail)
-            org.id to UUID.fromString(client.id)
+            org.id to client.id
         }
 
         val user = existingUser?.let { updateExistingUser(it, command, organizationId, oauthClientId) }
@@ -160,7 +160,7 @@ class RegisterUserCommandHandler(
         val scopeWrite = oauthClientConfigService.getScope("write")
 
         val oauthClient = OAuthRegisteredClient().apply {
-            id = organization.id.toString()
+            id = organization.id!!
             clientId = UUID.randomUUID().toString()
             clientName = organization.name
             clientIdIssuedAt = Instant.now()

@@ -21,7 +21,7 @@ class GetUserSettingsQueryHandler(
         val roles = userService.getCurrentUserRoles()
 
         val merchantName = user.merchantId?.let { merchantId ->
-            oAuthRegisteredClientRepository.findById(merchantId.toString())
+            oAuthRegisteredClientRepository.findById(merchantId)
                 .map { it.clientName }
                 .orElse(null)
         }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
@@ -26,7 +27,7 @@ class InternalMerchantController(
     ): UpdateMerchantEnvironmentResponse {
         log.info { "Internal request to update merchant environment for: $merchantId" }
 
-        return merchantService.updateMerchantEnvironment(merchantId, request.environmentMode)
+        return merchantService.updateMerchantEnvironment(UUID.fromString(merchantId), request.environmentMode)
             .let { result ->
                 UpdateMerchantEnvironmentResponse(
                     merchantId = result.merchantId,

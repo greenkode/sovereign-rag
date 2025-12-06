@@ -44,6 +44,7 @@ class UpdateKnowledgeBaseCommandHandler(
             name = saved.name,
             description = saved.description,
             organizationId = saved.organizationId,
+            oauthClientId = saved.oauthClientId,
             status = saved.status,
             knowledgeSourceCount = 0,
             embeddingCount = 0,

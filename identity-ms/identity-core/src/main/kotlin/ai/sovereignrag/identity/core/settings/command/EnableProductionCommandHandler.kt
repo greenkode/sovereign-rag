@@ -26,7 +26,7 @@ class EnableProductionCommandHandler(
             ?: throw RecordNotFoundException("User is not associated with a merchant")
 
         val result = merchantService.updateMerchantEnvironment(
-            merchantId = merchantId.toString(),
+            merchantId = merchantId,
             environmentMode = command.environmentMode
         )
 

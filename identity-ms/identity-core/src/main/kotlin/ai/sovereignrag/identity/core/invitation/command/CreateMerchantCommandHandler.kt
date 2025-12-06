@@ -102,7 +102,7 @@ class CreateMerchantCommandHandler(
                 val scopeMerchant = oauthClientConfigService.getScope("merchant")
 
                 val client = OAuthRegisteredClient().apply {
-                    id = newMerchantId.toString()
+                    id = newMerchantId
                     clientId = UUID.randomUUID().toString()
                     clientName = command.clientName
                     clientIdIssuedAt = Instant.now()
@@ -150,7 +150,7 @@ class CreateMerchantCommandHandler(
                 externalReference = token,
                 data = mapOf(
                     ProcessRequestDataName.USER_IDENTIFIER to adminUser.id.toString(),
-                    ProcessRequestDataName.MERCHANT_ID to existingClient.id,
+                    ProcessRequestDataName.MERCHANT_ID to existingClient.id.toString(),
                     ProcessRequestDataName.AUTHENTICATION_REFERENCE to authReference
                 ),
                 stakeholders = mapOf(
@@ -195,7 +195,7 @@ class CreateMerchantCommandHandler(
         return CreateMerchantResult(
             success = true,
             message = "Merchant created successfully",
-            existingClient.id
+            existingClient.id.toString()
         )
     }
 

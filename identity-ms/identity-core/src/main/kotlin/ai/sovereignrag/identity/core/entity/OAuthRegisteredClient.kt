@@ -24,7 +24,7 @@ enum class OrganizationStatus {
 @Table(name = "oauth_registered_client")
 class OAuthRegisteredClient() : AuditableEntity() {
     @Id
-    var id: String = ""
+    var id: UUID = UUID.randomUUID()
 
     var clientId: String = ""
 

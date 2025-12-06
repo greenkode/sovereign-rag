@@ -507,7 +507,7 @@ class CustomOidcUserServiceTest {
             val domain = email.substringAfter("@")
 
             return testOauthClientRepository.findByDomain(domain)?.let { client ->
-                val superAdminEmail = findSuperAdminEmailInternal(UUID.fromString(client.id))
+                val superAdminEmail = findSuperAdminEmailInternal(client.id)
                 throw oauthErrorInternal(
                     "invitation_required",
                     testMessageService.getMessage("oauth.error.domain_exists", superAdminEmail)

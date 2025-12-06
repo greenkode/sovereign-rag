@@ -10,6 +10,7 @@ import io.github.bucket4j.Refill
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 import java.time.Duration
+import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
@@ -90,7 +91,7 @@ class DynamicRateLimitResolver(
     }
 
     private fun getMerchantSubscriptionTier(merchantId: String): SubscriptionTier {
-        return oAuthRegisteredClientRepository.findById(merchantId)
+        return oAuthRegisteredClientRepository.findById(UUID.fromString(merchantId))
             .map { it.plan }
             .orElse(SubscriptionTier.TRIAL)
     }

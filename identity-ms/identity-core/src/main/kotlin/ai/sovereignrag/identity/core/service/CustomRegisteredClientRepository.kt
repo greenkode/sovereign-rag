@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
+import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
@@ -34,7 +35,8 @@ class CustomRegisteredClientRepository(
     @Cacheable(value = [CacheNames.REGISTERED_CLIENT], key = "'id_' + #id", unless = "#result == null")
     override fun findById(id: String): RegisteredClient? {
         log.debug { "Finding registered client by id: $id" }
-        val client = clientRepository.findById(id).orElse(null)
+        val uuid = runCatching { UUID.fromString(id) }.getOrNull() ?: return null
+        val client = clientRepository.findById(uuid).orElse(null)
         return client?.let { mapToRegisteredClient(it) }
     }
 
@@ -52,7 +54,7 @@ class CustomRegisteredClientRepository(
 
         client.takeIf { it.checkAndUnlockIfExpired() }?.let {
             clientRepository.save(it)
-            evictClientCache(it.id, it.clientId)
+            evictClientCache(it.id.toString(), it.clientId)
             log.info { "Lockout expired for client: ${it.clientId}, client unlocked" }
         }
 
@@ -65,7 +67,7 @@ class CustomRegisteredClientRepository(
     }
 
     private fun mapToRegisteredClient(entity: OAuthRegisteredClient): RegisteredClient {
-        val builder = RegisteredClient.withId(entity.id)
+        val builder = RegisteredClient.withId(entity.id.toString())
             .clientId(entity.clientId)
             .clientIdIssuedAt(entity.clientIdIssuedAt)
             .clientName(entity.clientName)

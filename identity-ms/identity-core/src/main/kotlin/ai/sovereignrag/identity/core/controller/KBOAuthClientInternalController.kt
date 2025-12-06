@@ -52,7 +52,6 @@ class KBOAuthClientInternalController(
         val encodedSecret = passwordEncoder.encode(clientSecret)
 
         val client = OAuthRegisteredClient().apply {
-            id = UUID.randomUUID().toString()
             this.clientId = clientId
             this.clientIdIssuedAt = Instant.now()
             this.clientSecret = encodedSecret

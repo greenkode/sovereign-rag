@@ -32,7 +32,7 @@ class SwitchEnvironmentCommandHandler(
         val user = userService.getCurrentUser()
         log.info { "Switching environment for user: ${user.id} to: ${command.environment}" }
 
-        val merchant = user.merchantId?.toString()?.let { clientRepository.findById(it).orElse(null) }
+        val merchant = user.merchantId?.let { clientRepository.findById(it).orElse(null) }
         val merchantEnvironmentMode = merchant?.environmentMode ?: EnvironmentMode.SANDBOX
 
         if (command.environment == EnvironmentMode.PRODUCTION && merchantEnvironmentMode == EnvironmentMode.SANDBOX) {

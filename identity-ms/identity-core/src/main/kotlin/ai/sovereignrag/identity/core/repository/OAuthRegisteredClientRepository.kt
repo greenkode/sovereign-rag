@@ -9,13 +9,13 @@ import java.util.Optional
 import java.util.UUID
 
 @Repository
-interface OAuthRegisteredClientRepository : JpaRepository<OAuthRegisteredClient, String> {
+interface OAuthRegisteredClientRepository : JpaRepository<OAuthRegisteredClient, UUID> {
     fun findByClientId(clientId: String): OAuthRegisteredClient?
     fun findByDomain(domain: String): OAuthRegisteredClient?
     fun existsByDomain(domain: String): Boolean
 
     @Query("SELECT c FROM OAuthRegisteredClient c LEFT JOIN FETCH c.settings WHERE c.id = :id")
-    fun findByIdWithSettings(id: String): Optional<OAuthRegisteredClient>
+    fun findByIdWithSettings(id: UUID): Optional<OAuthRegisteredClient>
 
     fun findByKnowledgeBaseIdAndStatus(knowledgeBaseId: String, status: OrganizationStatus): OAuthRegisteredClient?
 

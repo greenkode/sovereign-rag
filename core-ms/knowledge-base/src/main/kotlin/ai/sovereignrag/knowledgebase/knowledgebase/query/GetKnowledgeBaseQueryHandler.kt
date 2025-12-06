@@ -29,6 +29,7 @@ class GetKnowledgeBaseQueryHandler(
             name = knowledgeBase.name,
             description = knowledgeBase.description,
             organizationId = knowledgeBase.organizationId,
+            oauthClientId = knowledgeBase.oauthClientId,
             status = knowledgeBase.status,
             knowledgeSourceCount = 0,
             embeddingCount = 0,

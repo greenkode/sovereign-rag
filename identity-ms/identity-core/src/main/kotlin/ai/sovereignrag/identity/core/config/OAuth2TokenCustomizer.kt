@@ -132,7 +132,7 @@ class OAuth2TokenCustomizerConfig {
             context.claims.subject(user.id.toString())
             log.info { "Set token subject to user ID: ${user.id}" }
 
-            val merchant = user.merchantId?.toString()?.let { clientRepository.findByIdWithSettings(it).orElse(null) }
+            val merchant = user.merchantId?.let { clientRepository.findByIdWithSettings(it).orElse(null) }
             val userEnvironmentPreference = user.environmentPreference
             val merchantEnvironmentMode = merchant?.environmentMode ?: EnvironmentMode.SANDBOX
             val effectiveEnvironment = merchantEnvironmentMode

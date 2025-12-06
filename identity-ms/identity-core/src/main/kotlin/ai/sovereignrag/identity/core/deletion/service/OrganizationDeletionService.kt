@@ -58,7 +58,7 @@ class OrganizationDeletionService(
         val clients = registeredClientRepository.findByOrganizationId(organizationId)
         clients.forEach { client ->
             client.status = OrganizationStatus.DELETED
-            client.clientName = "${ANONYMIZED_CLIENT_PREFIX}_${client.id.take(8)}"
+            client.clientName = "${ANONYMIZED_CLIENT_PREFIX}_${client.id.toString().take(8)}"
             client.domain = null
             registeredClientRepository.save(client)
         }

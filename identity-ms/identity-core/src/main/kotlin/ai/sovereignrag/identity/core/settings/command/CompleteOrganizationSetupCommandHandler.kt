@@ -34,7 +34,7 @@ class CompleteOrganizationSetupCommandHandler(
         val merchantId = user.merchantId
             ?: throw RecordNotFoundException(messageService.getMessage("settings.error.no_merchant"))
 
-        val client = oAuthRegisteredClientRepository.findById(merchantId.toString())
+        val client = oAuthRegisteredClientRepository.findById(merchantId)
             .orElseThrow { RecordNotFoundException(messageService.getMessage("settings.error.merchant_not_found")) }
 
         if (client.getSetting(OAuthClientSettingName.SETUP_COMPLETED) == "true") {

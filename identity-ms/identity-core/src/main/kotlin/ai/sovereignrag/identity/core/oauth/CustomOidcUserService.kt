@@ -85,14 +85,14 @@ class CustomOidcUserService(
         val domain = email.substringAfter("@")
 
         return oauthClientRepository.findByDomain(domain)?.let { client ->
-            val superAdminEmail = findSuperAdminEmail(UUID.fromString(client.id))
+            val superAdminEmail = findSuperAdminEmail(client.id)
             throw oauthError(
                 "invitation_required",
                 messageService.getMessage("oauth.error.domain_exists", superAdminEmail)
             )
         } ?: run {
             val (organization, oauthClient) = createOrganizationAndOAuthClient(domain, email)
-            createUserWithProviderAccount(provider, providerUserId, email, oidcUser, organization.id, UUID.fromString(oauthClient.id))
+            createUserWithProviderAccount(provider, providerUserId, email, oidcUser, organization.id, oauthClient.id)
         }
     }
 
@@ -144,7 +144,7 @@ class CustomOidcUserService(
         val scopeWrite = oauthClientConfigService.getScope("write")
 
         val oauthClient = OAuthRegisteredClient().apply {
-            id = organization.id.toString()
+            id = organization.id!!
             clientId = UUID.randomUUID().toString()
             clientName = organization.name
             clientIdIssuedAt = Instant.now()
