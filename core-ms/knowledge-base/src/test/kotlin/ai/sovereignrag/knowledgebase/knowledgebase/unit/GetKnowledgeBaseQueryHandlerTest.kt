@@ -76,6 +76,7 @@ class GetKnowledgeBaseQueryHandlerTest {
         assertNotNull(result)
         assertEquals("My KB", result.name)
         assertEquals(KnowledgeBaseStatus.ACTIVE, result.status)
+        assertEquals("eu-west", result.regionCode)
     }
 
     @Test
@@ -114,6 +115,7 @@ class GetKnowledgeBaseQueryHandlerTest {
             name = name,
             organizationId = orgId,
             schemaName = "kb_${knowledgeBaseId.replace("-", "_").take(32)}",
+            regionCode = "eu-west",
             status = KnowledgeBaseStatus.ACTIVE,
             maxKnowledgeSources = 10000,
             maxEmbeddings = 100000,

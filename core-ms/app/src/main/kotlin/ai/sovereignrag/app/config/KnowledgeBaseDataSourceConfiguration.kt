@@ -2,7 +2,10 @@ package ai.sovereignrag.app.config
 
 import ai.sovereignrag.commons.datasource.ReadWriteRoutingDataSource
 import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseRegistry
+import ai.sovereignrag.commons.regional.RegionalDataSourceRegistry
+import ai.sovereignrag.commons.regional.RegionalDatabaseProperties
 import ai.sovereignrag.knowledgebase.config.KnowledgeBaseDataSourceRouter
+import ai.sovereignrag.knowledgebase.knowledgebase.service.OrganizationDatabaseRegistry
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -40,11 +43,13 @@ class KnowledgeBaseDataSourceConfiguration {
     @Primary
     fun knowledgeBaseDataSourceRouter(
         @Lazy knowledgeBaseRegistry: KnowledgeBaseRegistry,
+        @Lazy organizationDatabaseRegistry: OrganizationDatabaseRegistry,
         @Value("\${spring.datasource.username}") dbUsername: String,
         @Value("\${spring.datasource.password}") dbPassword: String,
         @Value("\${spring.datasource.host:localhost}") dbHost: String,
         @Value("\${spring.datasource.port:5432}") dbPort: Int,
-        masterDataSource: DataSource
+        masterDataSource: DataSource,
+        regionalDatabaseProperties: RegionalDatabaseProperties
     ): KnowledgeBaseDataSourceRouter {
         return object : KnowledgeBaseDataSourceRouter(knowledgeBaseRegistry) {
 
@@ -60,12 +65,23 @@ class KnowledgeBaseDataSourceConfiguration {
                     SecurityContextHolder.clearContext()
 
                     val kb = knowledgeBaseRegistry.getKnowledgeBase(knowledgeBaseId)
-                    log.info { "Creating routing datasource for knowledge base: $knowledgeBaseId (schema: ${kb.schemaName})" }
+                    val regionCode = kb.regionCode
+                    val databaseName = organizationDatabaseRegistry.getDatabaseName(kb.organizationId)
+
+                    log.info { "Creating routing datasource for knowledge base: $knowledgeBaseId (schema: ${kb.schemaName}, region: $regionCode, database: $databaseName)" }
+
+                    val regionConfig = regionalDatabaseProperties.regions[regionCode]
+                    val jdbcUrl = regionConfig?.url?.let { baseUrl ->
+                        baseUrl.substringBeforeLast("/") + "/$databaseName"
+                    } ?: "jdbc:postgresql://$dbHost:$dbPort/$databaseName"
+
+                    val username = regionConfig?.username ?: dbUsername
+                    val password = regionConfig?.password ?: dbPassword
 
                     val primaryConfig = HikariConfig().apply {
-                        jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/sovereignrag_master"
-                        username = dbUsername
-                        password = dbPassword
+                        this.jdbcUrl = jdbcUrl
+                        this.username = username
+                        this.password = password
                         schema = kb.schemaName
 
                         maximumPoolSize = 10
@@ -85,10 +101,14 @@ class KnowledgeBaseDataSourceConfiguration {
                         validationTimeout = 5000
                     }
 
+                    val replicaJdbcUrl = regionConfig?.readReplicaUrl?.let { replicaBaseUrl ->
+                        replicaBaseUrl.substringBeforeLast("/") + "/$databaseName"
+                    } ?: jdbcUrl
+
                     val replicaConfig = HikariConfig().apply {
-                        jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/sovereignrag_master"
-                        username = dbUsername
-                        password = dbPassword
+                        this.jdbcUrl = replicaJdbcUrl
+                        this.username = username
+                        this.password = password
                         schema = kb.schemaName
 
                         maximumPoolSize = 8
@@ -120,7 +140,7 @@ class KnowledgeBaseDataSourceConfiguration {
                     routingDataSource.setDefaultTargetDataSource(primaryDataSource)
                     routingDataSource.afterPropertiesSet()
 
-                    log.info { "Knowledge base $knowledgeBaseId routing configured: writes -> kb-${kb.id}-primary, reads -> kb-${kb.id}-replica" }
+                    log.info { "Knowledge base $knowledgeBaseId (region: $regionCode) routing configured: writes -> kb-${kb.id}-primary, reads -> kb-${kb.id}-replica" }
                     return routingDataSource
                 } finally {
                     if (originalAuth != null) {

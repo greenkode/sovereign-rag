@@ -1,5 +1,6 @@
 package ai.sovereignrag.knowledgebase.knowledgebase.unit
 
+import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseStatus
 import ai.sovereignrag.commons.process.CreateNewProcessPayload
 import ai.sovereignrag.commons.process.ProcessChannel
 import ai.sovereignrag.commons.process.ProcessDto
@@ -10,7 +11,7 @@ import ai.sovereignrag.commons.process.enumeration.ProcessRequestType
 import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.commons.process.enumeration.ProcessState
 import ai.sovereignrag.commons.process.enumeration.ProcessType
-import ai.sovereignrag.commons.knowledgebase.KnowledgeBaseStatus
+import ai.sovereignrag.commons.regional.RegionalDatabaseProperties
 import ai.sovereignrag.knowledgebase.knowledgebase.command.CreateKnowledgeBaseCommand
 import ai.sovereignrag.knowledgebase.knowledgebase.command.CreateKnowledgeBaseCommandHandler
 import ai.sovereignrag.knowledgebase.knowledgebase.domain.KnowledgeBase
@@ -37,6 +38,10 @@ class CreateKnowledgeBaseCommandHandlerTest {
     private val organizationDatabaseService: OrganizationDatabaseService = mockk()
     private val identityServiceGateway: IdentityServiceGateway = mockk()
     private val processGateway: ProcessGateway = mockk()
+    private val regionalDatabaseProperties = RegionalDatabaseProperties(
+        regions = emptyMap(),
+        defaultRegion = "eu-west"
+    )
 
     private lateinit var handler: CreateKnowledgeBaseCommandHandler
 
@@ -50,7 +55,8 @@ class CreateKnowledgeBaseCommandHandlerTest {
             knowledgeBaseRegistryService,
             organizationDatabaseService,
             identityServiceGateway,
-            processGateway
+            processGateway,
+            regionalDatabaseProperties
         )
     }
 
@@ -73,9 +79,9 @@ class CreateKnowledgeBaseCommandHandlerTest {
         )
 
         every { processGateway.createProcess(capture(processPayloadSlot)) } returns mockProcess
-        every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId) } just runs
-        every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any()) } just runs
-        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any()) } returns mockKnowledgeBase
+        every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId, any()) } just runs
+        every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any(), any()) } just runs
+        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
         every { identityServiceGateway.createKBOAuthClient(organizationId, any(), any()) } returns mockCredentials
         every { knowledgeBaseRegistryService.updateOauthClientId(any(), any()) } just runs
         every { processGateway.completeProcess(any(), any()) } just runs
@@ -85,6 +91,7 @@ class CreateKnowledgeBaseCommandHandlerTest {
         assertNotNull(result)
         assertEquals("Test Knowledge Base", result.knowledgeBase.name)
         assertEquals("kb_test123", result.knowledgeBase.oauthClientId)
+        assertEquals("eu-west", result.knowledgeBase.regionCode)
         assertEquals("kb_test123", result.clientId)
         assertEquals("secret123", result.clientSecret)
 
@@ -94,9 +101,9 @@ class CreateKnowledgeBaseCommandHandlerTest {
         assertEquals(userId, capturedPayload.userId)
 
         verify { processGateway.createProcess(any()) }
-        verify { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId) }
-        verify { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any()) }
-        verify { knowledgeBaseRegistryService.createKnowledgeBase(any(), eq("Test Knowledge Base"), eq(organizationId), any(), any()) }
+        verify { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId, "eu-west") }
+        verify { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any(), "eu-west") }
+        verify { knowledgeBaseRegistryService.createKnowledgeBase(any(), eq("Test Knowledge Base"), eq(organizationId), any(), eq("eu-west"), any(), any(), any()) }
         verify { identityServiceGateway.createKBOAuthClient(organizationId, any(), eq("Test Knowledge Base")) }
         verify { processGateway.completeProcess(processId, 1L) }
     }
@@ -119,9 +126,9 @@ class CreateKnowledgeBaseCommandHandlerTest {
         )
 
         every { processGateway.createProcess(capture(processPayloadSlot)) } returns mockProcess
-        every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId) } just runs
-        every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any()) } just runs
-        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any()) } returns mockKnowledgeBase
+        every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId, any()) } just runs
+        every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any(), any()) } just runs
+        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
         every { identityServiceGateway.createKBOAuthClient(organizationId, any(), any()) } returns mockCredentials
         every { knowledgeBaseRegistryService.updateOauthClientId(any(), any()) } just runs
         every { processGateway.completeProcess(any(), any()) } just runs
@@ -152,9 +159,9 @@ class CreateKnowledgeBaseCommandHandlerTest {
         )
 
         every { processGateway.createProcess(capture(processPayloadSlot)) } returns mockProcess
-        every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId) } just runs
-        every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any()) } just runs
-        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any()) } returns mockKnowledgeBase
+        every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId, any()) } just runs
+        every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any(), any()) } just runs
+        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
         every { identityServiceGateway.createKBOAuthClient(organizationId, any(), any()) } returns mockCredentials
         every { knowledgeBaseRegistryService.updateOauthClientId(any(), any()) } just runs
         every { processGateway.completeProcess(any(), any()) } just runs
@@ -192,6 +199,7 @@ class CreateKnowledgeBaseCommandHandlerTest {
             name = name,
             organizationId = organizationId,
             schemaName = "kb_${kbId.replace("-", "_").take(32)}",
+            regionCode = "eu-west",
             status = KnowledgeBaseStatus.ACTIVE,
             maxKnowledgeSources = 10000,
             maxEmbeddings = 100000,

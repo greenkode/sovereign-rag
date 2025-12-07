@@ -49,11 +49,14 @@ class KnowledgeBaseRegistryService(
         name: String,
         organizationId: UUID,
         schemaName: String,
+        regionCode: String,
         description: String? = null,
+        embeddingModelId: String? = null,
+        requiresEncryption: Boolean? = null,
         contactEmail: String? = null,
         contactName: String? = null
     ): KnowledgeBase {
-        log.info { "Creating knowledge base: $id ($name) for organization: $organizationId" }
+        log.info { "Creating knowledge base: $id ($name) for organization: $organizationId in region: $regionCode" }
 
         val knowledgeBase = KnowledgeBase(
             id = id,
@@ -61,13 +64,16 @@ class KnowledgeBaseRegistryService(
             description = description,
             organizationId = organizationId,
             schemaName = schemaName,
+            regionCode = regionCode,
             status = KnowledgeBaseStatus.ACTIVE,
+            embeddingModelId = embeddingModelId,
+            requiresEncryption = requiresEncryption ?: false,
             contactEmail = contactEmail,
             contactName = contactName
         )
 
         return knowledgeBaseRepository.save(knowledgeBase).also {
-            log.info { "Knowledge base created: ${it.id}" }
+            log.info { "Knowledge base created: ${it.id} in region: $regionCode" }
         }
     }
 

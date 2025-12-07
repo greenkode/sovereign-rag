@@ -7,6 +7,7 @@ import ai.sovereignrag.commons.process.enumeration.ProcessRequestDataName
 import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.commons.process.enumeration.ProcessState
 import ai.sovereignrag.commons.process.enumeration.ProcessType
+import ai.sovereignrag.commons.regional.RegionalDatabaseProperties
 import ai.sovereignrag.knowledgebase.knowledgebase.dto.CreateKnowledgeBaseResult
 import ai.sovereignrag.knowledgebase.knowledgebase.dto.KnowledgeBaseDto
 import ai.sovereignrag.knowledgebase.knowledgebase.gateway.IdentityServiceGateway
@@ -24,11 +25,13 @@ class CreateKnowledgeBaseCommandHandler(
     private val knowledgeBaseRegistryService: KnowledgeBaseRegistryService,
     private val organizationDatabaseService: OrganizationDatabaseService,
     private val identityServiceGateway: IdentityServiceGateway,
-    private val processGateway: ProcessGateway
+    private val processGateway: ProcessGateway,
+    private val regionalDatabaseProperties: RegionalDatabaseProperties
 ) : Command.Handler<CreateKnowledgeBaseCommand, CreateKnowledgeBaseResult> {
 
     override fun handle(command: CreateKnowledgeBaseCommand): CreateKnowledgeBaseResult {
-        log.info { "Creating knowledge base: ${command.name} for organization: ${command.organizationId}" }
+        val regionCode = command.regionCode ?: regionalDatabaseProperties.defaultRegion
+        log.info { "Creating knowledge base: ${command.name} for organization: ${command.organizationId} in region: $regionCode" }
 
         val knowledgeBaseId = UUID.randomUUID().toString()
         val schemaName = "kb_${knowledgeBaseId.replace("-", "_").take(32)}"
@@ -57,15 +60,18 @@ class CreateKnowledgeBaseCommandHandler(
         val process = processGateway.createProcess(processPayload)
         log.debug { "Created process ${process.publicId} for knowledge base creation" }
 
-        organizationDatabaseService.ensureOrganizationDatabaseExists(command.organizationId)
-        organizationDatabaseService.createKnowledgeBaseSchema(command.organizationId, schemaName)
+        organizationDatabaseService.ensureOrganizationDatabaseExists(command.organizationId, regionCode)
+        organizationDatabaseService.createKnowledgeBaseSchema(command.organizationId, schemaName, regionCode)
 
         val knowledgeBase = knowledgeBaseRegistryService.createKnowledgeBase(
             id = knowledgeBaseId,
             name = command.name,
             organizationId = command.organizationId,
             schemaName = schemaName,
-            description = command.description
+            regionCode = regionCode,
+            description = command.description,
+            embeddingModelId = command.embeddingModelId,
+            requiresEncryption = command.requiresEncryption
         )
 
         val credentials = identityServiceGateway.createKBOAuthClient(
@@ -90,6 +96,7 @@ class CreateKnowledgeBaseCommandHandler(
                 description = knowledgeBase.description,
                 organizationId = knowledgeBase.organizationId,
                 oauthClientId = credentials.clientId,
+                regionCode = knowledgeBase.regionCode,
                 status = knowledgeBase.status,
                 knowledgeSourceCount = 0,
                 embeddingCount = 0,
@@ -97,6 +104,8 @@ class CreateKnowledgeBaseCommandHandler(
                 maxKnowledgeSources = knowledgeBase.maxKnowledgeSources,
                 maxEmbeddings = knowledgeBase.maxEmbeddings,
                 maxRequestsPerDay = knowledgeBase.maxRequestsPerDay,
+                embeddingModelId = knowledgeBase.embeddingModelId,
+                requiresEncryption = knowledgeBase.requiresEncryption,
                 createdAt = knowledgeBase.createdAt,
                 updatedAt = knowledgeBase.updatedAt,
                 lastActiveAt = knowledgeBase.lastActiveAt

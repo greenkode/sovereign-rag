@@ -96,6 +96,7 @@ class GetKnowledgeBasesQueryHandlerTest {
             name = name,
             organizationId = organizationId,
             schemaName = "kb_${kbId.replace("-", "_").take(32)}",
+            regionCode = "eu-west",
             status = status,
             maxKnowledgeSources = 10000,
             maxEmbeddings = 100000,

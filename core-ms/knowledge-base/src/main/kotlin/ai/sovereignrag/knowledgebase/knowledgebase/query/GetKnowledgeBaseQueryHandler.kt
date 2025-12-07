@@ -30,6 +30,7 @@ class GetKnowledgeBaseQueryHandler(
             description = knowledgeBase.description,
             organizationId = knowledgeBase.organizationId,
             oauthClientId = knowledgeBase.oauthClientId,
+            regionCode = knowledgeBase.regionCode,
             status = knowledgeBase.status,
             knowledgeSourceCount = 0,
             embeddingCount = 0,
@@ -37,6 +38,8 @@ class GetKnowledgeBaseQueryHandler(
             maxKnowledgeSources = knowledgeBase.maxKnowledgeSources,
             maxEmbeddings = knowledgeBase.maxEmbeddings,
             maxRequestsPerDay = knowledgeBase.maxRequestsPerDay,
+            embeddingModelId = knowledgeBase.embeddingModelId,
+            requiresEncryption = knowledgeBase.requiresEncryption,
             createdAt = knowledgeBase.createdAt,
             updatedAt = knowledgeBase.updatedAt,
             lastActiveAt = knowledgeBase.lastActiveAt

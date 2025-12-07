@@ -27,6 +27,7 @@ class GetKnowledgeBasesQueryHandler(
                 name = kb.name,
                 description = kb.description,
                 organizationId = kb.organizationId,
+                regionCode = kb.regionCode,
                 status = kb.status,
                 knowledgeSourceCount = 0,
                 lastActiveAt = kb.lastActiveAt,

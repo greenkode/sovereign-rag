@@ -34,6 +34,9 @@ data class KnowledgeBase(
     @Column(name = "schema_name", nullable = false, length = 255, unique = true)
     override val schemaName: String,
 
+    @Column(name = "region_code", nullable = false, length = 20)
+    override val regionCode: String = "eu-west",
+
     @Column(name = "oauth_client_id", length = 100)
     override val oauthClientId: String? = null,
 
@@ -58,6 +61,12 @@ data class KnowledgeBase(
 
     @Column(name = "contact_name", length = 500)
     val contactName: String? = null,
+
+    @Column(name = "embedding_model_id", length = 100)
+    val embeddingModelId: String? = null,
+
+    @Column(name = "requires_encryption", nullable = false)
+    val requiresEncryption: Boolean = false,
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "features", columnDefinition = "jsonb")

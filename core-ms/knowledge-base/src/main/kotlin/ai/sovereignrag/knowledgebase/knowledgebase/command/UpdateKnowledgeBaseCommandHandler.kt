@@ -45,6 +45,7 @@ class UpdateKnowledgeBaseCommandHandler(
             description = saved.description,
             organizationId = saved.organizationId,
             oauthClientId = saved.oauthClientId,
+            regionCode = saved.regionCode,
             status = saved.status,
             knowledgeSourceCount = 0,
             embeddingCount = 0,
@@ -52,6 +53,8 @@ class UpdateKnowledgeBaseCommandHandler(
             maxKnowledgeSources = saved.maxKnowledgeSources,
             maxEmbeddings = saved.maxEmbeddings,
             maxRequestsPerDay = saved.maxRequestsPerDay,
+            embeddingModelId = saved.embeddingModelId,
+            requiresEncryption = saved.requiresEncryption,
             createdAt = saved.createdAt,
             updatedAt = saved.updatedAt,
             lastActiveAt = saved.lastActiveAt
