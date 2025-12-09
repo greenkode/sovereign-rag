@@ -99,7 +99,7 @@ class EmbeddingProcessorTest {
             FloatArray(1536) { 0.1f },
             FloatArray(1536) { 0.2f }
         )
-        val embeddingIds = listOf(UUID.randomUUID(), UUID.randomUUID())
+        val embeddingIds = listOf(UUID.randomUUID().toString(), UUID.randomUUID().toString())
 
         every { jobRepository.save(any()) } returnsArgument 0
         every { embeddingModelGateway.findByKnowledgeBase(knowledgeBaseId) } returns modelConfig
@@ -138,7 +138,7 @@ class EmbeddingProcessorTest {
         }
         every { embeddingModelGateway.findByKnowledgeBase(knowledgeBaseId) } returns modelConfig
         every { embeddingService.generateEmbeddings(any(), modelConfig) } returns listOf(FloatArray(1536))
-        every { embeddingGateway.storeEmbeddings(any(), any(), any()) } returns listOf(UUID.randomUUID())
+        every { embeddingGateway.storeEmbeddings(any(), any(), any()) } returns listOf(UUID.randomUUID().toString())
 
         processor.process(job)
 
@@ -167,7 +167,7 @@ class EmbeddingProcessorTest {
         every { jobRepository.save(any()) } returnsArgument 0
         every { embeddingModelGateway.findByKnowledgeBase(knowledgeBaseId) } returns modelConfig
         every { embeddingService.generateEmbeddings(any(), capture(modelConfigSlot)) } returns listOf(FloatArray(3072))
-        every { embeddingGateway.storeEmbeddings(any(), any(), any()) } returns listOf(UUID.randomUUID())
+        every { embeddingGateway.storeEmbeddings(any(), any(), any()) } returns listOf(UUID.randomUUID().toString())
 
         processor.process(job)
 
