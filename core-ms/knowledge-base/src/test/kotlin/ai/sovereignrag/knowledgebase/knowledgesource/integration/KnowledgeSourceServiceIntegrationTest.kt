@@ -4,50 +4,30 @@ import ai.sovereignrag.commons.embedding.SourceType
 import ai.sovereignrag.commons.knowledgesource.CreateKnowledgeSourceRequest
 import ai.sovereignrag.commons.knowledgesource.KnowledgeSourceStatus
 import ai.sovereignrag.commons.knowledgesource.UpdateKnowledgeSourceRequest
+import ai.sovereignrag.knowledgebase.config.AbstractIntegrationTest
 import ai.sovereignrag.knowledgebase.knowledgesource.repository.KnowledgeSourceRepository
 import ai.sovereignrag.knowledgebase.knowledgesource.service.KnowledgeSourceService
+import jakarta.persistence.EntityManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
+import org.springframework.context.annotation.Import
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-@SpringBootTest
-@Testcontainers
-@ActiveProfiles("test")
-class KnowledgeSourceServiceIntegrationTest {
-
-    companion object {
-        @Container
-        @JvmStatic
-        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:15-alpine")
-            .withDatabaseName("kb_test")
-            .withUsername("test")
-            .withPassword("test")
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun configureProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url") { postgres.jdbcUrl }
-            registry.add("spring.datasource.username") { postgres.username }
-            registry.add("spring.datasource.password") { postgres.password }
-        }
-    }
+@Import(KnowledgeSourceService::class)
+class KnowledgeSourceServiceIntegrationTest : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var knowledgeSourceService: KnowledgeSourceService
 
     @Autowired
     private lateinit var knowledgeSourceRepository: KnowledgeSourceRepository
+
+    @Autowired
+    private lateinit var entityManager: EntityManager
 
     private val knowledgeBaseId = UUID.randomUUID()
     private val createdSourceIds = mutableListOf<UUID>()
@@ -160,6 +140,9 @@ class KnowledgeSourceServiceIntegrationTest {
             "Processing failed"
         )
 
+        entityManager.flush()
+        entityManager.clear()
+
         val retrieved = knowledgeSourceService.findById(knowledgeBaseId, created.id)
         assertNotNull(retrieved)
         assertEquals(KnowledgeSourceStatus.FAILED, retrieved.status)
@@ -178,6 +161,9 @@ class KnowledgeSourceServiceIntegrationTest {
             chunkCount = 25,
             embeddingCount = 25
         )
+
+        entityManager.flush()
+        entityManager.clear()
 
         val retrieved = knowledgeSourceService.findById(knowledgeBaseId, created.id)
         assertNotNull(retrieved)
@@ -289,6 +275,9 @@ class KnowledgeSourceServiceIntegrationTest {
         createdSourceIds.add(created.id)
 
         knowledgeSourceService.markReady(knowledgeBaseId, created.id, embeddingCount = 50)
+
+        entityManager.flush()
+        entityManager.clear()
 
         val retrieved = knowledgeSourceService.findById(knowledgeBaseId, created.id)
         assertNotNull(retrieved)

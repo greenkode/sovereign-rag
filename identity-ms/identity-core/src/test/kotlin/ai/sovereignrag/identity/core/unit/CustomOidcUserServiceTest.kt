@@ -163,12 +163,12 @@ class CustomOidcUserServiceTest {
     @Test
     fun `should throw exception when domain already exists and requires invitation`() {
         val existingOrganization = OAuthClientBuilder.default(
-            id = UUID.randomUUID().toString(),
+            id = UUID.randomUUID(),
             domain = "existingcompany.com"
         )
         val adminUser = UserBuilder.adminUser(
             email = "admin@existingcompany.com",
-            merchantId = UUID.fromString(existingOrganization.id)
+            merchantId = existingOrganization.id
         )
 
         val oidcUser = createMockOidcUser("new_user_123", "newuser@existingcompany.com")
@@ -180,7 +180,7 @@ class CustomOidcUserServiceTest {
         every { providerAccountRepository.findByProviderAndProviderUserId(OAuthProvider.GOOGLE, "new_user_123") } returns null
         every { userRepository.findByEmail("newuser@existingcompany.com") } returns null
         every { oauthClientRepository.findByDomain("existingcompany.com") } returns existingOrganization
-        every { userRepository.findSuperAdminsByMerchantId(UUID.fromString(existingOrganization.id)) } returns listOf(adminUser)
+        every { userRepository.findSuperAdminsByMerchantId(existingOrganization.id) } returns listOf(adminUser)
         every { messageService.getMessage(any<String>(), any()) } returns "Please contact admin@existingcompany.com for an invitation"
 
         val exception = assertThrows<OAuth2AuthenticationException> {
@@ -550,7 +550,7 @@ class CustomOidcUserServiceTest {
             val scopeWrite = testOauthClientConfigService.getScope("write")
 
             val oauthClient = OAuthRegisteredClient().apply {
-                id = savedOrg.id.toString()
+                id = savedOrg.id
                 clientId = UUID.randomUUID().toString()
                 clientName = "-"
                 clientIdIssuedAt = Instant.now()
@@ -572,7 +572,7 @@ class CustomOidcUserServiceTest {
             }
 
             testOauthClientRepository.save(oauthClient)
-            return savedOrg.id to UUID.fromString(oauthClient.id)
+            return savedOrg.id to oauthClient.id
         }
 
         private fun createUserWithProviderAccountInternal(

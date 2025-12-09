@@ -109,7 +109,7 @@ class RegisterUserCommandHandlerTest {
         every { businessEmailValidationService.validateBusinessEmail(any()) } just runs
         every { userRepository.findByEmail("john.doe@acme.com") } returns null
         every { oauthClientRepository.findByDomain("acme.com") } returns existingClient
-        every { existingClient.id } returns organizationId.toString()
+        every { existingClient.id } returns organizationId
         every { organizationRepository.findBySlug("acme") } returns existingOrg
         every { passwordEncoder.encode(any()) } returns "encoded_password"
         every { userRepository.save(capture(userSlot)) } answers { userSlot.captured.apply { id = UUID.randomUUID() } }

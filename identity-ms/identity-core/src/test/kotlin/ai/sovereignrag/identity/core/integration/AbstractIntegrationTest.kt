@@ -106,7 +106,7 @@ abstract class AbstractIntegrationTest {
         name: String = "Test Organization"
     ): OAuthRegisteredClient {
         val client = OAuthClientBuilder.default(
-            id = UUID.randomUUID().toString(),
+            id = UUID.randomUUID(),
             clientId = UUID.randomUUID().toString(),
             clientName = name,
             domain = domain,
@@ -124,7 +124,7 @@ abstract class AbstractIntegrationTest {
     ): Pair<OAuthUser, OAuthRegisteredClient> {
         val domain = organizationDomain ?: email.substringAfter("@")
         val organization = createTestOrganization(domain = domain)
-        val merchantId = UUID.fromString(organization.id)
+        val merchantId = organization.id
 
         val user = if (isAdmin) {
             createAdminUser(email = email, merchantId = merchantId)

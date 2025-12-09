@@ -61,7 +61,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
         every { userService.getCurrentUser() } returns user
         every { user.merchantId } returns merchantId
         every { user.id } returns UUID.randomUUID()
-        every { oAuthRegisteredClientRepository.findById(merchantId.toString()) } returns Optional.of(client)
+        every { oAuthRegisteredClientRepository.findById(merchantId) } returns Optional.of(client)
         every { client.getSetting(OAuthClientSettingName.SETUP_COMPLETED) } returns null
         every { client.clientId } returns "test-client-id"
         every { oAuthRegisteredClientRepository.save(any()) } returns client
@@ -108,7 +108,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
 
         every { userService.getCurrentUser() } returns user
         every { user.merchantId } returns merchantId
-        every { oAuthRegisteredClientRepository.findById(merchantId.toString()) } returns Optional.of(client)
+        every { oAuthRegisteredClientRepository.findById(merchantId) } returns Optional.of(client)
         every { client.getSetting(OAuthClientSettingName.SETUP_COMPLETED) } returns "true"
         every { messageService.getMessage("settings.error.setup_already_completed") } returns "Setup already completed"
 
@@ -127,7 +127,7 @@ class CompleteOrganizationSetupCommandHandlerTest {
 
         every { userService.getCurrentUser() } returns user
         every { user.merchantId } returns merchantId
-        every { oAuthRegisteredClientRepository.findById(merchantId.toString()) } returns Optional.of(client)
+        every { oAuthRegisteredClientRepository.findById(merchantId) } returns Optional.of(client)
         every { client.getSetting(OAuthClientSettingName.SETUP_COMPLETED) } returns null
         every { messageService.getMessage("settings.error.terms_required") } returns "Terms must be accepted"
 
