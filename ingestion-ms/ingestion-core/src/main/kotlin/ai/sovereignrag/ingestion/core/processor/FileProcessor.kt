@@ -2,13 +2,17 @@ package ai.sovereignrag.ingestion.core.processor
 
 import ai.sovereignrag.ingestion.commons.config.IngestionProperties
 import ai.sovereignrag.ingestion.commons.entity.IngestionJob
+import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.commons.fileupload.FileUploadGateway
+import ai.sovereignrag.ingestion.commons.queue.JobQueue
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.tika.Tika
 import org.apache.tika.metadata.Metadata
 import org.springframework.stereotype.Component
 import java.io.InputStream
+import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
@@ -16,6 +20,8 @@ private val log = KotlinLogging.logger {}
 class FileProcessor(
     private val fileUploadGateway: FileUploadGateway,
     private val jobRepository: IngestionJobRepository,
+    private val jobQueue: JobQueue,
+    private val objectMapper: ObjectMapper,
     private val ingestionProperties: IngestionProperties
 ) {
     private val tika = Tika()
@@ -40,11 +46,47 @@ class FileProcessor(
 
         log.info { "Extracted ${chunks.size} chunks from ${job.fileName}" }
 
+        job.knowledgeBaseId?.let { kbId ->
+            val knowledgeSourceId = job.knowledgeSourceId ?: UUID.randomUUID()
+            createEmbeddingJob(job, chunks, knowledgeSourceId)
+            log.info { "Created embedding job for ${chunks.size} chunks" }
+        }
+
         job.markCompleted(
             chunksCreated = chunks.size,
             bytesProcessed = content.length.toLong()
         )
         jobRepository.save(job)
+    }
+
+    private fun createEmbeddingJob(
+        parentJob: IngestionJob,
+        chunks: List<String>,
+        knowledgeSourceId: UUID
+    ) {
+        val chunkData = ChunkJobData(
+            chunks = chunks.mapIndexed { index, content -> ChunkInfo(index, content) },
+            sourceType = "FILE",
+            fileName = parentJob.fileName,
+            sourceUrl = null,
+            title = parentJob.fileName
+        )
+
+        val embeddingJob = IngestionJob(
+            organizationId = parentJob.organizationId,
+            jobType = JobType.EMBEDDING,
+            knowledgeBaseId = parentJob.knowledgeBaseId,
+            priority = parentJob.priority
+        ).apply {
+            parentJobId = parentJob.id
+            this.knowledgeSourceId = knowledgeSourceId
+            metadata = objectMapper.writeValueAsString(chunkData)
+            fileName = parentJob.fileName
+            mimeType = parentJob.mimeType
+        }
+
+        val savedJob = jobRepository.save(embeddingJob)
+        jobQueue.enqueue(savedJob)
     }
 
     private fun extractContent(inputStream: InputStream, mimeType: String?): String {

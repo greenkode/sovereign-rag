@@ -1,5 +1,6 @@
 package ai.sovereignrag.knowledgebase.configuration.domain
 
+import ai.sovereignrag.commons.embedding.EmbeddingModelConfig
 import ai.sovereignrag.knowledgebase.configuration.dto.EmbeddingModelDto
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
@@ -14,13 +15,14 @@ import java.time.Instant
 @Entity
 data class EmbeddingModel(
     @Id
-    val id: String,
-    val name: String,
-    val modelId: String,
+    override val id: String,
+    override val name: String,
+    override val modelId: String,
     val description: String,
-    val provider: String,
-    val dimensions: Int,
-    val maxTokens: Int,
+    override val provider: String,
+    override val dimensions: Int,
+    override val maxTokens: Int,
+    override val baseUrl: String? = null,
     val enabled: Boolean = true,
     val sortOrder: Int = 0,
     val createdAt: Instant = Instant.now(),
@@ -41,7 +43,7 @@ data class EmbeddingModel(
     )
     @Column(name = "language_code")
     val optimizedFor: Set<String> = emptySet()
-) : Serializable {
+) : EmbeddingModelConfig, Serializable {
     fun toDto() = EmbeddingModelDto(
         id = id,
         name = name,
@@ -52,6 +54,7 @@ data class EmbeddingModel(
         maxTokens = maxTokens,
         supportedLanguages = supportedLanguages,
         optimizedFor = optimizedFor,
-        enabled = enabled
+        enabled = enabled,
+        baseUrl = baseUrl
     )
 }

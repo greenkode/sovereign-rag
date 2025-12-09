@@ -9,7 +9,8 @@ data class IngestionProperties(
     val scraping: ScrapingProperties = ScrapingProperties(),
     val processing: ProcessingProperties = ProcessingProperties(),
     val tiers: TierProperties = TierProperties(),
-    val queue: QueueProperties = QueueProperties()
+    val queue: QueueProperties = QueueProperties(),
+    val embedding: EmbeddingProperties = EmbeddingProperties()
 )
 
 data class LimitsProperties(
@@ -108,4 +109,27 @@ data class ProcessingProperties(
         "application/json",
         "application/xml"
     )
+)
+
+data class EmbeddingProperties(
+    val modelName: String = "nomic-embed-text",
+    val ollamaBaseUrl: String = "http://localhost:11434",
+    val openaiApiKey: String? = null,
+    val huggingfaceApiKey: String? = null,
+    val cohereApiKey: String? = null,
+    val batchSize: Int = 32,
+    val dimension: Int = 768,
+    val maxRetries: Int = 3,
+    val retryDelayMs: Long = 1000,
+    val tablePrefix: String = "kb_",
+    val tableSuffix: String = "_embeddings",
+    val pgvector: PgVectorProperties = PgVectorProperties()
+)
+
+data class PgVectorProperties(
+    val host: String = "localhost",
+    val port: Int = 5432,
+    val database: String = "sovereign_rag",
+    val user: String = "postgres",
+    val password: String = "postgres"
 )

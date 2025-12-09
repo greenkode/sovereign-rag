@@ -16,7 +16,8 @@ enum class JobType {
     FILE_UPLOAD,
     WEB_SCRAPE,
     BATCH_IMPORT,
-    FOLDER_IMPORT
+    FOLDER_IMPORT,
+    EMBEDDING
 }
 
 enum class JobStatus {
@@ -96,6 +97,16 @@ class IngestionJob() : AuditableEntity() {
     var lockedBy: String? = null
 
     var visibleAfter: Instant? = null
+
+    var parentJobId: UUID? = null
+
+    var knowledgeSourceId: UUID? = null
+
+    var chunkStartIndex: Int? = null
+
+    var chunkEndIndex: Int? = null
+
+    var embeddingsCreated: Int = 0
 
     constructor(
         organizationId: UUID,

@@ -36,11 +36,10 @@
             <version>1.8.1</version>
         </dependency>
 
-        <!-- LangChain4j Core (for LLM-based guardrails) -->
+        <!-- LangChain4j Core (for LLM-based guardrails, version managed in root pom) -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>${langchain4j.version}</version>
         </dependency>
 
         <!-- Spring Boot (for @ConfigurationProperties) -->

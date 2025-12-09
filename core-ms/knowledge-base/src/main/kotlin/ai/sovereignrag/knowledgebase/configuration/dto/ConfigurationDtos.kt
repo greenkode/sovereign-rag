@@ -28,7 +28,8 @@ data class EmbeddingModelDto(
     val maxTokens: Int,
     val supportedLanguages: Set<String>,
     val optimizedFor: Set<String>,
-    val enabled: Boolean
+    val enabled: Boolean,
+    val baseUrl: String? = null
 )
 
 data class WizardConfigurationResponse(

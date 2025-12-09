@@ -63,7 +63,7 @@ data class KnowledgeBase(
     val contactName: String? = null,
 
     @Column(name = "embedding_model_id", length = 100)
-    val embeddingModelId: String? = null,
+    override val embeddingModelId: String? = null,
 
     @Column(name = "requires_encryption", nullable = false)
     val requiresEncryption: Boolean = false,
