@@ -1,5 +1,7 @@
 package ai.sovereignrag.ingestion.core.processor
 
+import ai.sovereignrag.commons.chunking.ChunkMetadata as ChunkingMetadata
+import ai.sovereignrag.commons.chunking.DocumentChunk
 import ai.sovereignrag.commons.embedding.ChunkMetadata
 import ai.sovereignrag.commons.embedding.EmbeddingGateway
 import ai.sovereignrag.commons.embedding.EmbeddingModelGateway
@@ -8,8 +10,12 @@ import ai.sovereignrag.commons.embedding.SourceType
 import ai.sovereignrag.commons.embedding.TextChunk
 import ai.sovereignrag.ingestion.commons.entity.IngestionJob
 import ai.sovereignrag.ingestion.commons.entity.JobType
+import ai.sovereignrag.ingestion.commons.entity.MetricSource
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
 import ai.sovereignrag.ingestion.core.embedding.EmbeddingService
+import ai.sovereignrag.ingestion.core.metrics.AsyncQualityEvaluationService
+import ai.sovereignrag.ingestion.core.metrics.IngestionMetrics
+import ai.sovereignrag.ingestion.core.metrics.QualityEvaluationRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -25,7 +31,9 @@ class EmbeddingProcessor(
     private val embeddingGateway: EmbeddingGateway,
     private val embeddingModelGateway: EmbeddingModelGateway,
     private val jobRepository: IngestionJobRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val asyncQualityService: AsyncQualityEvaluationService,
+    private val ingestionMetrics: IngestionMetrics
 ) : JobProcessor {
 
     override fun supports(jobType: JobType): Boolean = jobType == JobType.EMBEDDING
@@ -56,8 +64,10 @@ class EmbeddingProcessor(
 
         updateProgress(job, 20)
 
+        val embeddingStartTime = System.currentTimeMillis()
         val texts = chunks.map { it.content }
         val embeddings = embeddingService.generateEmbeddings(texts, modelConfig)
+        val embeddingTimeMs = System.currentTimeMillis() - embeddingStartTime
 
         updateProgress(job, 60)
 
@@ -89,11 +99,67 @@ class EmbeddingProcessor(
 
         updateProgress(job, 90)
 
+        ingestionMetrics.recordEmbeddingMetrics(
+            knowledgeBaseId = knowledgeBaseId.toString(),
+            embeddingCount = embeddings.size,
+            processingTimeMs = embeddingTimeMs,
+            model = modelConfig.modelId
+        )
+
+        triggerAsyncQualityEvaluation(
+            job = job,
+            chunks = chunks,
+            embeddings = embeddings,
+            chunkData = chunkData,
+            modelName = modelConfig.modelId
+        )
+
         job.embeddingsCreated = embeddingIds.size
         job.markCompleted(chunksCreated = chunks.size, bytesProcessed = texts.sumOf { it.length.toLong() })
         jobRepository.save(job)
 
         log.info { "Completed embedding job ${job.id}: created ${embeddingIds.size} embeddings" }
+    }
+
+    private fun triggerAsyncQualityEvaluation(
+        job: IngestionJob,
+        chunks: List<ChunkInfo>,
+        embeddings: List<FloatArray>,
+        chunkData: ChunkJobData,
+        modelName: String
+    ) {
+        val documentChunks = chunks.mapIndexed { index, chunk ->
+            DocumentChunk(
+                content = chunk.content,
+                index = index,
+                startOffset = 0,
+                endOffset = chunk.content.length,
+                metadata = ChunkingMetadata(
+                    strategyUsed = chunkData.chunkingStrategy
+                )
+            )
+        }
+
+        val request = QualityEvaluationRequest(
+            organizationId = job.organizationId,
+            knowledgeBaseId = job.knowledgeBaseId,
+            knowledgeSourceId = job.knowledgeSourceId,
+            ingestionJobId = job.id,
+            chunks = documentChunks,
+            embeddings = embeddings,
+            chunkingStrategy = chunkData.chunkingStrategy,
+            embeddingModel = modelName,
+            metricSource = MetricSource.EMBEDDING
+        )
+
+        asyncQualityService.evaluateChunkQualityAsync(request)
+            .whenComplete { result, error ->
+                error?.let {
+                    log.warn(it) { "Async quality evaluation failed for job ${job.id}" }
+                } ?: result?.let {
+                    log.debug { "Quality evaluation completed for job ${job.id}: score=${it.overallScore}" }
+                }
+            }
     }
 
     private fun parseChunkData(job: IngestionJob): ChunkJobData {

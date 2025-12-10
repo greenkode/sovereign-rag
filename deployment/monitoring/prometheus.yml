@@ -31,6 +31,13 @@ scrape_configs:
         labels:
           service: 'audit-ms'
 
+  - job_name: 'ingestion-ms'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ingestion-ms:9086']
+        labels:
+          service: 'ingestion-ms'
+
   - job_name: 'postgres'
     static_configs:
       - targets: ['postgres:5432']
