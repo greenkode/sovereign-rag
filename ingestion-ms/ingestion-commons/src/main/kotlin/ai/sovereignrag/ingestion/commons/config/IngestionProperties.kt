@@ -10,7 +10,8 @@ data class IngestionProperties(
     val processing: ProcessingProperties = ProcessingProperties(),
     val tiers: TierProperties = TierProperties(),
     val queue: QueueProperties = QueueProperties(),
-    val embedding: EmbeddingProperties = EmbeddingProperties()
+    val embedding: EmbeddingProperties = EmbeddingProperties(),
+    val remi: RemiProperties = RemiProperties()
 )
 
 data class LimitsProperties(
@@ -132,4 +133,16 @@ data class PgVectorProperties(
     val database: String = "sovereign_rag",
     val user: String = "postgres",
     val password: String = "postgres"
+)
+
+data class RemiProperties(
+    val enabled: Boolean = true,
+    val ollamaBaseUrl: String = "http://localhost:11434",
+    val modelName: String = "llama3.2:3b",
+    val timeoutSeconds: Long = 60,
+    val asyncEnabled: Boolean = true,
+    val batchSize: Int = 10,
+    val evaluationDelayMs: Long = 500,
+    val minContextRelevanceForMissingKnowledge: Double = 0.3,
+    val minGroundednessForHallucination: Double = 0.5
 )

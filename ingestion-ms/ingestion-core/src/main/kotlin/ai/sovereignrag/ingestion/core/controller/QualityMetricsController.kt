@@ -3,8 +3,13 @@ package ai.sovereignrag.ingestion.core.controller
 import ai.sovereignrag.ingestion.commons.entity.MetricSource
 import ai.sovereignrag.ingestion.core.command.RecordUserFeedbackCommand
 import ai.sovereignrag.ingestion.core.query.GetQualityMetricsQuery
+import ai.sovereignrag.ingestion.core.query.GetRemiMetricsQuery
+import ai.sovereignrag.ingestion.core.query.GetRemiSummaryQuery
 import ai.sovereignrag.ingestion.core.query.GetRetrievalMetricsQuery
 import ai.sovereignrag.ingestion.core.query.QualityMetricsPagedResult
+import ai.sovereignrag.ingestion.core.query.RemiFilter
+import ai.sovereignrag.ingestion.core.query.RemiMetricsPagedResult
+import ai.sovereignrag.ingestion.core.query.RemiSummaryResult
 import ai.sovereignrag.ingestion.core.query.RetrievalMetricResult
 import ai.sovereignrag.ingestion.core.query.RetrievalMetricsPagedResult
 import ai.sovereignrag.ingestion.core.service.SecurityContextService
@@ -97,6 +102,46 @@ class QualityMetricsController(
                 score = request.score,
                 clickedIndex = request.clickedIndex,
                 relevanceRatings = request.relevanceRatings
+            )
+        )
+    }
+
+    @GetMapping("/remi")
+    @Operation(summary = "Get REMI metrics", description = "Get paginated RAG evaluation metrics (answer relevance, context relevance, groundedness)")
+    fun getRemiMetrics(
+        @PathVariable knowledgeBaseId: UUID,
+        @RequestParam(defaultValue = "7") days: Int,
+        @RequestParam(required = false) filter: RemiFilter?,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int
+    ): RemiMetricsPagedResult {
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Getting REMI metrics for knowledge base $knowledgeBaseId, org $organizationId, filter=$filter" }
+        return pipeline.send(
+            GetRemiMetricsQuery(
+                organizationId = organizationId,
+                knowledgeBaseId = knowledgeBaseId,
+                days = days,
+                filter = filter,
+                page = page,
+                size = size
+            )
+        )
+    }
+
+    @GetMapping("/remi/summary")
+    @Operation(summary = "Get REMI summary", description = "Get aggregated REMI metrics summary including health status")
+    fun getRemiSummary(
+        @PathVariable knowledgeBaseId: UUID,
+        @RequestParam(defaultValue = "7") days: Int
+    ): RemiSummaryResult {
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Getting REMI summary for knowledge base $knowledgeBaseId, org $organizationId" }
+        return pipeline.send(
+            GetRemiSummaryQuery(
+                organizationId = organizationId,
+                knowledgeBaseId = knowledgeBaseId,
+                days = days
             )
         )
     }

@@ -173,6 +173,67 @@ class IngestionMetrics(private val meterRegistry: MeterRegistry) {
         }
     }
 
+    fun recordRemiEvaluation(
+        knowledgeBaseId: String,
+        answerRelevance: Double?,
+        contextRelevance: Double?,
+        groundedness: Double?,
+        evaluationTimeMs: Long
+    ) {
+        Counter.builder("ingestion.remi.evaluations")
+            .tag("knowledge_base_id", knowledgeBaseId)
+            .register(meterRegistry)
+            .increment()
+
+        Timer.builder("ingestion.remi.evaluation.duration")
+            .tag("knowledge_base_id", knowledgeBaseId)
+            .register(meterRegistry)
+            .record(java.time.Duration.ofMillis(evaluationTimeMs))
+
+        answerRelevance?.let {
+            DistributionSummary.builder("ingestion.remi.answer_relevance")
+                .tag("knowledge_base_id", knowledgeBaseId)
+                .register(meterRegistry)
+                .record(it)
+        }
+
+        contextRelevance?.let {
+            DistributionSummary.builder("ingestion.remi.context_relevance")
+                .tag("knowledge_base_id", knowledgeBaseId)
+                .register(meterRegistry)
+                .record(it)
+
+            if (it < 0.3) {
+                Counter.builder("ingestion.remi.missing_knowledge")
+                    .tag("knowledge_base_id", knowledgeBaseId)
+                    .register(meterRegistry)
+                    .increment()
+            }
+        }
+
+        groundedness?.let {
+            DistributionSummary.builder("ingestion.remi.groundedness")
+                .tag("knowledge_base_id", knowledgeBaseId)
+                .register(meterRegistry)
+                .record(it)
+
+            if (it < 0.5) {
+                Counter.builder("ingestion.remi.hallucinations")
+                    .tag("knowledge_base_id", knowledgeBaseId)
+                    .register(meterRegistry)
+                    .increment()
+            }
+        }
+
+        val scores = listOfNotNull(answerRelevance, contextRelevance, groundedness)
+        scores.takeIf { it.isNotEmpty() }?.average()?.let { overall ->
+            DistributionSummary.builder("ingestion.remi.overall_score")
+                .tag("knowledge_base_id", knowledgeBaseId)
+                .register(meterRegistry)
+                .record(overall)
+        }
+    }
+
     private fun updateKnowledgeBaseGauge(knowledgeBaseId: String, score: Double, chunkCount: Int) {
         val scoreRef = qualityScores.computeIfAbsent(knowledgeBaseId) { id ->
             val ref = AtomicReference(0.0)

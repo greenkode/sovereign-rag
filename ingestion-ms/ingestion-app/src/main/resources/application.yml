@@ -253,6 +253,16 @@ ingestion:
       database: ${DATABASE_NAME:sovereignrag_master}
       user: ${sovereignrag_db_user:sovereignrag}
       password: ${sovereignrag_db_password:RespectTheHangover}
+  remi:
+    enabled: ${REMI_ENABLED:true}
+    ollama-base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model-name: ${REMI_MODEL:llama3.2:3b}
+    timeout-seconds: ${REMI_TIMEOUT:60}
+    async-enabled: ${REMI_ASYNC:true}
+    batch-size: ${REMI_BATCH_SIZE:10}
+    evaluation-delay-ms: ${REMI_DELAY:500}
+    min-context-relevance-for-missing-knowledge: 0.3
+    min-groundedness-for-hallucination: 0.5
 
 sovereignrag:
   cors:
