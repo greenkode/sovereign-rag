@@ -1,6 +1,9 @@
 package ai.sovereignrag.ingestion.core.controller
 
+import ai.sovereignrag.ingestion.commons.dto.BatchUploadRequest
+import ai.sovereignrag.ingestion.commons.dto.BatchUploadResponse
 import ai.sovereignrag.ingestion.commons.dto.ConfirmUploadRequest
+import ai.sovereignrag.ingestion.commons.dto.FolderUploadRequest
 import ai.sovereignrag.ingestion.commons.dto.IngestionJobResponse
 import ai.sovereignrag.ingestion.commons.dto.JobListResponse
 import ai.sovereignrag.ingestion.commons.dto.OrganizationQuotaResponse
@@ -11,9 +14,12 @@ import ai.sovereignrag.ingestion.commons.dto.RssFeedRequest
 import ai.sovereignrag.ingestion.commons.dto.TextInputRequest
 import ai.sovereignrag.ingestion.commons.dto.WebScrapeRequest
 import ai.sovereignrag.ingestion.commons.entity.JobStatus
+import ai.sovereignrag.ingestion.core.command.BatchUploadCommand
 import ai.sovereignrag.ingestion.core.command.CancelJobCommand
+import ai.sovereignrag.ingestion.core.command.ConfirmBatchUploadCommand
 import ai.sovereignrag.ingestion.core.command.ConfirmUploadCommand
 import ai.sovereignrag.ingestion.core.command.CreatePresignedUploadCommand
+import ai.sovereignrag.ingestion.core.command.FolderUploadCommand
 import ai.sovereignrag.ingestion.core.command.RetryJobCommand
 import ai.sovereignrag.ingestion.core.command.SubmitQAPairsCommand
 import ai.sovereignrag.ingestion.core.command.SubmitRssFeedCommand
@@ -74,6 +80,49 @@ class IngestionController(
             ConfirmUploadCommand(
                 organizationId = organizationId,
                 jobId = request.jobId
+            )
+        )
+    }
+
+    @PostMapping("/upload/batch")
+    @Operation(summary = "Get presigned URLs for batch upload", description = "Generate presigned URLs for uploading multiple files")
+    fun getBatchUploadUrls(@RequestBody request: BatchUploadRequest): BatchUploadResponse {
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Generating batch presigned URLs for organization $organizationId, ${request.files.size} files" }
+        return pipeline.send(
+            BatchUploadCommand(
+                organizationId = organizationId,
+                files = request.files,
+                knowledgeBaseId = request.knowledgeBaseId
+            )
+        )
+    }
+
+    @PostMapping("/upload/batch/confirm")
+    @Operation(summary = "Confirm batch upload completion", description = "Confirm that all files in the batch are uploaded and start processing")
+    fun confirmBatchUpload(@RequestBody request: ConfirmUploadRequest): IngestionJobResponse {
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Confirming batch upload for organization $organizationId, batch: ${request.jobId}" }
+        return pipeline.send(
+            ConfirmBatchUploadCommand(
+                organizationId = organizationId,
+                batchJobId = request.jobId
+            )
+        )
+    }
+
+    @PostMapping("/upload/folder")
+    @Operation(summary = "Get presigned URL for folder/ZIP upload", description = "Generate a presigned URL for uploading a ZIP archive containing a folder structure")
+    fun getFolderUploadUrl(@RequestBody request: FolderUploadRequest): PresignedUploadResponse {
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Generating folder upload URL for organization $organizationId, file: ${request.fileName}" }
+        return pipeline.send(
+            FolderUploadCommand(
+                organizationId = organizationId,
+                fileName = request.fileName,
+                fileSize = request.fileSize,
+                knowledgeBaseId = request.knowledgeBaseId,
+                preserveStructure = request.preserveStructure
             )
         )
     }

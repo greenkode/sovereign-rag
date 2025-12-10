@@ -51,14 +51,58 @@ data class WebScrapeRequest(
     val maxPages: Int = 10
 )
 
-@Schema(description = "Request for batch import")
-data class BatchImportRequest(
-    @Schema(description = "List of URLs to import")
-    val urls: List<String>? = null,
-    @Schema(description = "S3 key of ZIP file to import")
-    val zipFileKey: String? = null,
+@Schema(description = "File info for batch upload")
+data class BatchFileInfo(
+    @Schema(description = "Original file name", example = "document.pdf")
+    val fileName: String,
+    @Schema(description = "File MIME type", example = "application/pdf")
+    val contentType: String,
+    @Schema(description = "File size in bytes", example = "1048576")
+    val fileSize: Long
+)
+
+@Schema(description = "Request for batch file upload - get presigned URLs for multiple files")
+data class BatchUploadRequest(
+    @Schema(description = "List of files to upload")
+    val files: List<BatchFileInfo>,
     @Schema(description = "Knowledge base ID to associate with")
     val knowledgeBaseId: UUID? = null
+)
+
+@Schema(description = "Individual file upload info in batch response")
+data class BatchFileUploadInfo(
+    @Schema(description = "Job ID for this file")
+    val jobId: UUID,
+    @Schema(description = "Original file name")
+    val fileName: String,
+    @Schema(description = "Presigned URL for direct upload to S3")
+    val uploadUrl: String,
+    @Schema(description = "S3 key where file will be stored")
+    val key: String
+)
+
+@Schema(description = "Response for batch upload request")
+data class BatchUploadResponse(
+    @Schema(description = "Parent batch job ID")
+    val batchJobId: UUID,
+    @Schema(description = "List of file upload info with presigned URLs")
+    val files: List<BatchFileUploadInfo>,
+    @Schema(description = "URL expiration time in seconds")
+    val expiresIn: Long,
+    @Schema(description = "Total files in batch")
+    val totalFiles: Int
+)
+
+@Schema(description = "Request for folder/ZIP upload")
+data class FolderUploadRequest(
+    @Schema(description = "ZIP file name", example = "documents.zip")
+    val fileName: String,
+    @Schema(description = "ZIP file size in bytes")
+    val fileSize: Long,
+    @Schema(description = "Knowledge base ID to associate with")
+    val knowledgeBaseId: UUID? = null,
+    @Schema(description = "Whether to preserve folder structure in metadata")
+    val preserveStructure: Boolean = true
 )
 
 @Schema(description = "Request to submit raw text for ingestion")

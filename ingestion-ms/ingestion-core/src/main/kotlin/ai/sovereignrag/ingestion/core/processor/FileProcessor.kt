@@ -26,8 +26,7 @@ class FileProcessor(
 ) : JobProcessor {
     private val tika = Tika()
 
-    override fun supports(jobType: JobType): Boolean =
-        jobType in listOf(JobType.FILE_UPLOAD, JobType.BATCH_IMPORT, JobType.FOLDER_IMPORT)
+    override fun supports(jobType: JobType): Boolean = jobType == JobType.FILE_UPLOAD
 
     override fun process(job: IngestionJob) {
         log.info { "Processing file job ${job.id}: ${job.fileName}" }

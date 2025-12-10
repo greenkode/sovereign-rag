@@ -78,6 +78,16 @@ interface IngestionJobRepository : JpaRepository<IngestionJob, UUID> {
 
     @Query("SELECT COUNT(j) FROM IngestionJob j WHERE j.organizationId = :organizationId AND j.status = 'COMPLETED' AND j.completedAt >= :since")
     fun countCompletedJobsSince(organizationId: UUID, since: Instant): Long
+
+    fun findByParentJobId(parentJobId: UUID): List<IngestionJob>
+
+    fun findByParentJobIdAndStatus(parentJobId: UUID, status: JobStatus): List<IngestionJob>
+
+    @Query("SELECT COUNT(j) FROM IngestionJob j WHERE j.parentJobId = :parentJobId AND j.status = :status")
+    fun countByParentJobIdAndStatus(parentJobId: UUID, status: JobStatus): Long
+
+    @Query("SELECT COUNT(j) FROM IngestionJob j WHERE j.parentJobId = :parentJobId")
+    fun countByParentJobId(parentJobId: UUID): Long
 }
 
 @Repository
