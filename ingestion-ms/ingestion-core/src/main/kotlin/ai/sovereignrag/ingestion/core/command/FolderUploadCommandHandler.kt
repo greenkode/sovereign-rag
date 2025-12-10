@@ -1,6 +1,8 @@
 package ai.sovereignrag.ingestion.core.command
 
 import ai.sovereignrag.commons.fileupload.FileUploadGateway
+import ai.sovereignrag.ingestion.commons.audit.IngestionAuditPayloadKey
+import ai.sovereignrag.ingestion.commons.audit.IngestionEventType
 import ai.sovereignrag.ingestion.commons.config.IngestionProperties
 import ai.sovereignrag.ingestion.commons.dto.PresignedUploadResponse
 import ai.sovereignrag.ingestion.commons.entity.IngestionJob
@@ -8,6 +10,7 @@ import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.entity.SourceType
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.audit.IngestionAuditEventPublisher
 import ai.sovereignrag.ingestion.core.service.OrganizationQuotaService
 import ai.sovereignrag.ingestion.core.service.QuotaValidationResult
 import an.awesome.pipelinr.Command
@@ -28,7 +31,8 @@ class FolderUploadCommandHandler(
     private val organizationQuotaService: OrganizationQuotaService,
     private val ingestionProperties: IngestionProperties,
     private val objectMapper: ObjectMapper,
-    private val messageSource: MessageSource
+    private val messageSource: MessageSource,
+    private val auditEventPublisher: IngestionAuditEventPublisher
 ) : Command.Handler<FolderUploadCommand, PresignedUploadResponse> {
 
     override fun handle(command: FolderUploadCommand): PresignedUploadResponse {
@@ -88,6 +92,17 @@ class FolderUploadCommandHandler(
         jobRepository.save(savedJob)
 
         log.info { "Created folder upload job ${savedJob.id} for organization ${command.organizationId}" }
+
+        auditEventPublisher.publishJobInitiated(
+            eventType = IngestionEventType.FOLDER_UPLOAD_INITIATED,
+            organizationId = command.organizationId,
+            jobId = savedJob.id!!,
+            knowledgeBaseId = command.knowledgeBaseId,
+            additionalPayload = mapOf(
+                IngestionAuditPayloadKey.FILE_NAME.value to command.fileName,
+                IngestionAuditPayloadKey.FILE_SIZE.value to command.fileSize.toString()
+            )
+        )
 
         return PresignedUploadResponse(
             jobId = savedJob.id!!,

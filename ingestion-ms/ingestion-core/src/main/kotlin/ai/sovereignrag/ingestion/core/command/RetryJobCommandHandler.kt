@@ -1,8 +1,10 @@
 package ai.sovereignrag.ingestion.core.command
 
+import ai.sovereignrag.ingestion.commons.audit.IngestionEventType
 import ai.sovereignrag.ingestion.commons.dto.IngestionJobResponse
 import ai.sovereignrag.ingestion.commons.queue.JobQueue
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.audit.IngestionAuditEventPublisher
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.MessageSource
@@ -17,7 +19,8 @@ private val log = KotlinLogging.logger {}
 class RetryJobCommandHandler(
     private val jobRepository: IngestionJobRepository,
     private val jobQueue: JobQueue,
-    private val messageSource: MessageSource
+    private val messageSource: MessageSource,
+    private val auditEventPublisher: IngestionAuditEventPublisher
 ) : Command.Handler<RetryJobCommand, IngestionJobResponse> {
 
     override fun handle(command: RetryJobCommand): IngestionJobResponse {
@@ -39,6 +42,13 @@ class RetryJobCommandHandler(
         val updatedJob = jobRepository.findById(command.jobId).get()
 
         log.info { "Retrying job ${command.jobId} for organization ${command.organizationId}, attempt ${updatedJob.retryCount}" }
+
+        auditEventPublisher.publishJobInitiated(
+            eventType = IngestionEventType.JOB_RETRIED,
+            organizationId = updatedJob.organizationId,
+            jobId = updatedJob.id!!,
+            knowledgeBaseId = updatedJob.knowledgeBaseId
+        )
 
         return IngestionJobResponse(
             id = updatedJob.id!!,

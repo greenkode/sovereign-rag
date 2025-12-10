@@ -46,6 +46,15 @@ class SecurityContextService {
         return userIdClaim?.let { UUID.fromString(it) }
     }
 
+    fun getCurrentUserName(): String {
+        val jwt = getJwtFromSecurityContext()
+            ?: throw IllegalStateException("No JWT authentication found")
+        return jwt.getClaimAsString("name")
+            ?: jwt.getClaimAsString("preferred_username")
+            ?: jwt.subject
+            ?: "Unknown"
+    }
+
     private fun getJwtFromSecurityContext(): Jwt? {
         val authentication = SecurityContextHolder.getContext().authentication as? JwtAuthenticationToken
         return authentication?.principal as? Jwt

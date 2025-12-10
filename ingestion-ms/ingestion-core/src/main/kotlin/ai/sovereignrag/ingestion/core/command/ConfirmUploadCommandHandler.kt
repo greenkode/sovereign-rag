@@ -1,9 +1,11 @@
 package ai.sovereignrag.ingestion.core.command
 
+import ai.sovereignrag.ingestion.commons.audit.IngestionEventType
 import ai.sovereignrag.ingestion.commons.dto.IngestionJobResponse
 import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.commons.queue.JobQueue
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.audit.IngestionAuditEventPublisher
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.MessageSource
@@ -18,7 +20,8 @@ private val log = KotlinLogging.logger {}
 class ConfirmUploadCommandHandler(
     private val jobRepository: IngestionJobRepository,
     private val jobQueue: JobQueue,
-    private val messageSource: MessageSource
+    private val messageSource: MessageSource,
+    private val auditEventPublisher: IngestionAuditEventPublisher
 ) : Command.Handler<ConfirmUploadCommand, IngestionJobResponse> {
 
     override fun handle(command: ConfirmUploadCommand): IngestionJobResponse {
@@ -38,6 +41,13 @@ class ConfirmUploadCommandHandler(
         jobQueue.enqueue(job)
 
         log.info { "Confirmed upload and queued job ${job.id} for processing" }
+
+        auditEventPublisher.publishJobInitiated(
+            eventType = IngestionEventType.FILE_UPLOAD_CONFIRMED,
+            organizationId = job.organizationId,
+            jobId = job.id!!,
+            knowledgeBaseId = job.knowledgeBaseId
+        )
 
         return IngestionJobResponse(
             id = job.id!!,

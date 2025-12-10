@@ -1,7 +1,9 @@
 package ai.sovereignrag.ingestion.core.command
 
+import ai.sovereignrag.ingestion.commons.audit.IngestionEventType
 import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.audit.IngestionAuditEventPublisher
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.MessageSource
@@ -15,7 +17,8 @@ private val log = KotlinLogging.logger {}
 @Transactional
 class CancelJobCommandHandler(
     private val jobRepository: IngestionJobRepository,
-    private val messageSource: MessageSource
+    private val messageSource: MessageSource,
+    private val auditEventPublisher: IngestionAuditEventPublisher
 ) : Command.Handler<CancelJobCommand, CancelJobResult> {
 
     override fun handle(command: CancelJobCommand): CancelJobResult {
@@ -36,6 +39,13 @@ class CancelJobCommandHandler(
         jobRepository.save(job)
 
         log.info { "Cancelled job ${command.jobId} for organization ${command.organizationId}" }
+
+        auditEventPublisher.publishJobInitiated(
+            eventType = IngestionEventType.JOB_CANCELLED,
+            organizationId = job.organizationId,
+            jobId = job.id!!,
+            knowledgeBaseId = job.knowledgeBaseId
+        )
 
         return CancelJobResult(
             success = true,

@@ -1,11 +1,13 @@
 package ai.sovereignrag.ingestion.core.command
 
+import ai.sovereignrag.ingestion.commons.audit.IngestionEventType
 import ai.sovereignrag.ingestion.commons.dto.IngestionJobResponse
 import ai.sovereignrag.ingestion.commons.entity.IngestionJob
 import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.entity.SourceType
 import ai.sovereignrag.ingestion.commons.queue.JobQueue
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.audit.IngestionAuditEventPublisher
 import ai.sovereignrag.ingestion.core.service.OrganizationQuotaService
 import ai.sovereignrag.ingestion.core.service.QuotaValidationResult
 import an.awesome.pipelinr.Command
@@ -25,7 +27,8 @@ class SubmitTextInputCommandHandler(
     private val jobQueue: JobQueue,
     private val organizationQuotaService: OrganizationQuotaService,
     private val objectMapper: ObjectMapper,
-    private val messageSource: MessageSource
+    private val messageSource: MessageSource,
+    private val auditEventPublisher: IngestionAuditEventPublisher
 ) : Command.Handler<SubmitTextInputCommand, IngestionJobResponse> {
 
     override fun handle(command: SubmitTextInputCommand): IngestionJobResponse {
@@ -76,6 +79,13 @@ class SubmitTextInputCommandHandler(
         jobQueue.enqueue(savedJob)
 
         log.info { "Submitted text input job ${savedJob.id}, content size: $contentSize bytes, priority: $priority" }
+
+        auditEventPublisher.publishJobInitiated(
+            eventType = IngestionEventType.TEXT_INPUT_SUBMITTED,
+            organizationId = command.organizationId,
+            jobId = savedJob.id!!,
+            knowledgeBaseId = command.knowledgeBaseId
+        )
 
         return IngestionJobResponse(
             id = savedJob.id!!,

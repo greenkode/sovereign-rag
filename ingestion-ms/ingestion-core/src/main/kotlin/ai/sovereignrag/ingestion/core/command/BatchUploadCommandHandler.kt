@@ -1,6 +1,8 @@
 package ai.sovereignrag.ingestion.core.command
 
 import ai.sovereignrag.commons.fileupload.FileUploadGateway
+import ai.sovereignrag.ingestion.commons.audit.IngestionAuditPayloadKey
+import ai.sovereignrag.ingestion.commons.audit.IngestionEventType
 import ai.sovereignrag.ingestion.commons.config.IngestionProperties
 import ai.sovereignrag.ingestion.commons.dto.BatchFileUploadInfo
 import ai.sovereignrag.ingestion.commons.dto.BatchUploadResponse
@@ -9,6 +11,7 @@ import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.entity.SourceType
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.audit.IngestionAuditEventPublisher
 import ai.sovereignrag.ingestion.core.service.OrganizationQuotaService
 import ai.sovereignrag.ingestion.core.service.QuotaValidationResult
 import an.awesome.pipelinr.Command
@@ -27,7 +30,8 @@ class BatchUploadCommandHandler(
     private val fileUploadGateway: FileUploadGateway,
     private val organizationQuotaService: OrganizationQuotaService,
     private val ingestionProperties: IngestionProperties,
-    private val messageSource: MessageSource
+    private val messageSource: MessageSource,
+    private val auditEventPublisher: IngestionAuditEventPublisher
 ) : Command.Handler<BatchUploadCommand, BatchUploadResponse> {
 
     override fun handle(command: BatchUploadCommand): BatchUploadResponse {
@@ -93,6 +97,17 @@ class BatchUploadCommandHandler(
         }
 
         log.info { "Created ${fileUploadInfos.size} child jobs for batch ${savedBatchJob.id}" }
+
+        auditEventPublisher.publishJobInitiated(
+            eventType = IngestionEventType.BATCH_UPLOAD_INITIATED,
+            organizationId = command.organizationId,
+            jobId = savedBatchJob.id!!,
+            knowledgeBaseId = command.knowledgeBaseId,
+            additionalPayload = mapOf(
+                IngestionAuditPayloadKey.TOTAL_FILES.value to command.files.size.toString(),
+                IngestionAuditPayloadKey.FILE_SIZE.value to totalSize.toString()
+            )
+        )
 
         return BatchUploadResponse(
             batchJobId = savedBatchJob.id!!,

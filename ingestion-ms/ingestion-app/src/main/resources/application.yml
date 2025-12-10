@@ -94,6 +94,16 @@ spring:
         jwt:
           issuer-uri: ${JWT_ISSUER_URI:http://localhost:9093}
           jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:9093/.well-known/jwks.json}
+      client:
+        registration:
+          ingestion-ms-client:
+            client-id: ${ingestion_client_id:ingestion-ms-client}
+            client-secret: ${ingestion_client_secret:RespectTheHangover}
+            authorization-grant-type: client_credentials
+            scope: service:audit
+        provider:
+          ingestion-ms-client:
+            token-uri: ${identity-ms.base-url}/oauth2/token
 
   jackson:
     serialization:
@@ -217,6 +227,12 @@ ingestion:
 sovereignrag:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+
+identity-ms:
+  base-url: ${IDENTITY_MS_BASE_URL:http://localhost:9083}
+
+audit-ms:
+  base-url: ${AUDIT_MS_BASE_URL:http://localhost:9080}
 
 springdoc:
   api-docs:

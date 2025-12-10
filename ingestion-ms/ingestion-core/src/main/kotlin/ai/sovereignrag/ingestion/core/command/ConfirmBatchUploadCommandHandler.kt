@@ -1,10 +1,13 @@
 package ai.sovereignrag.ingestion.core.command
 
+import ai.sovereignrag.ingestion.commons.audit.IngestionAuditPayloadKey
+import ai.sovereignrag.ingestion.commons.audit.IngestionEventType
 import ai.sovereignrag.ingestion.commons.dto.IngestionJobResponse
 import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.queue.JobQueue
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.audit.IngestionAuditEventPublisher
 import an.awesome.pipelinr.Command
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.MessageSource
@@ -19,7 +22,8 @@ private val log = KotlinLogging.logger {}
 class ConfirmBatchUploadCommandHandler(
     private val jobRepository: IngestionJobRepository,
     private val jobQueue: JobQueue,
-    private val messageSource: MessageSource
+    private val messageSource: MessageSource,
+    private val auditEventPublisher: IngestionAuditEventPublisher
 ) : Command.Handler<ConfirmBatchUploadCommand, IngestionJobResponse> {
 
     override fun handle(command: ConfirmBatchUploadCommand): IngestionJobResponse {
@@ -56,6 +60,16 @@ class ConfirmBatchUploadCommandHandler(
         jobRepository.save(batchJob)
 
         log.info { "Confirmed batch upload ${batchJob.id}, enqueued $enqueuedCount child jobs for processing" }
+
+        auditEventPublisher.publishJobInitiated(
+            eventType = IngestionEventType.BATCH_UPLOAD_CONFIRMED,
+            organizationId = batchJob.organizationId,
+            jobId = batchJob.id!!,
+            knowledgeBaseId = batchJob.knowledgeBaseId,
+            additionalPayload = mapOf(
+                IngestionAuditPayloadKey.TOTAL_FILES.value to childJobs.size.toString()
+            )
+        )
 
         return IngestionJobResponse(
             id = batchJob.id!!,
