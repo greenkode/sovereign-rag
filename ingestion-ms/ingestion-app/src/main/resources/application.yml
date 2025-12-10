@@ -100,7 +100,7 @@ spring:
             client-id: ${ingestion_client_id:ingestion-ms-client}
             client-secret: ${ingestion_client_secret:RespectTheHangover}
             authorization-grant-type: client_credentials
-            scope: service:audit
+            scope: service:audit,service:internal
         provider:
           ingestion-ms-client:
             token-uri: ${identity-ms.base-url}/oauth2/token
@@ -109,6 +109,19 @@ spring:
     serialization:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
+
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.scheduler.instanceName: ingestion-scheduler
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.jobStore.tablePrefix: core.QRTZ_
+      org.quartz.jobStore.isClustered: true
+      org.quartz.jobStore.clusterCheckinInterval: 20000
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.threadPool.threadCount: 5
 
 jwt:
   public-key-path: "${jwt_public_key:-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5DE42l3RNVrYKygAIzGdh3zhyozK6RRHvrsoQGokhRZieglqXmlmDfeX9wpGN0H8ze1s1wNYr3OvpRiQPVxo9X2KbOCTTGtbzUe4M1IdddEk2oVbbJtzzUygmsbVsJlvNfGGQNb58pPmRnrUCMJni3z4iFeXXOS0j4XLdO+OvN62IUvnQ8NnPE+EToeVp3SU57kRgWtpD9xstvUg7ezl8Q9+vpl/Az2lsWRogQDxnvW8yxrkHzrXoP1bddP9FvWgF3ol9A+8YVqkE32pbhpfgvZ+1acxLpo2UlqggZgQuIjuAV+aHsYg4m8FkmrTJHGBIHdDQ6mqMFUTHG6ISaEmxwIDAQAB-----END PUBLIC KEY-----}"
@@ -223,6 +236,23 @@ ingestion:
       - text/html
       - application/json
       - application/xml
+  embedding:
+    model-name: ${EMBEDDING_MODEL:nomic-embed-text}
+    ollama-base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    openai-api-key: ${OPENAI_API_KEY:}
+    huggingface-api-key: ${HUGGINGFACE_API_KEY:}
+    batch-size: ${EMBEDDING_BATCH_SIZE:32}
+    dimension: ${EMBEDDING_DIMENSION:768}
+    max-retries: 3
+    retry-delay-ms: 1000
+    table-prefix: kb_
+    table-suffix: _embeddings
+    pgvector:
+      host: ${DB_HOST:localhost}
+      port: ${DATABASE_PORT:5432}
+      database: ${DATABASE_NAME:sovereignrag_master}
+      user: ${sovereignrag_db_user:sovereignrag}
+      password: ${sovereignrag_db_password:RespectTheHangover}
 
 sovereignrag:
   cors:
@@ -230,6 +260,9 @@ sovereignrag:
 
 identity-ms:
   base-url: ${IDENTITY_MS_BASE_URL:http://localhost:9083}
+
+core-ms:
+  base-url: ${CORE_MS_BASE_URL:http://localhost:9082}
 
 audit-ms:
   base-url: ${AUDIT_MS_BASE_URL:http://localhost:9080}

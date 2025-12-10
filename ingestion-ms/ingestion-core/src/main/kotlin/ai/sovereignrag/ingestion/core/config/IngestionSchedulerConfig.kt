@@ -1,10 +1,10 @@
 package ai.sovereignrag.ingestion.core.config
 
-import ai.sovereignrag.commons.scheduler.ScheduleJobPayload
-import ai.sovereignrag.commons.scheduler.SchedulerGateway
 import ai.sovereignrag.ingestion.commons.config.IngestionProperties
 import ai.sovereignrag.ingestion.core.job.IngestionJobPollerQuartzJob
 import ai.sovereignrag.ingestion.core.job.StaleJobReleaserQuartzJob
+import ai.sovereignrag.ingestion.core.scheduler.IngestionScheduleJobPayload
+import ai.sovereignrag.ingestion.core.scheduler.IngestionSchedulerService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import org.springframework.context.annotation.Configuration
@@ -14,7 +14,7 @@ private val log = KotlinLogging.logger {}
 
 @Configuration
 class IngestionSchedulerConfig(
-    private val schedulerGateway: SchedulerGateway,
+    private val schedulerService: IngestionSchedulerService,
     private val ingestionProperties: IngestionProperties
 ) {
 
@@ -34,8 +34,8 @@ class IngestionSchedulerConfig(
     private fun scheduleJobPoller() {
         val pollIntervalSeconds = (ingestionProperties.queue.pollIntervalMs / 1000).toInt()
 
-        schedulerGateway.scheduleJob(
-            ScheduleJobPayload(
+        schedulerService.scheduleJob(
+            IngestionScheduleJobPayload(
                 jobType = IngestionJobPollerQuartzJob::class.java,
                 reference = JOB_POLLER_REFERENCE,
                 group = JOB_POLLER_GROUP,
@@ -53,8 +53,8 @@ class IngestionSchedulerConfig(
     private fun scheduleStaleJobReleaser() {
         val releaseIntervalSeconds = (ingestionProperties.queue.lockTimeoutMinutes * 60).toInt()
 
-        schedulerGateway.scheduleJob(
-            ScheduleJobPayload(
+        schedulerService.scheduleJob(
+            IngestionScheduleJobPayload(
                 jobType = StaleJobReleaserQuartzJob::class.java,
                 reference = STALE_RELEASER_REFERENCE,
                 group = JOB_POLLER_GROUP,

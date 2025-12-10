@@ -51,6 +51,19 @@ spring:
     placeholder-replacement: false  # Disable to preserve ${} in templates
     schemas: [core]
 
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.scheduler.instanceName: core-scheduler
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.jobStore.tablePrefix: core.QRTZ_
+      org.quartz.jobStore.isClustered: true
+      org.quartz.jobStore.clusterCheckinInterval: 20000
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.threadPool.threadCount: 10
+
   # OAuth2 Resource Server (validates JWTs from identity-ms)
   security:
     oauth2:
