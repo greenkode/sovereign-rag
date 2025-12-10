@@ -61,6 +61,54 @@ data class BatchImportRequest(
     val knowledgeBaseId: UUID? = null
 )
 
+@Schema(description = "Request to submit raw text for ingestion")
+data class TextInputRequest(
+    @Schema(description = "Raw text content to ingest", example = "This is the content to be indexed...")
+    val content: String,
+    @Schema(description = "Optional title for the content", example = "My Document")
+    val title: String? = null,
+    @Schema(description = "Knowledge base ID to associate with")
+    val knowledgeBaseId: UUID? = null,
+    @Schema(description = "Optional metadata for the content")
+    val metadata: Map<String, String>? = null
+)
+
+@Schema(description = "A question-answer pair for FAQ-style content")
+data class QAPair(
+    @Schema(description = "The question", example = "What is RAG?")
+    val question: String,
+    @Schema(description = "The answer", example = "RAG stands for Retrieval-Augmented Generation...")
+    val answer: String,
+    @Schema(description = "Optional category", example = "General")
+    val category: String? = null,
+    @Schema(description = "Optional tags")
+    val tags: List<String>? = null
+)
+
+@Schema(description = "Request to submit Q&A pairs for ingestion")
+data class QAPairsRequest(
+    @Schema(description = "List of Q&A pairs to ingest")
+    val pairs: List<QAPair>,
+    @Schema(description = "Knowledge base ID to associate with")
+    val knowledgeBaseId: UUID? = null,
+    @Schema(description = "Optional source name", example = "Company FAQ")
+    val sourceName: String? = null
+)
+
+@Schema(description = "Request to subscribe to an RSS/Atom feed for ingestion")
+data class RssFeedRequest(
+    @Schema(description = "URL of the RSS or Atom feed", example = "https://example.com/feed.xml")
+    val feedUrl: String,
+    @Schema(description = "Knowledge base ID to associate with")
+    val knowledgeBaseId: UUID? = null,
+    @Schema(description = "Optional name for the feed source", example = "Company Blog")
+    val sourceName: String? = null,
+    @Schema(description = "Maximum number of items to ingest (default: 50)")
+    val maxItems: Int = 50,
+    @Schema(description = "Include full content if available (default: true)")
+    val includeFullContent: Boolean = true
+)
+
 @Schema(description = "Job response")
 data class IngestionJobResponse(
     @Schema(description = "Job ID")

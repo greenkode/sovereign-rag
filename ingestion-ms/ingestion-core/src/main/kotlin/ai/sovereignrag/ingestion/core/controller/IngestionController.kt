@@ -6,13 +6,19 @@ import ai.sovereignrag.ingestion.commons.dto.JobListResponse
 import ai.sovereignrag.ingestion.commons.dto.OrganizationQuotaResponse
 import ai.sovereignrag.ingestion.commons.dto.PresignedUploadRequest
 import ai.sovereignrag.ingestion.commons.dto.PresignedUploadResponse
+import ai.sovereignrag.ingestion.commons.dto.QAPairsRequest
+import ai.sovereignrag.ingestion.commons.dto.RssFeedRequest
+import ai.sovereignrag.ingestion.commons.dto.TextInputRequest
 import ai.sovereignrag.ingestion.commons.dto.WebScrapeRequest
 import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.core.command.CancelJobCommand
 import ai.sovereignrag.ingestion.core.command.ConfirmUploadCommand
 import ai.sovereignrag.ingestion.core.command.CreatePresignedUploadCommand
 import ai.sovereignrag.ingestion.core.command.RetryJobCommand
+import ai.sovereignrag.ingestion.core.command.SubmitQAPairsCommand
+import ai.sovereignrag.ingestion.core.command.SubmitRssFeedCommand
 import ai.sovereignrag.ingestion.core.command.SubmitScrapeJobCommand
+import ai.sovereignrag.ingestion.core.command.SubmitTextInputCommand
 import ai.sovereignrag.ingestion.core.query.GetJobQuery
 import ai.sovereignrag.ingestion.core.query.GetOrganizationQuotaQuery
 import ai.sovereignrag.ingestion.core.query.ListJobsQuery
@@ -84,6 +90,54 @@ class IngestionController(
                 knowledgeBaseId = request.knowledgeBaseId,
                 depth = request.maxDepth,
                 maxPages = request.maxPages
+            )
+        )
+    }
+
+    @PostMapping("/text")
+    @Operation(summary = "Submit text input", description = "Submit raw text content for ingestion")
+    fun submitTextInput(@RequestBody request: TextInputRequest): IngestionJobResponse {
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Submitting text input for organization $organizationId, title: ${request.title}" }
+        return pipeline.send(
+            SubmitTextInputCommand(
+                organizationId = organizationId,
+                content = request.content,
+                title = request.title,
+                knowledgeBaseId = request.knowledgeBaseId,
+                metadata = request.metadata
+            )
+        )
+    }
+
+    @PostMapping("/qa-pairs")
+    @Operation(summary = "Submit Q&A pairs", description = "Submit question-answer pairs for FAQ-style ingestion")
+    fun submitQAPairs(@RequestBody request: QAPairsRequest): IngestionJobResponse {
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Submitting Q&A pairs for organization $organizationId, ${request.pairs.size} pairs" }
+        return pipeline.send(
+            SubmitQAPairsCommand(
+                organizationId = organizationId,
+                pairs = request.pairs,
+                knowledgeBaseId = request.knowledgeBaseId,
+                sourceName = request.sourceName
+            )
+        )
+    }
+
+    @PostMapping("/rss")
+    @Operation(summary = "Submit RSS/Atom feed", description = "Subscribe to an RSS or Atom feed for ingestion")
+    fun submitRssFeed(@RequestBody request: RssFeedRequest): IngestionJobResponse {
+        val organizationId = getCurrentOrganizationId()
+        log.info { "Submitting RSS feed for organization $organizationId, feed: ${request.feedUrl}" }
+        return pipeline.send(
+            SubmitRssFeedCommand(
+                organizationId = organizationId,
+                feedUrl = request.feedUrl,
+                knowledgeBaseId = request.knowledgeBaseId,
+                sourceName = request.sourceName,
+                maxItems = request.maxItems,
+                includeFullContent = request.includeFullContent
             )
         )
     }

@@ -17,6 +17,9 @@ enum class JobType {
     WEB_SCRAPE,
     BATCH_IMPORT,
     FOLDER_IMPORT,
+    TEXT_INPUT,
+    QA_IMPORT,
+    RSS_FEED,
     EMBEDDING
 }
 
@@ -34,7 +37,10 @@ enum class SourceType {
     S3_KEY,
     URL,
     ZIP_ARCHIVE,
-    PRESIGNED_UPLOAD
+    PRESIGNED_UPLOAD,
+    TEXT,
+    QA_PAIR,
+    RSS_FEED
 }
 
 @Entity

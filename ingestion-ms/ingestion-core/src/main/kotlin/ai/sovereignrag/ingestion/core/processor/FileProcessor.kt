@@ -23,10 +23,13 @@ class FileProcessor(
     private val jobQueue: JobQueue,
     private val objectMapper: ObjectMapper,
     private val ingestionProperties: IngestionProperties
-) {
+) : JobProcessor {
     private val tika = Tika()
 
-    fun process(job: IngestionJob) {
+    override fun supports(jobType: JobType): Boolean =
+        jobType in listOf(JobType.FILE_UPLOAD, JobType.BATCH_IMPORT, JobType.FOLDER_IMPORT)
+
+    override fun process(job: IngestionJob) {
         log.info { "Processing file job ${job.id}: ${job.fileName}" }
 
         val sourceKey = job.sourceReference

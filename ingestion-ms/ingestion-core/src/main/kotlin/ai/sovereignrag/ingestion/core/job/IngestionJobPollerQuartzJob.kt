@@ -2,9 +2,7 @@ package ai.sovereignrag.ingestion.core.job
 
 import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.queue.JobQueue
-import ai.sovereignrag.ingestion.core.processor.EmbeddingProcessor
-import ai.sovereignrag.ingestion.core.processor.FileProcessor
-import ai.sovereignrag.ingestion.core.processor.WebScrapeProcessor
+import ai.sovereignrag.ingestion.core.processor.JobProcessor
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.quartz.DisallowConcurrentExecution
 import org.quartz.Job
@@ -19,9 +17,7 @@ private val log = KotlinLogging.logger {}
 @DisallowConcurrentExecution
 class IngestionJobPollerQuartzJob(
     private val jobQueue: JobQueue,
-    private val fileProcessor: FileProcessor,
-    private val webScrapeProcessor: WebScrapeProcessor,
-    private val embeddingProcessor: EmbeddingProcessor
+    private val processors: List<JobProcessor>
 ) : Job {
 
     private val workerId = "${InetAddress.getLocalHost().hostName}-${UUID.randomUUID().toString().take(8)}"
@@ -35,13 +31,8 @@ class IngestionJobPollerQuartzJob(
             log.info { "Worker $workerId processing job ${job.id} (${job.jobType})" }
 
             try {
-                when (job.jobType) {
-                    JobType.FILE_UPLOAD -> fileProcessor.process(job)
-                    JobType.WEB_SCRAPE -> webScrapeProcessor.process(job)
-                    JobType.BATCH_IMPORT -> fileProcessor.process(job)
-                    JobType.FOLDER_IMPORT -> fileProcessor.process(job)
-                    JobType.EMBEDDING -> embeddingProcessor.process(job)
-                }
+                val processor = findProcessor(job.jobType)
+                processor.process(job)
                 jobQueue.complete(job.id!!)
                 log.info { "Job ${job.id} completed successfully" }
             } catch (e: Exception) {
@@ -54,6 +45,10 @@ class IngestionJobPollerQuartzJob(
             }
         }
     }
+
+    private fun findProcessor(jobType: JobType): JobProcessor =
+        processors.find { it.supports(jobType) }
+            ?: throw IllegalStateException("No processor found for job type: $jobType")
 }
 
 @Component

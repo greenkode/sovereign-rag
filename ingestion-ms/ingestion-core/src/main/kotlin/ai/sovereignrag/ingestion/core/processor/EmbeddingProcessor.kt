@@ -7,6 +7,7 @@ import ai.sovereignrag.commons.embedding.EmbeddingModelNotFoundException
 import ai.sovereignrag.commons.embedding.SourceType
 import ai.sovereignrag.commons.embedding.TextChunk
 import ai.sovereignrag.ingestion.commons.entity.IngestionJob
+import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
 import ai.sovereignrag.ingestion.core.embedding.EmbeddingService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -25,9 +26,11 @@ class EmbeddingProcessor(
     private val embeddingModelGateway: EmbeddingModelGateway,
     private val jobRepository: IngestionJobRepository,
     private val objectMapper: ObjectMapper
-) {
+) : JobProcessor {
 
-    fun process(job: IngestionJob) {
+    override fun supports(jobType: JobType): Boolean = jobType == JobType.EMBEDDING
+
+    override fun process(job: IngestionJob) {
         log.info { "Processing embedding job ${job.id} for knowledge base ${job.knowledgeBaseId}" }
 
         val knowledgeBaseId = job.knowledgeBaseId
