@@ -1,11 +1,14 @@
 package ai.sovereignrag.ingestion.core.processor
 
+import ai.sovereignrag.commons.chunking.ChunkingConfig
+import ai.sovereignrag.commons.fileupload.FileUploadGateway
 import ai.sovereignrag.ingestion.commons.config.IngestionProperties
 import ai.sovereignrag.ingestion.commons.entity.IngestionJob
 import ai.sovereignrag.ingestion.commons.entity.JobType
-import ai.sovereignrag.commons.fileupload.FileUploadGateway
 import ai.sovereignrag.ingestion.commons.queue.JobQueue
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.chunking.ChunkingResult
+import ai.sovereignrag.ingestion.core.chunking.ChunkingService
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.tika.Tika
@@ -22,7 +25,8 @@ class FileProcessor(
     private val jobRepository: IngestionJobRepository,
     private val jobQueue: JobQueue,
     private val objectMapper: ObjectMapper,
-    private val ingestionProperties: IngestionProperties
+    private val ingestionProperties: IngestionProperties,
+    private val chunkingService: ChunkingService
 ) : JobProcessor {
     private val tika = Tika()
 
@@ -41,21 +45,29 @@ class FileProcessor(
         updateProgress(job, 30)
 
         val content = extractContent(inputStream, job.mimeType)
-        updateProgress(job, 60)
+        updateProgress(job, 50)
 
-        val chunks = chunkContent(content)
+        val mimeType = job.mimeType ?: "text/plain"
+        val chunkingResult = chunkContent(content, mimeType, job.knowledgeSourceId)
         updateProgress(job, 80)
 
-        log.info { "Extracted ${chunks.size} chunks from ${job.fileName}" }
+        log.info {
+            "Extracted ${chunkingResult.chunks.size} chunks from ${job.fileName} " +
+            "using strategy: ${chunkingResult.strategyUsed} (${chunkingResult.processingTimeMs}ms)"
+        }
 
-        job.knowledgeBaseId?.let { kbId ->
+        chunkingResult.qualityReport?.let { report ->
+            log.info { "Chunking quality score: ${report.overallScore} for ${job.fileName}" }
+        }
+
+        job.knowledgeBaseId?.let {
             val knowledgeSourceId = job.knowledgeSourceId ?: UUID.randomUUID()
-            createEmbeddingJob(job, chunks, knowledgeSourceId)
-            log.info { "Created embedding job for ${chunks.size} chunks" }
+            createEmbeddingJob(job, chunkingResult, knowledgeSourceId)
+            log.info { "Created embedding job for ${chunkingResult.chunks.size} chunks" }
         }
 
         job.markCompleted(
-            chunksCreated = chunks.size,
+            chunksCreated = chunkingResult.chunks.size,
             bytesProcessed = content.length.toLong()
         )
         jobRepository.save(job)
@@ -63,15 +75,19 @@ class FileProcessor(
 
     private fun createEmbeddingJob(
         parentJob: IngestionJob,
-        chunks: List<String>,
+        chunkingResult: ChunkingResult,
         knowledgeSourceId: UUID
     ) {
         val chunkData = ChunkJobData(
-            chunks = chunks.mapIndexed { index, content -> ChunkInfo(index, content) },
+            chunks = chunkingResult.chunks.mapIndexed { index, chunk ->
+                ChunkInfo(index, chunk.content)
+            },
             sourceType = "FILE",
             fileName = parentJob.fileName,
             sourceUrl = null,
-            title = parentJob.fileName
+            title = parentJob.fileName,
+            chunkingStrategy = chunkingResult.strategyUsed,
+            qualityScore = chunkingResult.qualityReport?.overallScore
         )
 
         val embeddingJob = IngestionJob(
@@ -99,27 +115,12 @@ class FileProcessor(
         }
     }
 
-    private fun chunkContent(content: String): List<String> {
-        val chunkSize = ingestionProperties.processing.chunkSize
-        val overlap = ingestionProperties.processing.chunkOverlap
-
-        if (content.length <= chunkSize) {
-            return listOf(content)
-        }
-
-        val chunks = mutableListOf<String>()
-        var start = 0
-
-        while (start < content.length) {
-            val end = (start + chunkSize).coerceAtMost(content.length)
-            val chunk = content.substring(start, end)
-            chunks.add(chunk)
-
-            start = end - overlap
-            if (start >= content.length - overlap) break
-        }
-
-        return chunks
+    private fun chunkContent(content: String, mimeType: String, sourceId: UUID?): ChunkingResult {
+        val config = ChunkingConfig(
+            chunkSize = ingestionProperties.processing.chunkSize,
+            chunkOverlap = ingestionProperties.processing.chunkOverlap
+        )
+        return chunkingService.chunk(content, mimeType, config, sourceId)
     }
 
     private fun updateProgress(job: IngestionJob, progress: Int) {

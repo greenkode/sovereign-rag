@@ -49,7 +49,10 @@ class EmbeddingProcessor(
         val chunkData = parseChunkData(job)
         val chunks = chunkData.chunks
 
-        log.info { "Embedding ${chunks.size} chunks for source $knowledgeSourceId" }
+        log.info {
+            "Embedding ${chunks.size} chunks for source $knowledgeSourceId " +
+            "(strategy: ${chunkData.chunkingStrategy ?: "unknown"}, quality: ${chunkData.qualityScore?.let { "%.2f".format(it) } ?: "N/A"})"
+        }
 
         updateProgress(job, 20)
 
@@ -116,7 +119,9 @@ data class ChunkJobData(
     val sourceType: String,
     val fileName: String?,
     val sourceUrl: String?,
-    val title: String?
+    val title: String?,
+    val chunkingStrategy: String? = null,
+    val qualityScore: Double? = null
 )
 
 data class ChunkInfo(

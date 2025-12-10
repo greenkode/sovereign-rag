@@ -1,5 +1,6 @@
 package ai.sovereignrag.ingestion.core.processor
 
+import ai.sovereignrag.commons.chunking.ChunkingConfig
 import ai.sovereignrag.commons.embedding.SourceType
 import ai.sovereignrag.commons.knowledgesource.CreateKnowledgeSourceRequest
 import ai.sovereignrag.commons.knowledgesource.KnowledgeSourceGateway
@@ -11,8 +12,9 @@ import ai.sovereignrag.ingestion.commons.model.ScrapeMode
 import ai.sovereignrag.ingestion.commons.model.WebScrapeJobMetadata
 import ai.sovereignrag.ingestion.commons.queue.JobQueue
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
+import ai.sovereignrag.ingestion.core.chunking.ChunkingResult
+import ai.sovereignrag.ingestion.core.chunking.ChunkingService
 import ai.sovereignrag.ingestion.core.scraping.ScrapingStrategy
-import ai.sovereignrag.ingestion.core.scraping.ScrapingUtils
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -28,7 +30,8 @@ class WebScrapeProcessor(
     private val jobQueue: JobQueue,
     private val knowledgeSourceGateway: KnowledgeSourceGateway,
     private val ingestionProperties: IngestionProperties,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val chunkingService: ChunkingService
 ) : JobProcessor {
 
     override fun supports(jobType: JobType): Boolean = jobType == JobType.WEB_SCRAPE
@@ -50,18 +53,19 @@ class WebScrapeProcessor(
 
         updateProgress(job, 70)
 
+        var totalChunks = 0
         job.knowledgeBaseId?.let { kbId ->
-            processScrapedPages(job, kbId, scrapedPages)
+            totalChunks = processScrapedPages(job, kbId, scrapedPages)
         } ?: log.warn { "No knowledge base ID for job ${job.id}, skipping knowledge source creation" }
 
         val totalContent = scrapedPages.sumOf { it.content.length }
         job.markCompleted(
-            chunksCreated = 0,
+            chunksCreated = totalChunks,
             bytesProcessed = totalContent.toLong()
         )
         jobRepository.save(job)
 
-        log.info { "Completed web scrape job ${job.id}: scraped ${scrapedPages.size} pages" }
+        log.info { "Completed web scrape job ${job.id}: scraped ${scrapedPages.size} pages, created $totalChunks chunks" }
     }
 
     private fun findStrategy(mode: ScrapeMode): ScrapingStrategy {
@@ -93,21 +97,38 @@ class WebScrapeProcessor(
         job: IngestionJob,
         knowledgeBaseId: UUID,
         pages: List<ScrapedPage>
-    ) {
+    ): Int {
+        var totalChunks = 0
+
         pages.forEach { page ->
             val knowledgeSourceId = createKnowledgeSource(job, knowledgeBaseId, page)
-            val chunks = ScrapingUtils.chunkContent(
-                page.content,
-                ingestionProperties.processing.chunkSize,
-                ingestionProperties.processing.chunkOverlap
-            )
+            val chunkingResult = chunkContent(page.content)
 
-            createEmbeddingJob(job, chunks, knowledgeSourceId, page)
+            log.debug {
+                "Chunked ${page.url} into ${chunkingResult.chunks.size} chunks " +
+                "using strategy: ${chunkingResult.strategyUsed}"
+            }
 
-            log.debug { "Created embedding job for ${page.url} with ${chunks.size} chunks" }
+            chunkingResult.qualityReport?.let { report ->
+                log.debug { "Chunking quality score: ${report.overallScore} for ${page.url}" }
+            }
+
+            createEmbeddingJob(job, chunkingResult, knowledgeSourceId, page)
+            totalChunks += chunkingResult.chunks.size
+
+            log.debug { "Created embedding job for ${page.url} with ${chunkingResult.chunks.size} chunks" }
         }
 
         updateProgress(job, 90)
+        return totalChunks
+    }
+
+    private fun chunkContent(content: String): ChunkingResult {
+        val config = ChunkingConfig(
+            chunkSize = ingestionProperties.processing.chunkSize,
+            chunkOverlap = ingestionProperties.processing.chunkOverlap
+        )
+        return chunkingService.chunk(content, "text/html", config)
     }
 
     private fun createKnowledgeSource(
@@ -135,16 +156,20 @@ class WebScrapeProcessor(
 
     private fun createEmbeddingJob(
         parentJob: IngestionJob,
-        chunks: List<String>,
+        chunkingResult: ChunkingResult,
         knowledgeSourceId: UUID,
         page: ScrapedPage
     ) {
         val chunkData = ChunkJobData(
-            chunks = chunks.mapIndexed { index, content -> ChunkInfo(index, content) },
+            chunks = chunkingResult.chunks.mapIndexed { index, chunk ->
+                ChunkInfo(index, chunk.content)
+            },
             sourceType = "URL",
             fileName = null,
             sourceUrl = page.url,
-            title = page.title.takeIf { it.isNotBlank() } ?: page.url
+            title = page.title.takeIf { it.isNotBlank() } ?: page.url,
+            chunkingStrategy = chunkingResult.strategyUsed,
+            qualityScore = chunkingResult.qualityReport?.overallScore
         )
 
         val embeddingJob = IngestionJob(
