@@ -5,6 +5,7 @@ import ai.sovereignrag.commons.embedding.EmbeddingGateway
 import ai.sovereignrag.commons.embedding.EmbeddingMatch
 import ai.sovereignrag.commons.embedding.TextChunk
 import ai.sovereignrag.ingestion.commons.config.IngestionProperties
+import ai.sovereignrag.ingestion.core.config.db.KnowledgeBaseDataSourceProvider
 import dev.langchain4j.data.document.Metadata
 import dev.langchain4j.data.embedding.Embedding
 import dev.langchain4j.data.segment.TextSegment
@@ -21,10 +22,12 @@ private val log = KotlinLogging.logger {}
 
 @Component
 class PgVectorEmbeddingGateway(
-    private val ingestionProperties: IngestionProperties
+    private val ingestionProperties: IngestionProperties,
+    private val dataSourceProvider: KnowledgeBaseDataSourceProvider
 ) : EmbeddingGateway {
 
     private val embeddingStores = ConcurrentHashMap<String, EmbeddingStore<TextSegment>>()
+    private val defaultDimension = 768
 
     override fun storeEmbeddings(
         knowledgeBaseId: String,
@@ -60,7 +63,7 @@ class PgVectorEmbeddingGateway(
     override fun deleteByKnowledgeBase(knowledgeBaseId: String) {
         val store = getOrCreateStore(knowledgeBaseId)
         store.removeAll()
-        embeddingStores.remove(knowledgeBaseId)
+        evictStore(knowledgeBaseId)
         log.info { "Deleted all embeddings for knowledge base $knowledgeBaseId" }
     }
 
@@ -93,7 +96,7 @@ class PgVectorEmbeddingGateway(
     override fun countBySourceId(knowledgeBaseId: String, sourceId: UUID): Long {
         val store = getOrCreateStore(knowledgeBaseId)
         val searchRequest = EmbeddingSearchRequest.builder()
-            .queryEmbedding(Embedding.from(FloatArray(ingestionProperties.embedding.dimension)))
+            .queryEmbedding(Embedding.from(FloatArray(defaultDimension)))
             .maxResults(Int.MAX_VALUE)
             .minScore(0.0)
             .filter(metadataKey("source_id").isEqualTo(sourceId.toString()))
@@ -105,7 +108,7 @@ class PgVectorEmbeddingGateway(
     override fun countByKnowledgeBase(knowledgeBaseId: String): Long {
         val store = getOrCreateStore(knowledgeBaseId)
         val searchRequest = EmbeddingSearchRequest.builder()
-            .queryEmbedding(Embedding.from(FloatArray(ingestionProperties.embedding.dimension)))
+            .queryEmbedding(Embedding.from(FloatArray(defaultDimension)))
             .maxResults(Int.MAX_VALUE)
             .minScore(0.0)
             .build()
@@ -113,24 +116,35 @@ class PgVectorEmbeddingGateway(
         return store.search(searchRequest).matches().size.toLong()
     }
 
+    fun evictStore(knowledgeBaseId: String) {
+        embeddingStores.remove(knowledgeBaseId)
+        dataSourceProvider.evictDataSource(knowledgeBaseId)
+        log.info { "Evicted embedding store for knowledge base: $knowledgeBaseId" }
+    }
+
     private fun getOrCreateStore(knowledgeBaseId: String): EmbeddingStore<TextSegment> {
         return embeddingStores.computeIfAbsent(knowledgeBaseId) { kbId ->
+            val connectionInfo = dataSourceProvider.getConnectionInfo(kbId)
             val tableName = getTableName(kbId)
-            val pgConfig = ingestionProperties.embedding.pgvector
+
+            log.info {
+                "Creating PgVectorEmbeddingStore for KB $kbId " +
+                "(host: ${connectionInfo.host}, db: ${connectionInfo.database}, schema: ${connectionInfo.schema}, table: $tableName)"
+            }
 
             PgVectorEmbeddingStore.builder()
-                .host(pgConfig.host)
-                .port(pgConfig.port)
-                .database(pgConfig.database)
-                .user(pgConfig.user)
-                .password(pgConfig.password)
-                .table(tableName)
-                .dimension(ingestionProperties.embedding.dimension)
+                .host(connectionInfo.host)
+                .port(connectionInfo.port)
+                .database(connectionInfo.database)
+                .user(connectionInfo.username)
+                .password(connectionInfo.password)
+                .table("${connectionInfo.schema}.$tableName")
+                .dimension(defaultDimension)
                 .createTable(true)
                 .useIndex(true)
                 .indexListSize(100)
                 .build().also {
-                    log.info { "Created PgVectorEmbeddingStore for knowledge base $kbId with table $tableName" }
+                    log.info { "Created PgVectorEmbeddingStore for knowledge base $kbId" }
                 }
         }
     }

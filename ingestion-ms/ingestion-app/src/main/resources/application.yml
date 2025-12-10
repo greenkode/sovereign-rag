@@ -267,6 +267,20 @@ core-ms:
 audit-ms:
   base-url: ${AUDIT_MS_BASE_URL:http://localhost:9080}
 
+regional-databases:
+  default-region: ${DEFAULT_REGION:eu-west-1}
+  regions:
+    eu-west-1:
+      url: "jdbc:postgresql://${DB_HOST:localhost}:${DATABASE_PORT:5432}/sovereignrag_master"
+      username: "${sovereignrag_db_user:sovereignrag}"
+      password: "${sovereignrag_db_password:RespectTheHangover}"
+      read-replica-url: "jdbc:postgresql://${READ_REPLICA_DB_HOST:${DB_HOST:localhost}}:${READ_REPLICA_DATABASE_PORT:${DATABASE_PORT:5432}}/sovereignrag_master"
+      max-pool-size: 10
+      min-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
 springdoc:
   api-docs:
     path: /api-docs
