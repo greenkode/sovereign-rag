@@ -71,6 +71,7 @@ class CreateKnowledgeBaseCommandHandler(
             regionCode = regionCode,
             description = command.description,
             embeddingModelId = command.embeddingModelId,
+            llmModelId = command.llmModelId,
             requiresEncryption = command.requiresEncryption
         )
 
@@ -105,6 +106,7 @@ class CreateKnowledgeBaseCommandHandler(
                 maxEmbeddings = knowledgeBase.maxEmbeddings,
                 maxRequestsPerDay = knowledgeBase.maxRequestsPerDay,
                 embeddingModelId = knowledgeBase.embeddingModelId,
+                llmModelId = knowledgeBase.llmModelId,
                 requiresEncryption = knowledgeBase.requiresEncryption,
                 createdAt = knowledgeBase.createdAt,
                 updatedAt = knowledgeBase.updatedAt,

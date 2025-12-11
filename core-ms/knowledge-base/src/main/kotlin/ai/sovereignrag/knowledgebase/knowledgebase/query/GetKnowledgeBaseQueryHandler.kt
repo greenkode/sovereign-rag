@@ -39,6 +39,7 @@ class GetKnowledgeBaseQueryHandler(
             maxEmbeddings = knowledgeBase.maxEmbeddings,
             maxRequestsPerDay = knowledgeBase.maxRequestsPerDay,
             embeddingModelId = knowledgeBase.embeddingModelId,
+            llmModelId = knowledgeBase.llmModelId,
             requiresEncryption = knowledgeBase.requiresEncryption,
             createdAt = knowledgeBase.createdAt,
             updatedAt = knowledgeBase.updatedAt,

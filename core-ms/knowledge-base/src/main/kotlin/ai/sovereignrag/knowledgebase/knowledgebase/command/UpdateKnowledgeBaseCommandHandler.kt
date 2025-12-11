@@ -32,6 +32,7 @@ class UpdateKnowledgeBaseCommandHandler(
         val updated = knowledgeBase.copy(
             name = command.name ?: knowledgeBase.name,
             description = command.description ?: knowledgeBase.description,
+            llmModelId = command.llmModelId ?: knowledgeBase.llmModelId,
             updatedAt = Instant.now()
         )
 
@@ -54,6 +55,7 @@ class UpdateKnowledgeBaseCommandHandler(
             maxEmbeddings = saved.maxEmbeddings,
             maxRequestsPerDay = saved.maxRequestsPerDay,
             embeddingModelId = saved.embeddingModelId,
+            llmModelId = saved.llmModelId,
             requiresEncryption = saved.requiresEncryption,
             createdAt = saved.createdAt,
             updatedAt = saved.updatedAt,

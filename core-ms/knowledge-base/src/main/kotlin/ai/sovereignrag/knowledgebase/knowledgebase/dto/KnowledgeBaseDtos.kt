@@ -19,6 +19,7 @@ data class KnowledgeBaseDto(
     val maxEmbeddings: Int,
     val maxRequestsPerDay: Int,
     val embeddingModelId: String? = null,
+    val llmModelId: String? = null,
     val requiresEncryption: Boolean? = null,
     val createdAt: Instant,
     val updatedAt: Instant,

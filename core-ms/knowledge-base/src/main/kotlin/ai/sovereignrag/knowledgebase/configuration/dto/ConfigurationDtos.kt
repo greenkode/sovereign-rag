@@ -1,5 +1,10 @@
 package ai.sovereignrag.knowledgebase.configuration.dto
 
+import ai.sovereignrag.commons.subscription.SubscriptionTier
+import ai.sovereignrag.knowledgebase.configuration.domain.LlmPrivacyLevel
+import ai.sovereignrag.knowledgebase.configuration.domain.LlmProviderType
+import java.math.BigDecimal
+
 data class RegionDto(
     val code: String,
     val name: String,
@@ -45,4 +50,35 @@ data class EmbeddingModelRecommendationRequest(
 data class EmbeddingModelRecommendationResponse(
     val recommended: EmbeddingModelDto?,
     val alternatives: List<EmbeddingModelDto>
+)
+
+data class LlmModelDto(
+    val id: String,
+    val name: String,
+    val modelId: String,
+    val description: String,
+    val provider: String,
+    val providerType: LlmProviderType,
+    val maxTokens: Int,
+    val contextWindow: Int,
+    val supportsStreaming: Boolean,
+    val supportsFunctionCalling: Boolean,
+    val privacyLevel: LlmPrivacyLevel,
+    val minTier: SubscriptionTier,
+    val costPer1kInputTokens: BigDecimal?,
+    val costPer1kOutputTokens: BigDecimal?,
+    val baseUrl: String?,
+    val enabled: Boolean,
+    val isDefault: Boolean,
+    val capabilities: Set<String>
+)
+
+data class LlmModelRecommendationRequest(
+    val requiresPrivacy: Boolean = true,
+    val requiredCapabilities: Set<String> = emptySet()
+)
+
+data class LlmModelRecommendationResponse(
+    val recommended: LlmModelDto?,
+    val alternatives: List<LlmModelDto>
 )

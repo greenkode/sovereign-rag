@@ -8,5 +8,6 @@ data class UpdateKnowledgeBaseCommand(
     val knowledgeBaseId: String,
     val organizationId: UUID,
     val name: String?,
-    val description: String?
+    val description: String?,
+    val llmModelId: String? = null
 ) : Command<KnowledgeBaseDto>

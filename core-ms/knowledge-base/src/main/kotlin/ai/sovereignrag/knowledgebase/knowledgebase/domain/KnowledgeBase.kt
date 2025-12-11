@@ -65,6 +65,9 @@ data class KnowledgeBase(
     @Column(name = "embedding_model_id", length = 100)
     override val embeddingModelId: String? = null,
 
+    @Column(name = "llm_model_id", length = 100)
+    val llmModelId: String? = null,
+
     @Column(name = "requires_encryption", nullable = false)
     val requiresEncryption: Boolean = false,
 

@@ -52,6 +52,7 @@ class KnowledgeBaseRegistryService(
         regionCode: String,
         description: String? = null,
         embeddingModelId: String? = null,
+        llmModelId: String? = null,
         requiresEncryption: Boolean? = null,
         contactEmail: String? = null,
         contactName: String? = null
@@ -67,6 +68,7 @@ class KnowledgeBaseRegistryService(
             regionCode = regionCode,
             status = KnowledgeBaseStatus.ACTIVE,
             embeddingModelId = embeddingModelId,
+            llmModelId = llmModelId,
             requiresEncryption = requiresEncryption ?: false,
             contactEmail = contactEmail,
             contactName = contactName
