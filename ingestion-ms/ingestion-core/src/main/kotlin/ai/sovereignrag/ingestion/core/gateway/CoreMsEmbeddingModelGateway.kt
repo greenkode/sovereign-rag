@@ -118,7 +118,8 @@ private data class EmbeddingModelConfigDto(
     val provider: String,
     val dimensions: Int,
     val maxTokens: Int,
-    val baseUrl: String?
+    val baseUrl: String?,
+    val apiKey: String? = null
 ) {
     fun toConfig(): EmbeddingModelConfig = object : EmbeddingModelConfig {
         override val id: String = this@EmbeddingModelConfigDto.id
@@ -128,5 +129,6 @@ private data class EmbeddingModelConfigDto(
         override val dimensions: Int = this@EmbeddingModelConfigDto.dimensions
         override val maxTokens: Int = this@EmbeddingModelConfigDto.maxTokens
         override val baseUrl: String? = this@EmbeddingModelConfigDto.baseUrl
+        override val apiKey: String? = this@EmbeddingModelConfigDto.apiKey
     }
 }

@@ -140,7 +140,8 @@ class EmbeddingServiceTest {
         modelId: String = id,
         dimensions: Int = 1536,
         maxTokens: Int = 8191,
-        baseUrl: String? = null
+        baseUrl: String? = null,
+        apiKey: String? = null
     ): EmbeddingModelConfig {
         return object : EmbeddingModelConfig {
             override val id: String = id
@@ -150,6 +151,7 @@ class EmbeddingServiceTest {
             override val dimensions: Int = dimensions
             override val maxTokens: Int = maxTokens
             override val baseUrl: String? = baseUrl
+            override val apiKey: String? = apiKey
         }
     }
 }

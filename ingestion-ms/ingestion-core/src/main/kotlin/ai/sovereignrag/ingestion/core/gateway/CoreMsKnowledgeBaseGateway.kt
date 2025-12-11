@@ -110,7 +110,14 @@ private data class KnowledgeBaseInfoDto(
     val regionCode: String,
     val schemaName: String,
     val status: String,
-    val embeddingModelId: String?
+    val embeddingModelId: String?,
+    val llmModelId: String? = null,
+    val requiresEncryption: Boolean = false,
+    val systemPrompt: String? = null,
+    val maxRetrievalResults: Int = 5,
+    val minSimilarityScore: Double = 0.7,
+    val maxHistoryMessages: Int = 20,
+    val enableRemiEvaluation: Boolean = false
 ) {
     fun toInfo(): KnowledgeBaseInfo = object : KnowledgeBaseInfo {
         override val id: String = this@KnowledgeBaseInfoDto.id
@@ -121,6 +128,13 @@ private data class KnowledgeBaseInfoDto(
         override val oauthClientId: String? = null
         override val apiKeyHash: String? = null
         override val embeddingModelId: String? = this@KnowledgeBaseInfoDto.embeddingModelId
+        override val llmModelId: String? = this@KnowledgeBaseInfoDto.llmModelId
+        override val requiresEncryption: Boolean = this@KnowledgeBaseInfoDto.requiresEncryption
+        override val systemPrompt: String? = this@KnowledgeBaseInfoDto.systemPrompt
+        override val maxRetrievalResults: Int = this@KnowledgeBaseInfoDto.maxRetrievalResults
+        override val minSimilarityScore: Double = this@KnowledgeBaseInfoDto.minSimilarityScore
+        override val maxHistoryMessages: Int = this@KnowledgeBaseInfoDto.maxHistoryMessages
+        override val enableRemiEvaluation: Boolean = this@KnowledgeBaseInfoDto.enableRemiEvaluation
     }
 }
 

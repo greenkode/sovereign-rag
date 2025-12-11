@@ -9,6 +9,8 @@ import ai.sovereignrag.ingestion.commons.entity.JobStatus
 import ai.sovereignrag.ingestion.commons.entity.JobType
 import ai.sovereignrag.ingestion.commons.repository.IngestionJobRepository
 import ai.sovereignrag.ingestion.core.embedding.EmbeddingService
+import ai.sovereignrag.ingestion.core.metrics.AsyncQualityEvaluationService
+import ai.sovereignrag.ingestion.core.metrics.IngestionMetrics
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.every
@@ -31,6 +33,8 @@ class EmbeddingProcessorTest {
     private val embeddingModelGateway: EmbeddingModelGateway = mockk()
     private val jobRepository: IngestionJobRepository = mockk()
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
+    private val asyncQualityService: AsyncQualityEvaluationService = mockk(relaxed = true)
+    private val ingestionMetrics: IngestionMetrics = mockk(relaxed = true)
 
     private lateinit var processor: EmbeddingProcessor
 
@@ -45,7 +49,9 @@ class EmbeddingProcessorTest {
             embeddingGateway,
             embeddingModelGateway,
             jobRepository,
-            objectMapper
+            objectMapper,
+            asyncQualityService,
+            ingestionMetrics
         )
     }
 
@@ -217,6 +223,7 @@ class EmbeddingProcessorTest {
             override val dimensions: Int = 1536
             override val maxTokens: Int = 8191
             override val baseUrl: String? = null
+            override val apiKey: String? = null
         }
     }
 }

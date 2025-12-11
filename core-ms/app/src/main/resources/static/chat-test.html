@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Streaming Test - SovereignRAG</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .config-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .config-section h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .chat-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .chat-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chat-panel {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+
+        .badge-mvc {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-reactive {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .message-user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+        }
+
+        .message-assistant {
+            align-self: flex-start;
+            background: #f1f5f9;
+            color: var(--text);
+        }
+
+        .message-system {
+            align-self: center;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .message-error {
+            align-self: center;
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 0.75rem;
+        }
+
+        .streaming-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.9); }
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-input-area textarea {
+            flex: 1;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-primary:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .metrics {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+        }
+
+        .metrics span {
+            margin-right: 1rem;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.375rem;
+        }
+
+        .status-idle { background: #94a3b8; }
+        .status-connecting { background: #f59e0b; }
+        .status-streaming { background: var(--success); }
+        .status-error { background: var(--error); }
+
+        .hidden { display: none; }
+
+        .auth-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chat Streaming Test</h1>
+        <p class="subtitle">Compare SseEmitter (MVC) vs WebFlux (Reactive) streaming implementations</p>
+
+        <div class="config-section auth-section">
+            <h2>Authentication & Configuration</h2>
+            <div class="config-grid">
+                <div class="form-group">
+                    <label for="authToken">JWT Token</label>
+                    <input type="text" id="authToken" placeholder="Enter your JWT token">
+                </div>
+                <div class="form-group">
+                    <label for="knowledgeBaseId">Knowledge Base ID</label>
+                    <input type="text" id="knowledgeBaseId" placeholder="e.g., 550e8400-e29b-41d4-a716-446655440000">
+                </div>
+                <div class="form-group">
+                    <label for="apiBaseUrl">API Base URL</label>
+                    <input type="text" id="apiBaseUrl" value="http://localhost:8080">
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-panel" id="mvcPanel">
+                <div class="chat-header">
+                    <div>
+                        <h3>SseEmitter (MVC)</h3>
+                        <small style="color: var(--text-muted)">/api/v1/knowledge-bases/{id}/chat/stream</small>
+                    </div>
+                    <span class="badge badge-mvc">Thread-per-connection</span>
+                </div>
+                <div class="chat-messages" id="mvcMessages"></div>
+                <div class="metrics" id="mvcMetrics">
+                    <span><span class="status-dot status-idle" id="mvcStatusDot"></span>Idle</span>
+                    <span id="mvcTokenCount">Tokens: 0</span>
+                    <span id="mvcLatency">Latency: --</span>
+                </div>
+                <div class="chat-input-area">
+                    <textarea id="mvcInput" placeholder="Type your message..." rows="1"></textarea>
+                    <button class="btn btn-primary" id="mvcSendBtn" onclick="sendMvcMessage()">Send</button>
+                    <button class="btn btn-secondary" onclick="clearChat('mvc')">Clear</button>
+                </div>
+            </div>
+
+            <div class="chat-panel" id="reactivePanel">
+                <div class="chat-header">
+                    <div>
+                        <h3>WebFlux (Reactive)</h3>
+                        <small style="color: var(--text-muted)">/api/v1/knowledge-bases/{id}/chat/stream/reactive</small>
+                    </div>
+                    <span class="badge badge-reactive">Event-loop</span>
+                </div>
+                <div class="chat-messages" id="reactiveMessages"></div>
+                <div class="metrics" id="reactiveMetrics">
+                    <span><span class="status-dot status-idle" id="reactiveStatusDot"></span>Idle</span>
+                    <span id="reactiveTokenCount">Tokens: 0</span>
+                    <span id="reactiveLatency">Latency: --</span>
+                </div>
+                <div class="chat-input-area">
+                    <textarea id="reactiveInput" placeholder="Type your message..." rows="1"></textarea>
+                    <button class="btn btn-primary" id="reactiveSendBtn" onclick="sendReactiveMessage()">Send</button>
+                    <button class="btn btn-secondary" onclick="clearChat('reactive')">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="config-section" style="margin-top: 1.5rem;">
+            <h2>Concurrent Load Test</h2>
+            <div class="config-grid">
+                <div class="form-group">
+                    <label for="testMessage">Test Message</label>
+                    <input type="text" id="testMessage" value="What information do you have?">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="sendBoth()">Send to Both</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            mvc: { conversationId: null, tokenCount: 0, startTime: null, eventSource: null },
+            reactive: { conversationId: null, tokenCount: 0, startTime: null, eventSource: null }
+        };
+
+        function getConfig() {
+            return {
+                authToken: document.getElementById('authToken').value,
+                knowledgeBaseId: document.getElementById('knowledgeBaseId').value,
+                apiBaseUrl: document.getElementById('apiBaseUrl').value.replace(/\/$/, '')
+            };
+        }
+
+        function updateStatus(panel, status) {
+            const dot = document.getElementById(`${panel}StatusDot`);
+            dot.className = `status-dot status-${status}`;
+            const statusText = {
+                idle: 'Idle',
+                connecting: 'Connecting...',
+                streaming: 'Streaming',
+                error: 'Error'
+            };
+            dot.parentElement.innerHTML = `<span class="status-dot status-${status}"></span>${statusText[status]}`;
+        }
+
+        function addMessage(panel, type, content) {
+            const container = document.getElementById(`${panel}Messages`);
+            const msg = document.createElement('div');
+            msg.className = `message message-${type}`;
+            msg.textContent = content;
+            container.appendChild(msg);
+            container.scrollTop = container.scrollHeight;
+            return msg;
+        }
+
+        function updateTokenCount(panel) {
+            state[panel].tokenCount++;
+            document.getElementById(`${panel}TokenCount`).textContent = `Tokens: ${state[panel].tokenCount}`;
+        }
+
+        function updateLatency(panel) {
+            if (state[panel].startTime) {
+                const latency = Date.now() - state[panel].startTime;
+                document.getElementById(`${panel}Latency`).textContent = `Time: ${latency}ms`;
+            }
+        }
+
+        function clearChat(panel) {
+            document.getElementById(`${panel}Messages`).innerHTML = '';
+            state[panel].conversationId = null;
+            state[panel].tokenCount = 0;
+            document.getElementById(`${panel}TokenCount`).textContent = 'Tokens: 0';
+            document.getElementById(`${panel}Latency`).textContent = 'Latency: --';
+            updateStatus(panel, 'idle');
+        }
+
+        async function sendMvcMessage() {
+            const input = document.getElementById('mvcInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const config = getConfig();
+            if (!config.knowledgeBaseId) {
+                alert('Please enter a Knowledge Base ID');
+                return;
+            }
+
+            input.value = '';
+            addMessage('mvc', 'user', message);
+            state.mvc.startTime = Date.now();
+            state.mvc.tokenCount = 0;
+            updateStatus('mvc', 'connecting');
+
+            document.getElementById('mvcSendBtn').disabled = true;
+
+            const url = `${config.apiBaseUrl}/api/v1/knowledge-bases/${config.knowledgeBaseId}/chat/stream`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': config.authToken ? `Bearer ${config.authToken}` : '',
+                        'Accept': 'text/event-stream'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationId: state.mvc.conversationId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                updateStatus('mvc', 'streaming');
+                const assistantMsg = addMessage('mvc', 'assistant', '');
+                let fullText = '';
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('event:')) {
+                            continue;
+                        }
+                        if (line.startsWith('data:')) {
+                            const data = line.slice(5).trim();
+                            if (!data) continue;
+
+                            try {
+                                if (data.startsWith('{')) {
+                                    const parsed = JSON.parse(data);
+                                    if (parsed.conversationId) {
+                                        state.mvc.conversationId = parsed.conversationId;
+                                    }
+                                    if (parsed.fullResponse) {
+                                        assistantMsg.textContent = parsed.fullResponse;
+                                        updateLatency('mvc');
+                                    }
+                                } else {
+                                    fullText += data;
+                                    assistantMsg.textContent = fullText;
+                                    updateTokenCount('mvc');
+                                }
+                            } catch (e) {
+                                fullText += data;
+                                assistantMsg.textContent = fullText;
+                                updateTokenCount('mvc');
+                            }
+                        }
+                    }
+                }
+
+                updateStatus('mvc', 'idle');
+            } catch (error) {
+                console.error('MVC Error:', error);
+                addMessage('mvc', 'error', `Error: ${error.message}`);
+                updateStatus('mvc', 'error');
+            } finally {
+                document.getElementById('mvcSendBtn').disabled = false;
+            }
+        }
+
+        async function sendReactiveMessage() {
+            const input = document.getElementById('reactiveInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const config = getConfig();
+            if (!config.knowledgeBaseId) {
+                alert('Please enter a Knowledge Base ID');
+                return;
+            }
+
+            input.value = '';
+            addMessage('reactive', 'user', message);
+            state.reactive.startTime = Date.now();
+            state.reactive.tokenCount = 0;
+            updateStatus('reactive', 'connecting');
+
+            document.getElementById('reactiveSendBtn').disabled = true;
+
+            const url = `${config.apiBaseUrl}/api/v1/knowledge-bases/${config.knowledgeBaseId}/chat/stream/reactive`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': config.authToken ? `Bearer ${config.authToken}` : '',
+                        'Accept': 'text/event-stream'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationId: state.reactive.conversationId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                updateStatus('reactive', 'streaming');
+                const assistantMsg = addMessage('reactive', 'assistant', '');
+                let fullText = '';
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('event:')) {
+                            continue;
+                        }
+                        if (line.startsWith('data:')) {
+                            const data = line.slice(5).trim();
+                            if (!data) continue;
+
+                            try {
+                                const parsed = JSON.parse(data);
+                                if (parsed.conversationId) {
+                                    state.reactive.conversationId = parsed.conversationId;
+                                }
+                                if (parsed.content) {
+                                    fullText += parsed.content;
+                                    assistantMsg.textContent = fullText;
+                                    updateTokenCount('reactive');
+                                }
+                                if (parsed.fullResponse) {
+                                    assistantMsg.textContent = parsed.fullResponse;
+                                    updateLatency('reactive');
+                                }
+                            } catch (e) {
+                                fullText += data;
+                                assistantMsg.textContent = fullText;
+                                updateTokenCount('reactive');
+                            }
+                        }
+                    }
+                }
+
+                updateStatus('reactive', 'idle');
+            } catch (error) {
+                console.error('Reactive Error:', error);
+                addMessage('reactive', 'error', `Error: ${error.message}`);
+                updateStatus('reactive', 'error');
+            } finally {
+                document.getElementById('reactiveSendBtn').disabled = false;
+            }
+        }
+
+        function sendBoth() {
+            const testMessage = document.getElementById('testMessage').value;
+            document.getElementById('mvcInput').value = testMessage;
+            document.getElementById('reactiveInput').value = testMessage;
+
+            sendMvcMessage();
+            sendReactiveMessage();
+        }
+
+        document.getElementById('mvcInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMvcMessage();
+            }
+        });
+
+        document.getElementById('reactiveInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendReactiveMessage();
+            }
+        });
+    </script>
+</body>
+</html>
