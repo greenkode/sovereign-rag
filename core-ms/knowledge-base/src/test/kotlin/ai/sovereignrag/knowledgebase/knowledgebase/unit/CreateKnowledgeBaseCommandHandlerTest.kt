@@ -81,7 +81,7 @@ class CreateKnowledgeBaseCommandHandlerTest {
         every { processGateway.createProcess(capture(processPayloadSlot)) } returns mockProcess
         every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId, any()) } just runs
         every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any(), any()) } just runs
-        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
+        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
         every { identityServiceGateway.createKBOAuthClient(organizationId, any(), any()) } returns mockCredentials
         every { knowledgeBaseRegistryService.updateOauthClientId(any(), any()) } just runs
         every { processGateway.completeProcess(any(), any()) } just runs
@@ -103,7 +103,7 @@ class CreateKnowledgeBaseCommandHandlerTest {
         verify { processGateway.createProcess(any()) }
         verify { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId, "eu-west") }
         verify { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any(), "eu-west") }
-        verify { knowledgeBaseRegistryService.createKnowledgeBase(any(), eq("Test Knowledge Base"), eq(organizationId), any(), eq("eu-west"), any(), any(), any()) }
+        verify { knowledgeBaseRegistryService.createKnowledgeBase(any(), eq("Test Knowledge Base"), eq(organizationId), any(), eq("eu-west"), any(), any(), any(), any(), any(), any(), any()) }
         verify { identityServiceGateway.createKBOAuthClient(organizationId, any(), eq("Test Knowledge Base")) }
         verify { processGateway.completeProcess(processId, 1L) }
     }
@@ -128,7 +128,7 @@ class CreateKnowledgeBaseCommandHandlerTest {
         every { processGateway.createProcess(capture(processPayloadSlot)) } returns mockProcess
         every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId, any()) } just runs
         every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any(), any()) } just runs
-        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
+        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
         every { identityServiceGateway.createKBOAuthClient(organizationId, any(), any()) } returns mockCredentials
         every { knowledgeBaseRegistryService.updateOauthClientId(any(), any()) } just runs
         every { processGateway.completeProcess(any(), any()) } just runs
@@ -161,7 +161,7 @@ class CreateKnowledgeBaseCommandHandlerTest {
         every { processGateway.createProcess(capture(processPayloadSlot)) } returns mockProcess
         every { organizationDatabaseService.ensureOrganizationDatabaseExists(organizationId, any()) } just runs
         every { organizationDatabaseService.createKnowledgeBaseSchema(organizationId, any(), any()) } just runs
-        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
+        every { knowledgeBaseRegistryService.createKnowledgeBase(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns mockKnowledgeBase
         every { identityServiceGateway.createKBOAuthClient(organizationId, any(), any()) } returns mockCredentials
         every { knowledgeBaseRegistryService.updateOauthClientId(any(), any()) } just runs
         every { processGateway.completeProcess(any(), any()) } just runs

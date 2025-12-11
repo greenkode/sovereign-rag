@@ -48,6 +48,8 @@ data class LlmModel(
     @Enumerated(EnumType.STRING)
     val minTier: SubscriptionTier = SubscriptionTier.TRIAL,
 
+    val minTierPriority: Int = minTier.priority,
+
     val costPer1kInputTokens: BigDecimal? = null,
     val costPer1kOutputTokens: BigDecimal? = null,
     val baseUrl: String? = null,

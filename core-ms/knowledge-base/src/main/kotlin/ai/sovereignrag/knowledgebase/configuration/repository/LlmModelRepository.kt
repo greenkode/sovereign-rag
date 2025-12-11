@@ -22,7 +22,7 @@ interface LlmModelRepository : JpaRepository<LlmModel, String> {
     @Query("""
         SELECT m FROM LlmModel m
         WHERE m.enabled = true
-        AND m.minTier.priority <= :tierPriority
+        AND m.minTierPriority <= :tierPriority
         ORDER BY m.sortOrder
     """)
     fun findAccessibleByTier(tierPriority: Int): List<LlmModel>
@@ -40,7 +40,7 @@ interface LlmModelRepository : JpaRepository<LlmModel, String> {
         JOIN m.capabilities c
         WHERE c IN :capabilities
         AND m.enabled = true
-        AND m.minTier.priority <= :tierPriority
+        AND m.minTierPriority <= :tierPriority
         ORDER BY m.sortOrder
     """)
     fun findByCapabilitiesAndTier(capabilities: Set<String>, tierPriority: Int): List<LlmModel>
@@ -49,7 +49,7 @@ interface LlmModelRepository : JpaRepository<LlmModel, String> {
         SELECT m FROM LlmModel m
         WHERE m.enabled = true
         AND m.privacyLevel = :privacyLevel
-        AND m.minTier.priority <= :tierPriority
+        AND m.minTierPriority <= :tierPriority
         ORDER BY m.sortOrder
     """)
     fun findByPrivacyLevelAndTier(privacyLevel: LlmPrivacyLevel, tierPriority: Int): List<LlmModel>
@@ -66,7 +66,7 @@ interface LlmModelRepository : JpaRepository<LlmModel, String> {
         SELECT m FROM LlmModel m
         WHERE m.enabled = true
         AND m.providerType = ai.sovereignrag.knowledgebase.configuration.domain.LlmProviderType.CLOUD
-        AND m.minTier.priority <= :tierPriority
+        AND m.minTierPriority <= :tierPriority
         ORDER BY m.sortOrder
     """)
     fun findCloudModelsAccessibleByTier(tierPriority: Int): List<LlmModel>

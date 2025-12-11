@@ -90,6 +90,7 @@
         <module>process</module>
         <module>scheduler</module>
         <module>knowledge-base</module>
+        <module>test-commons</module>
     </modules>
 
     <dependencies>
