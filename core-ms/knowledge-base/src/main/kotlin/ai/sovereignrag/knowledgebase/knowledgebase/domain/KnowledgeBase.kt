@@ -66,10 +66,10 @@ data class KnowledgeBase(
     override val embeddingModelId: String? = null,
 
     @Column(name = "llm_model_id", length = 100)
-    val llmModelId: String? = null,
+    override val llmModelId: String? = null,
 
     @Column(name = "requires_encryption", nullable = false)
-    val requiresEncryption: Boolean = false,
+    override val requiresEncryption: Boolean = false,
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "features", columnDefinition = "jsonb")
@@ -91,6 +91,22 @@ data class KnowledgeBase(
     @Column(name = "deleted_at")
     val deletedAt: Instant? = null
 ) : KnowledgeBaseInfo, Serializable {
+
+    override val systemPrompt: String?
+        get() = settings["systemPrompt"] as? String
+
+    override val maxRetrievalResults: Int
+        get() = (settings["maxRetrievalResults"] as? Number)?.toInt() ?: 5
+
+    override val minSimilarityScore: Double
+        get() = (settings["minSimilarityScore"] as? Number)?.toDouble() ?: 0.7
+
+    override val maxHistoryMessages: Int
+        get() = (settings["maxHistoryMessages"] as? Number)?.toInt() ?: 20
+
+    override val enableRemiEvaluation: Boolean
+        get() = settings["enableRemiEvaluation"] as? Boolean ?: false
+
     companion object {
         private const val serialVersionUID = 1L
     }

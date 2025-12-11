@@ -51,6 +51,7 @@ data class LlmModel(
     val costPer1kInputTokens: BigDecimal? = null,
     val costPer1kOutputTokens: BigDecimal? = null,
     val baseUrl: String? = null,
+    val apiKey: String? = null,
     val enabled: Boolean = true,
     val isDefault: Boolean = false,
     val sortOrder: Int = 0,

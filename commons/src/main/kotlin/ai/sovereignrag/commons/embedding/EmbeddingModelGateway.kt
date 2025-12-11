@@ -18,6 +18,7 @@ interface EmbeddingModelConfig {
     val dimensions: Int
     val maxTokens: Int
     val baseUrl: String?
+    val apiKey: String?
 }
 
 data class EmbeddingModelNotFoundException(

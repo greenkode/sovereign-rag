@@ -55,7 +55,8 @@ class KnowledgeBaseRegistryService(
         llmModelId: String? = null,
         requiresEncryption: Boolean? = null,
         contactEmail: String? = null,
-        contactName: String? = null
+        contactName: String? = null,
+        settings: Map<String, Any> = emptyMap()
     ): KnowledgeBase {
         log.info { "Creating knowledge base: $id ($name) for organization: $organizationId in region: $regionCode" }
 
@@ -71,7 +72,8 @@ class KnowledgeBaseRegistryService(
             llmModelId = llmModelId,
             requiresEncryption = requiresEncryption ?: false,
             contactEmail = contactEmail,
-            contactName = contactName
+            contactName = contactName,
+            settings = settings
         )
 
         return knowledgeBaseRepository.save(knowledgeBase).also {

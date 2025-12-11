@@ -21,6 +21,13 @@ interface KnowledgeBaseInfo {
     val oauthClientId: String?
     val apiKeyHash: String?
     val embeddingModelId: String?
+    val llmModelId: String?
+    val requiresEncryption: Boolean
+    val systemPrompt: String?
+    val maxRetrievalResults: Int
+    val minSimilarityScore: Double
+    val maxHistoryMessages: Int
+    val enableRemiEvaluation: Boolean
 }
 
 enum class KnowledgeBaseStatus {

@@ -23,6 +23,7 @@ data class EmbeddingModel(
     override val dimensions: Int,
     override val maxTokens: Int,
     override val baseUrl: String? = null,
+    override val apiKey: String? = null,
     val enabled: Boolean = true,
     val sortOrder: Int = 0,
     val createdAt: Instant = Instant.now(),

@@ -8,6 +8,7 @@ import ai.sovereignrag.commons.process.enumeration.ProcessStakeholderType
 import ai.sovereignrag.commons.process.enumeration.ProcessState
 import ai.sovereignrag.commons.process.enumeration.ProcessType
 import ai.sovereignrag.commons.regional.RegionalDatabaseProperties
+import ai.sovereignrag.knowledgebase.knowledgebase.KnowledgeBaseDefaults
 import ai.sovereignrag.knowledgebase.knowledgebase.dto.CreateKnowledgeBaseResult
 import ai.sovereignrag.knowledgebase.knowledgebase.dto.KnowledgeBaseDto
 import ai.sovereignrag.knowledgebase.knowledgebase.gateway.IdentityServiceGateway
@@ -72,7 +73,8 @@ class CreateKnowledgeBaseCommandHandler(
             description = command.description,
             embeddingModelId = command.embeddingModelId,
             llmModelId = command.llmModelId,
-            requiresEncryption = command.requiresEncryption
+            requiresEncryption = command.requiresEncryption,
+            settings = KnowledgeBaseDefaults.createDefaultSettings(command.systemPrompt)
         )
 
         val credentials = identityServiceGateway.createKBOAuthClient(

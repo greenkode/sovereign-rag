@@ -12,5 +12,6 @@ data class CreateKnowledgeBaseCommand(
     val regionCode: String? = null,
     val embeddingModelId: String? = null,
     val llmModelId: String? = null,
-    val requiresEncryption: Boolean? = null
+    val requiresEncryption: Boolean? = null,
+    val systemPrompt: String? = null
 ) : Command<CreateKnowledgeBaseResult>
